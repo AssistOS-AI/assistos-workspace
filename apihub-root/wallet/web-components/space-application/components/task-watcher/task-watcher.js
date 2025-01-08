@@ -1,5 +1,3 @@
-const utilModule = require('assistos').loadModule('util', {});
-
 export class TaskWatcher {
     constructor(element, invalidate) {
         this.element = element;
@@ -8,7 +6,7 @@ export class TaskWatcher {
         this.boundOnTaskLog = this.onTaskLog.bind(this);
         this.historyLogQueue = [];
         this.logBuffer = [];
-        this.debouncedProcessLogBuffer =debounce(this.processLogBuffer.bind(this), 200);
+        this.debouncedProcessLogBuffer = debounce(this.processLogBuffer.bind(this), 200);
         this.renderedLogHistory = false;
         this.monitorPresenter = this.element.closest('notifications-monitor').webSkelPresenter;
         this.invalidate();
@@ -20,6 +18,7 @@ export class TaskWatcher {
     async afterRender() {
         this.logBox = this.element.querySelector('#logViewerContent');
         this.loadingSpinner = this.element.querySelector('#loadingSpinner');
+
         await assistOS.NotificationRouter.subscribeToSpace(
             assistOS.space.id,
             `${this.taskId}/logs`,
@@ -31,14 +30,15 @@ export class TaskWatcher {
             await this.processLogs(this.historyLogQueue);
             this.historyLogQueue = [];
         }
+
+        this.scrollToBottom();
     }
 
     async onTaskLog(logData) {
         if (!this.renderedLogHistory) {
             this.historyLogQueue.push(logData);
         } else {
-            this.logBuffer.push(logData);
-            this.debouncedProcessLogBuffer();
+            this.addLogEntry(logData);
         }
     }
 
@@ -57,10 +57,10 @@ export class TaskWatcher {
             const { type, message, data, time } = logData;
             const logEntry = document.createElement('log-entry');
             logEntry.setAttribute('data-presenter', 'log-entry');
-            logEntry.type= type;
-            logEntry.message=message;
-            logEntry.time=time;
-            logEntry.dataSet={};
+            logEntry.type = type;
+            logEntry.message = message;
+            logEntry.time = time;
+            logEntry.dataSet = {};
             if (data) {
                 Object.keys(data).forEach(key => {
                     logEntry.dataSet[key] = data[key];
@@ -70,12 +70,18 @@ export class TaskWatcher {
         });
 
         this.logBox.insertBefore(fragment, this.loadingSpinner);
+
         this.logBuffer = [];
 
         const maxLogs = 150;
-        while (this.logBox.children.length > maxLogs) {
-            this.logBox.removeChild(this.logBox.firstChild);
+        while (this.logBox.querySelectorAll('log-entry').length > maxLogs) {
+            const firstLogEntry = this.logBox.querySelector('log-entry');
+            if (firstLogEntry) {
+                this.logBox.removeChild(firstLogEntry);
+            }
         }
+
+        this.scrollToBottom();
     }
 
     async processLog(logData) {
@@ -103,6 +109,15 @@ export class TaskWatcher {
     async closeWatcher() {
         await assistOS.NotificationRouter.unsubscribeFromObject(`${assistOS.space.id}/${this.taskId}/logs`);
         this.element.remove();
+    }
+
+    scrollToBottom() {
+        requestAnimationFrame(() => {
+            if (this.logBox) {
+                console.log('Scrolling to bottom:', this.logBox.scrollHeight);
+                this.logBox.scrollTop = this.logBox.scrollHeight;
+            }
+        });
     }
 }
 

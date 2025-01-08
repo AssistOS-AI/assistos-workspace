@@ -1,9 +1,12 @@
-task-watcher{
+task-watcher {
     display: none;
 }
-.active{
-    display: block;
+
+task-watcher.active {
+    display: flex;
+    flex-direction: column;
 }
 
-
-
+.active {
+    display: block;
+}
