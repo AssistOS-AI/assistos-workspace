@@ -486,6 +486,21 @@ async function getSpaceCollaborators(request, response) {
         });
     }
 }
+async function setSpaceCollaboratorRole(request, response) {
+    const spaceId = request.params.spaceId;
+    const collaboratorId = request.params.collaboratorId;
+    const role = request.body.role;
+    try {
+        let message = await space.APIs.setSpaceCollaboratorRole(request.userId, spaceId, collaboratorId, role);
+        utils.sendResponse(response, 200, "application/json", {
+            data: message
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
 async function deleteSpaceCollaborator(request, response) {
     const spaceId = request.params.spaceId;
     const collaboratorId = request.params.collaboratorId;
@@ -506,7 +521,6 @@ async function deleteSpaceCollaborator(request, response) {
     }
 }
 async function addCollaboratorsToSpace(request, response) {
-    /* TODO Check if the user has access to that space and has the right to add an user */
     const userId = request.userId;
     const spaceId = request.params.spaceId;
     const collaborators = request.body.collaborators;
@@ -1133,6 +1147,7 @@ module.exports = {
     deleteSpace,
     getSpaceCollaborators,
     deleteSpaceCollaborator,
+    setSpaceCollaboratorRole,
     addCollaboratorsToSpace,
     getAgent,
     editAPIKey,

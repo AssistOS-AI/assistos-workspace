@@ -20,6 +20,7 @@ const {
     createSpace,
     addCollaboratorsToSpace,
     getSpaceCollaborators,
+    setSpaceCollaboratorRole,
     deleteSpaceCollaborator,
     getAgent,
     addSpaceChatMessage,
@@ -106,6 +107,7 @@ function SpaceStorage(server) {
     /*Collaborators*/
     server.get("/spaces/collaborators/:spaceId", getSpaceCollaborators);
     server.post("/spaces/collaborators/:spaceId", addCollaboratorsToSpace);
+    server.put("/spaces/collaborators/:spaceId/:collaboratorId", setSpaceCollaboratorRole);
     server.delete("/spaces/collaborators/:spaceId/:collaboratorId", deleteSpaceCollaborator);
 
     server.post("/spaces/:spaceId/chat", addSpaceChatMessage);

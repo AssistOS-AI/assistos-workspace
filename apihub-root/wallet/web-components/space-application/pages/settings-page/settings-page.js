@@ -50,7 +50,11 @@ export class SettingsPage {
             for(let collaborator of collaborators){
                 collaboratorsHTML += `<div class="collaborator-item">
                                         <div class="collaborator-email"> ${collaborator.email}</div>
-                                        <div class="collaborator-role"> ${collaborator.role}</div>
+                                        <select class="collaborator-role" data-user-id="${collaborator.id}">
+                                            <option value="member" ${collaborator.role === "member" ? "selected" : ""}>Member</option>
+                                            <option value="admin" ${collaborator.role === "admin" ? "selected" : ""}>Admin</option>
+                                            <option value="owner" ${collaborator.role === "owner" ? "selected" : ""}>Owner</option>
+                                        </select>
                                         <div class="delete-collaborator">
                                             <img class="trash-icon" data-local-action="deleteCollaborator ${collaborator.id} ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                                         </div>
@@ -90,6 +94,20 @@ export class SettingsPage {
             deleteButton.style.display = "none";
         }
         this.setContext();
+        if(this.collaboratorsTab === "active"){
+            let collaboratorsRoles = this.element.querySelectorAll(".collaborator-role");
+            for(let role of collaboratorsRoles){
+                role.addEventListener("change", async (e)=>{
+                    let userId = e.target.getAttribute("data-user-id");
+                    let role = e.target.value;
+                    let message = await spaceModule.setSpaceCollaboratorRole(assistOS.space.id, userId, role);
+                    if(message){
+                        alert(message);
+                    }
+                    this.invalidate();
+                });
+            }
+        }
     }
     changeTab(_eventTarget, tabName) {
         if(tabName === "spaceSettingsTab"){
