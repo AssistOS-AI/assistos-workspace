@@ -34,6 +34,7 @@ async function getRecord(spaceId, tableId, objectId) {
 async function getAllRecords(spaceId, objectId) {
     const dbClient = loadDatabaseClient(spaceId);
     console.log(`----------spaceId: ${spaceId} objectId: ${objectId}------------------------`);
+    console.log(`----------dbClient: ${dbClient.toString()}------------------------`);
     return await $$.promisify(dbClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
 }
 
