@@ -70,7 +70,7 @@ const migrateTable = async (structuredLokiEnclaveFacadeInstance, tableName, part
 const migrateAllTables = async (structuredLokiEnclaveFacadeInstance, partitionedLokiEnclaveFacadeInstance) => {
     const tables = await $$.promisify(structuredLokiEnclaveFacadeInstance.getCollections)($$.SYSTEM_IDENTIFIER);
     console.log("===============================================================================================")
-    console.log(`Migrating ${tables.length} tables`);
+    console.log(`Migrating ${tables.length} tables`, tables);
     console.log("===============================================================================================")
     for (let table of tables) {
         await migrateTable(structuredLokiEnclaveFacadeInstance, table, partitionedLokiEnclaveFacadeInstance);
@@ -93,7 +93,7 @@ const migrateDatabase = async (folderPath, renamedFolderPath, migratedPath, fold
 
     renameFolderAndUpdateFile(folderPath, renamedFolderPath, folderName, renamedFolderName);
 
-    const structuredLokiEnclaveFacade = LokiEnclaveFacade.createLokiEnclaveFacadeInstance(path.join(renamedFolderPath, 'database'), undefined, LokiEnclaveFacade.Adapters.STRUCTURED);
+    const structuredLokiEnclaveFacade = LokiEnclaveFacade.createLokiEnclaveFacadeInstance(path.join(renamedFolderPath, 'database'), undefined, LokiEnclaveFacade.Adapters.PARTITIONED);
     const partitionedLokiEnclaveFacade = LokiEnclaveFacade.createLokiEnclaveFacadeInstance(path.join(folderPath, 'database'), undefined, LokiEnclaveFacade.Adapters.FS);
 
     await migrateAllTables(structuredLokiEnclaveFacade, partitionedLokiEnclaveFacade);
