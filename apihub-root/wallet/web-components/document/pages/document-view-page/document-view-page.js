@@ -152,6 +152,7 @@ export class DocumentViewPage {
                 this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
             });
         }
+        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color")||"#000000");
     }
 
     renderDocumentTitle() {
@@ -409,7 +410,7 @@ export class DocumentViewPage {
         }
         this.setContext();
         this.timer = new executorTimer(saveFunction, 10000);
-        targetElement.addEventListener("keydown", resetTimerFunction);
+        targetElement.addEventListener("keyup", resetTimerFunction);
     }
 
     executeDownload(targetElement, url) {

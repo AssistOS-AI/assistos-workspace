@@ -120,7 +120,6 @@ textarea.paragraph-commands{
 }
 
 .paragraph-text {
-    text-indent: 20px;
     overflow: hidden;
     resize: none;
     border: none;
@@ -131,6 +130,7 @@ textarea.paragraph-commands{
     white-space: pre-wrap;
     min-height: 38px;
     height: fit-content;
+    line-height: 1.5;
     flex-wrap: wrap;
     width: 100%;
     overflow-wrap: break-word;

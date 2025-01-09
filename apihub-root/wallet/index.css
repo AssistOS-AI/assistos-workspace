@@ -72,6 +72,7 @@
     --selected-chat-outline: #0000000D;
     --tab: #ECECEC;
     --action-box-text: #114C59;
+    --document-font-color: #000000;
 }
 
 * {
@@ -611,5 +612,65 @@ dialog {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+.xx-small{
+    font-size:8px;
+}
+.x-small {
+    font-size: 10px;
+}
+.small {
+    font-size: 12px;
+}
+.medium {
+    font-size: 14px;
+}
+.large {
+    font-size: 16px;
+}
+.x-large {
+    font-size: 18px;
+}
+.xx-large {
+    font-size: 20px;
+}
+.xxx-large {
+    font-size: 22px;
+}
+.xxxx-large {
+    font-size: 24px;
+}
+.xxxxx-large {
+    font-size: 28px;
+}
 
-/* AiAuthor end*/
+.xxxxxx-large {
+    font-size: 32px;
+}
+
+.xxxxxxx-large {
+    font-size: 36px;
+}
+.xxxxxxxx-large {
+    font-size: 48px;
+}
+.xxxxxxxxx-large {
+    font-size: 72px;
+}
+.font-georgia{
+    font-family: Georgia, serif;
+}
+.font-arial{
+    font-family: Arial, sans-serif;
+}
+.font-times-new-roman{
+    font-family: Times New Roman, serif;
+}
+.font-verdana{
+    font-family: Verdana, sans-serif;
+}
+.font-courier-new{
+    font-family: Courier New, monospace;
+}
+.font-color{
+    color: var(--document-font-color);
+}

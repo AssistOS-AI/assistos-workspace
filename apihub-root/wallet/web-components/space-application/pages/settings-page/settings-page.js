@@ -6,9 +6,10 @@ export class SettingsPage {
         this.invalidate = invalidate;
         this.spaceSettingsTab = "active";
         this.collaboratorsTab = "";
+        this.preferencesTab = "";
         this.getAPIKeys = async () => {
             this.apiKeys = await spaceModule.getAPIKeysMetadata(assistOS.space.id);
-        }
+        };
         this.invalidate(this.getAPIKeys);
     }
 
@@ -43,8 +44,13 @@ export class SettingsPage {
                     </div>
                     <div class="table-rows">${apiKeys}</div>
                 </div>
-            </div>`;
-        } else {
+            </div>
+            <div class="tab-footer">
+                <button class="general-button" id="delete-space-button" data-local-action="deleteSpace">Delete Space</button>
+            </div>`
+            ;
+
+        } else if(this.collaboratorsTab === "active"){
             let collaborators = await spaceModule.getSpaceCollaborators(assistOS.space.id);
             let collaboratorsHTML = "";
             for(let collaborator of collaborators){
@@ -69,8 +75,49 @@ export class SettingsPage {
                                         ${collaboratorsHTML}
                                     </div>
                                </div>`;
+        }else {
+            const selectedSize = parseInt(localStorage.getItem("document-font-size"), 10) || 16; // Convert to number
+            const selectedFont = localStorage.getItem("document-font-family") || "Arial";
+            const selectedColor = localStorage.getItem("document-font-color") || "#000000";
+
+            this.tabContent = `
+        <div id="preferences-container">
+            <div class="preferences-section">
+                <div class="preferences-header">
+                    <span class="preferences-label">Document</span>
+                </div>
+                <div class="preferences-content">
+                    <div class="preferences-list">
+                        <div class="preference">
+                            <label for="document-font-size">Document Font Size</label>
+                            <select id="document-font-size" name="document-font-size">
+                                ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
+                .map(size => `
+                                        <option value="${size}" ${size === selectedSize ? "selected" : ""}>${size}px</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                        <div class="preference">
+                            <label for="document-font-family">Document Font Family</label>
+                            <select id="document-font-family" name="document-font-family">
+                                ${["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"]
+                .map(font => `
+                                        <option value="${font}" ${font === selectedFont ? "selected" : ""}>${font}</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                        <div class="preference">
+                            <label for="document-font-color">Document Font Color</label>
+                            <input type="color" id="document-font-color" name="document-font-color" value="${selectedColor}">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>`;
         }
-    }
+        }
     addCollaborator(){
         assistOS.UI.showModal("add-space-collaborator-modal");
     }
@@ -87,13 +134,17 @@ export class SettingsPage {
         }
     }
     afterRender() {
-        let deleteButton = this.element.querySelector("#delete-space-button");
-        if (assistOS.user.id !== assistOS.space.id) {
-            deleteButton.style.display = "block";
-        } else {
-            deleteButton.style.display = "none";
-        }
-        this.setContext();
+        this.element.addEventListener("change", (event) => {
+            const id = event.target.id;
+
+            if (id === "document-font-size") {
+                localStorage.setItem("document-font-size", event.target.value);
+            } else if (id === "document-font-family") {
+                localStorage.setItem("document-font-family", event.target.value);
+            } else if (id === "document-font-color") {
+                localStorage.setItem("document-font-color", event.target.value);
+            }
+        });
         if(this.collaboratorsTab === "active"){
             let collaboratorsRoles = this.element.querySelectorAll(".collaborator-role");
             for(let role of collaboratorsRoles){
@@ -113,9 +164,15 @@ export class SettingsPage {
         if(tabName === "spaceSettingsTab"){
             this.spaceSettingsTab = "active";
             this.collaboratorsTab = "";
-        } else {
-            this.spaceSettingsTab = "";
+            this.preferencesTab = "";
+        } else if(tabName === "collaboratorsTab"){
             this.collaboratorsTab = "active";
+            this.spaceSettingsTab = "";
+            this.preferencesTab = "";
+        }else{
+            this.preferencesTab = "active";
+            this.spaceSettingsTab = "";
+            this.collaboratorsTab = "";
         }
         this.invalidate();
     }
