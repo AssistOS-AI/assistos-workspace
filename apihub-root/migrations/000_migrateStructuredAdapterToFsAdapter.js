@@ -46,6 +46,9 @@ const migrateTable = async (structuredLokiEnclaveFacadeInstance, tableName, part
     let records;
     try {
         records = await $$.promisify(structuredLokiEnclaveFacadeInstance.getAllRecords)(undefined, tableName);
+        console.log("===============================================================================================")
+        console.log(`Migrating table ${tableName} with ${records.length} records`);
+        console.log("===============================================================================================")
     } catch (e) {
         console.error(`Failed to get records from table ${tableName}`, e);
         throw e;
@@ -66,6 +69,9 @@ const migrateTable = async (structuredLokiEnclaveFacadeInstance, tableName, part
 // Utility function for migrating all tables
 const migrateAllTables = async (structuredLokiEnclaveFacadeInstance, partitionedLokiEnclaveFacadeInstance) => {
     const tables = await $$.promisify(structuredLokiEnclaveFacadeInstance.getCollections)($$.SYSTEM_IDENTIFIER);
+    console.log("===============================================================================================")
+    console.log(`Migrating ${tables.length} tables`);
+    console.log("===============================================================================================")
     for (let table of tables) {
         await migrateTable(structuredLokiEnclaveFacadeInstance, table, partitionedLokiEnclaveFacadeInstance);
     }
