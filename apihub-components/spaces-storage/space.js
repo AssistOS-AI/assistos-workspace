@@ -651,12 +651,7 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     }
     let userRoles = spaceStatusObject.users[userId].roles;
     if(userRoles.includes(spaceConstants.spaceRoles.owner)){
-        let owners = 0;
-        for(let id in spaceStatusObject.users){
-            if(userRoles.includes(spaceConstants.spaceRoles.owner)){
-                owners++;
-            }
-        }
+        let owners = getOwnersCount(spaceStatusObject.users);
         if(owners === 1){
             return "Can't delete the last owner of the space";
         }
@@ -674,6 +669,31 @@ async function getSpaceCollaborators(spaceId) {
         users.push({id: userId, email:userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
     }
     return users;
+}
+function getOwnersCount(users){
+    let owners = 0;
+    for(let id in users){
+        if(users[id].roles.includes(spaceConstants.spaceRoles.owner)){
+            owners++;
+        }
+    }
+    return owners;
+}
+async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    let referrerRoles = spaceStatusObject.users[referrerId].roles;
+    if (!referrerRoles.includes(spaceConstants.spaceRoles.owner) && !referrerRoles.includes(spaceConstants.spaceRoles.admin)) {
+        return "You don't have permission to change the role of a collaborator";
+    }
+    let userRoles = spaceStatusObject.users[userId].roles;
+    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+        let owners = getOwnersCount(spaceStatusObject.users);
+        if(owners === 1 && role !== spaceConstants.spaceRoles.owner){
+            return "Can't change the role of the last owner of the space";
+        }
+    }
+    spaceStatusObject.users[userId].roles = [role];
+    await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 function getPriorityRole(roles){
     let rolePriority = [spaceConstants.spaceRoles.owner, spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.member];
@@ -739,6 +759,7 @@ module.exports = {
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
         getSpaceCollaborators,
+        setSpaceCollaboratorRole,
         inviteSpaceCollaborators,
         deleteSpaceCollaborator
     },

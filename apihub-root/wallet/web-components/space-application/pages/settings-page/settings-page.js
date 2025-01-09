@@ -1,6 +1,5 @@
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
-
 export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -57,7 +56,11 @@ export class SettingsPage {
             for(let collaborator of collaborators){
                 collaboratorsHTML += `<div class="collaborator-item">
                                         <div class="collaborator-email"> ${collaborator.email}</div>
-                                        <div class="collaborator-role"> ${collaborator.role}</div>
+                                        <select class="collaborator-role" data-user-id="${collaborator.id}">
+                                            <option value="member" ${collaborator.role === "member" ? "selected" : ""}>Member</option>
+                                            <option value="admin" ${collaborator.role === "admin" ? "selected" : ""}>Admin</option>
+                                            <option value="owner" ${collaborator.role === "owner" ? "selected" : ""}>Owner</option>
+                                        </select>
                                         <div class="delete-collaborator">
                                             <img class="trash-icon" data-local-action="deleteCollaborator ${collaborator.id} ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                                         </div>
@@ -130,19 +133,7 @@ export class SettingsPage {
             }
         }
     }
-
     afterRender() {
-        this.element.addEventListener("click", (event) => {
-            const action = event.target.dataset.localAction;
-
-            if (!action) return;
-
-            const [actionName, ...args] = action.split(" ");
-            if (typeof this[actionName] === "function") {
-                this[actionName](event.target, ...args);
-            }
-        });
-
         this.element.addEventListener("change", (event) => {
             const id = event.target.id;
 
@@ -154,8 +145,21 @@ export class SettingsPage {
                 localStorage.setItem("document-font-color", event.target.value);
             }
         });
+        if(this.collaboratorsTab === "active"){
+            let collaboratorsRoles = this.element.querySelectorAll(".collaborator-role");
+            for(let role of collaboratorsRoles){
+                role.addEventListener("change", async (e)=>{
+                    let userId = e.target.getAttribute("data-user-id");
+                    let role = e.target.value;
+                    let message = await spaceModule.setSpaceCollaboratorRole(assistOS.space.id, userId, role);
+                    if(message){
+                        alert(message);
+                    }
+                    this.invalidate();
+                });
+            }
+        }
     }
-
     changeTab(_eventTarget, tabName) {
         if(tabName === "spaceSettingsTab"){
             this.spaceSettingsTab = "active";

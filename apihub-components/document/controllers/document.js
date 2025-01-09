@@ -37,6 +37,7 @@ async function getDocument(req, res) {
 
 async function getDocumentsMetadata(req, res) {
     const {spaceId} = req.params;
+    console.log("-----------------GET DOCUMENTS METADATA-----------------");
     if (!spaceId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
