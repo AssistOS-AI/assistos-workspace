@@ -353,30 +353,34 @@ export class AuthenticationPage {
     }
 
     async loginUser(_target) {
-        const formInfo = await assistOS.UI.extractFormInformation(_target);
-        if (formInfo.isValid) {
-            const {email, password} = formInfo.data;
-            try {
-                await assistOS.login(email, password);
+        await assistOS.loadifyComponent(_target, async function(_target){
+            _target.setAttribute("disabled", "true");
+            const formInfo = await assistOS.UI.extractFormInformation(_target);
+            if (formInfo.isValid) {
+                const {email, password} = formInfo.data;
                 try {
-                    await assistOS.loadPage(true);
+                    await assistOS.login(email, password);
+                    try {
+                        await assistOS.loadPage(true);
+                    } catch (error) {
+                        console.error("Failed to load Landing Page", error);
+                        alert(error);
+                    }
                 } catch (error) {
-                    console.error("Failed to load Landing Page", error);
-                    alert(error);
-                }
-            } catch (error) {
-                switch (error.statusCode) {
-                    case 401:
-                        alert("Invalid Password");
-                        break;
-                    case 404:
-                        alert("User not found");
-                        break;
-                    default:
-                        alert(error.message);
+                    _target.removeAttribute("disabled");
+                    switch (error.statusCode) {
+                        case 401:
+                            alert("Invalid Password");
+                            break;
+                        case 404:
+                            alert("User not found");
+                            break;
+                        default:
+                            alert(error.message);
+                    }
                 }
             }
-        }
+        }.bind(this,_target));
     }
 
 

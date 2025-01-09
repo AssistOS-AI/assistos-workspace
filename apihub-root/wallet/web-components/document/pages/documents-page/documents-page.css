@@ -59,7 +59,7 @@ documents-page{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 325px;
+    gap:10px;
 }
 
 .general-button-reversed-colors {

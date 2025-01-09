@@ -38,7 +38,9 @@ export class AgentPage {
             } else if (message.role === "assistant") {
                 role = "assistant";
             }
-            stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+            if(role!=="Space") {
+                stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+            }
         }
         let personalitiesHTML = "";
         for (let personality of this.personalities) {

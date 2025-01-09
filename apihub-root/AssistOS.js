@@ -196,7 +196,7 @@ class AssistOS {
         if (applicationName) {
             await assistOS.startApplication(applicationName, applicationLocation);
         } else {
-            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/announcements-page`);
+            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/documents-page`);
         }
     };
 
