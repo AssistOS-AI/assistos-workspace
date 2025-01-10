@@ -1,7 +1,7 @@
 .log-container {
     display: flex;
     flex-direction: column;
-    padding: 16px;
+    padding: 8px;
     margin-bottom: 16px;
     border-radius: 4px;
     background: #222;

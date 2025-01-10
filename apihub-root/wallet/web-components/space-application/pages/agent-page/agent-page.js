@@ -176,7 +176,7 @@ export class AgentPage {
         fileInput.click();
     }
 
-    swapChat(_target, mode) {
+  /*  swapChat(_target, mode) {
         const selectedChat = this.element.querySelector(".selected-chat");
         if (mode === selectedChat.getAttribute("id")) {
             return;
@@ -202,7 +202,7 @@ export class AgentPage {
             }
         }
         this.invalidate();
-    }
+    }*/
 
     hidePersonalities(controller, arrow, event) {
         arrow.setAttribute("data-local-action", "showPersonalities off");

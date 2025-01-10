@@ -56,14 +56,14 @@ export class SpaceApplicationPage {
                 this.agentPageWidth = firstNewWidth;
                 this.currentPageWidth = secondNewWidth;
             }
-            if(this.agentPageWidth < 350){
+            if(this.agentPageWidth < 200){
                 let chatControls = this.element.querySelector(".space-controls");
                 chatControls.style.display = "none";
             } else {
                 let chatControls = this.element.querySelector(".space-controls");
                 chatControls.style.display = "flex";
             }
-            if(this.agentPageWidth < 20){
+            if(this.agentPageWidth < 30){
                 let chatContainer = this.element.querySelector(".chat-input-container");
                 chatContainer.style.zIndex = -1;
                 this.agentPage.style.width = 0 + 'px';

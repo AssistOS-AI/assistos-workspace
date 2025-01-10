@@ -570,18 +570,15 @@ dialog {
     mask-composite: subtract;
     animation: l3 1s infinite linear;
 }
-
 .loading-icon.small {
     width: 20px;
     padding: 5px;
 }
-
 @keyframes l3 {
     to {
         transform: rotate(1turn)
     }
 }
-
 .error-message {
     display: block;
     color: #f8d7da;
@@ -642,11 +639,9 @@ dialog {
 .xxxxx-large {
     font-size: 28px;
 }
-
 .xxxxxx-large {
     font-size: 32px;
 }
-
 .xxxxxxx-large {
     font-size: 36px;
 }

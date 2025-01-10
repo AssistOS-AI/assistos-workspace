@@ -36,7 +36,7 @@ agent-page {
 }
 
 .space-controls {
-    z-index: 1;
+    z-index: 10;
     position: absolute;
     display: none;
     align-items: center;
@@ -51,6 +51,7 @@ agent-page {
 .chats {
     display: flex;
     align-items: center;
+    flex-wrap:wrap;
 }
 
 .selected-chat {
