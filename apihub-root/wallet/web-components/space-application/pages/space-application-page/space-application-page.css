@@ -74,6 +74,7 @@ space-application-page {
     font-size: 30px;
 }
 .chat-drag-container{
+    background-color: white;
     display:flex;
     align-items:center;
     justify-content: center;

@@ -54,6 +54,8 @@
     --white-blue-tint: rgba(255, 255, 255, 0.12);
     --commands-background: #7d7d7d;
     --modal-background: #333333;
+    --chat-background: #333333;
+    --tab: #7d7d7d;
 }
 html[theme="dark"] .general-button{
     color: var(--user-text);
