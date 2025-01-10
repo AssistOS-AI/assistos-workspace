@@ -26,7 +26,6 @@ export class DiagramMenu{
     }
     async afterRender(){
         let imageElement = this.element.querySelector(".paragraph-image");
-        let deleteImgButton = this.element.querySelector(".delete-image");
         let editDiagramButton = this.element.querySelector(".edit-diagram");
         let generateCode = this.element.querySelector(".generate-code");
         let downloadCode = this.element.querySelector(".download-code");
@@ -34,7 +33,6 @@ export class DiagramMenu{
         let diagramTextContainer = document.getElementById("text-input-container-2")
         if(this.paragraphPresenter.paragraph.commands.image){
             imageElement.classList.remove("hidden");
-            deleteImgButton.classList.remove("hidden");
             imageElement.src = await spaceModule.getImageURL(this.paragraphPresenter.paragraph.commands.image.id);
             editDiagramButton.classList.remove("hidden");
             generateCode.classList.remove("hidden");

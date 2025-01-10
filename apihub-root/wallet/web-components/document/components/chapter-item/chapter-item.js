@@ -92,14 +92,7 @@ export class ChapterItem {
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
-            // console.log(paragraph.type);
-            if(paragraph.type === "table"){
-                console.log(113);
-                this.chapterContent += `<paragraph-table-item  data-presenter="paragraph-table-item" ></paragraph-table-item>`;
-            }
-            else {
-                this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
-            }
+            this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
         });
     }
 
@@ -114,20 +107,10 @@ export class ChapterItem {
         let previousParagraph = this.element.querySelector(`paragraph-item[data-paragraph-id="${previousParagraphId}"]`);
         if (!previousParagraph) {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
-            if (type === "table") {
-                paragraphsContainer.insertAdjacentHTML("afterbegin", `<paragraph-table-item data-presenter="paragraph-table-item" ></paragraph-table-item>`);
-            } else {
-                paragraphsContainer.insertAdjacentHTML("afterbegin", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
-            }
+            paragraphsContainer.insertAdjacentHTML("afterbegin", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
             return;
         }
-        if (type === "table") {
-            previousParagraph.insertAdjacentHTML("afterend", `<paragraph-table-item data-presenter="paragraph-table-item" ></paragraph-table-item>`);
-
-        } else {
-            previousParagraph.insertAdjacentHTML("afterend", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
-
-        }
+        previousParagraph.insertAdjacentHTML("afterend", `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${position + 1} with id ${newParagraph.id}" data-paragraph-id="${newParagraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`);
     }
 
     deleteParagraph(paragraphId) {
@@ -258,7 +241,6 @@ export class ChapterItem {
                 text:"",
                 position:position,
                 commands:{},
-                ...type?{type:type}:{}
             }
 
             assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
