@@ -5,7 +5,7 @@
     color: var(--light-black);
     font-size: 18px;
     font-weight: 600;
-    padding: 0 0 10px 8px;
+    padding: 0 0 0 8px;
     line-height: normal;
     overflow: visible;
 }
@@ -51,7 +51,6 @@ html[theme="dark"] .arrow svg {
 
 .chapter-content {
     min-width: 0;
-    text-align: justify;
     justify-content: start;
     display: flex;
     flex-direction: row-reverse;

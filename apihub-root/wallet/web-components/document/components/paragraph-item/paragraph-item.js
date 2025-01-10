@@ -155,18 +155,15 @@ export class ParagraphItem {
                         console.log(htmlString + 1112)
                     }
                 }, 500);
-
-
-
         }
 
-            let paragraphText = this.element.querySelector(".paragraph-text");
-            paragraphText.innerHTML = this.paragraph.text
-            paragraphText.style.height = paragraphText.scrollHeight + 'px';
-            if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                paragraphText.click();
-                //this.element.scrollIntoView({behavior: "smooth", block: "center"});
-            }
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        paragraphText.innerHTML = this.paragraph.text
+        paragraphText.style.height = paragraphText.scrollHeight + 'px';
+        if (assistOS.space.currentParagraphId === this.paragraph.id) {
+            paragraphText.click();
+            //this.element.scrollIntoView({behavior: "smooth", block: "center"});
+        }
 
         let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
@@ -335,9 +332,6 @@ export class ParagraphItem {
             this.textIsDifferentFromAudio = true;
             await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
         }
-
-        let htmlRegex = /<([a-z]+)([^<]+)*(?:>(.*?)<\/\1>|\/>)/gi;
-        let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
     }
 
     async decodeHtmlEntities(str) {

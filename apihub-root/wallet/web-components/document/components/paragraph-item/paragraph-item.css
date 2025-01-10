@@ -17,8 +17,11 @@ paragraph-item {
     background-color: var(--white-blue-tint);
 }
 .paragraph-container{
-    padding: 10px;
+
     border-radius: 5px;
+}
+.paragraph-container.highlighted-paragraph{
+    padding: 10px;
 }
 .paragraph-header-container {
     border-radius: 4px 0;
@@ -120,22 +123,19 @@ textarea.paragraph-commands{
 }
 
 .paragraph-text {
-    overflow: hidden;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-indent: 2em;
     resize: none;
     border: none;
     border-radius: 5px;
-    display: inline-block;
     cursor: text;
-    padding: 10px;
-    white-space: pre-wrap;
+    padding: 5px;
     min-height: 38px;
     height: fit-content;
-    line-height: 1.5;
-    flex-wrap: wrap;
     width: 100%;
-    overflow-wrap: break-word;
+    word-break: break-all;
     hyphens: auto;
-    word-break: break-word;
 }
 
 .paragraph-text:empty {
