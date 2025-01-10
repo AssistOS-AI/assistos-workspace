@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "diagram-menu",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "DiagramMenu"
+        },
+        {
             "name": "notification-toast",
             "directory": "space-application",
             "type": "components",
