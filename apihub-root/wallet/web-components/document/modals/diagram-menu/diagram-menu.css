@@ -85,24 +85,6 @@ diagram-menu{
     border-radius: 4px;
 }
 
-
-
-.submit-button {
-    height: 40px;
-    padding: 0 16px;
-    font-size: 16px;
-    margin-left: 5px;
-    border: 1px solid var(--medium-blue);
-    border-radius: 4px;
-    background-color: var(--medium-blue);
-    color: white;
-    cursor: pointer;
-}
-
-.submit-button:hover {
-    background-color: #0056b3;
-}
-
 #language-checkbox-container{
     margin-bottom: 16px;
 }

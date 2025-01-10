@@ -165,10 +165,6 @@ document-view-page::-webkit-scrollbar-track {
     position:relative;
 }
 
-html[theme="dark"] .document-title-container {
-    background: var(--light-brown-gray);
-}
-
 .document-title:focus {
     outline: none;
     background: var(--white-text);
@@ -300,4 +296,13 @@ html[theme="dark"] .document-title-container {
 }
 document-view-page .right-margin {
     margin-right: 10px;
+}
+
+
+html[theme="dark"] textarea.document-abstract{
+    background: var(--white)
+}
+
+html[theme="dark"] input.document-title{
+    background: var(--white)
 }

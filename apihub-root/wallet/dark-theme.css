@@ -39,6 +39,7 @@
     --blue-black: #18203F;
     --suggest: #0618D1;
     --blue-border: #383838;
+    --blue-button: #1d1d1d;
     --bright-blue: #2D9FFF;
     --semi-bold-text: #f7f7f5;
     --feature-hover: #afa8ba38;
@@ -50,7 +51,15 @@
     --right-sidebar-shadow: -2px 9px 0px rgba(82, 82, 82, 0.06);
     --black-pin: white;
     --chat-input-container: #3F3F46;
-    --white-blue-tint: #55555514;
+    --white-blue-tint: rgba(255, 255, 255, 0.12);
+    --commands-background: #7d7d7d;
+    --modal-background: #333333;
+}
+html[theme="dark"] .general-button{
+    color: var(--user-text);
+}
+html[theme="dark"] div{
+    color: var(--user-text);
 }
 
 html[theme="dark"] .right-sidebar svg,
@@ -69,7 +78,9 @@ html[theme="dark"] select {
     background: var(--light-blue);
     color: var(--user-text);
 }
-
+html[theme="dark"] span{
+    color: var(--user-text);
+}
 html[theme="dark"] form,
 html[theme="dark"] dialog {
     background: var(--white);
@@ -115,4 +126,11 @@ html[theme="dark"] .space-container {
 }
 html[theme="dark"] .select-settings-container {
     background: var(--light-blue);
+}
+
+html[theme="dark"] img.black-icon{
+    filter: invert(1) brightness(2);
+}
+html[theme="dark"] .action-icon{
+    filter: invert(1) brightness(2);
 }

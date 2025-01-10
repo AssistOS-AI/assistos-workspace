@@ -45,27 +45,27 @@ export class ParagraphItem {
     plugins = {
         "image-menu": {
             icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
                 </div>`
         },
         "diagram-menu": {
             icon: `<div data-local-action="openPlugin diagram-menu" class="attachment-circle menu-container diagram-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
                 </div>`
         },
         "audio-menu": {
             icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
                 </div>`
         },
         "video-menu": {
             icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
                 </div>`
         },
         "text-menu": {
             icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
                 </div>`
         }
     }
