@@ -146,3 +146,7 @@ html[theme="dark"] .arrow svg {
 .chapter-audio-icon{
     margin-right: 5px;
 }
+
+html[theme="dark"] input.chapter-title{
+    background: var(--white)
+}

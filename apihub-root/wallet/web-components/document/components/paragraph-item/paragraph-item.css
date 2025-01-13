@@ -240,3 +240,7 @@ textarea.paragraph-commands{
     left: -35px;
     top: 50%;
 }
+
+html[theme="dark"] textarea.paragraph-text{
+    background: var(--white)
+}
