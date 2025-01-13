@@ -31,7 +31,6 @@ application-item {
 }
 .application-buttons{
     display: flex;
-    flex-direction:column;
     margin-left:10px;
     gap:15px;
 }
@@ -59,13 +58,18 @@ application-item {
 
 .container-header {
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
 }
-
-.name {
+.name-and-author{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+.name-and-author .name{
+    font-weight: 600;
     margin-top: 5px;
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 18px;
 }
 
 .author {
@@ -78,6 +82,7 @@ application-item {
 .install-section {
     align-items: center;
     display: flex;
+    justify-content: end;
 }
 
 .general-button {
