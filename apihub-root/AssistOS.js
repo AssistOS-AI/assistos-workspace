@@ -463,7 +463,7 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
-    assistOS.UI.chatState = "closed";
+    assistOS.UI.chatState = "open";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();

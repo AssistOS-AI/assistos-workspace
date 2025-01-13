@@ -1,4 +1,5 @@
 const spaceModule = require("assistos").loadModule("space", {});
+
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -16,9 +17,11 @@ export class AgentPage {
         this.private = "selected-chat";
         this.enabledAgents = true;
     }
+
     onChatUpdate() {
         this.invalidate(async () => assistOS.space.chat = await spaceModule.getSpaceChat(assistOS.space.id, "123456789"));
     }
+
     async beforeRender() {
         if (this.enabledAgents) {
             this.agentsToggleButton = "Disable Agents"
@@ -38,7 +41,7 @@ export class AgentPage {
             } else if (message.role === "assistant") {
                 role = "assistant";
             }
-            if(role!=="Space") {
+            if (role !== "Space") {
                 stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
             }
         }
@@ -52,12 +55,14 @@ export class AgentPage {
         this.personalityLLM = "GPT-4o";
         this.spaceName = assistOS.space.name;
     }
+
     async afterRender() {
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
         this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
         this.userInput.addEventListener("keydown", this.boundFn);
+        await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
     }
 
     async toggleAgentsState(_target) {
@@ -176,33 +181,33 @@ export class AgentPage {
         fileInput.click();
     }
 
-  /*  swapChat(_target, mode) {
-        const selectedChat = this.element.querySelector(".selected-chat");
-        if (mode === selectedChat.getAttribute("id")) {
-            return;
-        }
-        switch (mode) {
-            case "private": {
-                this.private = "selected-chat";
-                this.shared = "";
-                this.chat = "";
-                break;
-            }
-            case "shared": {
-                this.private = "";
-                this.shared = "selected-chat";
-                this.chat = "";
-                break;
-            }
-            default: {
-                this.private = "";
-                this.shared = "";
-                this.chat = "selected-chat";
-                break;
-            }
-        }
-        this.invalidate();
-    }*/
+    /*  swapChat(_target, mode) {
+          const selectedChat = this.element.querySelector(".selected-chat");
+          if (mode === selectedChat.getAttribute("id")) {
+              return;
+          }
+          switch (mode) {
+              case "private": {
+                  this.private = "selected-chat";
+                  this.shared = "";
+                  this.chat = "";
+                  break;
+              }
+              case "shared": {
+                  this.private = "";
+                  this.shared = "selected-chat";
+                  this.chat = "";
+                  break;
+              }
+              default: {
+                  this.private = "";
+                  this.shared = "";
+                  this.chat = "selected-chat";
+                  break;
+              }
+          }
+          this.invalidate();
+      }*/
 
     hidePersonalities(controller, arrow, event) {
         arrow.setAttribute("data-local-action", "showPersonalities off");

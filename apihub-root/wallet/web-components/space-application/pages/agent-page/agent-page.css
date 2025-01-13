@@ -152,7 +152,6 @@ agent-page {
 
 
 .chat-input-container {
-    z-index: -1;
     height:120px;
     min-height:120px;
     max-height:120px;
