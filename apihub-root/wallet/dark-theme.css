@@ -30,7 +30,7 @@
     --spinner-l-r-b: #00aeef26;
     --spinner-t: #00aeefcc;
     --light-blue: #3F3F46;
-    --medium-blue: #0C5C9E;
+    --medium-blue: #90959e;
     --chatbots-history-blue: #98BFE0;
     --strong-blue: #007bff;
     --documents-page-header: #CCCCCC;
@@ -57,6 +57,7 @@
     --chat-background: #333333;
     --tab: #7d7d7d;
     --selected-chat: #333333;
+    --dark-text: #b8b8b8;
 }
 html[theme="dark"] .general-button{
     color: var(--user-text);
