@@ -25,15 +25,12 @@ personalities-page {
     overflow: auto;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(8, 1fr);
     background: var(--white);
     color: var(--user-text);
 }
 .add-personality-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 25px;
+    margin: 20px;
 }
 
 .square-container {

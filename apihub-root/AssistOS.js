@@ -366,9 +366,9 @@ export function changeSelectedPageFromSidebar(url) {
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
                 if (path.getAttribute("stroke-linejoin") === "round") {
-                    path.setAttribute("stroke", "var(--white)");
+                    path.setAttribute("stroke", "#ffffff");
                 } else {
-                    path.setAttribute("fill", "var(--white)");
+                    path.setAttribute("fill", "#ffffff");
                 }
             });
             return;

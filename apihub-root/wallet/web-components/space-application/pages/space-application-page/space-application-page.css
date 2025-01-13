@@ -27,10 +27,10 @@ space-application-page {
 
 .sidebar-item {
     padding: 7px 2px;
-    margin: 10px 0;
-    margin-left: 10px;
+    margin: 10px;
     font-weight: 600;
     border-radius: 8px;
+    width: 190px;
 }
 .sidebar-item:hover{
     cursor: pointer;
@@ -62,7 +62,7 @@ space-application-page {
     background: var(--white);
 }
 .highlighted{
-    background: #E4E6F0;
+    background: var(--selected-chat);
     font-weight: 700;
 }
 .hide-sidebar {
