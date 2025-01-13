@@ -126,7 +126,7 @@ document-view-page::-webkit-scrollbar-track {
     padding: 5px 0;
     border-radius: 10px;
     z-index: 1;
-    background-color: white;
+    background-color: var(--white);
 }
 
 .space-document-path {

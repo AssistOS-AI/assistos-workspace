@@ -18,7 +18,7 @@ applications-marketplace-page {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     width: 100%;
-    gap: 40px;
+    gap: 20px;
     overflow: hidden;
     padding: 0 20px;
 }
