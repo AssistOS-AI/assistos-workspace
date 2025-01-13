@@ -39,7 +39,7 @@
     --blue-black: #18203F;
     --suggest: #0618D1;
     --blue-border: #383838;
-    --blue-button: #1d1d1d;
+    --blue-button: #000000;
     --bright-blue: #2D9FFF;
     --semi-bold-text: #f7f7f5;
     --feature-hover: #afa8ba38;
@@ -117,10 +117,6 @@ html[theme="dark"] .general-button-reversed-colors {
 html[theme="dark"] .item-list-container {
     border: 1px solid var(--gray-border);
     padding: 0;
-}
-
-html[theme="dark"] .sidebar-item {
-    padding-left: 10px;
 }
 
 html[theme="dark"] .space-container {
