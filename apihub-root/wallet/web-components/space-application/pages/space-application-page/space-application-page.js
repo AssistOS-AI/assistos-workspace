@@ -33,73 +33,66 @@ export class SpaceApplicationPage {
     }
 
     async toggleChat(_target, mode, width) {
-        function throttle(func, limit) {
-            let lastFunc;
-            let lastRan;
-            return function (...args) {
-                const context = this;
-                if (!lastRan) {
-                    func.apply(context, args);
-                    lastRan = Date.now();
-                } else {
-                    clearTimeout(lastFunc);
-                    lastFunc = setTimeout(function () {
-                        if ((Date.now() - lastRan) >= limit) {
-                            func.apply(context, args);
-                            lastRan = Date.now();
-                        }
-                    }, limit - (Date.now() - lastRan));
-                }
-            }
+        const maximizeChat = () => {
+            arrow.classList.add("arrow-rotated");
+            assistOS.UI.chatState = "open";
+            let spaceApplicationPage = document.querySelector('space-application-page');
+            let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+            agentPage.style.display = "flex";
+            agentPage.style.minWidth = minimumChatWidth + 'px';
+            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
+            assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
+            addDragListener();
+        }
+
+        const minimizeChat = () => {
+            arrow.classList.remove("arrow-rotated");
+            assistOS.UI.chatState = "close";
+            agentPage.style.display = "none";
+            agentPage.style.width = "0px";
+            agentPage.style.minWidth = "0px";
+            removeDragListener();
         }
 
         function dragStartHandler(event) {
-            function resizePanels(startDragX, agentPageInitialWidth, currentPageInitialWidth, event) {
+            const dragThreshold = 30;
+            let isDragging = false;
+            const startDragX = event.clientX;
+            const agentPageInitialWidth = parseFloat(getComputedStyle(agentPage).width);
+            let lastDeltaX = 0;
+
+            const onMouseMove = (event) => {
                 let mouseX = event.clientX;
-
-                let agentPageWidth = agentPageInitialWidth + (mouseX - startDragX);
-                let currentPageWidth = currentPageInitialWidth - (mouseX - startDragX);
-
+                let deltaX = mouseX - startDragX;
+                if (!isDragging && Math.abs(deltaX) > dragThreshold) {
+                    isDragging = true;
+                }
+                if (!isDragging) {
+                    return;
+                }
+                let agentPageWidth = agentPageInitialWidth + deltaX;
                 let spaceApplicationPage = document.querySelector('space-application-page');
-                let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width)
-
-                if (agentPageWidth >= minimumChatWidth - 30) {
-                    this.agentPage.style.width = agentPageWidth + 'px';
-                    this.currentPage.style.width = currentPageWidth + 'px';
-                    this.agentPageWidth = agentPageWidth;
-                    this.currentPageWidth = currentPageWidth;
+                let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+                if (agentPageWidth >= minimumChatWidth) {
+                    agentPage.style.width = agentPageWidth + 'px';
                     assistOS.UI.chatWidth = agentPageWidth;
                 } else {
-                    this.boundMouseUp();
-                    this.toggleChat(undefined);
-
+                    minimizeChat();
                 }
-            }
+                lastDeltaX = deltaX;
+            };
 
-            function stopResize() {
-                this.element.removeEventListener('mousemove', this.boundMouseMoveFn);
-                document.removeEventListener('mouseup', this.boundMouseUp);
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
                 document.body.style.userSelect = "initial";
-            }
+                if (isDragging && lastDeltaX !== 0) {
+                }
+            };
 
             document.body.style.userSelect = "none";
-            let startDragX = event.clientX;
-
-            let agentPageWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
-            let currentPageWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
-
-            if (!this.boundMouseMoveFn) {
-                this.boundMouseMoveFn = throttle(resizePanels.bind(this, startDragX, agentPageWidth, currentPageWidth), 150);
-            }
-
-            if (!this.boundMouseUp) {
-                this.boundMouseUp = stopResize.bind(this);
-            }
-
-            this.element.addEventListener("mousemove", this.boundMouseMoveFn);
-
-            document.addEventListener("mouseup", this.boundMouseUp, {once: true});
-
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp, { once: true });
         }
 
         const addDragListener = () => {
@@ -107,35 +100,18 @@ export class SpaceApplicationPage {
             this.boundStartDrag = dragStartHandler.bind(this);
             resizeBar.addEventListener("mousedown", this.boundStartDrag);
         }
+
         const removeDragListener = () => {
             let resizeBar = this.element.querySelector('.drag-separator');
-            resizeBar.removeEventListener("mousedown", this.boundStartDrag);
-            delete this.boundStartDrag;
-        }
-
-        const maximizeChat = () => {
-            arrow.classList.toggle("arrow-rotated");
-            assistOS.UI.chatState = "open";
-            let spaceApplicationPage = document.querySelector('space-application-page');
-            let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width)
-            agentPage.style.display = "flex";
-            agentPage.style.minWidth = minimumChatWidth + 'px';
-            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
-            assistOS.UI.chatWidth = width || minimumChatWidth;
-            addDragListener();
-        }
-        const minimizeChat = () => {
-            arrow.classList.toggle("arrow-rotated");
-            assistOS.UI.chatState = "close";
-            assistOS.UI.chatWidth = 0;
-            agentPage.style.display = "none";
-            agentPage.style.width = "0px";
-            agentPage.style.minWidth = "0px";
-            removeDragListener();
+            if (this.boundStartDrag) {
+                resizeBar.removeEventListener("mousedown", this.boundStartDrag);
+                this.boundStartDrag = null;
+            }
         }
 
         const arrow = document.querySelector("#point-arrow-chat");
         const agentPage = document.querySelector("agent-page");
+
         if (mode === "open") {
             maximizeChat();
         } else if (mode === "close") {
@@ -148,6 +124,8 @@ export class SpaceApplicationPage {
             }
         }
     }
+
+
 
     async navigateToPage(_target, page) {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
