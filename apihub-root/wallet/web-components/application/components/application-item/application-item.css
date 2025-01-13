@@ -121,7 +121,7 @@ application-item {
 }
 
 .uninstall {
-    background: white;
+    background: var(--white);
     color: var(--medium-blue);
     border: 1px solid var(--medium-blue);
 }

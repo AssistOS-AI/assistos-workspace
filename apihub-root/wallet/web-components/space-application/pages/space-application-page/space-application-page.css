@@ -30,7 +30,7 @@ space-application-page {
     padding: 7px 2px;
     margin: 10px;
     font-weight: 600;
-    border-radius: 8px;
+    border-radius: 5px;
     width: 190px;
 }
 .sidebar-item-title {
@@ -60,7 +60,7 @@ space-application-page {
     background: var(--white);
 }
 .highlighted{
-    background: var(--selected-chat);
+    background: var(--selected-chat) !important;
     font-weight: 700;
 }
 .hide-sidebar {
