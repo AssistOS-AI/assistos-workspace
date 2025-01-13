@@ -238,7 +238,7 @@ textarea.paragraph-commands{
     pointer-events: none;
     position: absolute;
     left: -35px;
-    top: 50%;
+    bottom:39%;
 }
 
 html[theme="dark"] textarea.paragraph-text{

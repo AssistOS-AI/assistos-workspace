@@ -16,7 +16,7 @@ applications-marketplace-page {
 
 .marketplace-table {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     width: 100%;
     gap: 40px;
     overflow: hidden;
