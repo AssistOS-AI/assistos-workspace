@@ -8,6 +8,31 @@ const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
 
+const textFontSizeMap = Object.freeze({
+    8:"xx-small",
+    10:"x-small",
+    12:"small",
+    14:"medium",
+    16:"large",
+    18:"x-large",
+    20:"xx-large",
+    22:"xxx-large",
+    24:"xxxx-large",
+    28:"xxxxx-large",
+    32:"xxxxxx-large",
+    36:"xxxxxxx-large",
+    48:"xxxxxxxx-large",
+    72:"xxxxxxxxx-large"
+});
+
+const textFontFamilyMap = Object.freeze({
+    "Arial":"font-arial",
+    "Georgia":"font-georgia",
+    "Courier New":"font-courier-new",
+    "Times New Roman":"font-times-new-roman",
+    "Verdana":"font-verdana"
+});
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -15,6 +40,10 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
+        this.constants={
+            fontSizeMap:textFontSizeMap,
+            fontFamilyMap:textFontFamilyMap
+        };
         this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;
         return AssistOS.instance;
@@ -376,7 +405,7 @@ function defineActions() {
         await assistOS.refresh();
     });
     assistOS.UI.registerAction("toggleSidebar", async (_target) => {
-        const arrow = _target.querySelector(".point-arrow");
+        const arrow = _target.querySelector("#point-arrow-sidebar");
         const sidebar = document.querySelector(".right-sidebar");
         if (assistOS.UI.sidebarState === "closed") {
             sidebar.style.transform = "translateX(0%)";
@@ -434,6 +463,7 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
+    assistOS.UI.chatState = "closed";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();

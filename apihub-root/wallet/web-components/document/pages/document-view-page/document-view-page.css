@@ -53,8 +53,6 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .abstract-subtitle {
-    color: var(--path-button);
-    font-size: 18px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -77,7 +75,6 @@ document-view-page::-webkit-scrollbar-track {
     display: flex;
     white-space: pre-line;
     text-align: justify;
-    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -96,7 +93,6 @@ document-view-page::-webkit-scrollbar-track {
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;
-    color: var(--user-text);
 }
 
 .document-abstract:focus {
@@ -148,8 +144,6 @@ document-view-page::-webkit-scrollbar-track {
     border: none;
     width: calc(100% - 30px);
     display: inline-block;
-    color: var(--light-black);
-    font-size: 26px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;

@@ -1,13 +1,14 @@
-
 agent-page {
     width: 0;
     height: 100%;
     transition: width 0.3s;
     min-width: 0;
+    display:none;
 }
 
 .middle-content {
     position: relative;
+    width:100%;
     height: 100%;
 }
 
@@ -37,8 +38,8 @@ agent-page {
 
 .space-controls {
     z-index: 10;
+    display:flex;
     position: absolute;
-    display: none;
     align-items: center;
     justify-content: space-between;
     margin: 15px;

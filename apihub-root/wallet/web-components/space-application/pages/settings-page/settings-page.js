@@ -76,10 +76,14 @@ export class SettingsPage {
                                     </div>
                                </div>`;
         }else {
-            const selectedSize = parseInt(localStorage.getItem("document-font-size"), 10) || 16; // Convert to number
+            const selectedParagraphSize = parseInt(localStorage.getItem("document-font-size"), 10) || 12;
+
             const selectedFont = localStorage.getItem("document-font-family") || "Arial";
             const selectedColor = localStorage.getItem("document-font-color") || "#000000";
 
+            const selectedDocumentTitleSize = parseInt(localStorage.getItem("document-title-font-size"), 10) || 24;
+            const selectedChapterTitleSize = parseInt(localStorage.getItem("chapter-title-font-size"), 10) || 20;
+            const selectedAbstractSize = parseInt(localStorage.getItem("abstract-font-size"), 10) || 14;
             this.tabContent = `
         <div id="preferences-container">
             <div class="preferences-section">
@@ -88,18 +92,48 @@ export class SettingsPage {
                 </div>
                 <div class="preferences-content">
                     <div class="preferences-list">
-                        <div class="preference">
-                            <label for="document-font-size">Document Font Size</label>
-                            <select id="document-font-size" name="document-font-size">
+                    <div class="preference">
+                            <label for="document-title-font-size">Document Title Font Size</label>
+                            <select id="document-title-font-size" name="document-title-font-size">
                                 ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
                 .map(size => `
-                                        <option value="${size}" ${size === selectedSize ? "selected" : ""}>${size}px</option>
+                                        <option value="${size}" ${size === selectedDocumentTitleSize ? "selected" : ""}>${size}px</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                          <div class="preference">
+                            <label for="document-chapter-title-font-size">Chapter Title Font Size</label>
+                            <select id="document-chapter-title-font-size" name="document-chapter-title-font-size">
+                                ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
+                .map(size => `
+                                        <option value="${size}" ${size === selectedChapterTitleSize ? "selected" : ""}>${size}px</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                         <div class="preference">
+                            <label for="document-abstract-font-size">Abstract Font Size</label>
+                            <select id="document-abstract-font-size" name="document-abstract-font-size">
+                                ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
+                .map(size => `
+                                        <option value="${size}" ${size === selectedAbstractSize ? "selected" : ""}>${size}px</option>
                                     `)
                 .join("")}
                             </select>
                         </div>
                         <div class="preference">
-                            <label for="document-font-family">Document Font Family</label>
+                            <label for="document-font-size">Paragraph Font Size</label>
+                            <select id="document-font-size" name="document-font-size">
+                                ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
+                .map(size => `
+                                        <option value="${size}" ${size === selectedParagraphSize ? "selected" : ""}>${size}px</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                        <div class="preference">
+                            <label for="document-font-family">Font Family</label>
                             <select id="document-font-family" name="document-font-family">
                                 ${["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"]
                 .map(font => `
@@ -109,7 +143,7 @@ export class SettingsPage {
                             </select>
                         </div>
                         <div class="preference">
-                            <label for="document-font-color">Document Font Color</label>
+                            <label for="document-font-color">Font Color</label>
                             <input type="color" id="document-font-color" name="document-font-color" value="${selectedColor}">
                         </div>
                     </div>
@@ -136,13 +170,18 @@ export class SettingsPage {
     afterRender() {
         this.element.addEventListener("change", (event) => {
             const id = event.target.id;
-
             if (id === "document-font-size") {
                 localStorage.setItem("document-font-size", event.target.value);
             } else if (id === "document-font-family") {
                 localStorage.setItem("document-font-family", event.target.value);
             } else if (id === "document-font-color") {
                 localStorage.setItem("document-font-color", event.target.value);
+            }else if (id === "document-title-font-size") {
+                localStorage.setItem("document-title-font-size", event.target.value);
+            }else if (id === "document-chapter-title-font-size") {
+                localStorage.setItem("chapter-title-font-size", event.target.value);
+            }else if(id === "document-abstract-font-size"){
+                localStorage.setItem("abstract-font-size", event.target.value);
             }
         });
         if(this.collaboratorsTab === "active"){

@@ -1,6 +1,7 @@
 space-application-page {
     display: flex;
     height: 100%;
+    width:100%;
     overflow: hidden;
     position: relative;
 }
@@ -14,6 +15,7 @@ space-application-page {
     height: 100%;
     width: 210px;
     min-width: 210px;
+    padding-top:26px;
     min-height: 100%;
 }
 
@@ -50,7 +52,6 @@ space-application-page {
     background-color: white;
     border: 2px solid var(--medium-gray);
     margin-left:7px;
-    margin-top:4px;
     margin-bottom:10px;
 }
 
@@ -85,14 +86,16 @@ space-application-page {
 }
 .drag-separator {
     cursor: grab;
-    z-index:99999999;
     width: 30px;
     height:100%;
+    padding-top:26px;
+    padding-bottom:40px;
     position: relative;
     display:flex;
     box-shadow:0 0 1px rgba(0, 0, 0, 0.5);
     align-items: flex-start;
     justify-content: center;
+    background: linear-gradient(111.65deg, rgba(239, 239, 239, 0.6) 8.14%, rgba(239, 239, 239, 0.08) 95.69%);
 }
 
 .drag-line {

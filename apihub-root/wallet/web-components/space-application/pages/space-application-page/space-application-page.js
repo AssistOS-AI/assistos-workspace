@@ -29,13 +29,8 @@ export class SpaceApplicationPage {
         this.sidebar = this.element.querySelector(".right-sidebar");
         this.currentPage = this.element.querySelector(".current-page");
         this.agentPage = this.element.querySelector("agent-page");
-        let resizeBar = this.element.querySelector('.drag-separator');
         this.isResizing = false;
         this.highlightSidebarItem();
-        if (!this.boundMouseDownFn) {
-            this.boundMouseDownFn = this.MouseDownFn.bind(this);
-            resizeBar.addEventListener("mousedown", this.boundMouseDownFn);
-        }
 
         if (this.agentPageWidth) {
             this.agentPage.style.width = this.agentPageWidth + 'px';
@@ -43,61 +38,108 @@ export class SpaceApplicationPage {
         }
     }
 
-    resizePanels(startX, firstPanelWidth, secondPanelWidth, event) {
-        if (this.isResizing) {
-            let mouseX = event.clientX;
-            let firstNewWidth = firstPanelWidth + (mouseX - startX);
-            let secondNewWidth = secondPanelWidth - (mouseX - startX);
-            let minimumSize = 350;
-            let minimumSizeAgent = 0;
-            if (firstNewWidth >= minimumSizeAgent && secondNewWidth >= minimumSize) {
-                this.agentPage.style.width = firstNewWidth + 'px';
-                this.currentPage.style.width = secondNewWidth + 'px';
-                this.agentPageWidth = firstNewWidth;
-                this.currentPageWidth = secondNewWidth;
-            }
-            if(this.agentPageWidth < 200){
-                let chatControls = this.element.querySelector(".space-controls");
-                chatControls.style.display = "none";
-            } else {
-                let chatControls = this.element.querySelector(".space-controls");
-                chatControls.style.display = "flex";
-            }
-            if(this.agentPageWidth < 30){
-                let chatContainer = this.element.querySelector(".chat-input-container");
-                chatContainer.style.zIndex = -1;
-                this.agentPage.style.width = 0 + 'px';
-                this.agentPageWidth = 0;
-            } else {
-                let chatContainer = this.element.querySelector(".chat-input-container");
-                chatContainer.style.zIndex = "initial";
+    async toggleChat(_target) {
+        function throttle(func, limit) {
+            let lastFunc;
+            let lastRan;
+            return function(...args) {
+                const context = this;
+                if (!lastRan) {
+                    func.apply(context, args);
+                    lastRan = Date.now();
+                } else {
+                    clearTimeout(lastFunc);
+                    lastFunc = setTimeout(function() {
+                        if ((Date.now() - lastRan) >= limit) {
+                            func.apply(context, args);
+                            lastRan = Date.now();
+                        }
+                    }, limit - (Date.now() - lastRan));
+                }
             }
         }
-    }
 
-    stopResize() {
-        this.isResizing = false;
-        this.element.removeEventListener('mousemove', this.resizePanels);
-        document.body.style.userSelect = "initial";
-    }
+        function dragStartHandler(event){
+            function resizePanels(startDragX, agentPageInitialWidth, currentPageInitialWidth, event) {
+                let mouseX = event.clientX;
 
-    MouseDownFn(event) {
-        document.body.style.userSelect = "none";
-        this.isResizing = true;
-        let startX = event.clientX;
-        let firstPanelWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
-        let secondPanelWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
+                let agentPageWidth=agentPageInitialWidth + (mouseX - startDragX);
+                let currentPageWidth=currentPageInitialWidth - (mouseX - startDragX);
 
-        if (!this.boundMouseMoveFn) {
-            this.boundMouseMoveFn = this.resizePanels.bind(this, startX, firstPanelWidth, secondPanelWidth);
+                let spaceApplicationPage = document.querySelector('space-application-page');
+                let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width)
+
+                if ( agentPageWidth >= minimumChatWidth -30) {
+                    this.agentPage.style.width = agentPageWidth + 'px';
+                    this.currentPage.style.width = currentPageWidth + 'px';
+                    this.agentPageWidth = agentPageWidth;
+                    this.currentPageWidth = currentPageWidth;
+                } else {
+                    this.boundMouseUp();
+                    this.toggleChat(undefined);
+
+                }
+            }
+
+            function stopResize() {
+                this.element.removeEventListener('mousemove', this.boundMouseMoveFn);
+                document.removeEventListener('mouseup', this.boundMouseUp);
+                document.body.style.userSelect = "initial";
+            }
+
+            document.body.style.userSelect = "none";
+            let startDragX = event.clientX;
+
+            let agentPageWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
+            let currentPageWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
+
+            if (!this.boundMouseMoveFn) {
+                this.boundMouseMoveFn = throttle(resizePanels.bind(this, startDragX, agentPageWidth, currentPageWidth),150);
+            }
+
+            if (!this.boundMouseUp) {
+                this.boundMouseUp = stopResize.bind(this);
+            }
+
             this.element.addEventListener("mousemove", this.boundMouseMoveFn);
+
+            document.addEventListener("mouseup", this.boundMouseUp, {once: true});
+
         }
 
-        if (!this.boundMouseUp) {
-            this.boundMouseUp = this.stopResize.bind(this);
+        const addDragListener = () => {
+            let resizeBar = this.element.querySelector('.drag-separator');
+            this.boundStartDrag=dragStartHandler.bind(this);
+            resizeBar.addEventListener("mousedown", this.boundStartDrag);
         }
-        document.addEventListener("mouseup", this.boundMouseUp, {once: true});
+        const removeDragListener = () => {
+            let resizeBar = this.element.querySelector('.drag-separator');
+            resizeBar.removeEventListener("mousedown",this.boundStartDrag);
+            delete this.boundStartDrag;
+        }
 
+        const maximizeChat = () => {
+            arrow.classList.toggle("arrow-rotated");
+            assistOS.UI.chatState = "open";
+            let spaceApplicationPage = document.querySelector('space-application-page');
+            let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width)
+            agentPage.style.width = minimumChatWidth + 'px';
+            agentPage.style.minWidth = minimumChatWidth + 'px';
+            agentPage.style.display = "flex";
+            addDragListener();
+        }
+        const minimizeChat = () => {
+            arrow.classList.toggle("arrow-rotated");
+            assistOS.UI.chatState = "closed";
+            agentPage.style.width = "0px";
+            agentPage.style.display = "none";
+            removeDragListener();
+        }
+
+        const arrow = document.querySelector("#point-arrow-chat");
+        const agentPage = document.querySelector("agent-page");
+
+        assistOS.UI.chatState === "closed" ? maximizeChat() : minimizeChat();
     }
 
     async navigateToPage(_target, page) {

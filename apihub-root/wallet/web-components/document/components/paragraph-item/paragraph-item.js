@@ -3,31 +3,6 @@ const spaceModule = require("assistos").loadModule("space", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 
-const textFontSizeMap = Object.freeze({
-    8:"xx-small",
-    10:"x-small",
-    12:"small",
-    14:"medium",
-    16:"large",
-    18:"x-large",
-    20:"xx-large",
-    22:"xxx-large",
-    24:"xxxx-large",
-    28:"xxxxx-large",
-    32:"xxxxxx-large",
-    36:"xxxxxxx-large",
-    48:"xxxxxxxx-large",
-    72:"xxxxxxxxx-large"
-});
-
-const textFontFamilyMap = Object.freeze({
-    "Arial":"font-arial",
-    "Georgia":"font-georgia",
-    "Courier New":"font-courier-new",
-    "Times New Roman":"font-times-new-roman",
-    "Verdana":"font-verdana"
-});
-
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -91,12 +66,11 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
+        const textFontSize = localStorage.getItem("document-font-size")||16;
+        const textFontFamily = localStorage.getItem("document-font-family")||"Arial";
 
-        this.textFontSize = localStorage.getItem("document-font-size")||16;
-        this.textFontFamily = localStorage.getItem("document-font-family")||"Arial";
-
-        this.fontFamily= textFontFamilyMap[this.textFontFamily]||"Arial, sans-serif";
-        this.fontSize = textFontSizeMap[this.textFontSize]||"large";
+        this.fontFamily= assistOS.constants.fontFamilyMap[textFontFamily]
+        this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
 
         this.loadedParagraphText = this.paragraph.text || "";
 

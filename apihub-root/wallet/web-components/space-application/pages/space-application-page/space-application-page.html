@@ -4,15 +4,15 @@
     <!--<svg class="drag-icon" width="30" height="30" viewBox="0 0 19 11" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M4.78213 1.02978L4.78202 1.02967L4.77567 1.036L1.05661 4.74161L1.0565 4.74172C0.860344 4.93741 0.75 5.20287 0.75 5.47984C0.75 5.75681 0.860344 6.02227 1.0565 6.21796L1.05661 6.21807L4.77275 9.92078C4.90042 10.0561 5.06198 10.1549 5.24069 10.2071C5.4208 10.2596 5.61177 10.2629 5.79358 10.2165C5.97565 10.1706 6.14203 10.0765 6.27518 9.94422C6.40844 9.81179 6.50346 9.64591 6.55014 9.46401C6.59682 9.28211 6.59339 9.09101 6.54023 8.9109C6.48752 8.73236 6.38792 8.57125 6.25187 8.44418L4.32463 6.5239L14.6754 6.5239L12.748 8.44432C12.6122 8.57151 12.5129 8.73264 12.4604 8.91112C12.4075 9.09103 12.4042 9.28182 12.4509 9.46343C12.4971 9.64526 12.5917 9.81121 12.7245 9.94387C12.8574 10.0766 13.0237 10.1711 13.2058 10.2175C13.3879 10.2639 13.5792 10.2605 13.7595 10.2077L13.6892 9.96778L13.7595 10.2077C13.9383 10.1553 14.0998 10.0562 14.2274 9.92066L17.9434 6.21807L17.9435 6.21797C18.1397 6.02227 18.25 5.75681 18.25 5.47984C18.25 5.20287 18.1397 4.93741 17.9435 4.74172L17.9434 4.74161L14.2243 1.036L14.2244 1.03588L14.2179 1.02978C14.0193 0.845633 13.757 0.745493 13.4861 0.750156C13.2152 0.754818 12.9565 0.863926 12.7644 1.05482L12.764 1.05528C12.5724 1.24671 12.4625 1.50488 12.4578 1.77558C12.4531 2.04628 12.554 2.3081 12.7388 2.50602L12.7387 2.50613L12.7451 2.51246L14.6754 4.43578L4.32463 4.43578L6.25492 2.51246L6.25504 2.51257L6.26116 2.50602C6.44605 2.30809 6.54687 2.04628 6.54218 1.77558C6.53748 1.50488 6.42765 1.24671 6.23603 1.05528L6.23557 1.05482C6.04348 0.863926 5.78478 0.754818 5.51389 0.750156C5.24301 0.745493 4.9807 0.845632 4.78213 1.02978Z" fill="#0C5C9E" stroke="#0C5C9E" stroke-width="0.5"/>
     </svg>-->
-    <div class="chat-drag-container">
-        <img class="point-arrow" src="./wallet/assets/icons/point-right-arrow.svg">
+    <div class="chat-drag-container" data-local-action="toggleChat">
+        <img id="point-arrow-chat" class="point-arrow" src="./wallet/assets/icons/point-right-arrow.svg">
     </div>
 </div>
 
 <$$configPage class="current-page" data-presenter="$$configPage"></$$configPage>
 <div class="right-sidebar" style="$$transformStyle">
     <div class="toggle-sidebar"  data-action="toggleSidebar" title="Toggle Sidebar">
-        <img class="point-arrow $$arrowRotationToggle" src="./wallet/assets/icons/point-right-arrow.svg">
+        <img id="point-arrow-sidebar" class="point-arrow $$arrowRotationToggle" src="./wallet/assets/icons/point-right-arrow.svg">
     </div>
     <div class="sidebar-item" data-local-action="navigateToPage documents-page" title="Documents">
         <div class="svg-container">

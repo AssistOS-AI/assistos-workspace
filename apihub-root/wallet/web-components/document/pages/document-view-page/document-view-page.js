@@ -23,7 +23,7 @@ export class DocumentViewPage {
         });
     }
 
-    async printDocument(){
+    async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
 
@@ -141,6 +141,12 @@ export class DocumentViewPage {
     }
 
     async beforeRender() {
+        this.documentFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("document-title-font-size") || "24px"];
+        this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
+        this.abstractFontFamily = this.documentFontFamily
+        this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
+
+
         await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -152,7 +158,7 @@ export class DocumentViewPage {
                 this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
             });
         }
-        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color")||"#000000");
+        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
     }
 
     renderDocumentTitle() {
@@ -284,7 +290,7 @@ export class DocumentViewPage {
             key: "Enter",
             target: targetElement
         }
-        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent,"table");
+        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent, "table");
     }
 
     async openDocumentsPage() {
@@ -504,11 +510,11 @@ export class DocumentViewPage {
     }
 
     async openGenerateBookModal(_target) {
-        const taskId=await assistOS.UI.showModal("books-generator-modal", {
+        const taskId = await assistOS.UI.showModal("books-generator-modal", {
             "presenter": "books-generator-modal",
             "documentId": this._document.id
-        },true);
-        if(taskId){
+        }, true);
+        if (taskId) {
             assistOS.watchTask(taskId);
         }
     }
