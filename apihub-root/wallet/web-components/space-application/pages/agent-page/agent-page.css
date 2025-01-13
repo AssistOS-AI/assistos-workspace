@@ -264,6 +264,7 @@ agent-page {
 }
 
 .select-settings-container {
+    border-radius: 10px;
     margin: 5px;
     position: relative;
     cursor: pointer;
