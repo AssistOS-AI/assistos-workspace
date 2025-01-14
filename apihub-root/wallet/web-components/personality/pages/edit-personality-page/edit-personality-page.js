@@ -133,6 +133,9 @@ export class EditPersonalityPage {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
+            if(!voice){
+                return;
+            }
             audioSection.classList.remove("hidden");
             voiceSelect.value = this.personality.voiceId;
             audioSource.src = voice.sample;
