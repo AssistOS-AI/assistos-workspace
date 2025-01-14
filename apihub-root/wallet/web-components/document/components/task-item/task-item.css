@@ -11,7 +11,7 @@ task-item{
     line-height: normal;
 }
 .green{
-    color: green;
+    color: green !important;
 }
 .task-name{
     width: 30%;
@@ -32,7 +32,7 @@ task-item{
 }
 .info-pop-up{
     position: absolute;
-    background-color: white;
+    background-color: var(--white);
     width: 350px;
     color: black;
     box-shadow: 0px 1px 7.3px 0px #00000040;
@@ -84,5 +84,5 @@ task-item{
 .failed-link{
     cursor: pointer;
     text-decoration: underline;
-    color: var(--red);
+    color: var(--red) !important;
 }

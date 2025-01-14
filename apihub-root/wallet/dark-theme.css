@@ -58,6 +58,7 @@
     --tab: #7d7d7d;
     --selected-chat: #333333;
     --dark-text: #b8b8b8;
+    --light-highlight: #000000;
 }
 html[theme="dark"] .general-button{
     color: var(--user-text);
@@ -87,7 +88,7 @@ html[theme="dark"] span{
 }
 html[theme="dark"] form,
 html[theme="dark"] dialog {
-    background: var(--white);
+    /*background: var(--white);*/
     border: var(--right-sidebar-border);
     color: var(--user-text);
     box-shadow: var(--right-sidebar-shadow);

@@ -10,8 +10,6 @@ export class LeftSidebar {
         this.boundShowTaskNotification = this.showTaskNotification.bind(this);
 
         let currentTheme = localStorage.getItem('theme');
-        const htmlElement = document.getElementsByTagName('html')[0];
-        htmlElement.setAttribute('theme', currentTheme);
         if (currentTheme && currentTheme === 'dark') {
             this.themeIcon = "wallet/assets/icons/sun.svg";
         } else {
