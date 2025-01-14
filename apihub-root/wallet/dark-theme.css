@@ -88,7 +88,7 @@ html[theme="dark"] span{
 }
 html[theme="dark"] form,
 html[theme="dark"] dialog {
-    background: var(--white);
+    /*background: var(--white);*/
     border: var(--right-sidebar-border);
     color: var(--user-text);
     box-shadow: var(--right-sidebar-shadow);
