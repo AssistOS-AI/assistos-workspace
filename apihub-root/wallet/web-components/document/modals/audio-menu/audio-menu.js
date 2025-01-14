@@ -18,12 +18,20 @@ export class AudioMenu {
         this.commands = this.paragraph.commands;
         this.invalidate(async () => {
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
-            this.emotions = await llmModule.listEmotions(assistOS.space.id);
+
         });
         this.element.classList.add("maintain-focus");
     }
 
-    beforeRender() {
+    async beforeRender() {
+        this.currentEffects = "";
+        this.emotionsSelect = "";
+        this.styleGuidanceSlide = "";
+        if(this.commands.effects){
+            for(let effect of this.commands.effects){
+                this.currentEffects += `<effect-item class="pointer" data-presenter="effect-item" data-id="${effect.id}"></effect-item>`;
+            }
+        }
         let personalitiesHTML = "";
         let configuredPersonalitiesFound = 0;
         for (let personality of this.personalities) {
@@ -32,38 +40,57 @@ export class AudioMenu {
                 configuredPersonalitiesFound++;
             }
         }
-        this.currentEffects = "";
-        if(this.commands.effects){
-            for(let effect of this.commands.effects){
-                this.currentEffects += `<effect-item class="pointer" data-presenter="effect-item" data-id="${effect.id}"></effect-item>`;
-            }
-        }
-
         if (configuredPersonalitiesFound === 0) {
             personalitiesHTML += `<option value="default" disabled>No personalities with voice</option>`;
         } else if (configuredPersonalitiesFound <= this.personalities.length) {
             personalitiesHTML += `<option value="default" disabled>${this.personalities.length - configuredPersonalitiesFound} personalities unconfigured</option>`;
         }
-
         this.personalitiesHTML = personalitiesHTML;
-        let emotionsHTML = "";
-        for (let emotion of this.emotions) {
-            emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
+        if (this.commands.speech && this.commands.speech.personality) {
+            let emotionsHTML = await this.getEmotionsHTML(this.commands.speech.personality);
+            if(emotionsHTML){
+                this.emotionsSelect = emotionsHTML;
+                this.styleGuidanceSlide = this.getStyleGuidanceHMTL();
+            }
         }
-        this.emotionsHTML = emotionsHTML;
     }
-
+    async getEmotionsHTML(personalityName){
+        let personality = this.personalities.find(personality => personality.name === personalityName);
+        let emotions = await llmModule.listEmotions(assistOS.space.id, personality.llms["audio"]);
+        if(emotions.length > 0){
+            let emotionsHTML = "";
+            for (let emotion of emotions) {
+                emotionsHTML += `<option value="${emotion}">${emotion}</option>`;
+            }
+            return `<div class="form-item" id="emotionsSelect">
+                    <label for="emotion" class="form-label">Select Emotion</label>
+                    <select class="form-input" id="emotion" data-id="emotion" name="emotion" required>
+                        <option disabled selected value="">Select Emotion</option>
+                        ${emotionsHTML}
+                    </select>
+                </div>`;
+        }
+    }
+    getStyleGuidanceHMTL(){
+        return `<div class="form-item" id="styleGuidanceSlide">
+                    <label for="styleGuidance" class="form-label">Emotion Intensity</label>
+                    <input type="range" name="styleGuidance" id="styleGuidance" min="1" max="30" value="15">
+                </div>`;
+    }
     async afterRender() {
         if (this.commands.speech && this.commands.speech.personality) {
-            let personalityId = this.personalities.find(personality => personality.name === this.commands.speech.personality).id;
+            let personality = this.personalities.find(personality => personality.name === this.commands.speech.personality);
+            let personalityId = personality.id;
             let personalityOption = this.element.querySelector(`option[value="${personalityId}"]`);
             personalityOption.selected = true;
             if(this.commands.speech.emotion){
                 let emotionOption = this.element.querySelector(`option[value="${this.commands.speech.emotion}"]`);
                 emotionOption.selected = true;
             }
-            let styleGuidance = this.element.querySelector(`#styleGuidance`);
-            styleGuidance.value = this.commands.speech.styleGuidance || 15;
+            if(this.commands.speech.styleGuidance){
+                let styleGuidance = this.element.querySelector(`#styleGuidance`);
+                styleGuidance.value = this.commands.speech.styleGuidance;
+            }
         }
         if(this.commands.audio){
             let audioElement = this.element.querySelector(".paragraph-audio");
@@ -98,6 +125,26 @@ export class AudioMenu {
             let warnMessage = `No text to convert to speech`;
             this.showSpeechWarning(warnMessage);
         }
+        let personalitySelect = this.element.querySelector("#personality");
+        personalitySelect.addEventListener("change", async (e) => {
+            let personalityId = e.target.value;
+            let selectedPersonality = this.personalities.find(personality => personality.id === personalityId).name;
+            let emotionsHTML = await this.getEmotionsHTML(selectedPersonality);
+            let emotionsSelect = this.element.querySelector("#emotionsSelect");
+            if(emotionsSelect){
+                emotionsSelect.remove();
+            }
+            let styleGuidanceSlide = this.element.querySelector("#styleGuidanceSlide");
+            if(styleGuidanceSlide){
+                styleGuidanceSlide.remove();
+            }
+            if(emotionsHTML){
+                let personalityFormItem = this.element.querySelector(".personality-item");
+                personalityFormItem.insertAdjacentHTML("afterend", emotionsHTML);
+                let bottomRow = this.element.querySelector(".bottom-row");
+                bottomRow.insertAdjacentHTML("afterbegin", this.getStyleGuidanceHMTL());
+            }
+        });
     }
     async saveVolume(button){
         let volumeInput = this.element.querySelector("#volume");
@@ -127,6 +174,11 @@ export class AudioMenu {
             emotion: formData.data.emotion,
             styleGuidance: formData.data.styleGuidance
         };
+        for(let key in speech){
+            if(typeof speech[key] === "undefined"){
+                delete speech[key];
+            }
+        }
         await this.commandsEditor.insertCommandWithTask("speech", speech);
         this.invalidate();
     }

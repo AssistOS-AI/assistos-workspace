@@ -31,7 +31,7 @@ class TextToSpeech extends Task {
                 voice: personalityData.voiceId,
                 emotion: paragraphCommands.speech.emotion,
                 styleGuidance: paragraphCommands.speech.styleGuidance,
-                modelName: "PlayHT2.0"
+                modelName: personalityData.llms["audio"]
             });
             const audioBuffer = Buffer.from(arrayBuffer);
             let audioDuration = await ffmpeg.getAudioDurationFromBuffer(audioBuffer);

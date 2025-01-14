@@ -407,8 +407,6 @@ async function getAudioResponse(request, response) {
 
 async function listVoices(request, response) {
     try {
-        request.body = {};
-        request.body.modelName = "PlayHT2.0";
         let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             data: result
@@ -430,7 +428,7 @@ async function listEmotions(request, response) {
         }
         let llmResponse;
         let body = {
-            modelName: "PlayHT2.0",
+            modelName: request.body.modelName,
         }
         try {
             llmResponse = await fetch(url, {
