@@ -3,6 +3,7 @@ const {sendResponse, sendFileToClient} = require("../apihub-component-utils/util
 const DocumentToVideo = require("./DocumentToVideo");
 const ChapterToVideo = require("./ChapterToVideo");
 const utils = require("../apihub-component-utils/utils");
+const TranslateDocument = require("./TranslateDocument");
 const TextToSpeech = require("./TextToSpeech");
 const LipSync = require("./LipSync");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
@@ -10,6 +11,27 @@ const ParagraphToVideo = require("./ParagraphToVideo");
 const fs = require('fs');
 const throttler = require("./ConcurrentThrottler");
 
+async function translateDocument(request, response){
+    let documentId = request.params.documentId;
+    let spaceId = request.params.spaceId;
+    let userId = request.userId;
+    let sessionId = request.sessionId;
+    try {
+        let language = request.body.language;
+        let personalityId = request.body.personalityId;
+        let task = new TranslateDocument(spaceId, userId, {documentId, language, personalityId});
+        await TaskManager.addTask(task);
+        notifyTasksListUpdate(sessionId, spaceId);
+        sendResponse(response, 200, "application/json", {
+            data: task.id
+        });
+        TaskManager.runTask(task.id);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
 async function compileVideoFromDocument(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -377,5 +399,6 @@ module.exports = {
     cancelAllDocumentTasks,
     downloadTaskLogs,
     compileVideoFromParagraph,
-    compileVideoFromChapter
+    compileVideoFromChapter,
+    translateDocument
 }

@@ -1,0 +1,26 @@
+<div class="modal-header">
+  <div class="modal-title">
+    Translate Document
+  </div>
+  <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form class="modal-body">
+  <div class="form-item">
+    <div class="form-label">Select Personality</div>
+    <select class="form-input" name="personality" id="personality" data-id="personality" required>
+      <option disabled selected value="">Select Personality</option>
+      $$personalitiesOptions
+    </select>
+  </div>
+  <div class="form-item">
+    <div class="form-label">Select Language</div>
+    <select class="form-input" name="language" id="language" data-id="language" required disabled>
+    </select>
+  </div>
+  <span class="note">Note: This operation will create a new document</span>
+  <div class="modal-footer">
+    <button class="general-button" data-local-action="translateDocument">Translate</button>
+  </div>
+</form>

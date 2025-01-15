@@ -133,4 +133,8 @@ export class DocumentsPage {
         };
         fileInput.click();
     }
+    async translateDocument(_target){
+        let documentId = this.getDocumentId(_target);
+        await assistOS.UI.showModal("translate-document-modal", {id: documentId});
+    }
 }

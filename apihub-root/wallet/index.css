@@ -177,6 +177,7 @@ dialog {
     justify-content: center;
     bottom: 10px;
     align-items: center;
+    background-color: var(--modal-background);
 }
 
 .modal-footer > button {

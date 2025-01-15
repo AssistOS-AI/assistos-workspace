@@ -376,21 +376,6 @@ export class ParagraphItem {
         }
     }
 
-    async getPersonalityImageSrc(personalityName) {
-        let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
-        let personalityImageId;
-        if (personality) {
-            personalityImageId = personality.imageId;
-        } else {
-            personalityImageId = null;
-            throw new Error("Personality not found");
-        }
-        if (personalityImageId) {
-            return await spaceModule.getImageURL(personalityImageId);
-        }
-        return "./wallet/assets/images/default-personality.png"
-    }
-
     async addUITask(taskId) {
         await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundTaskStatusHandler);
         this.documentPresenter.renderNewTasksBadge();

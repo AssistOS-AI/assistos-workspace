@@ -1,5 +1,6 @@
 
 action-box {
+    z-index: 1;
     position: sticky;
     margin-left: -10px;
     margin-top: 40px;

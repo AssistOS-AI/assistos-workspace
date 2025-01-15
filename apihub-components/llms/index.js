@@ -13,7 +13,8 @@ const {
     listLlms,
     getChatResponse,
     getChatStreamingResponse,
-    getDefaultModels
+    getDefaultModels,
+    getModelLanguages
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
@@ -28,7 +29,7 @@ function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", authorization);
 
     server.get("/apis/v1/spaces/:spaceId/llms/configs", sendLLMConfigs);
-
+    server.post("/apis/v1/spaces/:spaceId/llms/languages", getModelLanguages);
     /* Chat */
     server.post("/apis/v1/spaces/:spaceId/llms/chat/generate", getChatResponse);
     server.post("/apis/v1/spaces/:spaceId/llms/chat/streaming/generate", getChatStreamingResponse);
