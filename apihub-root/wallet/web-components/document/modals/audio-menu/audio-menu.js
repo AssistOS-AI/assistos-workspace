@@ -85,11 +85,15 @@ export class AudioMenu {
             personalityOption.selected = true;
             if(this.commands.speech.emotion){
                 let emotionOption = this.element.querySelector(`option[value="${this.commands.speech.emotion}"]`);
-                emotionOption.selected = true;
+                if(emotionOption){
+                    emotionOption.selected = true;
+                }
             }
             if(this.commands.speech.styleGuidance){
                 let styleGuidance = this.element.querySelector(`#styleGuidance`);
-                styleGuidance.value = this.commands.speech.styleGuidance;
+                if(styleGuidance){
+                    styleGuidance.value = this.commands.speech.styleGuidance;
+                }
             }
         }
         if(this.commands.audio){
