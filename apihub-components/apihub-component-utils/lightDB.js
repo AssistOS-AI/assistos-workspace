@@ -33,8 +33,6 @@ async function getRecord(spaceId, tableId, objectId) {
 
 async function getAllRecords(spaceId, objectId) {
     const dbClient = loadDatabaseClient(spaceId);
-    console.log(`----------spaceId: ${spaceId} objectId: ${objectId}------------------------`);
-    console.log(`----------dbClient: ${JSON.stringify(dbClient)}------------------------`);
     return await $$.promisify(dbClient.getAllRecords)($$.SYSTEM_IDENTIFIER, objectId);
 }
 
@@ -111,10 +109,13 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
 
     try {
         let records = await getAllRecords(spaceId, objectType);
-        console.log(`-----------${records}------------------------`);
         let metadata = [];
         for (let record of records) {
             let metadataRecord = await getRecord(spaceId, record.pk, record.pk);
+            if(!metadataRecord){
+                await deleteRecord(spaceId, objectType, record.pk);
+                continue;
+            }
             let object = metadataRecord.data;
             let metadataObj = {};
             for (let key of object.metadata) {
