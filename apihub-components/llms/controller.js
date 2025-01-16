@@ -407,8 +407,6 @@ async function getAudioResponse(request, response) {
 
 async function listVoices(request, response) {
     try {
-        request.body = {};
-        request.body.modelName = "PlayHT2.0";
         let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
         return utils.sendResponse(response, 200, "application/json", {
             data: result
@@ -430,7 +428,7 @@ async function listEmotions(request, response) {
         }
         let llmResponse;
         let body = {
-            modelName: "PlayHT2.0",
+            modelName: request.body.modelName,
         }
         try {
             llmResponse = await fetch(url, {
@@ -505,7 +503,18 @@ async function getDefaultModels(request, response) {
         })
     }
 }
-
+async function getModelLanguages(request, response) {
+    try {
+        let result = await sendRequest(`/apis/v1/llms/languages`, "POST", request, response);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: result
+        });
+    } catch (error) {
+        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        })
+    }
+}
 module.exports = {
     getTextResponse,
     getTextResponseAdvanced,
@@ -523,5 +532,6 @@ module.exports = {
     listEmotions,
     lipsync,
     listLlms,
-    getDefaultModels
+    getDefaultModels,
+    getModelLanguages
 };

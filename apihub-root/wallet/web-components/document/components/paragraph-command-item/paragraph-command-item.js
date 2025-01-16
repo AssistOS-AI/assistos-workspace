@@ -39,7 +39,7 @@ export class ParagraphCommandItem{
         this.paragraphText = this.paragraphPresenter.paragraph.text || "...........";
         if(this.paragraphPresenter.paragraph.commands.speech){
             this.agent = this.paragraphPresenter.paragraph.commands.speech.personality;
-            this.personalityImageSrc = await this.paragraphPresenter.getPersonalityImageSrc(this.agent);
+            this.personalityImageSrc = await this.paragraphPresenter.documentPresenter.getPersonalityImageByName(this.agent);
         } else {
             this.agent = "none";
             this.personalityImageSrc = "./wallet/assets/images/default-personality.png";

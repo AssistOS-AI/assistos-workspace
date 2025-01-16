@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "translate-document-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "TranslateDocumentModal"
+        },
+        {
             "name": "diagram-menu",
             "directory": "document",
             "type": "modals",

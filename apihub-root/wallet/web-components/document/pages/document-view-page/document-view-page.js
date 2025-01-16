@@ -1,5 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
+const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
 
@@ -36,6 +37,25 @@ export class DocumentViewPage {
         this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
+    }
+
+    async getPersonalityName(personalityId){
+        let personality = this.personalitiesMetadata.find(personality => personality.id === personalityId);
+        return personality.name;
+    }
+    async getPersonalityImageByName(personalityName) {
+        let personality = this.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personalityImageId;
+        if (personality) {
+            personalityImageId = personality.imageId;
+        } else {
+            personalityImageId = null;
+            throw new Error("Personality not found");
+        }
+        if (personalityImageId) {
+            return await spaceModule.getImageURL(personalityImageId);
+        }
+        return "./wallet/assets/images/default-personality.png"
     }
 
     async refreshPersonalitiesMetadata() {
@@ -554,5 +574,8 @@ export class DocumentViewPage {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.currentSelectItem, this);
         }
+    }
+    async translateDocument(){
+        await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
 }

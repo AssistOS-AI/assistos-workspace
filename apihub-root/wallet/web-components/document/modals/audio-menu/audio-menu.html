@@ -54,19 +54,10 @@
                         $$personalitiesHTML
                     </select>
                 </div>
-                <div class="form-item">
-                    <label for="emotion" class="form-label">Select Emotion</label>
-                    <select class="form-input" id="emotion" data-id="emotion" name="emotion" required>
-                        <option disabled selected value="">Select Emotion</option>
-                        $$emotionsHTML
-                    </select>
-                </div>
+                $$emotionsSelect
             </div>
             <div class="bottom-row">
-                <div class="form-item">
-                    <label for="styleGuidance" class="form-label">Emotion Intensity</label>
-                    <input type="range" name="styleGuidance" id="styleGuidance" min="1" max="30" value="15">
-                </div>
+                $$styleGuidanceSlide
                 <button class="general-button maintain-focus" data-local-action="insertSpeech">Insert Task</button>
             </div>
         </form>

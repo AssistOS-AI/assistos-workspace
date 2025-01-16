@@ -14,25 +14,27 @@ export class EditPersonalityPage {
             await this.refreshPersonality();
             this.boundOnPersonalityUpdate = this.onPersonalityUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
-            /* TODO temporary fix endpoint should be called only if the api Key is set */
-            try {
-                this.voices = await llmModule.listVoices(assistOS.space.id);
-                this.voices.sort((a, b) => {
-                    if (a.name < b.name) {
-                        return -1;
-                    }
-                    if (a.name > b.name) {
-                        return 1;
-                    }
-                    return 0;
-                });
-            } catch (error) {
-                this.voices = [];
-                this.voicesErrorMessage = error.message;
-            }
+            await this.loadVoices(this.personality.llms["audio"]);
         });
     }
-
+    async loadVoices(modelName){
+        this.voicesErrorMessage = "";
+        try {
+            this.voices = await llmModule.listVoices(assistOS.space.id, modelName);
+            this.voices.sort((a, b) => {
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+        } catch (error) {
+            this.voices = [];
+            this.voicesErrorMessage = error.message;
+        }
+    }
     async onPersonalityUpdate(type) {
         if (type === "delete") {
             await this.openPersonalitiesPage();
@@ -82,7 +84,12 @@ export class EditPersonalityPage {
 
         let voicesHTML = "";
         for (let voice of this.voices) {
-            voicesHTML += `<option value="${voice.id}">${voice.name}, accent: ${voice.accent}, age: ${voice.age}, gender: ${voice.gender}, loudness: ${voice.loudness}, tempo: ${voice.tempo}</option>`;
+            let accent = voice.accent ? `, accent: ${voice.accent}` : "";
+            let age = voice.age ? `, age: ${voice.age}` : "";
+            let gender = voice.gender ? `, gender: ${voice.gender}` : "";
+            let loudness = voice.loudness ? `, loudness: ${voice.loudness}` : "";
+            let tempo = voice.tempo ? `, tempo: ${voice.tempo}` : "";
+            voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
         this.voicesOptions = voicesHTML;
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
@@ -126,6 +133,9 @@ export class EditPersonalityPage {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
+            if(!voice){
+                return;
+            }
             audioSection.classList.remove("hidden");
             voiceSelect.value = this.personality.voiceId;
             audioSource.src = voice.sample;
@@ -139,6 +149,12 @@ export class EditPersonalityPage {
             this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
             voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
         }
+        let audioSelect = this.element.querySelector("#audioLLM");
+        audioSelect.addEventListener("change", async ()=>{
+            this.invalidate(async () => {
+                await this.loadVoices(audioSelect.value);
+            });
+        });
     }
 
     async updateLlm(llmType, event) {

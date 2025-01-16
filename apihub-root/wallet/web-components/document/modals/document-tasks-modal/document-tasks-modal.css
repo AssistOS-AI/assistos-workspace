@@ -16,7 +16,6 @@ dialog{
     flex-direction: column;
     box-shadow: 0px 1px 5.5px 0px #65666754;
     padding: 5px 0;
-    border-radius: 10px;
     z-index: 1;
 }
 .tasks-header{
