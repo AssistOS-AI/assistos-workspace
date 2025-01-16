@@ -276,6 +276,12 @@
             "type": "components"
         },
         {
+            "name": "application-document-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ApplicationDocumentItem"
+        },
+        {
             "name": "add-document-modal",
             "directory": "document",
             "type": "modals",
