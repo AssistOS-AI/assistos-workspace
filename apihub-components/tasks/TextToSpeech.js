@@ -48,6 +48,7 @@ class TextToSpeech extends Task {
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
+            this.emit(EVENTS.DEPENDENCY_FAILED);
             await this.rollback();
             throw e;
         }

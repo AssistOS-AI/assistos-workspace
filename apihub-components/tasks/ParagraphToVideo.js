@@ -75,7 +75,8 @@ class ParagraphToVideo extends Task {
             await ffmpegUtils.trimFileAdjustVolume(videoPath, commands.video.start, commands.video.end, commands.video.volume, this.ffmpegExecutor);
             if(commands.audio){
                 this.ffmpegExecutor.logProgress(`Audio found`);
-                if(commands.video.duration < commands.audio.duration){
+                let videoDuration = commands.video.end - commands.video.start;
+                if(videoDuration < commands.audio.duration){
                     this.ffmpegExecutor.logError(`Audio duration is longer than video duration`);
                     throw new Error(`Audio duration is longer than video duration`);
                 }

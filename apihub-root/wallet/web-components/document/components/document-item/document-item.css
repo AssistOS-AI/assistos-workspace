@@ -19,7 +19,11 @@
     width: 96%;
     padding: 8px 10px;
 }
-
+.name-cell{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .action-cell {
     width: 100%;
     max-width: 33px;
