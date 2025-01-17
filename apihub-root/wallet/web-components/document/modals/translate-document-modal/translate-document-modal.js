@@ -19,6 +19,7 @@ export class TranslateDocumentModal{
     }
     afterRender(){
         let personalitySelect = this.element.querySelector("#personality");
+        let audioLanguages;
         personalitySelect.addEventListener("change", async (e)=>{
             let value = e.target.value;
             let languageSelect = this.element.querySelector("#language");
@@ -26,18 +27,20 @@ export class TranslateDocumentModal{
             if(value !== ""){
                 languageSelect.removeAttribute("disabled");
                 let personality = this.personalities.find((p)=> p.id === value);
-                let languages = await llmModule.getModelLanguages(assistOS.space.id, personality.llms["text"]);
-                if(languages.length === 0){
+                let textLanguages = await llmModule.getModelLanguages(assistOS.space.id, personality.llms["text"]);
+                if(textLanguages.length === 0){
                     languageSelect.innerHTML = `<option value="" disabled selected>No languages available</option>`;
                     languageSelect.setAttribute("disabled", "true");
                     return;
                 }
-                for(let language of languages){
+                for(let language of textLanguages){
                     languageSelect.innerHTML += `<option value="${language}">${language}</option>`;
                 }
             }
         });
+
     }
+
     async translateDocument(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
         if(formData.isValid){

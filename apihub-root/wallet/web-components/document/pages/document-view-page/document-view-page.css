@@ -9,6 +9,12 @@ document-view-page {
     direction: rtl; /* This moves the scrollbar to the left */
     text-align: left; /* Keeps content aligned normally */
 }
+.doc-title-breadcrumb{
+    width: calc(100% - 287px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .abstract-header-section{
     display: flex;
     justify-content: space-between;
@@ -130,6 +136,7 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .space-document-path {
+    width: 85%;
     cursor: default;
     display: flex;
     align-items: center;

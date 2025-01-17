@@ -10,7 +10,8 @@ module.exports = {
     EVENTS: {
         UPDATE: "update",
         LOG: "log",
-        DEPENDENCY_COMPLETED: "dependency_completed"
+        DEPENDENCY_COMPLETED: "dependency_completed",
+        DEPENDENCY_FAILED: "dependency_failed"
     },
     LOG: {
         DEBUG: "DEBUG",
