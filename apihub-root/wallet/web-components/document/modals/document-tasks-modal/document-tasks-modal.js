@@ -86,7 +86,7 @@ export class DocumentTasksModal {
         for(let task of this.tasks){
             if(task.status === "running"){
                 runningTasks++;
-            } else if(task.status === "created" || task.status === "cancelled" || task.status === "failed"){
+            } else if(task.status === "created"){
                 readyToRunTasks++;
             }
         }
