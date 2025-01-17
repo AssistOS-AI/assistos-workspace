@@ -125,7 +125,6 @@ textarea.paragraph-commands{
 .paragraph-text {
     letter-spacing: 0.02em;
     line-height: 1.2;
-    text-indent: 2em;
     resize: none;
     border: none;
     border-radius: 5px;

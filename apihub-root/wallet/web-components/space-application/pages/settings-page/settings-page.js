@@ -81,9 +81,10 @@ export class SettingsPage {
             const selectedFont = localStorage.getItem("document-font-family") || "Arial";
             const selectedColor = localStorage.getItem("document-font-color") || "#000000";
 
-            const selectedDocumentTitleSize = parseInt(localStorage.getItem("document-title-font-size"), 10) || 24;
-            const selectedChapterTitleSize = parseInt(localStorage.getItem("chapter-title-font-size"), 10) || 20;
-            const selectedAbstractSize = parseInt(localStorage.getItem("abstract-font-size"), 10) || 14;
+            const selectedDocumentTitleSize = parseInt(localStorage.getItem("document-title-font-size"), 10) ?? 24;
+            const selectedChapterTitleSize = parseInt(localStorage.getItem("chapter-title-font-size"), 10) ?? 20;
+            const selectedAbstractSize = parseInt(localStorage.getItem("abstract-font-size"), 10) ?? 14;
+            const selectedParagraphIndent=parseInt(localStorage.getItem("document-indent-size"), 10) ?? 12;
             this.tabContent = `
         <div id="preferences-container">
             <div class="preferences-section">
@@ -128,6 +129,16 @@ export class SettingsPage {
                                 ${[8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
                 .map(size => `
                                         <option value="${size}" ${size === selectedParagraphSize ? "selected" : ""}>${size}px</option>
+                                    `)
+                .join("")}
+                            </select>
+                        </div>
+                            <div class="preference">
+                            <label for="document-indent-size">Paragraph Indentation</label>
+                            <select id="document-indent-size" name="document-indent-size">
+                                ${[0,2,4,6,8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
+                .map(size => `
+                                        <option value="${size}" ${size === selectedParagraphIndent ? "selected" : ""}>${size}px</option>
                                     `)
                 .join("")}
                             </select>
@@ -182,6 +193,8 @@ export class SettingsPage {
                 localStorage.setItem("chapter-title-font-size", event.target.value);
             }else if(id === "document-abstract-font-size"){
                 localStorage.setItem("abstract-font-size", event.target.value);
+            }else if(id === "document-indent-size"){
+                localStorage.setItem("document-indent-size", event.target.value);
             }
         });
         if(this.collaboratorsTab === "active"){

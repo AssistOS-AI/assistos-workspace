@@ -66,11 +66,12 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-        const textFontSize = localStorage.getItem("document-font-size")||16;
-        const textFontFamily = localStorage.getItem("document-font-family")||"Arial";
-
+        const textFontSize = localStorage.getItem("document-font-size")??16;
+        const textFontFamily = localStorage.getItem("document-font-family")??"Arial";
+        const textIndent = localStorage.getItem("document-indent-size")??"12";
         this.fontFamily= assistOS.constants.fontFamilyMap[textFontFamily]
         this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
+        this.textIndent= assistOS.constants.textIndentMap[textIndent]
 
         this.loadedParagraphText = this.paragraph.text || "";
 

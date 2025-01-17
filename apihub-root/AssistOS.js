@@ -8,6 +8,26 @@ const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
 
+const textIndentMap = Object.freeze({
+    0: "text-indent-0",
+    2: "text-indent-2",
+    4: "text-indent-4",
+    6: "text-indent-6",
+    8: "text-indent-8",
+    10: "text-indent-10",
+    12: "text-indent-12",
+    14: "text-indent-14",
+    16: "text-indent-16",
+    18: "text-indent-18",
+    20: "text-indent-20",
+    22: "text-indent-22",
+    24: "text-indent-24",
+    28: "text-indent-28",
+    32: "text-indent-32",
+    36: "text-indent-36",
+    48: "text-indent-48",
+    72: "text-indent-72"
+})
 const textFontSizeMap = Object.freeze({
     8:"xx-small",
     10:"x-small",
@@ -42,7 +62,8 @@ class AssistOS {
         this.notificationMonitor = "closed";
         this.constants={
             fontSizeMap:textFontSizeMap,
-            fontFamilyMap:textFontFamilyMap
+            fontFamilyMap:textFontFamilyMap,
+            textIndentMap:textIndentMap
         };
         this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;

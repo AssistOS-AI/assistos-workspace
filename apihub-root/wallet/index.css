@@ -670,3 +670,57 @@ dialog {
 .font-color{
     color: var(--document-font-color);
 }
+.text-indent-0 {
+    text-indent: 0;
+}
+.text-indent-2 {
+    text-indent: 2px;
+}
+.text-indent-4 {
+    text-indent: 4px;
+}
+.text-indent-6 {
+    text-indent: 6px;
+}
+.text-indent-8 {
+    text-indent: 8px;
+}
+.text-indent-10 {
+    text-indent: 10px;
+}
+.text-indent-12 {
+    text-indent: 12px;
+}
+.text-indent-14 {
+    text-indent: 14px;
+}
+.text-indent-16 {
+    text-indent: 16px;
+}
+.text-indent-18 {
+    text-indent: 18px;
+}
+.text-indent-20 {
+    text-indent: 20px;
+}
+.text-indent-22 {
+    text-indent: 22px;
+}
+.text-indent-24 {
+    text-indent: 24px;
+}
+.text-indent-28 {
+    text-indent: 28px;
+}
+.text-indent-32 {
+    text-indent: 32px;
+}
+.text-indent-36 {
+    text-indent: 36px;
+}
+.text-indent-48 {
+    text-indent: 48px;
+}
+.text-indent-72 {
+    text-indent: 72px;
+}
