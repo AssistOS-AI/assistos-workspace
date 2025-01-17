@@ -20,10 +20,8 @@ class TranslateDocument extends Task {
         clearTimeout(timeout);
         return result.message;
     }
-    runTask() {
-        return new Promise(async (resolve, reject) => {
-            this.resolve = resolve;
-            this.reject = reject;
+    async runTask() {
+
 
             this.llmModule = await this.loadModule("llm");
             this.utilModule = await this.loadModule("util");
@@ -41,6 +39,9 @@ class TranslateDocument extends Task {
             });
             this.newDocumentId = docId;
             for (let chapter of document.chapters) {
+                if(this.stopExecution){
+                    return;
+                }
                 let invalidateChapterVideo = false;
                 let translatedTitle = await this.translateText(chapter.title);
                 let translatedComment = await this.translateText(chapter.comment);
@@ -58,6 +59,9 @@ class TranslateDocument extends Task {
                 const chapterId = await documentModule.addChapter(this.spaceId, docId, chapterObject);
 
                 for (let paragraph of chapter.paragraphs) {
+                    if(this.stopExecution){
+                        return;
+                    }
                     paragraph.text = await this.translateText(paragraph.text);
                     paragraph.comment = await this.translateText(paragraph.comment);
                     paragraph.id = await documentModule.addParagraph(this.spaceId, docId, chapterId, paragraph);
@@ -91,9 +95,7 @@ class TranslateDocument extends Task {
                 console.error(e);
                 //some paragraph tasks failed, error will be shown in tasks list
             }
-
-            this.resolve(docId);
-        });
+            return docId;
     }
     runParagraphTask(taskId){
         return new Promise(async (resolve, reject) => {
@@ -105,7 +107,7 @@ class TranslateDocument extends Task {
     }
 
     async cancelTask() {
-        this.reject(new Error("Task cancelled"));
+        this.stopExecution = true;
     }
     serialize() {
         return {
