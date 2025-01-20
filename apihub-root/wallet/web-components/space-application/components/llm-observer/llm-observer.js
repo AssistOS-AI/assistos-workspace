@@ -93,7 +93,6 @@ export class LLMObserver {
     scrollToBottom() {
         requestAnimationFrame(() => {
             if (this.logBox) {
-                console.log('Scrolling to bottom:', this.logBox.scrollHeight);
                 this.logBox.scrollTop = this.logBox.scrollHeight;
             }
         });
