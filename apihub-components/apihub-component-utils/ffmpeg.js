@@ -206,7 +206,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     backgroundSoundVolume = volumeToDecibels(backgroundSoundVolume);
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
     -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume}dB[bg]; \
-    [1:a][bg]amix=inputs=2:duration=longest[aout]" \
+    [1:a][bg]amix=inputs=2:duration=longest, loudnorm[aout]" \
     -map 1:v -map "[aout]" -c:v copy -c:a ${audioStandard.codec} -t ${videoDuration} ${tempOutputPath}`;
 
     await task.runCommand(command);
@@ -231,7 +231,13 @@ async function adjustAudioVolume(audioPath, volume, task) {
     await fsPromises.unlink(audioPath);
     await fsPromises.rename(tempOutputPath, audioPath);
 }
-
+async function normalizeVolume(audioPath, task) {
+    const tempOutputPath = audioPath.replace('.mp3', '_temp.mp3');
+    const command = `${ffmpegPath} -i ${audioPath} -af loudnorm -c:a ${audioStandard.codec} ${tempOutputPath}`;
+    await task.runCommand(command);
+    await fsPromises.unlink(audioPath);
+    await fsPromises.rename(tempOutputPath, audioPath);
+}
 function volumeToDecibels(volume) {
     if (volume < 0 || volume > 100) {
         throw new Error("Volume must be between 0 and 1");
@@ -531,5 +537,6 @@ module.exports = {
     trimFileAdjustVolume,
     addEffectsToVideo,
     adjustVideoVolume,
-    adjustAudioVolume
+    adjustAudioVolume,
+    normalizeVolume
 }

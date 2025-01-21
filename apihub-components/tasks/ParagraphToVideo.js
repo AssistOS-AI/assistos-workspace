@@ -208,6 +208,7 @@ class ParagraphToVideo extends Task {
         await ffmpegUtils.verifyAudioSettings(path, this.ffmpegExecutor);
         this.ffmpegExecutor.logProgress(`Adjusting audio volume`);
         await ffmpegUtils.adjustAudioVolume(path, volume, this.ffmpegExecutor);
+        await ffmpegUtils.normalizeVolume(path, this.ffmpegExecutor);
     }
 
     async cancelTask() {
