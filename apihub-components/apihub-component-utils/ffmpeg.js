@@ -52,18 +52,31 @@ async function hasAudioStream(videoPath, task) {
     return result.includes('codec_type=audio');
 }
 
-async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume) {
+async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume, audioDuration, videoDuration) {
     let command = '';
     let hasAudio = await hasAudioStream(videoPath, task);
     videoVolume = volumeToDecibels(videoVolume);
     audioVolume = volumeToDecibels(audioVolume);
     const videoVolumeFilter = `[0:a]volume=${videoVolume}dB[videoAudio];`;
     const audioVolumeFilter = `[1:a]volume=${audioVolume}dB[externalAudio];`;
+    let difference = (parseFloat(audioDuration) - parseFloat(videoDuration)).toFixed(2);
+    let videoFreezeFilter;
+    if(difference > 0){
+        videoFreezeFilter = `tpad=stop_mode=clone:stop_duration=${difference}`;
+    } else {
+        videoFreezeFilter = `null`;
+    }
+
+
     if(hasAudio){
-        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v copy -c:a ${audioStandard.codec} ${outputPath}`;
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "` +
+            `[0:v]${videoFreezeFilter}[paddedVideo];` +
+            `${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=longest:dropout_transition=2[mixedAudio]" ` +
+            `-map [paddedVideo] -map [mixedAudio] -c:v ${videoStandard.codec} -c:a ${audioStandard.codec} ${outputPath}`;
     } else {
         command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v copy -c:a ${audioStandard.codec} ${outputPath}`;
     }
+
     await task.runCommand(command);
 }
 

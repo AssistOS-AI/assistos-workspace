@@ -312,8 +312,8 @@ export class DocumentVideoPreview {
             this.currentTime += this.getVideoDuration();
             this.incrementParagraphIndex();
         }
-        this.videoPlayer.src = "";
-        this.videoPlayer.classList.add("hidden");
+        // this.videoPlayer.src = "";
+        // this.videoPlayer.classList.add("hidden");
         //needs to respect order of operations
         if(this.playNextHandler === this.videoPlayer){
             this.playNext();
