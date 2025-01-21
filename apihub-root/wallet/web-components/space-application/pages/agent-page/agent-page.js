@@ -53,7 +53,7 @@ export class AgentPage {
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = "Artist";
         this.personalityLLM = "GPT-4o";
-        this.spaceName = assistOS.space.name;
+        this.spaceName = assistOS.space.name.length>15?assistOS.space.name.substring(0,15)+"...":assistOS.space.name;
     }
 
     async afterRender() {

@@ -37,7 +37,7 @@ export class SpaceApplicationPage {
             arrow.classList.add("arrow-rotated");
             assistOS.UI.chatState = "open";
             let spaceApplicationPage = document.querySelector('space-application-page');
-            let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+            let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
             agentPage.style.display = "flex";
             agentPage.style.minWidth = minimumChatWidth + 'px';
             agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
@@ -72,7 +72,7 @@ export class SpaceApplicationPage {
                 }
                 let agentPageWidth = agentPageInitialWidth + deltaX;
                 let spaceApplicationPage = document.querySelector('space-application-page');
-                let minimumChatWidth = 0.1 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+                let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
                 if (agentPageWidth >= minimumChatWidth) {
                     agentPage.style.width = agentPageWidth + 'px';
                     assistOS.UI.chatWidth = agentPageWidth;
