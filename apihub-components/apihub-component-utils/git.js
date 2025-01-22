@@ -93,9 +93,41 @@ async function updateRepo(localPath) {
         throw new Error(`Failed to update repository: ${error.message}`);
     }
 }
+async function installDependencies(dependencies) {
+    try {
+        if(!dependencies) {
+            return;
+        }
+        const parentDir = `${process.cwd()}/..`;
+        for(let dependency of dependencies) {
+            await execAsync(`npm install ${dependency}`, {
+                cwd: parentDir, // Set the working directory
+            });
+        }
+    } catch (error) {
+        throw new Error(`Failed to install dependencies: ${error.message}`);
+    }
+}
+async function uninstallDependencies(dependencies) {
+    try {
+        if(!dependencies) {
+            return;
+        }
+        const parentDir = `${process.cwd()}/..`;
+        for(let dependency of dependencies) {
+            await execAsync(`npm uninstall ${dependency}`, {
+                cwd: parentDir, // Set the working directory
+            });
+        }
+    } catch (error) {
+        throw new Error(`Failed to uninstall dependencies: ${error.message}`);
+    }
+}
 module.exports = {
     clone,
     getLastCommitDate,
     checkForUpdates,
-    updateRepo
+    updateRepo,
+    installDependencies,
+    uninstallDependencies
 };
