@@ -204,7 +204,7 @@ async function runApplicationTask(request, spaceId, applicationId, taskName, tas
 
     const ITask = require('../tasks/Task.js')
     const ITaskInstance = new ITask(spaceId, request.userId, taskData);
-
+    ITaskInstance.applicationId = applicationId;
     const taskPath = getApplicationTaskPath(spaceId, applicationId, taskName);
     const taskFunctions = require(taskPath);
     ensureAllFunctionsExist(taskFunctions);
@@ -221,7 +221,10 @@ async function runApplicationFlow(request, spaceId, applicationId, flowId, flowD
     const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId, flowData, flowId);
     return await flowInstance.runTask();
 }
-
+async function getApplicationTasks(spaceId, applicationId) {
+    let tasks = TaskManager.serializeTasks(spaceId);
+    return tasks.filter(task => task.applicationId === applicationId);
+}
 module.exports = {
     installApplication,
     uninstallApplication,
@@ -230,6 +233,8 @@ module.exports = {
     runApplicationTask,
     runApplicationFlow,
     updateApplication,
-    requiresUpdate
+    requiresUpdate,
+    getApplicationTasks,
+    getApplicationTaskPath
 };
 
