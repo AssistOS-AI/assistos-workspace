@@ -291,6 +291,7 @@ document-view-page::-webkit-scrollbar-track {
     position: absolute;
     left: -50px;
     width: 40px;
+    border-radius: 50%;
 }
 .focused.locked-item{
     background-color: var(--very-light-gray);

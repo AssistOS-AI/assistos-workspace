@@ -558,7 +558,7 @@ export class DocumentViewPage {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }

@@ -7,7 +7,8 @@ const {
     userSecretExists,
     getUserAvatar,
     resetPassword,
-    sendPasswordResetCode
+    sendPasswordResetCode,
+    updateUserImage
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -76,7 +77,10 @@ function UserStorage(server) {
     server.get("/users/verify", activateUser);
     server.post("/users", registerUser);
     server.post("/users/login", loginUser);
+
     server.get("/users/profileImage/:userId", getUserAvatar);
+    server.post("/users/profileImage/:userId", updateUserImage);
+
     server.post("/users/password-reset/request",sendPasswordResetCode)
     server.post("/users/password-reset/verify",resetPassword)
     server.use("/users/*", authentication);
