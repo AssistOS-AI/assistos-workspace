@@ -8,6 +8,51 @@ const agentModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
 
+const textIndentMap = Object.freeze({
+    0: "text-indent-0",
+    2: "text-indent-2",
+    4: "text-indent-4",
+    6: "text-indent-6",
+    8: "text-indent-8",
+    10: "text-indent-10",
+    12: "text-indent-12",
+    14: "text-indent-14",
+    16: "text-indent-16",
+    18: "text-indent-18",
+    20: "text-indent-20",
+    22: "text-indent-22",
+    24: "text-indent-24",
+    28: "text-indent-28",
+    32: "text-indent-32",
+    36: "text-indent-36",
+    48: "text-indent-48",
+    72: "text-indent-72"
+})
+const textFontSizeMap = Object.freeze({
+    8:"xx-small",
+    10:"x-small",
+    12:"small",
+    14:"medium",
+    16:"large",
+    18:"x-large",
+    20:"xx-large",
+    22:"xxx-large",
+    24:"xxxx-large",
+    28:"xxxxx-large",
+    32:"xxxxxx-large",
+    36:"xxxxxxx-large",
+    48:"xxxxxxxx-large",
+    72:"xxxxxxxxx-large"
+});
+
+const textFontFamilyMap = Object.freeze({
+    "Arial":"font-arial",
+    "Georgia":"font-georgia",
+    "Courier New":"font-courier-new",
+    "Times New Roman":"font-times-new-roman",
+    "Verdana":"font-verdana"
+});
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -15,6 +60,11 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
+        this.constants={
+            fontSizeMap:textFontSizeMap,
+            fontFamilyMap:textFontFamilyMap,
+            textIndentMap:textIndentMap
+        };
         this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;
         return AssistOS.instance;
@@ -337,9 +387,9 @@ export function changeSelectedPageFromSidebar(url) {
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
                 if (path.getAttribute("stroke-linejoin") === "round") {
-                    path.setAttribute("stroke", "var(--white)");
+                    path.setAttribute("stroke", "#ffffff");
                 } else {
-                    path.setAttribute("fill", "var(--white)");
+                    path.setAttribute("fill", "#ffffff");
                 }
             });
             return;
@@ -376,7 +426,7 @@ function defineActions() {
         await assistOS.refresh();
     });
     assistOS.UI.registerAction("toggleSidebar", async (_target) => {
-        const arrow = _target.querySelector(".point-arrow");
+        const arrow = _target.querySelector("#point-arrow-sidebar");
         const sidebar = document.querySelector(".right-sidebar");
         if (assistOS.UI.sidebarState === "closed") {
             sidebar.style.transform = "translateX(0%)";
@@ -434,6 +484,7 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
+    assistOS.UI.chatState = "open";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();

@@ -149,14 +149,20 @@ async function installApplication(spaceId, applicationId) {
         }
     }
     application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
+    await git.installDependencies(manifest.dependencies);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);
 }
 
 async function uninstallApplication(spaceId, applicationId) {
     try {
+        const applications = loadApplicationsMetadata();
+        const application = applications.find(app => app.id === applicationId);
+        const manifestPath = getApplicationManifestPath(spaceId, application.name);
+        let manifestContent = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
+        await git.uninstallDependencies(manifestContent.dependencies);
         await fsPromises.rm(getApplicationPath(spaceId, applicationId), {recursive: true, force: true});
     } catch (error) {
-        CustomError.throwServerError("Failed to remove Application folder", error);
+        CustomError.throwServerError("Failed to uninstall application", error);
     }
     await Space.APIs.removeApplicationFromSpaceObject(spaceId, applicationId);
 }
@@ -198,7 +204,7 @@ async function runApplicationTask(request, spaceId, applicationId, taskName, tas
 
     const ITask = require('../tasks/Task.js')
     const ITaskInstance = new ITask(spaceId, request.userId, taskData);
-
+    ITaskInstance.applicationId = applicationId;
     const taskPath = getApplicationTaskPath(spaceId, applicationId, taskName);
     const taskFunctions = require(taskPath);
     ensureAllFunctionsExist(taskFunctions);
@@ -215,7 +221,10 @@ async function runApplicationFlow(request, spaceId, applicationId, flowId, flowD
     const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId, flowData, flowId);
     return await flowInstance.runTask();
 }
-
+async function getApplicationTasks(spaceId, applicationId) {
+    let tasks = TaskManager.serializeTasks(spaceId);
+    return tasks.filter(task => task.applicationId === applicationId);
+}
 module.exports = {
     installApplication,
     uninstallApplication,
@@ -224,6 +233,8 @@ module.exports = {
     runApplicationTask,
     runApplicationFlow,
     updateApplication,
-    requiresUpdate
+    requiresUpdate,
+    getApplicationTasks,
+    getApplicationTaskPath
 };
 

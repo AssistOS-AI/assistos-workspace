@@ -1,32 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
-
-const textFontSizeMap = Object.freeze({
-    8:"xx-small",
-    10:"x-small",
-    12:"small",
-    14:"medium",
-    16:"large",
-    18:"x-large",
-    20:"xx-large",
-    22:"xxx-large",
-    24:"xxxx-large",
-    28:"xxxxx-large",
-    32:"xxxxxx-large",
-    36:"xxxxxxx-large",
-    48:"xxxxxxxx-large",
-    72:"xxxxxxxxx-large"
-});
-
-const textFontFamilyMap = Object.freeze({
-    "Arial":"font-arial",
-    "Georgia":"font-georgia",
-    "Courier New":"font-courier-new",
-    "Times New Roman":"font-times-new-roman",
-    "Verdana":"font-verdana"
-});
 
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -45,27 +19,27 @@ export class ParagraphItem {
     plugins = {
         "image-menu": {
             icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
                 </div>`
         },
         "diagram-menu": {
             icon: `<div data-local-action="openPlugin diagram-menu" class="attachment-circle menu-container diagram-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
                 </div>`
         },
         "audio-menu": {
             icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
                 </div>`
         },
         "video-menu": {
             icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
                 </div>`
         },
         "text-menu": {
             icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
-                    <img class="pointer" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
+                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
                 </div>`
         }
     }
@@ -91,12 +65,12 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-
-        this.textFontSize = localStorage.getItem("document-font-size")||16;
-        this.textFontFamily = localStorage.getItem("document-font-family")||"Arial";
-
-        this.fontFamily= textFontFamilyMap[this.textFontFamily]||"Arial, sans-serif";
-        this.fontSize = textFontSizeMap[this.textFontSize]||"large";
+        const textFontSize = localStorage.getItem("document-font-size")??16;
+        const textFontFamily = localStorage.getItem("document-font-family")??"Arial";
+        const textIndent = localStorage.getItem("document-indent-size")??"12";
+        this.fontFamily= assistOS.constants.fontFamilyMap[textFontFamily]
+        this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
+        this.textIndent= assistOS.constants.textIndentMap[textIndent]
 
         this.loadedParagraphText = this.paragraph.text || "";
 
@@ -155,18 +129,15 @@ export class ParagraphItem {
                         console.log(htmlString + 1112)
                     }
                 }, 500);
-
-
-
         }
 
-            let paragraphText = this.element.querySelector(".paragraph-text");
-            paragraphText.innerHTML = this.paragraph.text
-            paragraphText.style.height = paragraphText.scrollHeight + 'px';
-            if (assistOS.space.currentParagraphId === this.paragraph.id) {
-                paragraphText.click();
-                //this.element.scrollIntoView({behavior: "smooth", block: "center"});
-            }
+        let paragraphText = this.element.querySelector(".paragraph-text");
+        paragraphText.innerHTML = this.paragraph.text
+        paragraphText.style.height = paragraphText.scrollHeight + 'px';
+        if (assistOS.space.currentParagraphId === this.paragraph.id) {
+            paragraphText.click();
+            //this.element.scrollIntoView({behavior: "smooth", block: "center"});
+        }
 
         let commands = this.element.querySelector(".paragraph-commands");
         this.errorElement = this.element.querySelector(".error-message");
@@ -179,7 +150,7 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if (selected) {
             for (let selection of selected.users) {
-                await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
+                await selectionUtils.setUserIcon(selection.userImageId, selection.selectId, this.textClass, this);
             }
             if (selected.lockOwner) {
                 selectionUtils.lockItem(this.textClass, this);
@@ -335,9 +306,6 @@ export class ParagraphItem {
             this.textIsDifferentFromAudio = true;
             await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
         }
-
-        let htmlRegex = /<([a-z]+)([^<]+)*(?:>(.*?)<\/\1>|\/>)/gi;
-        let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
     }
 
     async decodeHtmlEntities(str) {
@@ -406,21 +374,6 @@ export class ParagraphItem {
         } else {
             this.hideParagraphInfo();
         }
-    }
-
-    async getPersonalityImageSrc(personalityName) {
-        let personality = this.documentPresenter.personalitiesMetadata.find(personality => personality.name === personalityName);
-        let personalityImageId;
-        if (personality) {
-            personalityImageId = personality.imageId;
-        } else {
-            personalityImageId = null;
-            throw new Error("Personality not found");
-        }
-        if (personalityImageId) {
-            return await spaceModule.getImageURL(personalityImageId);
-        }
-        return "./wallet/assets/images/default-personality.png"
     }
 
     async addUITask(taskId) {
@@ -609,7 +562,7 @@ export class ParagraphItem {
         }
         if (data.selected) {
             if (!this.plugins[itemClass]) {
-                await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+                await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
             }
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);

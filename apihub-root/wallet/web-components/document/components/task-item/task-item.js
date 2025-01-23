@@ -26,15 +26,23 @@ export class TaskItem{
         this.paragraphItem = document.querySelector(`paragraph-item[data-paragraph-id="${this.task.configs.paragraphId}"]`);
         if(!this.paragraphItem){
             this.paragraphText = "...........";
-            this.agent = "none";
-            this.personalityImageSrc = "./wallet/assets/images/default-personality.png";
+            if(this.task.configs.personalityId){
+                let documentPage = document.querySelector("document-view-page");
+                let documentPresenter = documentPage.webSkelPresenter;
+                let personalityName = await documentPresenter.getPersonalityName(this.task.configs.personalityId);
+                this.agent = personalityName;
+                this.personalityImageSrc = await documentPresenter.getPersonalityImageByName(personalityName);
+            } else {
+                this.agent = "none";
+                this.personalityImageSrc = "./wallet/assets/images/default-personality.png";
+            }
             return;
         }
         this.paragraphPresenter = this.paragraphItem.webSkelPresenter;
         this.paragraphText = this.paragraphPresenter.paragraph.text || "...........";
         if(this.paragraphPresenter.paragraph.commands.speech){
             this.agent = this.paragraphPresenter.paragraph.commands.speech.personality;
-            this.personalityImageSrc = await this.paragraphPresenter.getPersonalityImageSrc(this.agent);
+            this.personalityImageSrc = await this.paragraphPresenter.documentPresenter.getPersonalityImageByName(this.agent);
         } else {
             this.agent = "none";
             this.personalityImageSrc = "./wallet/assets/images/default-personality.png";

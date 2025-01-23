@@ -3,7 +3,7 @@ notification-toast{
     padding: 10px;
     z-index: 12;
     max-width: 400px;
-    background-color: #fff;
+    background-color: var(--white);
     box-shadow: 0px 1px 7.3px 0px #00000040;
     border-radius: 5px;
     overflow: hidden;

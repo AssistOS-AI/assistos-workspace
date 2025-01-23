@@ -149,7 +149,7 @@ input[type="file"]{
     display: inline-block;
     font-size: 14px;
     font-weight: 600;
-    color: var(--red);
+    color: var(--red) !important;
 }
 .delete-personality:hover{
     cursor: pointer;

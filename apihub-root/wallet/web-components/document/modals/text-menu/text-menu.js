@@ -71,8 +71,9 @@ export class TextMenu{
         let acceptButton = this.element.querySelector(".accept-text");
         acceptButton.classList.remove("hidden");
         let declineButton = this.element.querySelector(".decline-text");
-        declineButton.classList.remove("hidden");
-
+        if(declineButton){
+            declineButton.classList.remove("hidden");
+        }
     }
     showLoadingResult(button){
         this.element.style.pointerEvents = "none";

@@ -52,18 +52,31 @@ async function hasAudioStream(videoPath, task) {
     return result.includes('codec_type=audio');
 }
 
-async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume) {
+async function combineVideoAndAudio(videoPath, audioPath, outputPath, task, videoVolume, audioVolume, audioDuration, videoDuration) {
     let command = '';
     let hasAudio = await hasAudioStream(videoPath, task);
     videoVolume = volumeToDecibels(videoVolume);
     audioVolume = volumeToDecibels(audioVolume);
     const videoVolumeFilter = `[0:a]volume=${videoVolume}dB[videoAudio];`;
     const audioVolumeFilter = `[1:a]volume=${audioVolume}dB[externalAudio];`;
+    let difference = (parseFloat(audioDuration) - parseFloat(videoDuration)).toFixed(2);
+    let videoFreezeFilter;
+    if(difference > 0){
+        videoFreezeFilter = `tpad=stop_mode=clone:stop_duration=${difference}`;
+    } else {
+        videoFreezeFilter = `null`;
+    }
+
+
     if(hasAudio){
-        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=first:dropout_transition=2" -c:v copy -c:a ${audioStandard.codec} ${outputPath}`;
+        command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "` +
+            `[0:v]${videoFreezeFilter}[paddedVideo];` +
+            `${videoVolumeFilter}${audioVolumeFilter}[videoAudio][externalAudio]amix=inputs=2:duration=longest:dropout_transition=2[mixedAudio]" ` +
+            `-map [paddedVideo] -map [mixedAudio] -c:v ${videoStandard.codec} -c:a ${audioStandard.codec} ${outputPath}`;
     } else {
         command = `${ffmpegPath} -i ${videoPath} -i ${audioPath} -filter_complex "${audioVolumeFilter}" -map 0:v -map [externalAudio] -c:v copy -c:a ${audioStandard.codec} ${outputPath}`;
     }
+
     await task.runCommand(command);
 }
 
@@ -104,7 +117,7 @@ async function convertVideoToStandard(inputVideoPath, task) {
     const tempVideoPath = inputVideoPath.replace(path.extname(inputVideoPath), '_temp.mp4');
     const conversionCommand = `${ffmpegPath} -i ${inputVideoPath} \
     -c:v ${videoStandard.codec} -r ${videoStandard.frameRate} \
-    -s ${videoStandard.width}x${videoStandard.height} \
+    -vf "scale=${videoStandard.width}:${videoStandard.height}:force_original_aspect_ratio=decrease,pad=${videoStandard.width}:${videoStandard.height}:(ow-iw)/2:(oh-ih)/2" \
     -ar ${audioStandard.sampleRate} -ac ${audioStandard.channels} -c:a ${audioStandard.codec} -b:a ${audioStandard.bitRate}k \
     -f ${videoStandard.format} ${tempVideoPath}`;
     try {
@@ -206,7 +219,7 @@ async function addBackgroundSoundToVideo(videoPath, backgroundSoundPath, backgro
     backgroundSoundVolume = volumeToDecibels(backgroundSoundVolume);
     const command = `${ffmpegPath} ${loopOption} -i ${backgroundSoundPath} -i ${videoPath} \
     -filter_complex "[0:a]afade=t=in:st=0:d=${fadeDuration},afade=t=out:st=${videoDuration-2}:d=${fadeDuration},volume=${backgroundSoundVolume}dB[bg]; \
-    [1:a][bg]amix=inputs=2:duration=longest[aout]" \
+    [1:a][bg]amix=inputs=2:duration=longest, loudnorm[aout]" \
     -map 1:v -map "[aout]" -c:v copy -c:a ${audioStandard.codec} -t ${videoDuration} ${tempOutputPath}`;
 
     await task.runCommand(command);
@@ -231,7 +244,13 @@ async function adjustAudioVolume(audioPath, volume, task) {
     await fsPromises.unlink(audioPath);
     await fsPromises.rename(tempOutputPath, audioPath);
 }
-
+async function normalizeVolume(audioPath, task) {
+    const tempOutputPath = audioPath.replace('.mp3', '_temp.mp3');
+    const command = `${ffmpegPath} -i ${audioPath} -af loudnorm -c:a ${audioStandard.codec} ${tempOutputPath}`;
+    await task.runCommand(command);
+    await fsPromises.unlink(audioPath);
+    await fsPromises.rename(tempOutputPath, audioPath);
+}
 function volumeToDecibels(volume) {
     if (volume < 0 || volume > 100) {
         throw new Error("Volume must be between 0 and 1");
@@ -531,5 +550,6 @@ module.exports = {
     trimFileAdjustVolume,
     addEffectsToVideo,
     adjustVideoVolume,
-    adjustAudioVolume
+    adjustAudioVolume,
+    normalizeVolume
 }

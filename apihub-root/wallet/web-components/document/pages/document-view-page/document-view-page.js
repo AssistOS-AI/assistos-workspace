@@ -1,5 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
+const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
 
@@ -23,7 +24,7 @@ export class DocumentViewPage {
         });
     }
 
-    async printDocument(){
+    async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
 
@@ -36,6 +37,25 @@ export class DocumentViewPage {
         this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
+    }
+
+    async getPersonalityName(personalityId){
+        let personality = this.personalitiesMetadata.find(personality => personality.id === personalityId);
+        return personality.name;
+    }
+    async getPersonalityImageByName(personalityName) {
+        let personality = this.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personalityImageId;
+        if (personality) {
+            personalityImageId = personality.imageId;
+        } else {
+            personalityImageId = null;
+            throw new Error("Personality not found");
+        }
+        if (personalityImageId) {
+            return await spaceModule.getImageURL(personalityImageId);
+        }
+        return "./wallet/assets/images/default-personality.png"
     }
 
     async refreshPersonalitiesMetadata() {
@@ -141,6 +161,12 @@ export class DocumentViewPage {
     }
 
     async beforeRender() {
+        this.documentFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("document-title-font-size") || "24px"];
+        this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
+        this.abstractFontFamily = this.documentFontFamily
+        this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
+
+
         await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -152,7 +178,7 @@ export class DocumentViewPage {
                 this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
             });
         }
-        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color")||"#000000");
+        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
     }
 
     renderDocumentTitle() {
@@ -284,7 +310,7 @@ export class DocumentViewPage {
             key: "Enter",
             target: targetElement
         }
-        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent,"table");
+        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent, "table");
     }
 
     async openDocumentsPage() {
@@ -340,13 +366,31 @@ export class DocumentViewPage {
         this.stopTimer.bind(this, true);
         await selectionUtils.deselectItem(itemId, this);
         delete this.currentSelectItem;
+        this.changeToolbarView(element, "off");
     }
 
     async controlAbstractHeight(abstract) {
         abstract.style.height = "auto";
         abstract.style.height = abstract.scrollHeight + 'px';
     }
-
+    changeToolbarView(targetElement, mode) {
+        let containerElement = targetElement.closest(".container-element");
+        let toolbar = containerElement.querySelector(".toolbar");
+        mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
+    }
+    async highlightAbstract(targetElement) {
+        if (!this.boundControlAbstractHeight) {
+            this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
+        }
+        let containerElement = targetElement.closest(".container-element");
+        containerElement.classList.add("focused");
+        targetElement.classList.add("focused")
+        targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
+        await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
+        this.currentSelectItem = this.titleId;
+        this.changeToolbarView(targetElement, "on");
+    }
     async editItem(targetElement, type) {
         if (targetElement.getAttribute("id") === "current-selection") {
             return;
@@ -374,17 +418,8 @@ export class DocumentViewPage {
             await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
             this.currentSelectItem = this.titleId;
         } else if (type === "abstract") {
-            if (!this.boundControlAbstractHeight) {
-                this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
-            }
-            let containerElement = targetElement.closest(".container-element");
-            containerElement.classList.add("focused");
-            targetElement.classList.add("focused")
-            targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
-            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
+            await this.highlightAbstract(targetElement);
             saveFunction = this.saveAbstract.bind(this, targetElement);
-            await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
-            this.currentSelectItem = this.titleId;
         } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
@@ -504,11 +539,11 @@ export class DocumentViewPage {
     }
 
     async openGenerateBookModal(_target) {
-        const taskId=await assistOS.UI.showModal("books-generator-modal", {
+        const taskId = await assistOS.UI.showModal("books-generator-modal", {
             "presenter": "books-generator-modal",
             "documentId": this._document.id
-        },true);
-        if(taskId){
+        }, true);
+        if (taskId) {
             assistOS.watchTask(taskId);
         }
     }
@@ -532,7 +567,7 @@ export class DocumentViewPage {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
@@ -549,4 +584,14 @@ export class DocumentViewPage {
             await selectionUtils.deselectItem(this.currentSelectItem, this);
         }
     }
+    async translateDocument(){
+        await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
+    }
+    // async openPlugin(targetElement, pluginClass) {
+    //     await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
+    //     await assistOS.UI.showModal(pluginClass, {
+    //
+    //     }, true);
+    //     await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
+    // }
 }

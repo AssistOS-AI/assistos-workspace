@@ -1,6 +1,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap');
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap");
-
+show-error-modal{
+    color: black !important;
+}
+#show-error-model-content-header{
+    color: black !important;
+}
+#detailed-error-message{
+    color: black !important;
+}
 :host {
     font-family: 'Poppins', sans-serif;
 }

@@ -75,15 +75,13 @@ class ParagraphToVideo extends Task {
             await ffmpegUtils.trimFileAdjustVolume(videoPath, commands.video.start, commands.video.end, commands.video.volume, this.ffmpegExecutor);
             if(commands.audio){
                 this.ffmpegExecutor.logProgress(`Audio found`);
-                if(commands.video.duration < commands.audio.duration){
-                    this.ffmpegExecutor.logError(`Audio duration is longer than video duration`);
-                    throw new Error(`Audio duration is longer than video duration`);
-                }
 
                 let audioPath = path.join(pathPrefix, `audio.mp3`);
                 await this.downloadAndPrepareAudio(commands.audio.id, commands.audio.volume, audioPath);
                 this.ffmpegExecutor.logProgress(`Combining video and audio`);
-                await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, finalVideoPath, this.ffmpegExecutor, commands.video.volume, commands.audio.volume);
+                let videoDuration = commands.video.end - commands.video.start;
+                await ffmpegUtils.combineVideoAndAudio(videoPath, audioPath, finalVideoPath,
+                    this.ffmpegExecutor, commands.video.volume, commands.audio.volume, commands.audio.duration, videoDuration);
                 await fsPromises.unlink(videoPath);
                 await fsPromises.unlink(audioPath);
             } else {
@@ -207,6 +205,7 @@ class ParagraphToVideo extends Task {
         await ffmpegUtils.verifyAudioSettings(path, this.ffmpegExecutor);
         this.ffmpegExecutor.logProgress(`Adjusting audio volume`);
         await ffmpegUtils.adjustAudioVolume(path, volume, this.ffmpegExecutor);
+        await ffmpegUtils.normalizeVolume(path, this.ffmpegExecutor);
     }
 
     async cancelTask() {

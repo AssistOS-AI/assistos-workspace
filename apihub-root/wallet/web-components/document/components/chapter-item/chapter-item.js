@@ -26,8 +26,8 @@ export class ChapterItem {
             await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
             await  assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
         });
-
     }
+
     showChapterOptions(targetElement) {
         let hideMoveArrows = this._document.chapters.length === 1 ? "hide" : "show";
         let downloadVideoClass;
@@ -85,6 +85,10 @@ export class ChapterItem {
         await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
     }
     async beforeRender() {
+
+        this.chapterFontSize=assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
+        this.chapterFontFamily=assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
+
         await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
@@ -391,7 +395,7 @@ export class ChapterItem {
             return;
         }
         if(data.selected){
-            await selectionUtils.setUserIcon(data.imageId, data.selectId, this.titleClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.selectId, this.titleClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
                 return selectionUtils.lockItem(this.titleClass, this);
             }

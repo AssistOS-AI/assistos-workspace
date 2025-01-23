@@ -1,6 +1,7 @@
 space-application-page {
     display: flex;
     height: 100%;
+    width:100%;
     overflow: hidden;
     position: relative;
 }
@@ -14,6 +15,7 @@ space-application-page {
     height: 100%;
     width: 210px;
     min-width: 210px;
+    padding-top:26px;
     min-height: 100%;
 }
 
@@ -24,14 +26,12 @@ space-application-page {
 }
 
 .sidebar-item {
-    padding: 7px 2px;
-    margin: 10px 0;
-    margin-left:10px;
-    font-weight: 600;
-    border-radius: 8px;
-}
-.sidebar-item:hover{
     cursor: pointer;
+    padding: 7px 2px;
+    margin: 10px;
+    font-weight: 600;
+    border-radius: 5px;
+    width: 190px;
 }
 .sidebar-item-title {
     margin-left: 12px;
@@ -50,7 +50,6 @@ space-application-page {
     background-color: white;
     border: 2px solid var(--medium-gray);
     margin-left:7px;
-    margin-top:4px;
     margin-bottom:10px;
 }
 
@@ -61,7 +60,7 @@ space-application-page {
     background: var(--white);
 }
 .highlighted{
-    background: #E4E6F0;
+    background: var(--selected-chat) !important;
     font-weight: 700;
 }
 .hide-sidebar {
@@ -73,16 +72,29 @@ space-application-page {
     border: none;
     font-size: 30px;
 }
-
+.chat-drag-container{
+    background-color: white;
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    width:30px;
+    height:30px;
+    z-index:10;
+    border-radius:50%;
+    border:2px solid var(--medium-gray);
+}
 .drag-separator {
     cursor: grab;
-    width: 25px;
-    height: 100%;
+    width: 30px;
+    height:100%;
+    padding-top:26px;
+    padding-bottom:40px;
     position: relative;
     display:flex;
-    align-items: center;
+    box-shadow:0 0 1px rgba(0, 0, 0, 0.5);
+    align-items: flex-start;
     justify-content: center;
-    background: var(--right-sidebar-border);
+    background: linear-gradient(111.65deg, rgba(239, 239, 239, 0.6) 8.14%, rgba(239, 239, 239, 0.08) 95.69%);
 }
 
 .drag-line {

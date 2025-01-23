@@ -25,80 +25,107 @@ export class SpaceApplicationPage {
         });
     }
 
-    afterRender() {
+    async afterRender() {
         this.sidebar = this.element.querySelector(".right-sidebar");
         this.currentPage = this.element.querySelector(".current-page");
         this.agentPage = this.element.querySelector("agent-page");
-        let resizeBar = this.element.querySelector('.drag-separator');
-        this.isResizing = false;
         this.highlightSidebarItem();
-        if (!this.boundMouseDownFn) {
-            this.boundMouseDownFn = this.MouseDownFn.bind(this);
-            resizeBar.addEventListener("mousedown", this.boundMouseDownFn);
-        }
-
-        if (this.agentPageWidth) {
-            this.agentPage.style.width = this.agentPageWidth + 'px';
-            this.currentPage.style.width = this.currentPageWidth + 'px';
-        }
     }
 
-    resizePanels(startX, firstPanelWidth, secondPanelWidth, event) {
-        if (this.isResizing) {
-            let mouseX = event.clientX;
-            let firstNewWidth = firstPanelWidth + (mouseX - startX);
-            let secondNewWidth = secondPanelWidth - (mouseX - startX);
-            let minimumSize = 350;
-            let minimumSizeAgent = 0;
-            if (firstNewWidth >= minimumSizeAgent && secondNewWidth >= minimumSize) {
-                this.agentPage.style.width = firstNewWidth + 'px';
-                this.currentPage.style.width = secondNewWidth + 'px';
-                this.agentPageWidth = firstNewWidth;
-                this.currentPageWidth = secondNewWidth;
+    async toggleChat(_target, mode, width) {
+        const maximizeChat = () => {
+            arrow.classList.add("arrow-rotated");
+            assistOS.UI.chatState = "open";
+            let spaceApplicationPage = document.querySelector('space-application-page');
+            let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+            agentPage.style.display = "flex";
+            agentPage.style.minWidth = minimumChatWidth + 'px';
+            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
+            assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
+            addDragListener();
+        }
+
+        const minimizeChat = () => {
+            arrow.classList.remove("arrow-rotated");
+            assistOS.UI.chatState = "close";
+            agentPage.style.display = "none";
+            agentPage.style.width = "0px";
+            agentPage.style.minWidth = "0px";
+            removeDragListener();
+        }
+
+        function dragStartHandler(event) {
+            const dragThreshold = 30;
+            let isDragging = false;
+            const startDragX = event.clientX;
+            const agentPageInitialWidth = parseFloat(getComputedStyle(agentPage).width);
+            let lastDeltaX = 0;
+
+            const onMouseMove = (event) => {
+                let mouseX = event.clientX;
+                let deltaX = mouseX - startDragX;
+                if (!isDragging && Math.abs(deltaX) > dragThreshold) {
+                    isDragging = true;
+                }
+                if (!isDragging) {
+                    return;
+                }
+                let agentPageWidth = agentPageInitialWidth + deltaX;
+                let spaceApplicationPage = document.querySelector('space-application-page');
+                let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+                if (agentPageWidth >= minimumChatWidth) {
+                    agentPage.style.width = agentPageWidth + 'px';
+                    assistOS.UI.chatWidth = agentPageWidth;
+                } else {
+                    minimizeChat();
+                }
+                lastDeltaX = deltaX;
+            };
+
+            const onMouseUp = () => {
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+                document.body.style.userSelect = "initial";
+                if (isDragging && lastDeltaX !== 0) {
+                }
+            };
+
+            document.body.style.userSelect = "none";
+            document.addEventListener("mousemove", onMouseMove);
+            document.addEventListener("mouseup", onMouseUp, { once: true });
+        }
+
+        const addDragListener = () => {
+            let resizeBar = this.element.querySelector('.drag-separator');
+            this.boundStartDrag = dragStartHandler.bind(this);
+            resizeBar.addEventListener("mousedown", this.boundStartDrag);
+        }
+
+        const removeDragListener = () => {
+            let resizeBar = this.element.querySelector('.drag-separator');
+            if (this.boundStartDrag) {
+                resizeBar.removeEventListener("mousedown", this.boundStartDrag);
+                this.boundStartDrag = null;
             }
-            if(this.agentPageWidth < 350){
-                let chatControls = this.element.querySelector(".space-controls");
-                chatControls.style.display = "none";
+        }
+
+        const arrow = document.querySelector("#point-arrow-chat");
+        const agentPage = document.querySelector("agent-page");
+
+        if (mode === "open") {
+            maximizeChat();
+        } else if (mode === "close") {
+            minimizeChat();
+        } else {
+            if (assistOS.UI.chatState === "open") {
+                minimizeChat();
             } else {
-                let chatControls = this.element.querySelector(".space-controls");
-                chatControls.style.display = "flex";
-            }
-            if(this.agentPageWidth < 20){
-                let chatContainer = this.element.querySelector(".chat-input-container");
-                chatContainer.style.zIndex = -1;
-                this.agentPage.style.width = 0 + 'px';
-                this.agentPageWidth = 0;
-            } else {
-                let chatContainer = this.element.querySelector(".chat-input-container");
-                chatContainer.style.zIndex = "initial";
+                maximizeChat();
             }
         }
     }
 
-    stopResize() {
-        this.isResizing = false;
-        this.element.removeEventListener('mousemove', this.resizePanels);
-        document.body.style.userSelect = "initial";
-    }
 
-    MouseDownFn(event) {
-        document.body.style.userSelect = "none";
-        this.isResizing = true;
-        let startX = event.clientX;
-        let firstPanelWidth = parseFloat(getComputedStyle(this.agentPage, null).width);
-        let secondPanelWidth = parseFloat(getComputedStyle(this.currentPage, null).width);
-
-        if (!this.boundMouseMoveFn) {
-            this.boundMouseMoveFn = this.resizePanels.bind(this, startX, firstPanelWidth, secondPanelWidth);
-            this.element.addEventListener("mousemove", this.boundMouseMoveFn);
-        }
-
-        if (!this.boundMouseUp) {
-            this.boundMouseUp = this.stopResize.bind(this);
-        }
-        document.addEventListener("mouseup", this.boundMouseUp, {once: true});
-
-    }
 
     async navigateToPage(_target, page) {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);

@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "translate-document-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "TranslateDocumentModal"
+        },
+        {
+            "name": "diagram-menu",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "DiagramMenu"
+        },
+        {
             "name": "notification-toast",
             "directory": "space-application",
             "type": "components",
@@ -262,6 +274,12 @@
             "name": "document-item",
             "directory": "document",
             "type": "components"
+        },
+        {
+            "name": "application-document-item",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ApplicationDocumentItem"
         },
         {
             "name": "add-document-modal",

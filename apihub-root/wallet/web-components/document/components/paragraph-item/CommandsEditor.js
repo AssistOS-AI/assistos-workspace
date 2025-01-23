@@ -35,6 +35,9 @@ export default class CommandsEditor {
             .VALIDATE(assistOS.space.id, testParagraph, {});
     }
     async deleteTaskFromCommand(commandName) {
+        if(!this.paragraph.commands[commandName]){
+            return;
+        }
         if (this.paragraph.commands[commandName].taskId) {
             let taskId = this.paragraph.commands[commandName].taskId;
             try {

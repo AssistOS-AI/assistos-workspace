@@ -31,7 +31,7 @@ class TextToSpeech extends Task {
                 voice: personalityData.voiceId,
                 emotion: paragraphCommands.speech.emotion,
                 styleGuidance: paragraphCommands.speech.styleGuidance,
-                modelName: "PlayHT2.0"
+                modelName: personalityData.llms["audio"]
             });
             const audioBuffer = Buffer.from(arrayBuffer);
             let audioDuration = await ffmpeg.getAudioDurationFromBuffer(audioBuffer);
@@ -48,6 +48,7 @@ class TextToSpeech extends Task {
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
             this.emit(EVENTS.DEPENDENCY_COMPLETED);
         } catch (e) {
+            this.emit(EVENTS.DEPENDENCY_FAILED);
             await this.rollback();
             throw e;
         }

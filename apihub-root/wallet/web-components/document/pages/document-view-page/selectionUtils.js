@@ -46,14 +46,16 @@ async function selectItem(lockItem, itemId, itemClass, presenter){
     }
     await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
         lockItem: lockItem,
-        selectId: presenter.selectId
+        selectId: presenter.selectId,
+        userImageId: assistOS.user.imageId
     });
     presenter.selectionInterval = setInterval(async () => {
         let itemText = presenter.element.querySelector(`.${itemClass}`);
         lockItem = !itemText.hasAttribute("readonly");
         await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
             lockItem: lockItem,
-            selectId: presenter.selectId
+            selectId: presenter.selectId,
+            userImageId: assistOS.user.imageId
         });
     }, 6000 * 10);
 }

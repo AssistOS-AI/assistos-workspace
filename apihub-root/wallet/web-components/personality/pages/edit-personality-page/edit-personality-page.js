@@ -14,25 +14,27 @@ export class EditPersonalityPage {
             await this.refreshPersonality();
             this.boundOnPersonalityUpdate = this.onPersonalityUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
-            /* TODO temporary fix endpoint should be called only if the api Key is set */
-            try {
-                this.voices = await llmModule.listVoices(assistOS.space.id);
-                this.voices.sort((a, b) => {
-                    if (a.name < b.name) {
-                        return -1;
-                    }
-                    if (a.name > b.name) {
-                        return 1;
-                    }
-                    return 0;
-                });
-            } catch (error) {
-                this.voices = [];
-                this.voicesErrorMessage = error.message;
-            }
+            await this.loadVoices(this.personality.llms["audio"]);
         });
     }
-
+    async loadVoices(modelName){
+        this.voicesErrorMessage = "";
+        try {
+            this.voices = await llmModule.listVoices(assistOS.space.id, modelName);
+            this.voices.sort((a, b) => {
+                if (a.name < b.name) {
+                    return -1;
+                }
+                if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+        } catch (error) {
+            this.voices = [];
+            this.voicesErrorMessage = error.message;
+        }
+    }
     async onPersonalityUpdate(type) {
         if (type === "delete") {
             await this.openPersonalitiesPage();
@@ -82,7 +84,12 @@ export class EditPersonalityPage {
 
         let voicesHTML = "";
         for (let voice of this.voices) {
-            voicesHTML += `<option value="${voice.id}">${voice.name}, accent: ${voice.accent}, age: ${voice.age}, gender: ${voice.gender}, loudness: ${voice.loudness}, tempo: ${voice.tempo}</option>`;
+            let accent = voice.accent ? `, accent: ${voice.accent}` : "";
+            let age = voice.age ? `, age: ${voice.age}` : "";
+            let gender = voice.gender ? `, gender: ${voice.gender}` : "";
+            let loudness = voice.loudness ? `, loudness: ${voice.loudness}` : "";
+            let tempo = voice.tempo ? `, tempo: ${voice.tempo}` : "";
+            voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
         this.voicesOptions = voicesHTML;
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
@@ -105,15 +112,9 @@ export class EditPersonalityPage {
         image.addEventListener("error", (e) => {
             e.target.src = "./wallet/assets/images/default-personality.png";
         });
-        const attachSelectHandlers = () => {
-            Object.keys(this.availableLlms).forEach(llmType => {
-                this.element.querySelector(`#${llmType}LLM`).addEventListener("change", this.updateLlm.bind(this, llmType));
-            });
-        }
-        attachSelectHandlers();
+
         let description = this.element.querySelector("textarea");
         description.innerHTML = this.personality.description;
-        this.boundFn = this.preventRefreshOnEnter.bind(this);
 
         let photoInput = this.element.querySelector("#photo");
         if (this.boundShowPhoto) {
@@ -126,27 +127,28 @@ export class EditPersonalityPage {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
-            audioSection.classList.remove("hidden");
-            voiceSelect.value = this.personality.voiceId;
-            audioSource.src = voice.sample;
-            audioSource.load();
+            if(voice){
+                audioSection.classList.remove("hidden");
+                voiceSelect.value = this.personality.voiceId;
+                audioSource.src = voice.sample;
+                audioSource.load();
+            }
         }
         if (this.voicesErrorMessage) {
             voiceSelect.innerHTML = `<option value="" disabled selected hidden>${this.voicesErrorMessage}</option>`;
         }
 
-        if (!this.boundSelectVoiceHndler) {
-            this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
-            voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
-        }
-    }
+        this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
+        voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
 
-    async updateLlm(llmType, event) {
-        let llm = this.element.querySelector(`#${llmType}LLM`).value;
-        this.personality.llms[llmType] = llm;
-        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+        let audioSelect = this.element.querySelector("#audioLLM");
+        audioSelect.addEventListener("change", async ()=>{
+            this.invalidate(async () => {
+                this.personality.llms["audio"] = audioSelect.value;
+                await this.loadVoices(audioSelect.value);
+            });
+        });
     }
-
 
     preventRefreshOnEnter(event) {
         if (event.key === "Enter") {
@@ -197,23 +199,22 @@ export class EditPersonalityPage {
         };
         let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
         if (formInfo.isValid) {
+            this.personality.name = formInfo.data.name || this.personality.name;
+            this.personality.description = formInfo.data.description;
+            this.personality.voiceId = formInfo.data.voiceId;
+            Object.keys(this.availableLlms).forEach(llmType => {
+                this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
+            });
             if (this.photoAsFile) {
                 let reader = new FileReader();
                 reader.onload = async (e) => {
                     const uint8Array = new Uint8Array(e.target.result);
-                    let imageId = await spaceModule.putImage(uint8Array);
-                    this.personality.name = formInfo.data.name || this.personality.name;
-                    this.personality.description = formInfo.data.description;
-                    this.personality.imageId = imageId;
-                    this.personality.voiceId = formInfo.data.voiceId;
+                    this.personality.imageId = await spaceModule.putImage(uint8Array);
                     await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
                     await this.openPersonalitiesPage();
                 };
                 reader.readAsArrayBuffer(this.photoAsFile);
             } else {
-                this.personality.name = formInfo.data.name || this.personality.name;
-                this.personality.description = formInfo.data.description;
-                this.personality.voiceId = formInfo.data.voiceId;
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
                 await this.openPersonalitiesPage();
             }

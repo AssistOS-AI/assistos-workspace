@@ -500,5 +500,6 @@ module.exports = {
     resetPassword,
     getUserMap,
     registerInvite,
-    addSpaceCollaborator
+    addSpaceCollaborator,
+    updateUserFile
 }

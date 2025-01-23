@@ -510,7 +510,7 @@ function selectDocumentItem(req, res) {
         let lockItem = req.body.lockItem;
         let selectId = req.body.selectId;
         let spaceId = req.params.spaceId;
-
+        let userImageId = req.body.userImageId;
         let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, itemId, userId, "", lockItem);
         let objectId = SubscriptionManager.getObjectId(documentId, itemId);
 
@@ -518,7 +518,7 @@ function selectDocumentItem(req, res) {
             selected: true,
             userId: userId,
             selectId: selectId,
-            userImageId: "",
+            userImageId: userImageId,
             lockOwner: lockOwner
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);

@@ -9,9 +9,15 @@ document-view-page {
     direction: rtl; /* This moves the scrollbar to the left */
     text-align: left; /* Keeps content aligned normally */
 }
+.doc-title-breadcrumb{
+    width: calc(100% - 287px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 .abstract-header-section{
     display: flex;
-    justify-content: space-between;
+    align-items: center;
 }
 .book-comment-container{
     display: flex;
@@ -24,7 +30,7 @@ document-view-page > * {
 
 document-view-page::-webkit-scrollbar-thumb {
     height: 20px;
-    background-color: #888;
+    background-color: #7B7B7B;
 }
 
 document-view-page::-webkit-scrollbar-track {
@@ -53,8 +59,6 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .abstract-subtitle {
-    color: var(--path-button);
-    font-size: 18px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -77,7 +81,6 @@ document-view-page::-webkit-scrollbar-track {
     display: flex;
     white-space: pre-line;
     text-align: justify;
-    font-size: 16px;
     font-style: normal;
     font-weight: 400;
     line-height: normal;
@@ -96,7 +99,6 @@ document-view-page::-webkit-scrollbar-track {
     overflow-wrap: break-word;
     hyphens: auto;
     word-break: break-word;
-    color: var(--user-text);
 }
 
 .document-abstract:focus {
@@ -130,10 +132,11 @@ document-view-page::-webkit-scrollbar-track {
     padding: 5px 0;
     border-radius: 10px;
     z-index: 1;
-    background-color: white;
+    background-color: var(--white);
 }
 
 .space-document-path {
+    width: 85%;
     cursor: default;
     display: flex;
     align-items: center;
@@ -146,10 +149,8 @@ document-view-page::-webkit-scrollbar-track {
 
 .document-title {
     border: none;
-    width: calc(100% - 30px);
+    width: calc(100% - 40px);
     display: inline-block;
-    color: var(--light-black);
-    font-size: 26px;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -163,10 +164,6 @@ document-view-page::-webkit-scrollbar-track {
     border-radius: 5px;
     display: flex;
     position:relative;
-}
-
-html[theme="dark"] .document-title-container {
-    background: var(--light-brown-gray);
 }
 
 .document-title:focus {
@@ -266,6 +263,7 @@ html[theme="dark"] .document-title-container {
 .menu-section {
     display: flex;
     align-items: center;
+    margin-right: 20px;
 }
 
 .tasks-menu {
@@ -293,6 +291,7 @@ html[theme="dark"] .document-title-container {
     position: absolute;
     left: -50px;
     width: 40px;
+    border-radius: 50%;
 }
 .focused.locked-item{
     background-color: var(--very-light-gray);
@@ -300,4 +299,36 @@ html[theme="dark"] .document-title-container {
 }
 document-view-page .right-margin {
     margin-right: 10px;
+}
+
+
+html[theme="dark"] textarea.document-abstract{
+    background: var(--white)
+}
+
+html[theme="dark"] input.document-title{
+    background: var(--white)
+}
+
+/*plugins*/
+.attachment-circle{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+.menu-container{
+    position: relative;
+    display: flex;
+}
+.menu-container.locked-item{
+    background-color: var(--very-light-gray);
+    pointer-events: none;
+}
+.toolbar{
+    display: none;
+    padding-bottom: 10px;
 }

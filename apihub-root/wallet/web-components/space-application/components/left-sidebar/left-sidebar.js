@@ -8,6 +8,13 @@ export class LeftSidebar {
         this.themeIcon = "wallet/assets/icons/moon.svg";
         this.tasksHandlers = {};
         this.boundShowTaskNotification = this.showTaskNotification.bind(this);
+
+        let currentTheme = localStorage.getItem('theme');
+        if (currentTheme && currentTheme === 'dark') {
+            this.themeIcon = "wallet/assets/icons/sun.svg";
+        } else {
+            this.themeIcon = "wallet/assets/icons/moon.svg";
+        }
         this.invalidate(async ()=>{
             this.tasks = await utilModule.getTasks(assistOS.space.id);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
@@ -86,6 +93,7 @@ export class LeftSidebar {
             this.themeIcon = "wallet/assets/icons/sun.svg";
             this.invalidate();
         }
+        localStorage.setItem('theme', element.getAttribute('theme'));
     }
 
     changeBaseURL(newBaseURL) {

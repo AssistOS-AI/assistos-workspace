@@ -112,6 +112,19 @@ async function loadApplicationConfig(request, response) {
         });
     }
 }
+async function getApplicationTasks(request, response) {
+    const {spaceId, applicationId} = request.params;
+    try {
+        const tasks = await ApplicationHandler.getApplicationTasks(spaceId, applicationId);
+        return sendResponse(response, 200, "application/json", {
+            data: tasks,
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to get application tasks:${error}`,
+        });
+    }
+}
 async function runApplicationTask(request, response) {
     const {spaceId, applicationId, taskName} = request.params;
     try {
@@ -276,5 +289,6 @@ module.exports = {
     runApplicationTask,
     runApplicationFlow,
     requiresUpdate,
-    updateApplication
+    updateApplication,
+    getApplicationTasks
 }

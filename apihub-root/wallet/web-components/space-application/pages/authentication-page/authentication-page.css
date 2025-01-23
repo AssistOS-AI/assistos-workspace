@@ -124,7 +124,7 @@ authentication-page{
     position: absolute;
     right: 0;
     padding: 80px 100px 80px 100px;
-    background-color: var(--white-text);
+    background-color: var(--white);
     height: 100%;
 }
 
@@ -134,7 +134,6 @@ authentication-page{
 }
 
 .form-label {
-    color: var(--black);
     font-size: 14px;
     font-weight: 500;
 }
