@@ -17,7 +17,7 @@ document-view-page {
 }
 .abstract-header-section{
     display: flex;
-    justify-content: space-between;
+    align-items: center;
 }
 .book-comment-container{
     display: flex;
@@ -308,4 +308,27 @@ html[theme="dark"] textarea.document-abstract{
 
 html[theme="dark"] input.document-title{
     background: var(--white)
+}
+
+/*plugins*/
+.attachment-circle{
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+}
+.menu-container{
+    position: relative;
+    display: flex;
+}
+.menu-container.locked-item{
+    background-color: var(--very-light-gray);
+    pointer-events: none;
+}
+.toolbar{
+    display: none;
+    padding-bottom: 10px;
 }
