@@ -1,12 +1,14 @@
 import {videoUtils} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class VideoMenu{
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        let context = pluginUtils.getContext(this.element);
+        this.paragraphId = context.paragraphId;
         this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
         this.videoPresenter = this.paragraphPresenter.videoPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;

@@ -2,6 +2,7 @@ const llmModule = require("assistos").loadModule("llm", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require("assistos").loadModule("document", {});
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 
 export class AudioMenu {
     constructor(element, invalidate) {
@@ -9,9 +10,10 @@ export class AudioMenu {
         this.invalidate = invalidate;
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this._document = documentPresenter._document;
-        let chapterId = this.element.getAttribute("data-chapter-id");
+        let context = pluginUtils.getContext(this.element);
+        let chapterId = context.chapterId;
         let chapter = this._document.chapters.find(chapter => chapter.id === chapterId);
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        this.paragraphId = context.paragraphId;
         let paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
         this.commandsEditor = paragraphPresenter.commandsEditor;
         this.paragraph = chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);

@@ -7,6 +7,7 @@ function ApplicationsStorage(server) {
     server.use("/applications/*", authentication);
     server.use("/applications/*", bodyReader);
 
+    server.get("/applications/plugins/:spaceId", Application.getApplicationsPlugins);
     server.get("/applications/config/:spaceId/:applicationId", Application.loadApplicationConfig);
     server.get("/applications/metadata/:spaceId", Application.loadApplicationsMetadata);
 

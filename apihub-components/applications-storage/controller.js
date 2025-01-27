@@ -275,7 +275,19 @@ async function loadAppFlows(request, response) {
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
-
+async function getApplicationsPlugins(request, response) {
+    const {spaceId} = request.params;
+    try {
+        const plugins = await ApplicationHandler.getApplicationsPlugins(spaceId);
+        return sendResponse(response, 200, "application/json", {
+            data: plugins
+        });
+    } catch (error) {
+        return sendResponse(response, 500, "application/json", {
+            message: `Failed to get applications plugins: ${error}`,
+        });
+    }
+}
 module.exports = {
     loadApplicationsMetadata,
     installApplication,
@@ -290,5 +302,6 @@ module.exports = {
     runApplicationFlow,
     requiresUpdate,
     updateApplication,
-    getApplicationTasks
+    getApplicationTasks,
+    getApplicationsPlugins
 }

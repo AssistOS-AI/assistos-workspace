@@ -1,7 +1,7 @@
 const documentModule = require("assistos").loadModule("document", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
-
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -65,6 +65,14 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
+        this.plugins = assistOS.plugins["paragraph"];
+        let pluginsHTML = "";
+        for(let plugin of this.plugins){
+            pluginsHTML+= `<div data-local-action="openParagraphPlugin ${plugin.componentName}" class="attachment-circle menu-container ${plugin.componentName}">
+                    <img class="pointer black-icon" loading="lazy" src="${plugin.icon}" alt="icon">
+                </div>`
+        }
+        this.pluginsIcons = pluginsHTML;
         const textFontSize = localStorage.getItem("document-font-size")??16;
         const textFontFamily = localStorage.getItem("document-font-family")??"Arial";
         const textIndent = localStorage.getItem("document-indent-size")??"12";
@@ -74,10 +82,6 @@ export class ParagraphItem {
 
         this.loadedParagraphText = this.paragraph.text || "";
 
-        this.pluginsIcons = "";
-        for (let pluginName of Object.keys(this.plugins)) {
-            this.pluginsIcons += this.plugins[pluginName].icon;
-        }
         //this.decidePreviewType();
     }
     decidePreviewType() {
@@ -464,13 +468,13 @@ export class ParagraphItem {
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
 
-    async openPlugin(targetElement, pluginClass) {
-        await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
-        await assistOS.UI.showModal(pluginClass, {
-            "chapter-id": this.chapter.id,
-            "paragraph-id": this.paragraph.id
-        }, true);
-        await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
+    async openParagraphPlugin(targetElement, pluginClass) {
+        let selectionItemId = `${this.paragraph.id}_${pluginClass}`;
+        let context = {
+            chapterId: this.chapter.id,
+            paragraphId: this.paragraph.id
+        }
+        await pluginUtils.openPlugin(pluginClass, "paragraph", context, selectionItemId, this);
     }
 
     openMenu(targetElement, menuName) {

@@ -5,7 +5,7 @@ export class TranslateDocumentModal{
     constructor(element, invalidate) {
         this.invalidate = invalidate;
         this.element = element;
-        this.documentId = this.element.getAttribute("data-id");
+        this.documentId = this.element.getAttribute("data-document-id");
         this.invalidate(async ()=>{
             this.personalities = await personalityModule.getPersonalities(assistOS.space.id);
         });

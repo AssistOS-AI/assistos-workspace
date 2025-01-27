@@ -225,6 +225,27 @@ async function getApplicationTasks(spaceId, applicationId) {
     let tasks = TaskManager.serializeTasks(spaceId);
     return tasks.filter(task => task.applicationId === applicationId);
 }
+async function getApplicationsPlugins(spaceId) {
+    const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
+    const applications = spaceStatusObject.installedApplications;
+    let plugins = {};
+    for(let app of applications){
+        let manifest = await loadApplicationConfig(spaceId, app.name);
+        if(!manifest.plugins){
+            continue;
+        }
+        for(let pluginType of manifest.plugins){
+            if(!plugins[pluginType]){
+                plugins[pluginType] = [];
+            }
+            for(let plugin of manifest.plugins[pluginType]){
+                plugin.applicationId = app.id;
+            }
+            plugins[pluginType] = plugins[pluginType].concat(manifest.plugins[pluginType]);
+        }
+    }
+    return plugins;
+}
 module.exports = {
     installApplication,
     uninstallApplication,
@@ -235,6 +256,6 @@ module.exports = {
     updateApplication,
     requiresUpdate,
     getApplicationTasks,
-    getApplicationTaskPath
+    getApplicationsPlugins
 };
 

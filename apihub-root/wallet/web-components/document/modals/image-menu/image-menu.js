@@ -1,16 +1,12 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const llmModule= require('assistos').loadModule('llm',{})
-const documentModule=require('assistos').loadModule('document',{})
-
-import mermaid from '../../../../lib/mermaid/mermaid.esm.min.mjs';
-
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class ImageMenu{
 
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
+        let context = pluginUtils.getContext(this.element);
+        this.paragraphId = context.paragraphId;
         this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${this.paragraphId}"]`).webSkelPresenter;
         this.commandsEditor = this.paragraphPresenter.commandsEditor;
         this.element.classList.add("maintain-focus");

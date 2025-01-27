@@ -3,14 +3,12 @@ const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 
 export class DocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.refreshDocument = async () => {
-            this._document = await documentModule.getDocument(assistOS.space.id, this._document.id);
-        }
         this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
@@ -587,11 +585,17 @@ export class DocumentViewPage {
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
-    // async openPlugin(targetElement, pluginClass) {
-    //     let itemId = `${this.abstractId}_${pluginClass}`;
-    //     await selectionUtils.selectItem(true, itemId, pluginClass, this);
-    //     await assistOS.UI.showModal(pluginClass, {
-    //     }, true);
-    //     await selectionUtils.deselectItem(itemId, this);
-    // }
+    async openDocumentPlugin(targetElement, pluginName) {
+        let context = {
+            "document-id": this._document.id
+        }
+        await pluginUtils.openPlugin(pluginName, context);
+    }
+    async openAbstractPlugin(targetElement, pluginName) {
+        let itemId = `${this.abstractId}_${pluginName}`;
+        let context = {
+            abstract: ""
+        }
+        await pluginUtils.openPlugin(pluginName, "abstract", context, itemId, this);
+    }
 }
