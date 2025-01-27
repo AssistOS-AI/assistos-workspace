@@ -567,7 +567,7 @@ export class DocumentViewPage {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
@@ -588,10 +588,10 @@ export class DocumentViewPage {
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
     // async openPlugin(targetElement, pluginClass) {
-    //     await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
+    //     let itemId = `${this.abstractId}_${pluginClass}`;
+    //     await selectionUtils.selectItem(true, itemId, pluginClass, this);
     //     await assistOS.UI.showModal(pluginClass, {
-    //
     //     }, true);
-    //     await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
+    //     await selectionUtils.deselectItem(itemId, this);
     // }
 }

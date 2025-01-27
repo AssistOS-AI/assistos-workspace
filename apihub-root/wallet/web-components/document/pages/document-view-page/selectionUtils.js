@@ -10,8 +10,8 @@ function unlockItem(itemClass, presenter) {
     let editableItem = presenter.element.querySelector(`.${itemClass}`);
     editableItem.classList.remove("locked-item");
 }
-async function setUserIcon(imageId, selectId, itemClass, presenter){
-    let userIconElement = presenter.element.querySelector(`.user-icon[data-id="${selectId}"]`);
+async function setUserIcon(imageId, userEmail, selectId, itemClass, presenter){
+    let userIconElement = presenter.element.querySelector(`.user-icon-container[data-id="${selectId}"]`);
     if(userIconElement){
         return;
     }
@@ -21,12 +21,16 @@ async function setUserIcon(imageId, selectId, itemClass, presenter){
     } else {
         imageSrc = "./wallet/assets/images/defaultUserPhoto.png";
     }
-    let userIcon = `<img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon" data-id="${selectId}">`;
+    let userIcon = `<div class="user-icon-container"  data-id="${selectId}">
+                              <div class="name-tooltip">${userEmail}</div>
+                              <img loading="lazy" src="${imageSrc}" class="user-icon" alt="user-icon">
+                          </div>
+                        `;
     let documentItem = presenter.element.querySelector(`.${itemClass}-container`);
     documentItem.insertAdjacentHTML('beforeend', userIcon);
 }
 function removeUserIcon(selectId, presenter){
-    let userIcon = presenter.element.querySelector(`.user-icon[data-id="${selectId}"]`);
+    let userIcon = presenter.element.querySelector(`.user-icon-container[data-id="${selectId}"]`);
     if(userIcon){
         userIcon.remove();
     }
@@ -47,7 +51,8 @@ async function selectItem(lockItem, itemId, itemClass, presenter){
     await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
         lockItem: lockItem,
         selectId: presenter.selectId,
-        userImageId: assistOS.user.imageId
+        userImageId: assistOS.user.imageId,
+        userEmail: assistOS.user.email
     });
     presenter.selectionInterval = setInterval(async () => {
         let itemText = presenter.element.querySelector(`.${itemClass}`);
@@ -55,7 +60,8 @@ async function selectItem(lockItem, itemId, itemClass, presenter){
         await documentModule.selectDocumentItem(assistOS.space.id, presenter._document.id, itemId, {
             lockItem: lockItem,
             selectId: presenter.selectId,
-            userImageId: assistOS.user.imageId
+            userImageId: assistOS.user.imageId,
+            userEmail: assistOS.user.email
         });
     }, 6000 * 10);
 }
