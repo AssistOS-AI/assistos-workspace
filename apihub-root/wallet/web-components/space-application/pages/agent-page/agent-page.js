@@ -51,8 +51,8 @@ export class AgentPage {
         }
         this.personalitiesHTML = personalitiesHTML;
         this.spaceConversation = stringHTML;
-        this.currentPersonalityName = "Artist";
-        this.personalityLLM = "GPT-4o";
+        this.currentPersonalityName = assistOS.agent.agentData.name;
+        this.personalityLLM = assistOS.agent.agentData.llms.text;
         this.spaceName = assistOS.space.name.length>15?assistOS.space.name.substring(0,15)+"...":assistOS.space.name;
     }
 
@@ -145,7 +145,6 @@ export class AgentPage {
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
-        /* for some reason everything extracted out of a form is automatically sanitized */
         const unsanitizedMessage = assistOS.UI.unsanitize(userRequestMessage);
         formInfo.elements.input.element.value = "";
         if (!userRequestMessage.trim()) {
@@ -181,47 +180,17 @@ export class AgentPage {
         fileInput.click();
     }
 
-    /*  swapChat(_target, mode) {
-          const selectedChat = this.element.querySelector(".selected-chat");
-          if (mode === selectedChat.getAttribute("id")) {
-              return;
-          }
-          switch (mode) {
-              case "private": {
-                  this.private = "selected-chat";
-                  this.shared = "";
-                  this.chat = "";
-                  break;
-              }
-              case "shared": {
-                  this.private = "";
-                  this.shared = "selected-chat";
-                  this.chat = "";
-                  break;
-              }
-              default: {
-                  this.private = "";
-                  this.shared = "";
-                  this.chat = "selected-chat";
-                  break;
-              }
-          }
-          this.invalidate();
-      }*/
-
     hidePersonalities(controller, arrow, event) {
         arrow.setAttribute("data-local-action", "showPersonalities off");
         let target = this.element.querySelector(".personalities-list");
         target.style.display = "none";
         controller.abort();
-        arrow.classList.add("rotated");
     }
 
     showPersonalities(_target, mode) {
         if (mode === "off") {
             let list = this.element.querySelector(".personalities-list");
             list.style.display = "flex";
-            _target.classList.remove("rotated");
             let controller = new AbortController();
             document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "showPersonalities on");
@@ -229,6 +198,9 @@ export class AgentPage {
     }
 
     async swapPersonality(_target, id) {
-        console.log("to be done")
+        await assistOS.loadifyFunction(async (id) => {
+            await assistOS.changeAgent(id);
+            this.invalidate();
+        }, id);
     }
 }

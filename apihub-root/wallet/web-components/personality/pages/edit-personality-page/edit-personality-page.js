@@ -202,9 +202,14 @@ export class EditPersonalityPage {
             this.personality.name = formInfo.data.name || this.personality.name;
             this.personality.description = formInfo.data.description;
             this.personality.voiceId = formInfo.data.voiceId;
+            let reloadChat=false;
+            if(this.personality.llms["text"] !== formInfo.data["textLLM"] && this.personalityName === assistOS.agent.agentData.name){
+                reloadChat=true;
+            }
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
             });
+            //hardcoded dependency due to no state binding
             if (this.photoAsFile) {
                 let reader = new FileReader();
                 reader.onload = async (e) => {
@@ -216,6 +221,10 @@ export class EditPersonalityPage {
                 reader.readAsArrayBuffer(this.photoAsFile);
             } else {
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+                if(reloadChat){
+                    await assistOS.changeAgent(this.personality.id);
+                    document.querySelector('agent-page').webSkelPresenter.invalidate();
+                }
                 await this.openPersonalitiesPage();
             }
         }

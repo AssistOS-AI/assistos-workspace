@@ -4,9 +4,8 @@ import NotificationManager from "./wallet/core/NotificationManager.js";
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
-const agentModule = require('assistos').loadModule('personality', {});
-const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
+const flowModule = require('assistos').loadModule('flow', {});
 
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
@@ -203,8 +202,8 @@ class AssistOS {
         await assistOS.loadAgent(assistOS.space.id);
     }
 
-    async loadAgent(spaceId) {
-        const personalityData = await agentModule.getAgent(spaceId);
+    async loadAgent(spaceId,agentId) {
+        const personalityData = await personalityModule.getAgent(spaceId,agentId);
         assistOS.agent = new personalityModule.models.agent(personalityData);
     }
 
