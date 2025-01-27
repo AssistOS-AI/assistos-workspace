@@ -1,4 +1,5 @@
 import {getDemoUserCredentials} from "../../../../imports.js";
+
 let userModule = require("assistos").loadModule("user", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
@@ -283,7 +284,7 @@ export class AuthenticationPage {
         let email = this.element.querySelector("#user-email").value;
         let password = this.element.querySelector("#user-password").value;
         let photoFile = this.element.querySelector("#photo").files[0];
-        let imageId;
+        let uint8ArrayImage;
         if(this.inviteToken){
             email = "";
         }else if(!email){
@@ -294,22 +295,19 @@ export class AuthenticationPage {
             alert("Password is required");
             return;
         }
-        if(photoFile){
-            if(photoFile.size <= 1048576 * 5){
-                let arrayBuffer = await this.uploadImage(photoFile);
-                try {
-                    imageId = await spaceModule.putImage(arrayBuffer);
-                } catch (e) {
-                    alert("User image upload failed");
-                }
-            } else {
-                alert("Image too large! Image max size: 5MB");
-                return;
-            }
-        }
+        // if(photoFile){
+        //     if(photoFile.size <= 1048576 * 5){
+        //         uint8ArrayImage = await this.uploadImage(photoFile);
+        //     } else {
+        //         alert("Image too large! Image max size: 5MB");
+        //         return;
+        //     }
+        // } else {
+        //     uint8ArrayImage = await this.generateUserAvatar(email);
+        // }
         try {
             this.loader = assistOS.UI.showLoading();
-            await userModule.registerUser(email, password, imageId, this.inviteToken);
+            await userModule.registerUser(email, password, "", this.inviteToken);
         } catch (error) {
             let message = JSON.parse(error.message);
             switch (message.status) {
@@ -342,6 +340,29 @@ export class AuthenticationPage {
         }
     }
 
+    async generateUserAvatar(email, size = 100) {
+        let firstLetter = email.charAt(0).toUpperCase();
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Generate a random background color
+        ctx.fillStyle = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `${size * 0.5}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(firstLetter, size / 2, size / 2);
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        canvas.remove();
+        return uint8Array;
+    }
+
     async activateUser() {
         const activationToken = this.element.querySelector("#user-token").value;
         try {
@@ -362,22 +383,18 @@ export class AuthenticationPage {
                     await assistOS.login(email, password);
                     try {
                         await assistOS.loadPage(true);
+                        if(!assistOS.user.imageId){
+                            let uint8Array = await this.generateUserAvatar(email);
+                            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
+                            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
+                        }
                     } catch (error) {
                         console.error("Failed to load Landing Page", error);
                         alert(error);
                     }
                 } catch (error) {
                     _target.removeAttribute("disabled");
-                    switch (error.statusCode) {
-                        case 401:
-                            alert("Invalid Password");
-                            break;
-                        case 404:
-                            alert("User not found");
-                            break;
-                        default:
-                            alert(error.message);
-                    }
+                    alert(error.message);
                 }
             }
         }.bind(this,_target));

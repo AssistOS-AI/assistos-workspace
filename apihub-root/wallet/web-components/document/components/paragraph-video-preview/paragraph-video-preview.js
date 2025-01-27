@@ -270,10 +270,6 @@ export class ParagraphVideoPreview{
                     this.setupMediaPlayerEventListeners(this.videoElement);
                 } else {
                     this.setupMediaPlayerEventListeners(this.audioElement);
-                    this.videoElement.addEventListener("ended", () => {
-                        this.videoElement.classList.add("hidden");
-                        this.imgElement.src = blackScreen;
-                    }, {once: true});
                 }
                 await this.playMedia([this.videoElement, this.audioElement]);
             } else {

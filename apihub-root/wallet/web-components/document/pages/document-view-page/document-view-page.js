@@ -366,13 +366,31 @@ export class DocumentViewPage {
         this.stopTimer.bind(this, true);
         await selectionUtils.deselectItem(itemId, this);
         delete this.currentSelectItem;
+        this.changeToolbarView(element, "off");
     }
 
     async controlAbstractHeight(abstract) {
         abstract.style.height = "auto";
         abstract.style.height = abstract.scrollHeight + 'px';
     }
-
+    changeToolbarView(targetElement, mode) {
+        let containerElement = targetElement.closest(".container-element");
+        let toolbar = containerElement.querySelector(".toolbar");
+        mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
+    }
+    async highlightAbstract(targetElement) {
+        if (!this.boundControlAbstractHeight) {
+            this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
+        }
+        let containerElement = targetElement.closest(".container-element");
+        containerElement.classList.add("focused");
+        targetElement.classList.add("focused")
+        targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
+        await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
+        this.currentSelectItem = this.titleId;
+        this.changeToolbarView(targetElement, "on");
+    }
     async editItem(targetElement, type) {
         if (targetElement.getAttribute("id") === "current-selection") {
             return;
@@ -400,17 +418,8 @@ export class DocumentViewPage {
             await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
             this.currentSelectItem = this.titleId;
         } else if (type === "abstract") {
-            if (!this.boundControlAbstractHeight) {
-                this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
-            }
-            let containerElement = targetElement.closest(".container-element");
-            containerElement.classList.add("focused");
-            targetElement.classList.add("focused")
-            targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
-            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
+            await this.highlightAbstract(targetElement);
             saveFunction = this.saveAbstract.bind(this, targetElement);
-            await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
-            this.currentSelectItem = this.titleId;
         } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
@@ -558,7 +567,7 @@ export class DocumentViewPage {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
@@ -578,4 +587,11 @@ export class DocumentViewPage {
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
+    // async openPlugin(targetElement, pluginClass) {
+    //     let itemId = `${this.abstractId}_${pluginClass}`;
+    //     await selectionUtils.selectItem(true, itemId, pluginClass, this);
+    //     await assistOS.UI.showModal(pluginClass, {
+    //     }, true);
+    //     await selectionUtils.deselectItem(itemId, this);
+    // }
 }

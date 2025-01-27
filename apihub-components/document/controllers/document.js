@@ -435,10 +435,10 @@ function getItemSelectId(spaceId, documentId, itemId) {
     return `${spaceId}/${documentId}/${itemId}`;
 }
 
-function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userId, userImageId, lockItem) {
-    const paragraphSelectId = getItemSelectId(spaceId, documentId, itemId);
+function setNewSelection(sessionId, spaceId, documentId, lockData) {
+    const paragraphSelectId = getItemSelectId(spaceId, documentId, lockData.itemId);
     const timeoutId = setTimeout(() => {
-        deleteSelection(paragraphSelectId, selectId, sessionId, documentId, itemId);
+        deleteSelection(paragraphSelectId, lockData.selectId, sessionId, documentId, lockData.itemId);
     }, 6000 * 10);
 
     let paragraph = selectedDocumentItems[paragraphSelectId];
@@ -446,19 +446,20 @@ function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userI
 
     if (!paragraph) {
         // If item doesn't exist, create a new entry with the initial user
-        lockOwner = lockItem ? selectId : undefined;
+        lockOwner = lockData.lockItem ? lockData.selectId : undefined;
         selectedDocumentItems[paragraphSelectId] = {
             lockOwner,
             users: [{
-                selectId,
+                selectId: lockData.selectId,
                 timeoutId,
-                userId,
-                userImageId
+                userId: lockData.userId,
+                userImageId : lockData.userImageId,
+                userEmail: lockData.userEmail
             }]
         };
     } else {
         // If item exists, check if user selection already exists
-        const existingSelection = paragraph.users.find(selection => selection.selectId === selectId);
+        const existingSelection = paragraph.users.find(selection => selection.selectId === lockData.selectId);
 
         if (existingSelection) {
             // Update existing user's timeout
@@ -467,16 +468,17 @@ function setNewSelection(sessionId, selectId, spaceId, documentId, itemId, userI
         } else {
             // Add new user to paragraph's user list
             paragraph.users.push({
-                selectId,
+                selectId: lockData.selectId,
                 timeoutId,
-                userId,
-                userImageId
+                userId: lockData.userId,
+                userImageId: lockData.userImageId,
+                userEmail: lockData.userEmail
             });
         }
 
         // Determine lock owner
-        if (!paragraph.lockOwner && lockItem) {
-            lockOwner = selectId;
+        if (!paragraph.lockOwner && lockData.lockItem) {
+            lockOwner = lockData.selectId;
             paragraph.lockOwner = lockOwner;
         } else {
             lockOwner = paragraph.lockOwner;
@@ -507,18 +509,18 @@ function selectDocumentItem(req, res) {
         let itemId = req.params.itemId;
         let documentId = req.params.documentId;
         let userId = req.userId;
-        let lockItem = req.body.lockItem;
-        let selectId = req.body.selectId;
+        let { lockItem, selectId, userImageId, userEmail } = req.body;
         let spaceId = req.params.spaceId;
-
-        let lockOwner = setNewSelection(req.sessionId, selectId, spaceId, documentId, itemId, userId, "", lockItem);
+        let lockData = {selectId, itemId, lockItem, userImageId, userId, userEmail};
+        let lockOwner = setNewSelection(req.sessionId, spaceId, documentId, lockData);
         let objectId = SubscriptionManager.getObjectId(documentId, itemId);
 
         let eventData = {
             selected: true,
             userId: userId,
             selectId: selectId,
-            userImageId: "",
+            userImageId: userImageId,
+            userEmail: userEmail,
             lockOwner: lockOwner
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);

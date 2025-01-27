@@ -6,7 +6,7 @@ const space = require('../spaces-storage/space');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
-
+// const ApplicationHandler = require('../applications-storage/handler');
 class TaskManager {
     constructor() {
         if (TaskManager.instance) {
@@ -23,7 +23,21 @@ class TaskManager {
         return space.APIs.getTaskLogFilePath(spaceId);
     }
 
-
+    // async importTaskClass(task) {
+    //     let taskClass;
+    //     if(task.applicationId){
+    //         try {
+    //             let applicationPath = ApplicationHandler.getApplicationTaskPath(task.spaceId, task.applicationId, task.name);
+    //             taskClass = require(applicationPath);
+    //             return taskClass;
+    //         } catch (e) {
+    //             //application uninstalled most likely
+    //         }
+    //     }else {
+    //         taskClass = require(`./${task.name}`);
+    //     }
+    //     return taskClass;
+    // }
     async initialize() {
         let spaceMapPath = space.APIs.getSpaceMapPath();
         let spacesMap = JSON.parse(await fsPromises.readFile(spaceMapPath, 'utf-8'));
@@ -40,7 +54,14 @@ class TaskManager {
                 if(!task.name){
                     continue;
                 }
-                let taskClass = require(`./${task.name}`);
+                // let taskClass = await this.importTaskClass(task);
+                let taskClass;
+                try{
+                    taskClass = require(`./${task.name}`);
+                }catch (e) {
+                    //application task, not found here.
+                    continue;
+                }
                 let taskInstance = new taskClass(task.spaceId, task.userId, task.configs);
                 taskInstance.id = task.id; //set the original id
                 taskInstance.setStatus(task.status) //set the original status
@@ -119,7 +140,13 @@ class TaskManager {
     }
 
     serializeTasks(spaceId) {
-        return this.tasks.filter(task => task.spaceId === spaceId).map(task => task.serialize());
+        return this.tasks.filter(task => task.spaceId === spaceId).map((task) => {
+            if(typeof task.serialize !== "function"){
+                this.removeTask(task.id);
+                return {};
+            }
+            return task.serialize();
+        });
     }
 
     getRunningTasks() {

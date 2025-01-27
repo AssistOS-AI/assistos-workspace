@@ -13,7 +13,7 @@ export class PrintDocumentModal {
     }
 
     async beforeRender() {
-        // cod de inițializare care rulează înainte de redarea paginii
+        // Cod de inițializare care rulează înainte de redarea paginii
     }
 
     closePrintModal() {
@@ -21,34 +21,27 @@ export class PrintDocumentModal {
     }
 
     async convertToPDF() {
+        this.collectFormData();
         const { jsPDF } = window.jspdf;
 
-        const pageSize = this.formData.pageSize || 'a4'; // Default A4
-        const orientation = this.formData.orientation || 'p'; // Default portrait
+        const pageSize = this.formData.pageSize || 'a4';
+        const orientation = this.formData.orientation || 'p';
         const doc = new jsPDF(orientation, 'mm', pageSize);
-
-        this.collectFormData();
 
         const margins = {
             top: parseInt(this.formData.topPadding),
             bottom: parseInt(this.formData.bottomPadding),
             left: parseInt(this.formData.leftPadding),
-            right: parseInt(this.formData.rightPadding)
+            right: parseInt(this.formData.rightPadding),
         };
 
-        const footerHeight = 5;
-
-        // dimensiunile paginii
+        const footerHeight = 8;
         const pageHeight = doc.internal.pageSize.height;
+        const pageWidth = doc.internal.pageSize.width;
 
-        const effectiveBottomMargin = Math.min(margins.bottom, footerHeight);
-
-        // inaltime de completat cu text
-        const usableHeight = pageHeight - margins.top - effectiveBottomMargin;
-        const usableWidth = doc.internal.pageSize.width - margins.left - margins.right;
-
-
-        this.collectFormData();
+        // Calculăm spațiul utilizabil (corectat)
+        const usableHeight = pageHeight - margins.top - margins.bottom - footerHeight;
+        const usableWidth = pageWidth - margins.left - margins.right;
 
         const htmlContent = this.generateHTMLFromDocument();
 
@@ -57,17 +50,18 @@ export class PrintDocumentModal {
         tempDiv.innerHTML = htmlContent;
         document.body.appendChild(tempDiv);
 
-        let y = margins.top;
-
+        let y = margins.top + 3;
 
         const addContentToPage = (element) => {
-            const lineHeight = 10; // inaltime rand
+            const lineHeight = 5; // Distanța între linii
+            const paragraphGap = 5; // Spațiu între paragrafe
             const elements = element.querySelectorAll('h1, h2, h3, p, img');
 
             elements.forEach((el) => {
                 const text = el.textContent || '';
                 const tagName = el.tagName.toLowerCase();
 
+                // Dimensiune font în funcție de tag
                 if (tagName === 'h1') {
                     doc.setFontSize(16);
                 } else if (tagName === 'h2') {
@@ -78,44 +72,74 @@ export class PrintDocumentModal {
                     doc.setFontSize(10);
                 }
 
-                // fragmentare text in fct de latimea disponibila
+                // Fragmentăm textul pentru a se încadra în pagină
                 const splitText = doc.splitTextToSize(text, usableWidth);
 
-                const blockHeight = splitText.length * lineHeight;
-
-                if (y + blockHeight > usableHeight) {
-                    doc.addPage();
-                    y = margins.top;
-                }
-
                 splitText.forEach((line) => {
-                    doc.text(line, margins.left, y);
-                    y += lineHeight;
-
-                    if (y + footerHeight > usableHeight) {
+                    // Verificăm dacă linia încape în pagina curentă
+                    if (y + lineHeight > pageHeight - margins.bottom - footerHeight) {
                         doc.addPage();
                         y = margins.top;
                     }
+
+                    doc.text(line, margins.left, y);
+                    y += lineHeight;
                 });
+
+                y += paragraphGap; // Spațiu între paragrafe
             });
         };
 
         addContentToPage(tempDiv);
 
+        // Adăugare paginare și footer
         const pageCount = doc.internal.getNumberOfPages();
+        const paginationPosition = this.formData.paginationPosition;
+        const paginationStyle = this.formData.paginationStyle || 'number';
+
         for (let i = 1; i <= pageCount; i++) {
             doc.setPage(i);
-            doc.setFontSize(10);
+
+            let paginationText = '';
+
+            // Stiluri pentru paginare
+            if (paginationStyle === 'simple') {
+                paginationText = `Page ${i} of ${pageCount}`;
+            } else if (paginationStyle === 'dashed') {
+                paginationText = `-- Page ${i} of ${pageCount} --`;
+            } else if (paginationStyle === 'fraction') {
+                paginationText = `${i}/${pageCount}`;
+            } else if (paginationStyle === 'number') {
+                paginationText = `${i}`;
+            } else if (paginationStyle === 'hyphenated') {
+                paginationText = `Page ${i} - ${pageCount}`;
+            } else if (paginationStyle === 'formal') {
+                paginationText = `[ Page ${i} of ${pageCount} ]`;
+            }
+
+            let xPosition;
+            const textWidth = doc.getTextWidth(paginationText);
+
+            if (paginationPosition === 'center') {
+                xPosition = (pageWidth - textWidth) / 2;
+            } else if (paginationPosition === 'right') {
+                xPosition = pageWidth - margins.right - textWidth;
+            } else {
+                xPosition = margins.left;
+            }
+
             doc.text(
-                `Page ${i} of ${pageCount}`,
-                doc.internal.pageSize.width / 2,
-                pageHeight - 5,
-                { align: 'center' }
+                paginationText,
+                xPosition,
+                pageHeight - margins.bottom + (footerHeight / 2),
+                { align: paginationPosition }
             );
         }
 
+        // Eliminare container temporar
         document.body.removeChild(tempDiv);
 
+        // Salvare fișier PDF
         doc.save('document.pdf');
     }
 
@@ -159,13 +183,16 @@ export class PrintDocumentModal {
             backgroundColor: formData.get('backgroundColor'),
             backgroundImage: formData.get('backgroundImage'),
 
-            topPadding: `${formData.get('topPadding')}px`,
-            bottomPadding: `${formData.get('bottomPadding')}px`,
-            leftPadding: `${formData.get('leftPadding')}px`,
-            rightPadding: `${formData.get('rightPadding')}px`,
+            topPadding: formData.get('topPadding'),
+            bottomPadding: formData.get('bottomPadding'),
+            leftPadding: formData.get('leftPadding'),
+            rightPadding: formData.get('rightPadding'),
 
             pageSize: formData.get('pageSize'),
-            orientation: formData.get('orientation')
+            orientation: formData.get('orientation'),
+
+            paginationPosition: formData.get('paginationPosition') || 'center',
+            paginationStyle: formData.get('paginationStyle')
         };
     }
 
@@ -175,7 +202,7 @@ export class PrintDocumentModal {
             abstractFont, abstractFontSize, abstractColor,
             chapterFont, chapterFontSize, chapterColor,
             paragraphFont, paragraphFontSize, paragraphColor,
-            backgroundColor, backgroundImage, topPadding, bottomPadding, leftPadding, rightPadding
+            backgroundColor, backgroundImage, topPadding, bottomPadding, leftPadding, rightPadding,
         } = this.formData;
 
         let cssContent = `
@@ -265,6 +292,7 @@ export class PrintDocumentModal {
     }
 
     async afterRender() {
+        this.collectFormData();
         try {
             await this.loadJsPDF();
             await this.loadDompurify();

@@ -1,5 +1,4 @@
 const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 
@@ -151,7 +150,7 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if (selected) {
             for (let selection of selected.users) {
-                await selectionUtils.setUserIcon(selection.imageId, selection.selectId, this.textClass, this);
+                await selectionUtils.setUserIcon(selection.userImageId, selection.userEmail, selection.selectId, this.textClass, this);
             }
             if (selected.lockOwner) {
                 selectionUtils.lockItem(this.textClass, this);
@@ -563,7 +562,7 @@ export class ParagraphItem {
         }
         if (data.selected) {
             if (!this.plugins[itemClass]) {
-                await selectionUtils.setUserIcon(data.imageId, data.selectId, itemClass, this);
+                await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             }
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);

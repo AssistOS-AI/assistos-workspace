@@ -82,7 +82,7 @@ async function registerUser(request, response) {
         await User.registerUser(
             userData.email,
             userData.password,
-            userData.photo,
+            userData.imageId,
             userData.inviteToken);
         utils.sendResponse(response, 200, "application/json", {
             message: `User ${userData.name} registered successfully. Please check your email for the verification code`
@@ -173,7 +173,22 @@ async function getUserAvatar(request, response) {
     }
 
 }
-
+async function updateUserImage(request, response) {
+    const userId = request.params.userId;
+    const imageId = request.body.imageId;
+    try {
+        const user = await User.getUserFile(userId);
+        user.imageId = imageId;
+        await User.updateUserFile(user.id, user);
+        utils.sendResponse(response, 200, "application/json", {
+            message: "User image updated successfully"
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            message: error.message
+        });
+    }
+}
 module.exports = {
     addSecret,
     deleteSecret,
@@ -185,5 +200,6 @@ module.exports = {
     logoutUser,
     getUserAvatar,
     sendPasswordResetCode,
-    resetPassword
+    resetPassword,
+    updateUserImage
 };
