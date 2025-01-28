@@ -363,10 +363,11 @@ async function swapEmbeddedObjects(request, response) {
 
 async function addSpaceChatMessage(request, response) {
     const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
     const userId = request.userId;
     const messageData = request.body;
     try {
-        const messageId = await space.APIs.addSpaceChatMessage(spaceId, userId, "user", messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId,userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             message: `Message added successfully`,
             data: {messageId: messageId}
@@ -381,8 +382,9 @@ async function addSpaceChatMessage(request, response) {
 
 async function getSpaceChat(request, response) {
     const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
     try {
-        const chat = await space.APIs.getSpaceChat(spaceId);
+        const chat = await space.APIs.getSpaceChat(spaceId,chatId);
         utils.sendResponse(response, 200, "application/json", {
             message: `Chat loaded successfully`,
             data: chat
@@ -409,7 +411,7 @@ async function getSpace(request, response) {
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
+        //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
         await user.updateUsersCurrentSpace(userId, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             data: spaceObject,
@@ -785,7 +787,7 @@ async function getChatTextResponse(request, response) {
     if (modelResponse.success) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
-            await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
+            await space.APIs.addSpaceChatMessage(spaceId,agentId, agentId, "assistant", chatMessage);
             SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
         }
     }
@@ -805,7 +807,7 @@ async function getChatTextStreamingResponse(request, response) {
                 chatMessages = [modelResponse.data.messages];
             }
             for (const chatMessage of chatMessages) {
-                await space.APIs.addSpaceChatMessage(spaceId, agentId, "assistant", chatMessage);
+                await space.APIs.addSpaceChatMessage(spaceId,agentId, agentId, "assistant", chatMessage);
                 SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
             }
         }
@@ -1174,5 +1176,7 @@ module.exports = {
     deleteVideo,
     exportPersonality,
     importPersonality,
-    getSpaceChat
+    getSpaceChat,
+    getFileObjectsMetadataPath,
+    getFileObjectPath
 }

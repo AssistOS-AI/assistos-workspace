@@ -9,27 +9,20 @@ export class AgentPage {
             conversationHistory: [],
         }
         this.invalidate(async () => {
-            this.personalities = await assistOS.space.getPersonalitiesMetadata();
             this.boundOnChatUpdate = this.onChatUpdate.bind(this);
-            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.space.id}`, this.boundOnChatUpdate);
+            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.agent.agentData.id}`, this.boundOnChatUpdate);
         });
-
-        this.private = "selected-chat";
-        this.enabledAgents = true;
     }
 
     onChatUpdate() {
-        this.invalidate(async () => assistOS.space.chat = await spaceModule.getSpaceChat(assistOS.space.id, "123456789"));
+        this.invalidate(async () =>this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id));
     }
 
     async beforeRender() {
-        if (this.enabledAgents) {
-            this.agentsToggleButton = "Disable Agents"
-        } else {
-            this.agentsToggleButton = "Enable Agents"
-        }
+        this.chat= await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+        this.personalities= await assistOS.space.getPersonalitiesMetadata();
         let stringHTML = "";
-        for (let message of assistOS.space.chat) {
+        for (let message of this.chat) {
             let role = "Space";
 
             if (message.role === "user") {
@@ -53,7 +46,7 @@ export class AgentPage {
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = assistOS.agent.agentData.name;
         this.personalityLLM = assistOS.agent.agentData.llms.text;
-        this.spaceName = assistOS.space.name.length>15?assistOS.space.name.substring(0,15)+"...":assistOS.space.name;
+        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
     }
 
     async afterRender() {
@@ -65,15 +58,6 @@ export class AgentPage {
         await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
     }
 
-    async toggleAgentsState(_target) {
-        this.enabledAgents = !this.enabledAgents;
-        const buttonAgentItem = this.element.querySelector("[data-local-action=toggleAgentsState]");
-        if (this.enabledAgents) {
-            buttonAgentItem.querySelector('.list-item-name').innerText = "Disable Agents"
-        } else {
-            buttonAgentItem.querySelector('.list-item-name').innerText = "Enable Agents"
-        }
-    }
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -150,18 +134,12 @@ export class AgentPage {
         if (!userRequestMessage.trim()) {
             return;
         }
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, unsanitizedMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id,assistOS.agent.agentData.id, unsanitizedMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
         await this.displayMessage("own", userRequestMessage);
         const conversationContainer = this.element.querySelector('.conversation');
-        if (this.enabledAgents) {
-            try {
-                await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
-            } catch (error) {
-                console.error('Failed to find element:', error);
-            }
-        }
+        await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
     }
 
     refreshRightPanel() {

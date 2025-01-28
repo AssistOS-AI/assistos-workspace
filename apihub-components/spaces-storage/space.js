@@ -183,14 +183,18 @@ async function getDefaultPersonality(spaceId) {
     }
 }
 
-async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
+async function createChat(spaceId, chatId) {
 
+
+}
+
+async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
     const files = await fsPromises.readdir(defaultPersonalitiesPath, {withFileTypes: true});
-    let metadata = [];
+
     let promises = [];
     const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
     const defaultLlms = (await defaultLlmsRes.json()).data;
@@ -199,8 +203,10 @@ async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId,
             promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms));
         }
     }
-    metadata = await Promise.all(promises);
-    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
+    const personalitiesData = await Promise.all(promises);
+
+    await Promise.all(personalitiesData.map(personalityData => createChat(spaceId, personalityData.id)));
+    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(personalitiesData), 'utf8');
 }
 
 async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms) {
@@ -328,13 +334,15 @@ async function createSpace(spaceName, userId, spaceModule) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
     await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-    await createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName);
+
+    await createDefaultSpaceChats(lightDBEnclaveClient, spaceId);
+
     return spaceObj;
 }
 
-async function getSpaceChat(spaceId) {
+async function getSpaceChat(spaceId,chatId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const tableName = `chat_${spaceId}`
+    const tableName = `chat_${chatId}`
     let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableName);
     let chat = []
     for (let record of records) {
@@ -348,12 +356,12 @@ async function getSpaceChat(spaceId) {
     return chat;
 }
 
-async function addSpaceChatMessage(spaceId, entityId, role, messageData) {
+async function addSpaceChatMessage(spaceId,chatId, entityId, role, messageData) {
     const aosUtil = require('assistos').loadModule('util', {});
     messageData = aosUtil.sanitize(messageData);
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const messageId = crypto.generateId();
-    const tableName = `chat_${spaceId}`
+    const tableName = `chat_${chatId}`
     const primaryKey = `chat_${spaceId}_${entityId}_${messageId}`
     await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
         data: {
@@ -366,19 +374,24 @@ async function addSpaceChatMessage(spaceId, entityId, role, messageData) {
     return messageId
 }
 
-async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName) {
-    const createWorkspaceChat = async () => {
-        const tableName = `chat_${spaceId}`;
-        const entryMessagePk = `chat_${spaceId}`;
-        const entryMessage = `Welcome to ${spaceName}! This is the workspace chat where you can discuss and collaborate with your team members.`
-        await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
-            data: {
-                role: "Space",
-                message: entryMessage,
-            }
-        })
+async function createSpaceChat(spaceId, chatId,lightDbClient) {
+    if(!lightDbClient){
+        lightDbClient = enclave.initialiseLightDBEnclave(spaceId);
     }
-    await createWorkspaceChat();
+    let tableName = `chat_${chatId}`;
+    const entryMessagePk = `chat_${spaceId}`;
+    const entryMessage = `This is the workspace chat where you can discuss and collaborate with your team members.`;
+    await lightDbClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
+        data: {
+            role: "Space",
+            message: entryMessage,
+        }
+    });
+}
+
+async function createDefaultSpaceChats(lightDbClient, spaceId) {
+    const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
+    await Promise.all(spacePersonalities.map(personalityData => createSpaceChat( spaceId, personalityData.id,lightDbClient)));
 }
 
 
@@ -650,9 +663,9 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
         return "You don't have permission to delete a collaborator";
     }
     let userRoles = spaceStatusObject.users[userId].roles;
-    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
         let owners = getOwnersCount(spaceStatusObject.users);
-        if(owners === 1){
+        if (owners === 1) {
             return "Can't delete the last owner of the space";
         }
     }
@@ -660,25 +673,28 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
     await user.unlinkSpaceFromUser(userId, spaceId);
 }
+
 async function getSpaceCollaborators(spaceId) {
     const user = require('../users-storage/user.js');
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let users = [];
-    for(let userId in spaceStatusObject.users){
+    for (let userId in spaceStatusObject.users) {
         const userFile = await user.getUserFile(userId);
-        users.push({id: userId, email:userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
+        users.push({id: userId, email: userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
     }
     return users;
 }
-function getOwnersCount(users){
+
+function getOwnersCount(users) {
     let owners = 0;
-    for(let id in users){
-        if(users[id].roles.includes(spaceConstants.spaceRoles.owner)){
+    for (let id in users) {
+        if (users[id].roles.includes(spaceConstants.spaceRoles.owner)) {
             owners++;
         }
     }
     return owners;
 }
+
 async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let referrerRoles = spaceStatusObject.users[referrerId].roles;
@@ -686,19 +702,21 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
         return "You don't have permission to change the role of a collaborator";
     }
     let userRoles = spaceStatusObject.users[userId].roles;
-    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
         let owners = getOwnersCount(spaceStatusObject.users);
-        if(owners === 1 && role !== spaceConstants.spaceRoles.owner){
+        if (owners === 1 && role !== spaceConstants.spaceRoles.owner) {
             return "Can't change the role of the last owner of the space";
         }
     }
     spaceStatusObject.users[userId].roles = [role];
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
-function getPriorityRole(roles){
+
+function getPriorityRole(roles) {
     let rolePriority = [spaceConstants.spaceRoles.owner, spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.member];
     return rolePriority.find(priorityRole => roles.includes(priorityRole));
 }
+
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     const user = require('../users-storage/user.js');
     const emailService = require('../email').instance;
@@ -724,6 +742,7 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     }
     return existingCollaborators;
 }
+
 module.exports = {
     APIs: {
         addApplicationToSpaceObject,
@@ -761,7 +780,8 @@ module.exports = {
         getSpaceCollaborators,
         setSpaceCollaboratorRole,
         inviteSpaceCollaborators,
-        deleteSpaceCollaborator
+        deleteSpaceCollaborator,
+        createSpaceChat
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

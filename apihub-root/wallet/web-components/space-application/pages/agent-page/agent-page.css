@@ -97,15 +97,16 @@ agent-page {
     box-shadow: 0px 1px 5.5px 0px #65666754;
     color: var(--dark-text);
     border-radius: 10px;
-    height: 150px;
+    height:fit-content;
+    max-height:30vh;
     display: none;
-    top: 50px;
+    top: 70px;
+    left: 10px;
     background-color: var(--white);
     position: absolute;
-    left: 0;
     z-index: 1;
     flex-direction: column;
-    min-width: 160px;
+    width:fit-content;
     overflow: auto;
     scrollbar-width: auto;
     scrollbar-color: #888 #f1f1f1;
@@ -197,6 +198,7 @@ agent-page {
 
 .conversation {
     display:flex;
+    padding:4px;
     gap: 10px;
     flex-direction:column;
     overflow-y: scroll;
@@ -284,6 +286,7 @@ agent-page {
     position: absolute;
     z-index: 1;
     right: 0;
+    inset-block-start: 55px;
     flex-direction: column;
     background-color: var(--white);
 }

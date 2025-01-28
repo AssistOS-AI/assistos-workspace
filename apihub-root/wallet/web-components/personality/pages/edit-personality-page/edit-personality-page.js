@@ -237,6 +237,10 @@ export class EditPersonalityPage {
             spaceId: assistOS.space.id,
             personalityId: this.personality.id
         });
+        if(this.personality.id === assistOS.agent.agentData.id){
+            await assistOS.changeAgent();
+            document.querySelector('agent-page').webSkelPresenter.invalidate();
+        }
         await this.openPersonalitiesPage();
     }
 

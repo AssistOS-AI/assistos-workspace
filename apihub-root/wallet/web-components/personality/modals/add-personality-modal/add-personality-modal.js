@@ -38,8 +38,9 @@ export class AddPersonalityModal {
                     metadata: ["name", "id", "imageId"]
                 };
                 await personalityModule.addPersonality(assistOS.space.id, personalityData);
-                assistOS.UI.closeModal(_target);
-                assistOS.space.notifyObservers(assistOS.space.getNotificationId());
+                document.querySelector('agent-page').webSkelPresenter.invalidate();
+
+                assistOS.UI.closeModal(_target,{refresh:true});
             };
             if(!formInfo.data.photo){
                 let image = document.createElement("img");

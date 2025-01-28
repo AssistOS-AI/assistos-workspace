@@ -1,4 +1,5 @@
 const SpaceHandler = require('../spaces-storage/space.js');
+const PersonalitiesHandler = require('../personalities-storage/handler.js');
 const Request = require('../apihub-component-utils/utils.js');
 const { ServerSideSecurityContext, loadModule } = require('assistos');
 
@@ -47,7 +48,19 @@ async function getDefaultPersonality(request,response){
         return Request.sendResponse(response, error.statusCode||500, "application/json", { message: `An error occurred while updating personalities:${error.message}` });
     }
 }
+async function addPersonality(request,response){
+    try{
+        const spaceId = request.params.spaceId;
+        const personalityData = request.body;
+        await PersonalitiesHandler.addPersonality(request,spaceId,personalityData);
+
+        return Request.sendResponse(response, 200, "application/json", { message: "Personality added successfully" });
+    }catch(error){
+        return Request.sendResponse(response, error.statusCode||500, "application/json", { message: `An error occurred while updating personalities:${error.message}` });
+    }
+}
 module.exports = {
     ensurePersonalitiesDefaultLllms,
-    getDefaultPersonality
+    getDefaultPersonality,
+    addPersonality,
 };

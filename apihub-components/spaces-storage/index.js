@@ -110,8 +110,8 @@ function SpaceStorage(server) {
     server.put("/spaces/collaborators/:spaceId/:collaboratorId", setSpaceCollaboratorRole);
     server.delete("/spaces/collaborators/:spaceId/:collaboratorId", deleteSpaceCollaborator);
 
-    server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
-    server.get("/spaces/:spaceId/chat", getSpaceChat);
+    server.post("/spaces/chat/:spaceId/:chatId", addSpaceChatMessage);
+    server.get("/spaces/chat/:spaceId/:chatId", getSpaceChat);
 
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMetadata);
