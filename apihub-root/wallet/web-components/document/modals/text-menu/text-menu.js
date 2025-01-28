@@ -11,7 +11,7 @@ export class TextMenu{
             this.paragraphPresenter = this.documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${context.paragraphId}"]`).webSkelPresenter;
             this.text = this.paragraphPresenter.paragraph.text;
         } else {
-            this.text = this.documentPresenter.document.abstract;
+            this.text = this.documentPresenter._document.abstract;
         }
 
         this.element.classList.add("maintain-focus");
@@ -119,13 +119,13 @@ export class TextMenu{
             this.paragraphPresenter.paragraph.text = newText;
             await documentModule.updateParagraphText(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.text);
         } else {
-            this.documentPresenter.document.abstract = newText;
+            this.documentPresenter._document.abstract = newText;
             let abstractElement = this.documentPresenter.element.querySelector(".document-abstract");
             requestAnimationFrame(() => {
                 abstractElement.innerHTML = newText;
                 abstractElement.style.height = abstractElement.scrollHeight + "px";
             });
-            await documentModule.updateDocumentAbstract(assistOS.space.id, this.documentPresenter.document.id, newText);
+            await documentModule.updateDocumentAbstract(assistOS.space.id, this.documentPresenter._document.id, newText);
         }
         this.closeModal();
     }
