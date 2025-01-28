@@ -234,12 +234,12 @@ async function getApplicationsPlugins(spaceId) {
         if(!manifest.plugins){
             continue;
         }
-        for(let pluginType of manifest.plugins){
+        for(let pluginType of Object.keys(manifest.plugins)){
             if(!plugins[pluginType]){
                 plugins[pluginType] = [];
             }
             for(let plugin of manifest.plugins[pluginType]){
-                plugin.applicationId = app.id;
+                plugin.applicationId = app.name;
             }
             plugins[pluginType] = plugins[pluginType].concat(manifest.plugins[pluginType]);
         }

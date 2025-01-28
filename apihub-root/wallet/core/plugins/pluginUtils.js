@@ -1,5 +1,5 @@
 import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
-
+const applicationModule = require("assistos").loadModule("application", {});
 async function openPlugin(componentName, type, context, selectionItemId, presenter) {
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
@@ -19,7 +19,13 @@ async function initializePlugin(type, componentName) {
         if(alreadyLoadedComponent) {
             plugin.inialized = true;
         } else {
-            let component = await assistOS.getApplicationComponent(assistOS.space.id, plugin.applicationId, componentName);
+            let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, plugin.applicationId);
+            let component = await assistOS.getApplicationComponent(assistOS.space.id, plugin.applicationId, manifest.componentsDirPath, {
+                name: componentName,
+                presenterClassName: plugin.presenterClassName,
+            });
+            component.presenterClassName = plugin.presenterClassName;
+            component.name = componentName;
             assistOS.UI.configs.components.push(component);
             await assistOS.UI.defineComponent(component);
             plugin.inialized = true;
