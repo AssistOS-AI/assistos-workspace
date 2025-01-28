@@ -1,12 +1,19 @@
 const personalityModule = require("assistos").loadModule("personality", {});
 const documentModule = require("assistos").loadModule("document", {});
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class TextMenu{
     constructor(element, invalidate){
         this.element = element;
         this.invalidate = invalidate;
-        let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        let paragraphId = this.element.getAttribute("data-paragraph-id");
-        this.paragraphPresenter = documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`).webSkelPresenter;
+        this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+        let context = pluginUtils.getContext(this.element);
+        if(context.paragraphId){
+            this.paragraphPresenter = this.documentPresenter.element.querySelector(`paragraph-item[data-paragraph-id="${context.paragraphId}"]`).webSkelPresenter;
+            this.text = this.paragraphPresenter.paragraph.text;
+        } else {
+            this.text = this.documentPresenter._document.abstract;
+        }
+
         this.element.classList.add("maintain-focus");
         this.invalidate();
     }
@@ -30,7 +37,7 @@ export class TextMenu{
     }
     afterRender(){
         let paragraphText = this.element.querySelector('#text');
-        paragraphText.innerHTML = this.paragraphPresenter.paragraph.text;
+        paragraphText.innerHTML = this.text;
     }
     async generateText(text){
         let prompt = this.element.querySelector("#prompt").value;
@@ -102,14 +109,24 @@ export class TextMenu{
         this.element.style.pointerEvents = "initial";
     }
     async acceptText(){
-        let textElement = this.paragraphPresenter.element.querySelector(".paragraph-text");
         let newText = this.element.querySelector(".generated-text").value;
-        requestAnimationFrame(() => {
-            textElement.innerHTML = newText;
-            textElement.style.height = textElement.scrollHeight + "px";
-        });
-        this.paragraphPresenter.paragraph.text = newText;
-        await documentModule.updateParagraphText(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.text);
+        if(this.paragraphPresenter){
+            let textElement = this.paragraphPresenter.element.querySelector(".paragraph-text");
+            requestAnimationFrame(() => {
+                textElement.innerHTML = newText;
+                textElement.style.height = textElement.scrollHeight + "px";
+            });
+            this.paragraphPresenter.paragraph.text = newText;
+            await documentModule.updateParagraphText(assistOS.space.id, this.paragraphPresenter._document.id, this.paragraphPresenter.paragraph.id, this.paragraphPresenter.paragraph.text);
+        } else {
+            this.documentPresenter._document.abstract = newText;
+            let abstractElement = this.documentPresenter.element.querySelector(".document-abstract");
+            requestAnimationFrame(() => {
+                abstractElement.innerHTML = newText;
+                abstractElement.style.height = abstractElement.scrollHeight + "px";
+            });
+            await documentModule.updateDocumentAbstract(assistOS.space.id, this.documentPresenter._document.id, newText);
+        }
         this.closeModal();
     }
     closeModal(button){

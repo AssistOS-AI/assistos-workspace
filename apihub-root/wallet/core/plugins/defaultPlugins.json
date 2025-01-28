@@ -1,0 +1,38 @@
+{
+    "document": [],
+    "abstract": [
+        {
+            "name": "Proofread",
+            "componentName": "text-menu",
+            "icon": "./wallet/assets/icons/light-bulb.svg"
+        }
+    ],
+    "chapter": [],
+    "paragraph": [
+        {
+            "name": "ImageMenu",
+            "componentName": "image-menu",
+            "icon": "./wallet/assets/icons/image.svg"
+        },
+        {
+            "name": "Proofread",
+            "componentName": "text-menu",
+            "icon": "./wallet/assets/icons/light-bulb.svg"
+        },
+        {
+            "name": "AudioMenu",
+            "componentName": "audio-menu",
+            "icon": "./wallet/assets/icons/audio.svg"
+        },
+        {
+            "name": "DiagramMenu",
+            "componentName": "diagram-menu",
+            "icon": "./wallet/assets/icons/diagram-logo.svg"
+        },
+        {
+            "name": "VideoMenu",
+            "componentName": "video-menu",
+            "icon": "./wallet/assets/icons/video.svg"
+        }
+    ]
+}

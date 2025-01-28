@@ -1,6 +1,5 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import NotificationManager from "./wallet/core/NotificationManager.js";
-
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
@@ -91,6 +90,9 @@ class AssistOS {
                     });
                 }
             });
+            let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
+            defaultPlugins = await defaultPlugins.json();
+            this.plugins = defaultPlugins;
         };
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
@@ -108,7 +110,19 @@ class AssistOS {
         let completeURL = [baseURL, appLocation].join("/");
         await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
-
+    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component)  {
+        const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
+        const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
+        let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath);
+        let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath);
+        let presenterModule = "";
+        if (component.presenterClassName) {
+            const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
+            presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
+        }
+        loadedCSSs = [loadedCSSs];
+        return {loadedTemplate, loadedCSSs, presenterModule};
+    }
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
@@ -118,27 +132,17 @@ class AssistOS {
                 await assistOS.initialisedApplications[appName].manager.loadAppData?.();
             }
             for (let component of assistOS.initialisedApplications[appName].components) {
+                let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
+                if(alreadyLoadedComponent) {
+                    continue;
+                }
                 component = {
-                    ...await getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
+                    ...await this.getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
                     ...component
                 }
                 assistOS.UI.configs.components.push(component);
                 await assistOS.UI.defineComponent(component);
             }
-        }
-
-        const getApplicationComponent = async (spaceId, appId, appComponentsDirPath, component) => {
-            const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
-            const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-            let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath)
-            let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath)
-            let presenterModule = "";
-            if (component.presenterClassName) {
-                const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-                presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
-            }
-            loadedCSSs = [loadedCSSs];
-            return {loadedTemplate, loadedCSSs, presenterModule};
         }
 
         const applicationContainer = document.querySelector("#page-content");
@@ -200,6 +204,13 @@ class AssistOS {
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
+        let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
+        for(let pluginType in applicationPlugins){
+            if(!this.plugins[pluginType]){
+                this.plugins[pluginType] = [];
+            }
+            this.plugins[pluginType] = this.plugins[pluginType].concat(applicationPlugins[pluginType]);
+        }
     }
 
     async loadAgent(spaceId,agentId) {
