@@ -92,9 +92,14 @@ export class EditPersonalityPage {
             voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
         this.voicesOptions = voicesHTML;
+
+        this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>`;
+
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
             this.disabled = "disabled";
+            this.deletePersonalityButton="";
         }
+
         if (this.personality.imageId) {
             try {
                 this.photo = await spaceModule.getImageURL(this.personality.imageId);
@@ -202,10 +207,7 @@ export class EditPersonalityPage {
             this.personality.name = formInfo.data.name || this.personality.name;
             this.personality.description = formInfo.data.description;
             this.personality.voiceId = formInfo.data.voiceId;
-            let reloadChat=false;
-            if(this.personality.llms["text"] !== formInfo.data["textLLM"] && this.personalityName === assistOS.agent.agentData.name){
-                reloadChat=true;
-            }
+
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
             });
@@ -221,7 +223,7 @@ export class EditPersonalityPage {
                 reader.readAsArrayBuffer(this.photoAsFile);
             } else {
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
-                if(reloadChat){
+                if(this.personalityName === assistOS.agent.agentData.name){
                     await assistOS.changeAgent(this.personality.id);
                     document.querySelector('agent-page').webSkelPresenter.invalidate();
                 }

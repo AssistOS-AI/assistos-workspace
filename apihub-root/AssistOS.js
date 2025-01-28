@@ -245,8 +245,8 @@ class AssistOS {
         this.notificationMonitor = "closed";
     }
 
-    async createSpace(spaceName, apiKey) {
-        await spaceModule.createSpace(spaceName, apiKey);
+    async createSpace(spaceName) {
+        await spaceModule.createSpace(spaceName);
         await this.loadPage(false, true);
     }
 
