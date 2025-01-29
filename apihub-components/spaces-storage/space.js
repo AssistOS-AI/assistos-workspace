@@ -594,14 +594,6 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-    if (personalityData.imageId) {
-        try {
-            let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
-            archive.append(fileStream, {name: `${personalityData.imageId}.png`});
-        } catch (e) {
-            delete personalityData.imageId;
-        }
-    }
 
     archive.finalize();
     return stream;
@@ -618,11 +610,6 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    if (personalityData.imageId) {
-        const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
-        let imageStream = fs.createReadStream(personalityImagePath);
-        await Storage.putFile(Storage.fileTypes.images, personalityData.imageId, imageStream);
-    }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
     let personalityId, overriden = false, personalityName = personalityData.name;
