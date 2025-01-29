@@ -1,6 +1,7 @@
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
+let applicationModule = require("assistos").loadModule("application", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
@@ -177,8 +178,32 @@ export class DocumentViewPage {
             });
         }
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
+        await this.constructDocumentPluginsHTML();
     }
-
+    async constructDocumentPluginsHTML() {
+        let plugins = assistOS.plugins.document;
+        let pluginsHTML = "";
+        let pluginIconPromises = [];
+        for(let plugin of plugins){
+            pluginIconPromises.push(this.getPluginIcon(plugin));
+        }
+        let icons = await Promise.all(pluginIconPromises);
+        for(let i = 0 ; i < plugins.length; i++){
+            let icon = icons[i];
+            pluginsHTML+= `<div data-local-action="openDocumentPlugin ${plugins[i].componentName}" class="attachment-circle menu-container ${plugins[i].componentName} document-plugin">
+                    <img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">
+                </div>`;
+        }
+        this.documentPlugins = pluginsHTML;
+    }
+    async getPluginIcon(plugin) {
+        let pluginIcon = plugin.icon;
+        if(plugin.applicationId){
+            let svg = await applicationModule.getApplicationFile(assistOS.space.id, plugin.applicationId, plugin.icon);
+            pluginIcon = `data:image/svg+xml;base64,${btoa(svg)}`;
+        }
+        return pluginIcon;
+    }
     renderDocumentTitle() {
         let documentTitle = this.element.querySelector(".document-title");
         documentTitle.value = unescapeHtmlEntities(this._document.title);
@@ -536,16 +561,6 @@ export class DocumentViewPage {
         tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
 
-    async openGenerateBookModal(_target) {
-        const taskId = await assistOS.UI.showModal("books-generator-modal", {
-            "presenter": "books-generator-modal",
-            "documentId": this._document.id
-        }, true);
-        if (taskId) {
-            assistOS.watchTask(taskId);
-        }
-    }
-
     openDocumentComment(_target) {
         const chapterMenu = `<document-comment-menu data-presenter="document-comment-menu"></document-comment-menu>`;
         this.element.querySelector('.document-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
@@ -587,9 +602,9 @@ export class DocumentViewPage {
     }
     async openDocumentPlugin(targetElement, pluginName) {
         let context = {
-            "document-id": this._document.id
+            documentId: this._document.id
         }
-        await pluginUtils.openPlugin(pluginName, context);
+        await pluginUtils.openPlugin(pluginName, "document", context);
     }
     async openAbstractPlugin(targetElement, pluginName) {
         let itemId = `${this.abstractId}_${pluginName}`;
