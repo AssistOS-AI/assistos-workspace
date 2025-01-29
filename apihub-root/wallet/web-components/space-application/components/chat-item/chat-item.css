@@ -5,3 +5,32 @@
     justify-content:flex-start;
     flex-wrap:wrap;
 }
+.chat-options{
+    display:none;
+    margin-block-start:10px;
+    width:fit-content;
+}
+
+.other-message{
+    position:absolute;
+    justify-content: flex-start;
+    left:0;
+}
+
+.myself-message{
+    position:absolute;
+    justify-content: flex-end;
+    right:0;
+}
+
+.stop-stream-button{
+    display:none;
+}
+.chat-option-button{
+    min-width:60px;
+    align-items:center;
+    justify-content: center;
+    min-height:25px;
+    height:30px;
+    width:fit-content;
+}

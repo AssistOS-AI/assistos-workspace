@@ -152,9 +152,11 @@ async function getTextResponseAdvanced(request, response) {
     }
 }
 
-async function getTextStreamingResponse(request, response) {
+async function getTextStreamingResponse(request, response, onDataChunk) {
     const requestData = {...request.body};
     let sessionId = requestData.sessionId || null;
+    const controller = new AbortController();
+
     const {
         fullURL,
         init
@@ -166,73 +168,100 @@ async function getTextStreamingResponse(request, response) {
         'Connection': 'keep-alive'
     });
 
+    init.signal = controller.signal;
     init.responseType = 'stream';
+
     const requestBody = init.body;
     delete init.body;
 
-    return new Promise((resolve, reject) => {
-        axios.post(fullURL, requestBody, init).then(llmRes => {
-            let metadata = null;
+    let streamContent = "";
 
-            llmRes.data.on('data', chunk => {
-                try {
-                    const dataStr = chunk.toString();
-                    const lines = dataStr.split('\n');
-                    let eventName = null;
-                    let eventData = '';
+    request.on('close', () => {
+        controller.abort();
+    });
 
-                    lines.forEach(line => {
-                        if (line.startsWith('event:')) {
-                            eventName = line.replace('event: ', '').trim();
-                        } else if (line.startsWith('data:')) {
-                            eventData += line.replace('data: ', '').trim();
-                        } else if (line.trim() === '') {
-                            if (eventData) {
-                                const dataObj = JSON.parse(eventData);
+    return {
+        streamPromise: new Promise((resolve, reject) => {
+            axios.post(fullURL, requestBody, init).then(llmRes => {
+                let metadata = null;
 
-                                if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
-                                    sessionId = dataObj.sessionId;
-                                    cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
-                                    response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
-                                } else if (eventName === 'end') {
-                                    if (sessionId) {
-                                        cache[sessionId].end = true;
-                                        response.write(`event: end\ndata: ${JSON.stringify({
-                                            fullResponse: dataObj.fullResponse,
-                                            metadata: dataObj.metadata
-                                        })}\n\n`);
-                                        response.end();
-                                        delete cache[sessionId];
-                                        resolve({
-                                            success: true,
-                                            data: {messages: dataObj.fullResponse, metadata: metadata}
-                                        });
+                llmRes.data.on('data', chunk => {
+                    try {
+                        const dataStr = chunk.toString();
+                        const lines = dataStr.split('\n');
+                        let eventName = null;
+                        let eventData = '';
+
+                        lines.forEach(line => {
+                            if (line.startsWith('event:')) {
+                                eventName = line.replace('event: ', '').trim();
+                            } else if (line.startsWith('data:')) {
+                                eventData += line.replace('data: ', '').trim();
+                            } else if (line.trim() === '') {
+                                if (eventData) {
+                                    const dataObj = JSON.parse(eventData);
+
+                                    if (eventName === 'beginSession' && dataObj.sessionId && !sessionId) {
+                                        sessionId = dataObj.sessionId;
+                                        cache[sessionId] = {data: "", lastSentIndex: 0, end: false};
+                                        response.write(`event: beginSession\ndata: ${JSON.stringify({sessionId})}\n\n`);
+                                    } else if (eventName === 'end') {
+                                        if (sessionId) {
+                                            cache[sessionId].end = true;
+                                            response.write(`event: end\ndata: ${JSON.stringify({
+                                                fullResponse: dataObj.fullResponse,
+                                                metadata: dataObj.metadata
+                                            })}\n\n`);
+                                            response.end();
+                                            delete cache[sessionId];
+                                            resolve({
+                                                success: true,
+                                                data: {messages: dataObj.fullResponse, metadata: metadata}
+                                            });
+                                        }
+                                    } else {
+                                        if (dataObj.message) {
+                                            streamContent += dataObj.message;
+
+                                            if (typeof onDataChunk === 'function') {
+                                                onDataChunk(streamContent);
+                                            }
+
+                                            response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
+                                        }
                                     }
-                                } else {
-                                    if (dataObj.message) {
-                                        cache[sessionId].data += dataObj.message;
-                                        response.write(`data: ${JSON.stringify({message: dataObj.message})}\n\n`);
-                                    }
+
+                                    eventName = null;
+                                    eventData = '';
                                 }
-
-                                eventName = null;
-                                eventData = '';
                             }
-                        }
+                        });
+                    } catch (err) {
+                        console.error('Failed to parse JSON:', err);
+                    }
+                });
+
+                llmRes.data.on('end', () => {
+                    if (!streamContent) return;
+                    resolve({
+                        success: true,
+                        data: {messages: streamContent, metadata: null}
                     });
-                } catch (err) {
-                    console.error('Failed to parse JSON:', err);
+                });
+
+            }).catch(error => {
+                if (error.name !== 'CanceledError') {
+                    console.error('Stream error:', error);
+                    if (!response.headersSent) {
+                        response.writeHead(500, {'Content-Type': 'application/json'});
+                    }
+                    response.end(JSON.stringify({message: error.message}));
+                    reject(error);
                 }
             });
-        }).catch(error => {
-            console.error(error);
-            if (!response.headersSent) {
-                response.writeHead(500, {'Content-Type': 'application/json'});
-            }
-            response.end(JSON.stringify({message: error.message}));
-            reject(error);
-        });
-    });
+        }),
+        streamContent
+    };
 }
 
 async function getChatStreamingResponse(request, response) {

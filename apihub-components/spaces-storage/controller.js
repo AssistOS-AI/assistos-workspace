@@ -367,7 +367,7 @@ async function addSpaceChatMessage(request, response) {
     const userId = request.userId;
     const messageData = request.body;
     try {
-        const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId,userId, "user", messageData);
+        const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId, userId, "user", messageData);
         utils.sendResponse(response, 200, "application/json", {
             message: `Message added successfully`,
             data: {messageId: messageId}
@@ -384,7 +384,7 @@ async function getSpaceChat(request, response) {
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
     try {
-        const chat = await space.APIs.getSpaceChat(spaceId,chatId);
+        const chat = await space.APIs.getSpaceChat(spaceId, chatId);
         utils.sendResponse(response, 200, "application/json", {
             message: `Chat loaded successfully`,
             data: chat
@@ -460,12 +460,13 @@ async function createSpace(request, response) {
         });
     }
 }
-async function deleteSpace(request, response){
+
+async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
     let userId = request.userId;
     try {
         let message = await space.APIs.deleteSpace(userId, spaceId);
-        if(!message){
+        if (!message) {
             //space deleted
             let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
             SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
@@ -475,6 +476,7 @@ async function deleteSpace(request, response){
         utils.sendResponse(response, 500, "text/plain", error.message);
     }
 }
+
 async function getSpaceCollaborators(request, response) {
     const spaceId = request.params.spaceId;
     try {
@@ -488,6 +490,7 @@ async function getSpaceCollaborators(request, response) {
         });
     }
 }
+
 async function setSpaceCollaboratorRole(request, response) {
     const spaceId = request.params.spaceId;
     const collaboratorId = request.params.collaboratorId;
@@ -503,10 +506,11 @@ async function setSpaceCollaboratorRole(request, response) {
         });
     }
 }
+
 async function deleteSpaceCollaborator(request, response) {
     const spaceId = request.params.spaceId;
     const collaboratorId = request.params.collaboratorId;
-    if(request.userId === collaboratorId){
+    if (request.userId === collaboratorId) {
         return utils.sendResponse(response, 200, "application/json", {
             data: "You can't delete yourself from the space"
         });
@@ -522,6 +526,7 @@ async function deleteSpaceCollaborator(request, response) {
         });
     }
 }
+
 async function addCollaboratorsToSpace(request, response) {
     const userId = request.userId;
     const spaceId = request.params.spaceId;
@@ -778,7 +783,6 @@ async function deleteSpaceAnnouncement(request, response) {
 }
 
 
-
 async function getChatTextResponse(request, response) {
     const spaceId = request.params.spaceId;
     const agentId = request.body.agentId;
@@ -787,7 +791,7 @@ async function getChatTextResponse(request, response) {
     if (modelResponse.success) {
         const chatMessages = modelResponse.data.messages
         for (const chatMessage of chatMessages) {
-            await space.APIs.addSpaceChatMessage(spaceId,agentId, agentId, "assistant", chatMessage);
+            await space.APIs.addSpaceChatMessage(spaceId, agentId, agentId, "assistant", chatMessage);
             SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
         }
     }
@@ -797,22 +801,88 @@ async function getChatTextStreamingResponse(request, response) {
     const spaceId = request.params.spaceId;
     const agentId = request.body.agentId;
     const userId = request.userId;
+
+    let messageId = null;
+    let isFirstChunk = true;
+    let streamClosed = false;
+
+    const updateQueue = [];
+    let isProcessingQueue = false;
+
     try {
-        const modelResponse = await getTextStreamingResponse(request, response);
-        if (modelResponse.success) {
-            let chatMessages;
-            if (Array.isArray(modelResponse.data.messages)){
-                chatMessages = modelResponse.data.messages;
-            }else{
-                chatMessages = [modelResponse.data.messages];
+        request.on('aborted', async () => {
+            if (!streamClosed) {
+                streamClosed = true;
+                updateQueue.length = 0;
             }
-            for (const chatMessage of chatMessages) {
-                await space.APIs.addSpaceChatMessage(spaceId,agentId, agentId, "assistant", chatMessage);
-                SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
+        });
+
+        const processQueue = async () => {
+            if (isProcessingQueue || streamClosed) return;
+            isProcessingQueue = true;
+
+            while (updateQueue.length > 0 && !streamClosed) {
+                const currentChunk = updateQueue.shift();
+                try {
+                    await space.APIs.updateSpaceChatMessage(
+                        spaceId,
+                        agentId,
+                        agentId,
+                        messageId,
+                        currentChunk
+                    );
+                    SubscriptionManager.notifyClients(
+                        request.sessionId,
+                        SubscriptionManager.getObjectId(spaceId, `chat_${agentId}`),
+                        {},
+                        [userId]
+                    );
+                } catch (error) {
+                    console.error('Error updating message:', error);
+                }
             }
-        }
+
+            isProcessingQueue = false;
+        };
+
+        const streamContext = await getTextStreamingResponse(
+            request,
+            response,
+            async (chunk) => {
+                try {
+                    if (streamClosed) return;
+
+                    if (isFirstChunk) {
+                        isFirstChunk = false;
+                        messageId = await space.APIs.addSpaceChatMessage(
+                            spaceId,
+                            agentId,
+                            agentId,
+                            "assistant",
+                            chunk
+                        );
+                        SubscriptionManager.notifyClients(
+                            request.sessionId,
+                            SubscriptionManager.getObjectId(spaceId, `chat_${agentId}`),
+                            {},
+                            [userId]
+                        );
+                    } else {
+                        if (!messageId) return;
+                        updateQueue.push(chunk);
+                        await processQueue();
+                    }
+                } catch (error) {
+                    console.error('Error processing chunk:', error);
+                }
+            }
+        );
+
+        await streamContext.streamPromise;
     } catch (error) {
-        console.error('Error in getChatTextStreamingResponse:', error);
+        if (!response.headersSent) {
+            response.status(500).json({error: 'Stream error'});
+        }
     }
 }
 
@@ -869,7 +939,7 @@ async function headVideo(request, response) {
 async function getImage(request, response) {
     const imageId = request.params.imageId;
     try {
-        let range=request.headers.range;
+        let range = request.headers.range;
         const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageId, range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
@@ -898,7 +968,7 @@ async function getVideo(request, response) {
     const videoId = request.params.videoId;
     try {
         let range = request.headers.range;
-        const { fileStream, headers } = await Storage.getFile(Storage.fileTypes.videos, videoId, range);
+        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoId, range);
         response.writeHead(206, headers);
         fileStream.pipe(response);
     } catch (error) {

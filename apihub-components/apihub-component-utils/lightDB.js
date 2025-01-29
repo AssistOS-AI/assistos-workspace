@@ -457,5 +457,8 @@ module.exports = {
     addEmbeddedObject,
     updateEmbeddedObject,
     deleteEmbeddedObject,
-    swapEmbeddedObjects
+    swapEmbeddedObjects,
+    getRecord,
+    insertRecord,
+    updateRecord
 }

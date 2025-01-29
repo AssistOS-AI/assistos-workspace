@@ -198,8 +198,11 @@ agent-page {
 
 .conversation {
     display:flex;
-    padding:4px;
-    gap: 10px;
+    padding-block-start:14px;
+    padding-block-end:14px;
+    padding-inline-start:4px;
+    padding-inline-end:4px;
+    gap: 12px;
     flex-direction:column;
     overflow-y: scroll;
     height: calc(100% - 120px);
@@ -213,9 +216,16 @@ agent-page {
     margin-inline-start: 10px;
     align-items: stretch;
 }
-
+.chat-box-content{
+    display:flex;
+    position:relative;
+    flex-direction: column;
+    align-items:flex-end;
+    padding:10px;
+}
 
 .chat-box {
+    position:relative;
     padding: 5px 5px 5px 12px;
     width: 100%;
     white-space: pre-wrap;
@@ -245,6 +255,7 @@ agent-page {
 }
 
 .robot-box {
+    min-width:60px;
     width: auto;
     word-wrap: break-word;
     white-space: normal;

@@ -6,6 +6,7 @@ const applicationModule = require('assistos').loadModule('application', {});
 const personalityModule = require('assistos').loadModule('personality', {});
 const flowModule = require('assistos').loadModule('flow', {});
 
+
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
     2: "text-indent-2",
