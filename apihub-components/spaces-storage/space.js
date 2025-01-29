@@ -8,6 +8,7 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
+const lightDB = require('../apihub-component-utils/lightDB.js');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
@@ -356,21 +357,32 @@ async function getSpaceChat(spaceId,chatId) {
     return chat;
 }
 
+async function updateSpaceChatMessage(spaceId, chatId,entityId,messageId, message) {
+    const aosUtil = require('assistos').loadModule('util', {});
+    message = aosUtil.sanitize(message);
+    const tableName = `chat_${chatId}`
+    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
+    const record= await lightDB.getRecord(spaceId, tableName, primaryKey);
+    if (!record) {
+        const error = new Error(`Message with id ${messageId} not found`);
+        error.statusCode = 404;
+        throw error;
+    }
+    record.data.message = message;
+    await lightDB.updateRecord(spaceId, tableName, primaryKey, record.data);
+}
 async function addSpaceChatMessage(spaceId,chatId, entityId, role, messageData) {
     const aosUtil = require('assistos').loadModule('util', {});
     messageData = aosUtil.sanitize(messageData);
-    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const messageId = crypto.generateId();
     const tableName = `chat_${chatId}`
-    const primaryKey = `chat_${spaceId}_${entityId}_${messageId}`
-    await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
-        data: {
-            role: role,
-            message: messageData,
-            messageId: messageId,
-            user: entityId
-        }
-    })
+    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
+    await lightDB.insertRecord(spaceId, tableName, primaryKey, {
+        role: role,
+        message: messageData,
+        user: entityId,
+        id: messageId
+    });
     return messageId
 }
 
@@ -379,12 +391,14 @@ async function createSpaceChat(spaceId, chatId,lightDbClient) {
         lightDbClient = enclave.initialiseLightDBEnclave(spaceId);
     }
     let tableName = `chat_${chatId}`;
-    const entryMessagePk = `chat_${spaceId}`;
+    const messageId = crypto.generateId();
+    const entryMessagePk = `chat_${chatId}_space_${messageId}`;
     const entryMessage = `This is the workspace chat where you can discuss and collaborate with your team members.`;
     await lightDbClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
         data: {
             role: "Space",
             message: entryMessage,
+            id: messageId
         }
     });
 }
@@ -768,7 +782,8 @@ module.exports = {
         setSpaceCollaboratorRole,
         inviteSpaceCollaborators,
         deleteSpaceCollaborator,
-        createSpaceChat
+        createSpaceChat,
+        updateSpaceChatMessage
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

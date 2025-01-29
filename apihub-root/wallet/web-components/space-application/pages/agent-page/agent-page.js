@@ -119,7 +119,7 @@ export class AgentPage {
             }
             role = role === "own" ? "user" : role;
             if (role !== "undefined") {
-                chatHistory.push({role: role, content: chatItem.querySelector("#messageContainer").innerText});
+                chatHistory.push({role: role, content: chatItem.querySelector(".message").innerText});
             }
         }
         //TODO:Redo quick fix to allow huggingface models to work due to constraint on user/assistant role consecutive requirement in chat structure
