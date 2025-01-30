@@ -193,7 +193,7 @@ export default class CommandsEditor {
             });
             for (let command of commands) {
                 if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-menu");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-creator");
                     if(attachmentHighlight){
                         attachmentHighlight.classList.add("highlight-attachment");
                     }
