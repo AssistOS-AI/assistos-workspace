@@ -16,39 +16,12 @@ export class ParagraphItem {
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
 
-    plugins = {
-        "image-menu": {
-            icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
-                </div>`
-        },
-        "diagram-menu": {
-            icon: `<div data-local-action="openPlugin diagram-menu" class="attachment-circle menu-container diagram-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
-                </div>`
-        },
-        "audio-menu": {
-            icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
-                </div>`
-        },
-        "video-menu": {
-            icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
-                </div>`
-        },
-        "text-menu": {
-            icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
-                </div>`
-        }
-    }
-
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
+        this.plugins = assistOS.plugins.paragraph;
         for (let pluginName of Object.keys(this.plugins)) {
             this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
             assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
@@ -65,14 +38,6 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-        this.plugins = assistOS.plugins["paragraph"];
-        let pluginsHTML = "";
-        for(let plugin of this.plugins){
-            pluginsHTML+= `<div data-local-action="openParagraphPlugin ${plugin.componentName}" class="attachment-circle menu-container ${plugin.componentName}">
-                    <img class="pointer black-icon" loading="lazy" src="${plugin.icon}" alt="icon">
-                </div>`
-        }
-        this.pluginsIcons = pluginsHTML;
         const textFontSize = localStorage.getItem("document-font-size")??16;
         const textFontFamily = localStorage.getItem("document-font-family")??"Arial";
         const textIndent = localStorage.getItem("document-indent-size")??"12";
@@ -97,7 +62,8 @@ export class ParagraphItem {
         return text.includes("<") && text.includes(">");
     }
     async afterRender() {
-
+        let paragraphPluginsContainer = this.element.querySelector(".paragraph-plugins-container");
+        await pluginUtils.renderPluginIcons(paragraphPluginsContainer, "paragraph");
         let paragraphContainer = this.element.querySelector(".paragraph-container");
         if (!paragraphContainer) {
             console.error("Nu s-a găsit .paragraph-container!");
@@ -460,7 +426,7 @@ export class ParagraphItem {
 
     menus = {
         "insert-document-element": `
-                <div class="insert-document-element">
+                <div>
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addParagraphTable" data-name="Add Paragraph Table" data-highlight="light-highlight"></list-item>
@@ -468,13 +434,13 @@ export class ParagraphItem {
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
 
-    async openParagraphPlugin(targetElement, pluginClass) {
-        let selectionItemId = `${this.paragraph.id}_${pluginClass}`;
+    async openPlugin(targetElement, type, pluginName) {
+        let selectionItemId = `${this.paragraph.id}_${pluginName}`;
         let context = {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         }
-        await pluginUtils.openPlugin(pluginClass, "paragraph", context, selectionItemId, this);
+        await pluginUtils.openPlugin(pluginName, type, context, selectionItemId, this);
     }
 
     openMenu(targetElement, menuName) {

@@ -106,12 +106,6 @@
             "presenterClassName": "LlmDemoPage"
         },
         {
-            "name": "text-menu",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "TextMenu"
-        },
-        {
             "name": "video-menu",
             "directory": "document",
             "type": "modals",

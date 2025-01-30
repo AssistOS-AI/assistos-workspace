@@ -1,7 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
 const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
-let applicationModule = require("assistos").loadModule("application", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
@@ -165,7 +164,6 @@ export class DocumentViewPage {
         this.abstractFontFamily = this.documentFontFamily
         this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
 
-
         await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -178,32 +176,8 @@ export class DocumentViewPage {
             });
         }
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
-        await this.constructDocumentPluginsHTML();
     }
-    async constructDocumentPluginsHTML() {
-        let plugins = assistOS.plugins.document;
-        let pluginsHTML = "";
-        let pluginIconPromises = [];
-        for(let plugin of plugins){
-            pluginIconPromises.push(this.getPluginIcon(plugin));
-        }
-        let icons = await Promise.all(pluginIconPromises);
-        for(let i = 0 ; i < plugins.length; i++){
-            let icon = icons[i];
-            pluginsHTML+= `<div data-local-action="openDocumentPlugin ${plugins[i].componentName}" class="attachment-circle menu-container ${plugins[i].componentName} document-plugin">
-                    <img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">
-                </div>`;
-        }
-        this.documentPlugins = pluginsHTML;
-    }
-    async getPluginIcon(plugin) {
-        let pluginIcon = plugin.icon;
-        if(plugin.applicationId){
-            let svg = await applicationModule.getApplicationFile(assistOS.space.id, plugin.applicationId, plugin.icon);
-            pluginIcon = `data:image/svg+xml;base64,${btoa(svg)}`;
-        }
-        return pluginIcon;
-    }
+
     renderDocumentTitle() {
         let documentTitle = this.element.querySelector(".document-title");
         documentTitle.value = unescapeHtmlEntities(this._document.title);
@@ -214,7 +188,11 @@ export class DocumentViewPage {
         abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
     }
 
-    afterRender() {
+    async afterRender() {
+        let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
+        await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
+        let abstractPluginsContainer = this.element.querySelector(".abstract-plugins-container");
+        await pluginUtils.renderPluginIcons(abstractPluginsContainer, "abstract");
         this.renderDocumentTitle();
         this.renderAbstract();
         if (assistOS.space.currentChapterId) {
@@ -600,17 +578,18 @@ export class DocumentViewPage {
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
-    async openDocumentPlugin(targetElement, pluginName) {
-        let context = {
-            documentId: this._document.id
+    async openPlugin(targetElement, type, pluginName) {
+        if(type === "document"){
+            let context = {
+                documentId: this._document.id
+            }
+            await pluginUtils.openPlugin(pluginName, "document", context);
+        } else if(type === "abstract"){
+            let itemId = `${this.abstractId}_${pluginName}`;
+            let context = {
+                abstract: ""
+            }
+            await pluginUtils.openPlugin(pluginName, "abstract", context, itemId, this);
         }
-        await pluginUtils.openPlugin(pluginName, "document", context);
-    }
-    async openAbstractPlugin(targetElement, pluginName) {
-        let itemId = `${this.abstractId}_${pluginName}`;
-        let context = {
-            abstract: ""
-        }
-        await pluginUtils.openPlugin(pluginName, "abstract", context, itemId, this);
     }
 }

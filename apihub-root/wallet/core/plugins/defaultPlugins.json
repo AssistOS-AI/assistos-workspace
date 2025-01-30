@@ -1,36 +1,25 @@
 {
     "document": [],
-    "abstract": [
-        {
-            "name": "Proofread",
-            "componentName": "text-menu",
-            "icon": "./wallet/assets/icons/light-bulb.svg"
-        }
-    ],
+    "abstract": [],
     "chapter": [],
     "paragraph": [
         {
-            "name": "ImageMenu",
+            "name": "Image Menu",
             "componentName": "image-menu",
             "icon": "./wallet/assets/icons/image.svg"
         },
         {
-            "name": "Proofread",
-            "componentName": "text-menu",
-            "icon": "./wallet/assets/icons/light-bulb.svg"
-        },
-        {
-            "name": "AudioMenu",
+            "name": "Audio Menu",
             "componentName": "audio-menu",
             "icon": "./wallet/assets/icons/audio.svg"
         },
         {
-            "name": "DiagramMenu",
+            "name": "Diagram Menu",
             "componentName": "diagram-menu",
             "icon": "./wallet/assets/icons/diagram-logo.svg"
         },
         {
-            "name": "VideoMenu",
+            "name": "Video Menu",
             "componentName": "video-menu",
             "icon": "./wallet/assets/icons/video.svg"
         }

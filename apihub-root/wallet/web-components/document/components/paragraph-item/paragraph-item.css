@@ -56,15 +56,7 @@ paragraph-item {
     font-size: 14px;
     font-weight: 600;
 }
-.attachment-circle{
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-right: 15px;
-}
+
 .highlight-attachment{
     background-color: var(--white);
 }
@@ -152,9 +144,19 @@ textarea.paragraph-commands{
 #hide .optional {
     display: none;
 }
-.menu-container{
+.plugin-circle.comment-menu{
+    margin-right: 0;
+}
+.comment-menu{
+    width: 35px;
     position: relative;
     display: flex;
+    justify-content: center;
+}
+.insert-document-element{
+    display: flex;
+    align-items: center;
+    position: relative;
 }
 .toolbar-menu {
     position: absolute;
@@ -242,4 +244,7 @@ textarea.paragraph-commands{
 
 html[theme="dark"] textarea.paragraph-text{
     background: var(--white)
+}
+.paragraph-plugins-container{
+    display: flex;
 }
