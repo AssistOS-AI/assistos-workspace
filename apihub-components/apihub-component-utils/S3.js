@@ -1,7 +1,9 @@
 const fetch = require('node-fetch');
 const config = require('../../data-volume/config/config.json');
-const llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
-
+let llmAdapterUrl = config.LLMS_SERVER_DEVELOPMENT_BASE_URL;
+if(config.ENVIRONMENT_MODE === 'production'){
+    llmAdapterUrl = config.LLMS_SERVER_PRODUCTION_BASE_URL;
+}
 async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
     const options = {
         method: method,
