@@ -198,7 +198,7 @@ export default class CommandsEditor {
                         attachmentHighlight.classList.add("highlight-attachment");
                     }
                 } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-menu");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-creator");
                     if(attachmentHighlight){
                         attachmentHighlight.classList.add("highlight-attachment");
                     }

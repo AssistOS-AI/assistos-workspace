@@ -2,16 +2,5 @@
     "document": [],
     "abstract": [],
     "chapter": [],
-    "paragraph": [
-        {
-            "name": "Image Menu",
-            "componentName": "image-menu",
-            "icon": "./wallet/assets/icons/image.svg"
-        },
-        {
-            "name": "Audio Menu",
-            "componentName": "audio-menu",
-            "icon": "./wallet/assets/icons/audio.svg"
-        }
-    ]
+    "paragraph": []
 }
