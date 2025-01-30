@@ -187,24 +187,24 @@ export default class CommandsEditor {
         let html = "";
         if (this.editMode === modes.NORMAL) {
             let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
-            let allAttachmentHighlights = this.paragraphPresenter.element.querySelectorAll(".attachment-circle");
+            let allAttachmentHighlights = this.paragraphPresenter.element.querySelectorAll(".plugin-circle");
             allAttachmentHighlights.forEach(attachment => {
                 attachment.classList.remove("highlight-attachment");
             });
             for (let command of commands) {
                 if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.image-menu");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.audio-menu");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 } else if (command.name === "video") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.video-menu");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.video-menu");
                     attachmentHighlight.classList.add("highlight-attachment");
                 }
             }
             if(this.paragraph.comment.trim() !== ""){
-                let commentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.comment");
+                let commentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.comment");
                 commentHighlight.classList.add("highlight-attachment");
             }
         } else {

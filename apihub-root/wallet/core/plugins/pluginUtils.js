@@ -35,7 +35,39 @@ async function initializePlugin(type, componentName) {
 function getContext(presenterElement) {
     return JSON.parse(decodeURIComponent(presenterElement.getAttribute("data-context")));
 }
+async function renderPluginIcons(containerElement, type) {
+    let plugins = assistOS.plugins[type];
+    let pluginIconPromises = [];
+    for(let plugin of plugins){
+        pluginIconPromises.push(getPluginIcon(plugin));
+    }
+    let icons = await Promise.all(pluginIconPromises);
+    for(let i = 0 ; i < plugins.length; i++){
+        let icon = icons[i];
+        let containerDiv = document.createElement("div");
+        containerDiv.classList.add("plugin-circle", plugins[i].componentName);
+        containerDiv.setAttribute("data-local-action", `openPlugin ${type} ${plugins[i].componentName}`);
+        containerDiv.innerHTML = `<img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">
+                                  <div class="plugin-name">${plugins[i].name}</div>`;
+        containerDiv.addEventListener("mouseover", async ()=>{
+            containerDiv.querySelector(".plugin-name").style.display = "block";
+        });
+        containerDiv.addEventListener("mouseout", async ()=>{
+            containerDiv.querySelector(".plugin-name").style.display = "none";
+        });
+        containerElement.appendChild(containerDiv);
+    }
+}
+async function getPluginIcon(plugin) {
+    let pluginIcon = plugin.icon;
+    if(plugin.applicationId){
+        let svg = await applicationModule.getApplicationFile(assistOS.space.id, plugin.applicationId, plugin.icon);
+        pluginIcon = `data:image/svg+xml;base64,${btoa(svg)}`;
+    }
+    return pluginIcon;
+}
 export default {
     openPlugin,
-    getContext
+    getContext,
+    renderPluginIcons
 }
