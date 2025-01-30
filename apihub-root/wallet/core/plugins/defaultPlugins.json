@@ -12,16 +12,6 @@
             "name": "Audio Menu",
             "componentName": "audio-menu",
             "icon": "./wallet/assets/icons/audio.svg"
-        },
-        {
-            "name": "Diagram Menu",
-            "componentName": "diagram-menu",
-            "icon": "./wallet/assets/icons/diagram-logo.svg"
-        },
-        {
-            "name": "Video Menu",
-            "componentName": "video-menu",
-            "icon": "./wallet/assets/icons/video.svg"
         }
     ]
 }
