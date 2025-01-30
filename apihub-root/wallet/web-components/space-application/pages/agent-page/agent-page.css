@@ -153,7 +153,6 @@ agent-page {
 
 
 .chat-input-container {
-    background: #E9E9E9;
     justify-content: space-between;
     display: flex;
     align-items: center;
@@ -162,7 +161,77 @@ agent-page {
     padding-block-start:10px;
     padding-block-end: 10px;
 }
+.agent-on {
+    background-color: var(--blue-button);
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
 
+
+.agent-off {
+    background-color: #5a6268;
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#chat:hover::after,
+#llm:hover::after {
+    visibility: visible;
+    opacity: 1;
+}
+#chat::after{
+    content: attr(data-tooltip);
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 4px;
+    position: absolute;
+    top:40px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+#llm::after{
+    content: attr(data-tooltip);
+    visibility: hidden;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    text-align: center;
+    padding: 6px 10px;
+    border-radius: 4px;
+    position: absolute;
+    top:25px;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: 0;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+#options-menu{
+    display:flex;
+    height:80%;
+    width:110px;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
 .input-container {
     display: flex;
     align-items: center;
@@ -172,14 +241,14 @@ agent-page {
     background: var(--chat-input-container);
     border-radius: 6px;
     min-height: 60px;
-    max-height: 50px;
+    height:80px;
     width: 100%;
-    height:120px;
 }
 
 #input {
     min-height: 60px;
     max-height: 60px;
+    height:100%;
     resize: none;
     width: 100%;
     padding: 16px;

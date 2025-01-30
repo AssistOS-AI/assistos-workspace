@@ -79,7 +79,7 @@ export class EditPersonalityPage {
         }
 
         this.availableLlms = await llmModule.listLlms(assistOS.space.id);
-
+        this.chatPrompt=this.personality.chatPrompt;
         this.llmSelectionSection = generateLlmSection(this.availableLlms);
 
         let voicesHTML = "";
@@ -207,6 +207,7 @@ export class EditPersonalityPage {
             this.personality.name = formInfo.data.name || this.personality.name;
             this.personality.description = formInfo.data.description;
             this.personality.voiceId = formInfo.data.voiceId;
+            this.personality.chatPrompt= formInfo.data.chatPrompt;
 
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
@@ -238,6 +239,9 @@ export class EditPersonalityPage {
             personalityId: this.personality.id
         });
         if(this.personality.id === assistOS.agent.agentData.id){
+            if(localStorage.getItem("agent") === this.personality.id) {
+                localStorage.removeItem("agent");
+            }
             await assistOS.changeAgent();
             document.querySelector('agent-page').webSkelPresenter.invalidate();
         }

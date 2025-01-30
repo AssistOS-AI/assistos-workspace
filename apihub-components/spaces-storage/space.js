@@ -2,7 +2,7 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-const crypto = require("../apihub-component-utils/crypto");
+const crypto = require("../apihub-component-utils/crypto.js");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
@@ -357,6 +357,22 @@ async function getSpaceChat(spaceId,chatId) {
     return chat;
 }
 
+async function storeSpaceChat(spaceId, chatId) {
+    const chat= await getSpaceChat(spaceId, chatId);
+    const personality= await getPersonalityData(spaceId, chatId);
+    if(!personality.chats){
+        personality.chats={}
+    }
+    const id=crypto.generateId();
+    personality.chats[id]=chat;
+    await updatePersonalityData(spaceId, chatId, personality);
+}
+
+async function resetSpaceChat(spaceId, chatId) {
+    const tableName=`chat_${chatId}`
+    await lightDB.deleteAllRecords(spaceId, tableName);
+}
+
 async function updateSpaceChatMessage(spaceId, chatId,entityId,messageId, message) {
     const aosUtil = require('assistos').loadModule('util', {});
     message = aosUtil.sanitize(message);
@@ -419,6 +435,10 @@ async function getPersonalityData(spaceId, personalityId) {
         error.statusCode = 404;
         throw error;
     }
+}
+async function updatePersonalityData(spaceId, personalityId, personalityData) {
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
+    await fsPromises.writeFile(personalityPath, JSON.stringify(personalityData,null,2), 'utf8');
 }
 
 async function createSpaceStatus(spacePath, spaceObject) {
@@ -796,7 +816,9 @@ module.exports = {
         inviteSpaceCollaborators,
         deleteSpaceCollaborator,
         createSpaceChat,
-        updateSpaceChatMessage
+        updateSpaceChatMessage,
+        resetSpaceChat,
+        storeSpaceChat
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

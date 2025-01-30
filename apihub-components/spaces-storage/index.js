@@ -52,7 +52,9 @@ const {
     putVideo,
     getUploadURL,
     getDownloadURL,
-    deleteSpace
+    deleteSpace,
+    resetSpaceChat,
+    saveSpaceChat
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -112,6 +114,8 @@ function SpaceStorage(server) {
 
     server.post("/spaces/chat/:spaceId/:chatId", addSpaceChatMessage);
     server.get("/spaces/chat/:spaceId/:chatId", getSpaceChat);
+    server.delete("/spaces/chat/:spaceId/:chatId", resetSpaceChat);
+    server.post("/spaces/chat/save/:spaceId/:chatId", saveSpaceChat);
 
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMetadata);

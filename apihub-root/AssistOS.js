@@ -1,5 +1,6 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import NotificationManager from "./wallet/core/NotificationManager.js";
+
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
@@ -28,28 +29,28 @@ const textIndentMap = Object.freeze({
     72: "text-indent-72"
 })
 const textFontSizeMap = Object.freeze({
-    8:"xx-small",
-    10:"x-small",
-    12:"small",
-    14:"medium",
-    16:"large",
-    18:"x-large",
-    20:"xx-large",
-    22:"xxx-large",
-    24:"xxxx-large",
-    28:"xxxxx-large",
-    32:"xxxxxx-large",
-    36:"xxxxxxx-large",
-    48:"xxxxxxxx-large",
-    72:"xxxxxxxxx-large"
+    8: "xx-small",
+    10: "x-small",
+    12: "small",
+    14: "medium",
+    16: "large",
+    18: "x-large",
+    20: "xx-large",
+    22: "xxx-large",
+    24: "xxxx-large",
+    28: "xxxxx-large",
+    32: "xxxxxx-large",
+    36: "xxxxxxx-large",
+    48: "xxxxxxxx-large",
+    72: "xxxxxxxxx-large"
 });
 
 const textFontFamilyMap = Object.freeze({
-    "Arial":"font-arial",
-    "Georgia":"font-georgia",
-    "Courier New":"font-courier-new",
-    "Times New Roman":"font-times-new-roman",
-    "Verdana":"font-verdana"
+    "Arial": "font-arial",
+    "Georgia": "font-georgia",
+    "Courier New": "font-courier-new",
+    "Times New Roman": "font-times-new-roman",
+    "Verdana": "font-verdana"
 });
 
 class AssistOS {
@@ -59,10 +60,10 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
-        this.constants={
-            fontSizeMap:textFontSizeMap,
-            fontFamilyMap:textFontFamilyMap,
-            textIndentMap:textIndentMap
+        this.constants = {
+            fontSizeMap: textFontSizeMap,
+            fontFamilyMap: textFontFamilyMap,
+            textIndentMap: textIndentMap
         };
         this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;
@@ -111,7 +112,8 @@ class AssistOS {
         let completeURL = [baseURL, appLocation].join("/");
         await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
-    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component)  {
+
+    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
         const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
         const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
         let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath);
@@ -124,6 +126,7 @@ class AssistOS {
         loadedCSSs = [loadedCSSs];
         return {loadedTemplate, loadedCSSs, presenterModule};
     }
+
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
@@ -134,7 +137,7 @@ class AssistOS {
             }
             for (let component of assistOS.initialisedApplications[appName].components) {
                 let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
-                if(alreadyLoadedComponent) {
+                if (alreadyLoadedComponent) {
                     continue;
                 }
                 component = {
@@ -206,16 +209,25 @@ class AssistOS {
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
         let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
-        for(let pluginType in applicationPlugins){
-            if(!this.plugins[pluginType]){
+        for (let pluginType in applicationPlugins) {
+            if (!this.plugins[pluginType]) {
                 this.plugins[pluginType] = [];
             }
             this.plugins[pluginType] = this.plugins[pluginType].concat(applicationPlugins[pluginType]);
         }
     }
 
-    async loadAgent(spaceId,agentId) {
-        const personalityData = await personalityModule.getAgent(spaceId,agentId);
+    async loadAgent(spaceId, agentId) {
+        if (!agentId) {
+            agentId = localStorage.getItem("agent") ?? undefined;
+        }
+        let personalityData;
+        try {
+            personalityData = await personalityModule.getAgent(spaceId, agentId);
+        } catch (error) {
+            personalityData = await personalityModule.getAgent(spaceId);
+        }
+        localStorage.setItem("agent", personalityData.id);
         assistOS.agent = new personalityModule.models.agent(personalityData);
     }
 

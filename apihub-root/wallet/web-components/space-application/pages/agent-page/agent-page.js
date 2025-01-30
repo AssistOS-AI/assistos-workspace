@@ -5,6 +5,13 @@ export class AgentPage {
         this.element = element;
         this.invalidate = invalidate;
         assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
+        const agentState = localStorage.getItem("agentOn")
+        if (!agentState) {
+            localStorage.setItem("agentOn", "false");
+            this.agentOn = false;
+        } else {
+            this.agentOn = agentState === "true";
+        }
         this.agent = {
             conversationHistory: [],
         }
@@ -15,16 +22,32 @@ export class AgentPage {
     }
 
     onChatUpdate() {
-        this.invalidate(async () =>this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id));
+        this.invalidate(async () => this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id));
+    }
+
+    async toggleAgentResponse(_target) {
+        if (this.agentOn) {
+            this.toggleAgentButton.classList.remove("agent-on");
+            this.toggleAgentButton.classList.add("agent-off");
+            this.toggleAgentButton.innerHTML="Agent:OFF";
+        } else {
+            this.toggleAgentButton.classList.remove("agent-off");
+            this.toggleAgentButton.classList.add("agent-on");
+            this.toggleAgentButton.innerHTML="Agent:ON";
+        }
+        this.agentOn = !this.agentOn;
+        localStorage.setItem("agentOn", this.agentOn);
     }
 
     async beforeRender() {
-        this.chat= await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
-        this.personalities= await assistOS.space.getPersonalitiesMetadata();
+        this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+        this.personalities = await assistOS.space.getPersonalitiesMetadata();
+        this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
+        this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
         let stringHTML = "";
-        for (let message of this.chat) {
+        for (let messageIndex = 0; messageIndex < this.chat.length; messageIndex++) {
+            let message = this.chat[messageIndex];
             let role = "Space";
-
             if (message.role === "user") {
                 if (message.user === assistOS.user.id) {
                     role = "own"
@@ -35,7 +58,11 @@ export class AgentPage {
                 role = "assistant";
             }
             if (role !== "Space") {
-                stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+                if (messageIndex === this.chat.length - 1) {
+                    stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                } else {
+                    stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+                }
             }
         }
         let personalitiesHTML = "";
@@ -45,8 +72,17 @@ export class AgentPage {
         this.personalitiesHTML = personalitiesHTML;
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = assistOS.agent.agentData.name;
-        this.personalityLLM = assistOS.agent.agentData.llms.text;
+        let llmName = assistOS.agent.agentData.llms.text;
+        let splitLLMName=llmName.split("/");
+        if(splitLLMName.length>1){
+            this.personalityLLM = splitLLMName[1];
+        }else{
+            this.personalityLLM = llmName;
+        }
+        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
         this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
+        this.spaceNameTooltip = assistOS.space.name;
+        this.personalityLLMTooltip = llmName;
     }
 
     async afterRender() {
@@ -55,9 +91,9 @@ export class AgentPage {
         this.form = this.element.querySelector(".chat-input-container");
         this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
         this.userInput.addEventListener("keydown", this.boundFn);
+        this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
         await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
     }
-
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -76,13 +112,12 @@ export class AgentPage {
         }
     }
 
-
     async changePersonality(_target, id) {
         await assistOS.UI.showModal("change-personality-modal");
     }
 
     async displayMessage(role, text) {
-        const messageHTML = `<chat-item role="${role}" message="${text}" data-presenter="chat-item" user="${assistOS.user.id}"></chat-item>`;
+        const messageHTML = `<chat-item role="${role}" message="${text}" data-presenter="chat-item" data-last-item="true" user="${assistOS.user.id}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
 
@@ -122,7 +157,6 @@ export class AgentPage {
                 chatHistory.push({role: role, content: chatItem.querySelector(".message").innerText});
             }
         }
-        //TODO:Redo quick fix to allow huggingface models to work due to constraint on user/assistant role consecutive requirement in chat structure
         return [chatHistory[0]];
     }
 
@@ -134,12 +168,15 @@ export class AgentPage {
         if (!userRequestMessage.trim()) {
             return;
         }
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id,assistOS.agent.agentData.id, unsanitizedMessage)).messageId
+        await this.displayMessage("own", userRequestMessage);
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, unsanitizedMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
-        await this.displayMessage("own", userRequestMessage);
+
         const conversationContainer = this.element.querySelector('.conversation');
-        await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
+        if (this.agentOn) {
+            await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
+        }
     }
 
     refreshRightPanel() {
@@ -149,8 +186,18 @@ export class AgentPage {
     }
 
     async resetConversation() {
-        /*await assistOS.services.resetConversation();
-        this.invalidate();*/
+        await assistOS.loadifyFunction(async function (spaceModule) {
+            await spaceModule.resetSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+            this.invalidate();
+        }.bind(this, spaceModule));
+    }
+
+    async saveConversation() {
+        await assistOS.loadifyFunction(async function (spaceModule) {
+            await spaceModule.saveSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+            await assistOS.loadAgent(assistOS.space.id);
+            this.invalidate();
+        }.bind(this, spaceModule));
     }
 
     uploadFile(_target) {

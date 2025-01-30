@@ -77,6 +77,13 @@ export class ChatItem {
     }
 
     async afterRender() {
+        if (this.element.getAttribute('data-last-item') === "true") {
+            setTimeout(()=>{
+                this.element.scrollIntoView({ behavior: "instant", block: "end", inline: "end" });
+                const container = this.element.parentElement;
+                container.scrollTop += 20;
+            },100)
+        }
         if (this.role !== "own") {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");
         }
@@ -93,5 +100,10 @@ export class ChatItem {
         image?.addEventListener("error", (e) => {
             e.target.src = "./wallet/assets/images/default-personality.png";
         });
+    }
+    async afterUnload(){
+        if(this.endStreamController){
+            this.endStreamController.abort();
+        }
     }
 }

@@ -34,6 +34,7 @@ export class AddPersonalityModal {
                 let personalityData = {
                     name: formInfo.data.name,
                     description: formInfo.data.description,
+                    chatPrompt:"You will be given instructions in the form of a string from a user and you need to execute them",
                     imageId: imageId,
                     metadata: ["name", "id", "imageId"]
                 };

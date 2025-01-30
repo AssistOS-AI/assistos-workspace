@@ -395,6 +395,37 @@ async function getSpaceChat(request, response) {
         });
     }
 }
+async function resetSpaceChat(request, response) {
+    const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
+    try {
+        const chat = await space.APIs.resetSpaceChat(spaceId, chatId);
+        return utils.sendResponse(response, 200, "application/json", {
+            message: `Chat loaded successfully`,
+            data: chat
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error
+        });
+    }
+}
+
+async function saveSpaceChat(request, response) {
+    const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
+    try {
+        const chat = await space.APIs.storeSpaceChat(spaceId, chatId);
+        return utils.sendResponse(response, 200, "application/json", {
+            message: `Chat loaded successfully`,
+            data: chat
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error
+        });
+    }
+}
 
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
@@ -1248,5 +1279,7 @@ module.exports = {
     importPersonality,
     getSpaceChat,
     getFileObjectsMetadataPath,
-    getFileObjectPath
+    getFileObjectPath,
+    resetSpaceChat,
+    saveSpaceChat
 }

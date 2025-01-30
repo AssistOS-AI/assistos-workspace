@@ -446,6 +446,10 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
     }
 
 }
+async function deleteAllRecords(spaceId,tableId) {
+    const records = await getAllRecords(spaceId, tableId);
+    await Promise.all(records.map(record => deleteRecord(spaceId, tableId, record.pk)));
+}
 
 module.exports = {
     getContainerObject,
@@ -460,5 +464,6 @@ module.exports = {
     swapEmbeddedObjects,
     getRecord,
     insertRecord,
-    updateRecord
+    updateRecord,
+    deleteAllRecords
 }
