@@ -333,6 +333,9 @@ html[theme="dark"] input.document-title{
     align-items: center;
     width: 35px;
 }
+.document-plugins-container{
+    display: flex;
+}
 .document-plugins-container .plugin-circle{
     margin-right: 0;
     margin-left: 15px;
