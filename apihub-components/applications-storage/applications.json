@@ -103,5 +103,37 @@
     "repository": "https://github.com/AssistOS-AI/PostsGenerator.git",
     "tasksRepository": "https://github.com/AssistOS-AI/PostsGeneratorTasks.git",
     "id": "PostsGenerator"
+  },
+  {
+    "name": "ImageCreator",
+    "description": "Create images",
+    "image": "./wallet/assets/images/aitranslator.png",
+    "svg": "<svg width=\"32px\" height=\"32px\" viewBox=\"0 0 22 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path d=\"M18.7778 1H3.22222C1.99492 1 1 1.99492 1 3.22222V18.7778C1 20.0051 1.99492 21 3.22222 21H18.7778C20.0051 21 21 20.0051 21 18.7778V3.22222C21 1.99492 20.0051 1 18.7778 1Z\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n    <path d=\"M7.66656 9.88878C8.89386 9.88878 9.88878 8.89386 9.88878 7.66656C9.88878 6.43926 8.89386 5.44434 7.66656 5.44434C6.43926 5.44434 5.44434 6.43926 5.44434 7.66656C5.44434 8.89386 6.43926 9.88878 7.66656 9.88878Z\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n    <path d=\"M20.9987 14.3334L17.5698 10.9045C17.1531 10.4879 16.588 10.2539 15.9987 10.2539C15.4094 10.2539 14.8443 10.4879 14.4276 10.9045L4.33203 21.0001\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</svg>\n",
+    "repository": "https://github.com/AssistOS-AI/ImageCreator.git",
+    "id": "ImageCreator"
+  },
+  {
+    "name": "DiagramGenerator",
+    "description": "Generate diagrams with AI Agents",
+    "image": "./wallet/assets/images/aitranslator.png",
+    "svg": "<svg fill=\"var(--left-sidebar-icons)\" height=\"37px\" width=\"37px\" version=\"1.1\" id=\"Capa_1\" xmlns=\"http://www.w3.org/2000/svg\"\n     xmlns:xlink=\"http://www.w3.org/1999/xlink\" viewBox=\"0 0 60 60\" xml:space=\"preserve\" stroke=\"var(--left-sidebar-icons)\"\n     stroke-width=\"1.7\"><g id=\"SVGRepo_bgCarrier\" stroke-width=\"0\"></g>\n    <g id=\"SVGRepo_tracerCarrier\" stroke-linecap=\"round\" stroke-linejoin=\"round\"></g>\n    <g id=\"SVGRepo_iconCarrier\"> <path\n            d=\"M53,41V29H31V19h7V3H22v16h7v10H7v12H0v16h16V41H9V31h20v10h-7v16h16V41h-7V31h20v10h-7v16h16V41H53z M24,5h12v12H24V5z M14,55H2V43h12V55z M36,55H24V43h12V55z M58,55H46V43h12V55z\"></path> </g></svg>",
+    "repository": "https://github.com/AssistOS-AI/DiagramGenerator.git",
+    "id": "DiagramGenerator"
+  },
+  {
+    "name": "AudioCreator",
+    "description": "Create audios",
+    "image": "./wallet/assets/images/aitranslator.png",
+    "svg": "<svg width=\"36px\" height=\"34px\" viewBox=\"0 0 22 20\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n<path d=\"M14.25 5.6669C14.9227 6.17145 15.4687 6.82569 15.8448 7.57783C16.2209 8.32996 16.4167 9.15932 16.4167 10.0002C16.4167 10.8411 16.2209 11.6705 15.8448 12.4226C15.4687 13.1748 14.9227 13.829 14.25 14.3336M17.175 2.4169C18.306 3.33086 19.2182 4.4862 19.8448 5.79833C20.4715 7.11046 20.7967 8.54614 20.7967 10.0002C20.7967 11.4543 20.4715 12.89 19.8448 14.2021C19.2182 15.5143 18.306 16.6696 17.175 17.5836M4.5 13.2502H2.33333C2.04602 13.2502 1.77047 13.1361 1.5673 12.9329C1.36414 12.7298 1.25 12.4542 1.25 12.1669V7.83357C1.25 7.54625 1.36414 7.2707 1.5673 7.06754C1.77047 6.86437 2.04602 6.75023 2.33333 6.75023H4.5L8.29167 1.87523C8.38635 1.69132 8.5437 1.54733 8.73528 1.4693C8.92686 1.39127 9.14003 1.38433 9.33627 1.44975C9.53252 1.51516 9.69889 1.64861 9.80534 1.82599C9.91178 2.00336 9.95127 2.21296 9.91667 2.4169V17.5836C9.95127 17.7875 9.91178 17.9971 9.80534 18.1745C9.69889 18.3519 9.53252 18.4853 9.33627 18.5507C9.14003 18.6161 8.92686 18.6092 8.73528 18.5312C8.5437 18.4531 8.38635 18.3092 8.29167 18.1252L4.5 13.2502Z\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n</svg>\n",
+    "repository": "https://github.com/AssistOS-AI/AudioCreator.git",
+    "id": "AudioCreator"
+  },
+  {
+    "name": "VideoCreator",
+    "description": "Create videos",
+    "image": "./wallet/assets/images/aitranslator.png",
+    "svg": "<svg width=\"37px\" height=\"40px\" viewBox=\"0 0 27 22\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <path d=\"M1 2.25C1 1.91848 1.1317 1.60054 1.36612 1.36612C1.60054 1.1317 1.91848 1 2.25 1H24.75C25.0815 1 25.3995 1.1317 25.6339 1.36612C25.8683 1.60054 26 1.91848 26 2.25V19.75C26 20.0815 25.8683 20.3995 25.6339 20.6339C25.3995 20.8683 25.0815 21 24.75 21H2.25C1.91848 21 1.60054 20.8683 1.36612 20.6339C1.1317 20.3995 1 20.0815 1 19.75V2.25Z\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"1.7\" stroke-linejoin=\"round\"/>\n    <path d=\"M21 1V21M6 1V21M22.25 7.25H26M22.25 14.75H26M1 7.25H4.75M1 6V8.5M4.125 1H7.875M4.125 21H7.875M19.125 1H22.875M19.125 21H22.875M1 14.75H4.75M1 13.5V16M26 13.5V16M26 6V8.5\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"1.7\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n    <path d=\"M11.625 7.875L16.625 11L11.625 14.125V7.875Z\" stroke=\"var(--left-sidebar-icons)\" stroke-width=\"1.7\" stroke-linejoin=\"round\"/>\n</svg>\n",
+    "repository": "https://github.com/AssistOS-AI/VideoCreator.git",
+    "id": "VideoCreator"
   }
 ]

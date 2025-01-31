@@ -193,14 +193,20 @@ export default class CommandsEditor {
             });
             for (let command of commands) {
                 if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-creator");
+                    if(attachmentHighlight){
+                        attachmentHighlight.classList.add("highlight-attachment");
+                    }
                 } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-creator");
+                    if(attachmentHighlight){
+                        attachmentHighlight.classList.add("highlight-attachment");
+                    }
                 } else if (command.name === "video") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.video-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
+                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.video-creator");
+                    if(attachmentHighlight){
+                        attachmentHighlight.classList.add("highlight-attachment");
+                    }
                 }
             }
             if(this.paragraph.comment.trim() !== ""){
