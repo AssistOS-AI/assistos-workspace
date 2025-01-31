@@ -268,7 +268,7 @@ agent-page {
 .conversation {
     display:flex;
     padding-block-start:14px;
-    padding-block-end:14px;
+    padding-block-end:40px;
     padding-inline-start:4px;
     padding-inline-end:4px;
     gap: 12px;

@@ -64,6 +64,7 @@ export class ChatItem {
     async handleStartStream(endController){
         this.endStreamController = endController;
         this.stopStreamButton.style.display = "flex";
+        await this.chatContainerPresenter.handleNewChatStreamedItem(this.messageElement);
     }
 
     async handleEndStream(){
@@ -95,6 +96,7 @@ export class ChatItem {
         this.element.addEventListener('mouseleave', () => {
             this.chatBoxOptionsElement.style.display = "none";
         });
+        this.chatContainerPresenter= this.element.closest('agent-page').webSkelPresenter;
 
         let image = this.element.querySelector(".user-profile-image");
         image?.addEventListener("error", (e) => {

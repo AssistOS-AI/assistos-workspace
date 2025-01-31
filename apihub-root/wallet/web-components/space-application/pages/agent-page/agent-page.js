@@ -15,6 +15,12 @@ export class AgentPage {
         this.agent = {
             conversationHistory: [],
         }
+
+        this.observedElement = null;
+        this.lastScrollWasManual = false;
+        this.scrollCheckTimeout = null;
+
+
         this.invalidate(async () => {
             this.boundOnChatUpdate = this.onChatUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.agent.agentData.id}`, this.boundOnChatUpdate);
@@ -93,6 +99,73 @@ export class AgentPage {
         this.userInput.addEventListener("keydown", this.boundFn);
         this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
         await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
+        this.initObservers();
+        if (this.conversation) {
+            this.resizeObserver.observe(this.conversation);
+        }
+    }
+    initObservers() {
+        this.resizeObserver = new ResizeObserver((entries) => {
+            if (!this.lastScrollWasManual) {
+                this.checkScrollNeeded();
+            }
+        });
+
+        this.intersectionObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting && !this.lastScrollWasManual) {
+                    this.scrollToElementWithOffset(entry.target);
+                }
+            });
+        }, {
+            root: this.conversation,
+            threshold: 0.9
+        });
+
+        this.conversation?.addEventListener('scroll', () => {
+            this.lastScrollWasManual = true;
+            clearTimeout(this.scrollCheckTimeout);
+            this.scrollCheckTimeout = setTimeout(() => {
+                this.lastScrollWasManual = false;
+            }, 1500);
+        });
+    }
+
+    scrollToElementWithOffset(element) {
+        const elementRect = element.getBoundingClientRect();
+        const containerRect = this.conversation.getBoundingClientRect();
+        const scrollOffset = elementRect.bottom - containerRect.bottom + 80;
+
+        this.conversation.scrollBy({
+            top: scrollOffset,
+            behavior: 'smooth'
+        });
+    }
+
+    checkScrollNeeded() {
+        if (!this.observedElement || this.lastScrollWasManual) return;
+
+        const elementRect = this.observedElement.getBoundingClientRect();
+        const containerRect = this.conversation.getBoundingClientRect();
+
+        if (elementRect.bottom + 30 > containerRect.bottom) {
+            this.scrollToElementWithOffset(this.observedElement);
+        }
+    }
+
+    async handleNewChatStreamedItem(element) {
+        if (this.observedElement) {
+            this.resizeObserver.unobserve(this.observedElement);
+            this.intersectionObserver.unobserve(this.observedElement);
+        }
+
+        this.observedElement = element;
+
+        if (element) {
+            this.resizeObserver.observe(element);
+            this.intersectionObserver.observe(element);
+            this.checkScrollNeeded();
+        }
     }
 
     hideSettings(controller, container, event) {
@@ -120,11 +193,11 @@ export class AgentPage {
         const messageHTML = `<chat-item role="${role}" message="${text}" data-presenter="chat-item" data-last-item="true" user="${assistOS.user.id}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
-
-        const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
+        await this.handleNewChatStreamedItem(lastReplyElement);
+      /*  const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
         if (isNearBottom) {
             lastReplyElement.scrollIntoView({behavior: "smooth", block: "nearest"});
-        }
+        }*/
     }
 
 
