@@ -23,7 +23,7 @@ async function sendLLMAdapterRequest(url, method, body = null, headers = {}) {
 }
 
 async function headFile(type, fileId) {
-    const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
+    const url = `${llmAdapterUrl}/apis/v1/storage?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`;
     const response = await sendLLMAdapterRequest(url, 'HEAD');
     return {
         size: parseInt(response.headers.get('Content-Length')),
@@ -32,20 +32,19 @@ async function headFile(type, fileId) {
 }
 
 async function putFile(type, fileId, stream) {
-    const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
+    const url = `${llmAdapterUrl}/apis/v1/storage?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`;
     const response = await sendLLMAdapterRequest(url, 'PUT', stream, {'Content-Type': 'application/octet-stream'});
     return response.status === 200;
 }
 
 async function deleteFile(type, fileId) {
-    const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
+    const url = `${llmAdapterUrl}/apis/v1/storage?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`;
     const response = await sendLLMAdapterRequest(url, 'DELETE');
     return response.status === 200;
 }
 
 async function getFile(type, fileId, range) {
-    const url = `${llmAdapterUrl}/apis/v1/${type}?fileName=${encodeURIComponent(fileId)}`;
-
+    const url = `${llmAdapterUrl}/apis/v1/storage?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`;
     let headers = {};
     if (range) {
         headers['Range'] = range;
@@ -62,12 +61,12 @@ async function getFile(type, fileId, range) {
 }
 
 async function getUploadURL(type, fileId) {
-    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/uploads?&type=${type}&fileId=${fileId}`, 'GET');
+    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/uploads?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`, 'GET');
     return (await response.json()).data;
 }
 
 async function getDownloadURL(type, fileId) {
-    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/downloads?type=${type}&fileId=${fileId}`, 'GET');
+    const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/downloads?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`, 'GET');
     return (await response.json()).data;
 }
 
