@@ -1,3 +1,7 @@
+chat-item{
+    width:100%;
+}
+
 .user-profile-image-container{
     height:100%;
     display:flex;
@@ -22,6 +26,22 @@
     justify-content: flex-end;
     right:0;
 }
+.message {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden; /* Evită scroll-ul orizontal */
+    overflow-y: auto; /* Permite scroll pe verticală dacă e nevoie */
+}
+
+.message > * { /* Aplică stiluri tuturor copiilor direcți */
+    word-wrap: break-word; /* Forțează cuvintele lungi să se împartă */
+    overflow-wrap: break-word; /* Asigură împărțirea corectă */
+    white-space: normal; /* Permite textului să se împartă pe mai multe linii */
+    min-width: 0; /* Evită forțarea extinderii containerului */
+    max-width: 100%; /* Previne depășirea containerului părinte */
+}
+
 
 .stop-stream-button{
     display:none;

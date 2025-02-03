@@ -148,6 +148,24 @@
             "cmd": "npm uninstall html2canvas"
           }
         ]
+      },
+      {
+        "name": "marked",
+        "actions": [
+          {
+            "type": "execute",
+            "cmd": "npm install marked"
+          },
+          {
+            "type": "copy",
+            "src": "node_modules/marked/marked.min.js",
+            "target": "apihub-root/"
+          },
+          {
+            "type": "execute",
+            "cmd": "npm uninstall marked"
+          }
+        ]
       }
     ],
     "postinstall": [

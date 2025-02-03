@@ -285,6 +285,15 @@ agent-page {
     margin-inline-start: 10px;
     align-items: stretch;
 }
+#stopLastStream{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    position:relative;
+    right:20px;
+    width:35px;
+    height:35px;
+}
 .chat-box-content{
     display:flex;
     position:relative;
@@ -308,6 +317,7 @@ agent-page {
 
 .user-box {
     width: auto;
+    max-width:100%;
     word-wrap: break-word;
     white-space: normal;
     border-radius: 16px 16px 16px 16px;

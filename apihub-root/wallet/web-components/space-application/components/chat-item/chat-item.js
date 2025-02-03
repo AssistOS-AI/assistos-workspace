@@ -9,10 +9,9 @@ export class ChatItem {
     }
 
     async beforeRender() {
-        this.message = assistOS.UI.sanitize(this.element.getAttribute("message"));
+        this.message= this.element.getAttribute("message");
         this.role = this.element.getAttribute("role");
         // own = message sent by "myself"
-
         if (this.role !== "own") {
             this.messageType = "user";
             this.messageTypeBox = "user-box";
@@ -25,6 +24,7 @@ export class ChatItem {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
             } else if(this.role === "assistant"){
+                this.message= marked.parse(this.message);
                 try {
                     imageSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
                 } catch (e) {
@@ -69,12 +69,14 @@ export class ChatItem {
 
     async handleEndStream(){
         this.stopStreamButton.style.display = "none";
+        await this.chatContainerPresenter.addressEndStream(this.element);
     }
 
     async stopResponseStream(){
         this.endStreamController.abort();
         delete this.endStreamController;
         this.stopStreamButton.style.display = "none";
+        await this.chatContainerPresenter.addressEndStream(this.element);
     }
 
     async afterRender() {
