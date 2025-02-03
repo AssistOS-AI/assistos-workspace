@@ -15,7 +15,7 @@ export class AgentPage {
         this.agent = {
             conversationHistory: [],
         }
-
+        this.ongoingStreams = new Map();
         this.observedElement = null;
         this.lastScrollWasManual = false;
         this.scrollCheckTimeout = null;
@@ -50,6 +50,11 @@ export class AgentPage {
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
         this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
+        this.chatActionButton = `
+          <button type="button" id="stopLastStream" data-local-action="sendMessage">
+                &rarr;
+          </button>
+        `
         let stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chat.length; messageIndex++) {
             let message = this.chat[messageIndex];
@@ -103,6 +108,7 @@ export class AgentPage {
         if (this.conversation) {
             this.resizeObserver.observe(this.conversation);
         }
+        this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
     }
     initObservers() {
         this.resizeObserver = new ResizeObserver((entries) => {
@@ -153,10 +159,32 @@ export class AgentPage {
         }
     }
 
-    async handleNewChatStreamedItem(element) {
+    changeStopEndStreamButtonVisibility(visible){
+        this.chatActionButtonContainer.innerHTML= visible?`
+            <button type="button" id="stopLastStream" data-local-action="stopLastStream">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
+            </button>`:this.chatActionButton
+    }
+
+    async addressEndStream(element){
+        this.ongoingStreams.delete(element);
+        if(this.ongoingStreams.size === 0){
+            this.changeStopEndStreamButtonVisibility(false);
+        }
+    }
+    async stopLastStream(_target){
+        const getLastStreamedElement = (mapList) => {
+            return Array.from(mapList.keys()).pop();
+        }
+        const lastStreamedElement = getLastStreamedElement(this.ongoingStreams);
+        if(lastStreamedElement){
+            await lastStreamedElement.webSkelPresenter.stopResponseStream();
+        }
+    }
+    observerElement(element) {
         if (this.observedElement) {
-            this.resizeObserver.unobserve(this.observedElement);
-            this.intersectionObserver.unobserve(this.observedElement);
+            this.resizeObserver.unobserve(element);
+            this.intersectionObserver.unobserve(element);
         }
 
         this.observedElement = element;
@@ -166,7 +194,16 @@ export class AgentPage {
             this.intersectionObserver.observe(element);
             this.checkScrollNeeded();
         }
+
     }
+    async handleNewChatStreamedItem(element) {
+        this.observerElement(element);
+        const presenterElement = element.closest('chat-item');
+        this.ongoingStreams.set(presenterElement, true);
+        this.changeStopEndStreamButtonVisibility(true);
+    }
+
+
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -193,7 +230,7 @@ export class AgentPage {
         const messageHTML = `<chat-item role="${role}" message="${text}" data-presenter="chat-item" data-last-item="true" user="${assistOS.user.id}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
-        await this.handleNewChatStreamedItem(lastReplyElement);
+        await this.observerElement(lastReplyElement);
       /*  const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
         if (isNearBottom) {
             lastReplyElement.scrollIntoView({behavior: "smooth", block: "nearest"});
@@ -236,19 +273,22 @@ export class AgentPage {
     async sendMessage(_target) {
         let formInfo = await assistOS.UI.extractFormInformation(_target);
         const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
+
         const unsanitizedMessage = assistOS.UI.unsanitize(userRequestMessage);
+        const parsedUnsanitizedMessage = marked.parse(unsanitizedMessage);
+
         formInfo.elements.input.element.value = "";
         if (!userRequestMessage.trim()) {
             return;
         }
         await this.displayMessage("own", userRequestMessage);
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, unsanitizedMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, userRequestMessage)).messageId
         const context = {};
         context.chatHistory = this.getChatHistory();
 
         const conversationContainer = this.element.querySelector('.conversation');
         if (this.agentOn) {
-            await assistOS.agent.processUserRequest(userRequestMessage, context, conversationContainer, messageId);
+            await assistOS.agent.processUserRequest(parsedUnsanitizedMessage,context, conversationContainer, messageId);
         }
     }
 
