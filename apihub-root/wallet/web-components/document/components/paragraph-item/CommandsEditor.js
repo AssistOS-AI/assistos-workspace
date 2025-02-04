@@ -81,10 +81,7 @@ export default class CommandsEditor {
             this.videoPresenter.refreshVideoPreview();
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
-            let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
-            let commandString = utilModule.buildCommandString(type, data);
-            commands.value += "\n" + commandString;
-            commands.style.height = commands.scrollHeight + 'px';
+            this.appendCommandAdvancedMode(type, data);
         }
         return data.id;
     }

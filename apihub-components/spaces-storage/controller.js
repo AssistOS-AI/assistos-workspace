@@ -917,10 +917,11 @@ async function getChatTextStreamingResponse(request, response) {
     }
 }
 
-async function headImage(request, response) {
-    const imageId = request.params.imageId;
+async function headFile(request, response) {
+    const fileId = request.params.fileId;
+    const type = request.headers['content-type'];
     try {
-        const stats = await Storage.headFile(Storage.fileTypes.images, imageId);
+        const stats = await Storage.headFile(type, fileId);
         response.setHeader("Content-Type", "image/png");
         response.setHeader("Content-Length", stats.size);
         response.setHeader("Last-Modified", stats.mtime.toUTCString());
@@ -933,162 +934,50 @@ async function headImage(request, response) {
     }
 }
 
-async function headAudio(request, response) {
-    const audioId = request.params.audioId;
-    try {
-        if (request.method === "HEAD") {
-            const stats = await Storage.headFile(Storage.fileTypes.audios, audioId);
-            response.setHeader("Content-Type", "audio/mpeg");
-            response.setHeader("Content-Length", stats.size);
-            response.setHeader("Last-Modified", stats.mtime.toUTCString());
-            response.setHeader("Accept-Ranges", "bytes");
-            return response.end();
-        }
-    } catch (error) {
-        response.status = error.statusCode || 500;
-        response.statusMessage = error.message;
-        response.end();
-    }
-}
 
-async function headVideo(request, response) {
-    const videoId = request.params.videoId;
-    try {
-        const stats = await Storage.headFile(Storage.fileTypes.videos, videoId);
-        response.setHeader("Content-Type", "video/mp4");
-        response.setHeader("Content-Length", stats.size);
-        response.setHeader("Last-Modified", stats.mtime.toUTCString());
-        response.setHeader("Accept-Ranges", "bytes");
-        return response.end();
-    } catch (error) {
-        response.status = error.statusCode || 500;
-        response.statusMessage = error.message;
-        response.end();
-    }
-}
-
-async function getImage(request, response) {
-    const imageId = request.params.imageId;
+async function getFile(request, response) {
+    const fileId = request.params.fileId;
+    const type = request.headers['content-type'];
     try {
         let range = request.headers.range;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, imageId, range);
+        const {fileStream, headers} = await Storage.getFile(type, fileId, range);
         response.writeHead(range ? 206 : 200, headers);
         fileStream.pipe(response);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at reading image: ${imageId}`
+            message: error + ` Error at reading file: ${fileId}`
         });
     }
 }
 
-async function getAudio(request, response) {
-    const audioId = request.params.audioId;
-    try {
-        let range = request.headers.range;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.audios, audioId, range);
-        response.writeHead(range ? 206 : 200, headers);
-        fileStream.pipe(response);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at reading audio: ${audioId}`
-        });
-    }
-}
 
-async function getVideo(request, response) {
-    const videoId = request.params.videoId;
+async function putFile(request, response) {
+    const fileId = request.params.fileId;
+    const type = request.headers['content-type'];
     try {
-        let range = request.headers.range;
-        const {fileStream, headers} = await Storage.getFile(Storage.fileTypes.videos, videoId, range);
-        response.writeHead(206, headers);
-        fileStream.pipe(response);
-    } catch (error) {
-        return utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            message: error.message + ` Error at reading video: ${videoId}`
-        });
-    }
-}
-
-async function putImage(request, response) {
-    const imageId = request.params.imageId;
-    try {
-        await Storage.putFile(Storage.fileTypes.images, imageId, request);
+        await Storage.putFile(type, fileId, request);
         return utils.sendResponse(response, 200, "application/json", {
-            data: imageId,
+            data: fileId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at writing image: ${imageId}`
+            message: error + ` Error at writing fileId: ${fileId}`
         });
     }
 }
 
-async function putAudio(request, response) {
-    const audioId = request.params.audioId;
-    try {
-        await Storage.putFile(Storage.fileTypes.audios, audioId, request);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: audioId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at writing audio: ${audioId}`
-        });
-    }
-}
 
-async function putVideo(request, response) {
-    const videoId = request.params.videoId;
+async function deleteFile(request, response) {
+    const fileId = request.params.fileId;
+    const type = request.headers['content-type'];
     try {
-        await Storage.putFile(Storage.fileTypes.videos, videoId, request);
+        await Storage.deleteFile(type, fileId);
         return utils.sendResponse(response, 200, "application/json", {
-            data: videoId,
+            data: fileId,
         });
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error adding video`
-        });
-    }
-}
-
-async function deleteImage(request, response) {
-    const imageId = request.params.imageId;
-    try {
-        await Storage.deleteFile(Storage.fileTypes.images, imageId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: imageId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at reading image: ${imageId}`
-        });
-    }
-}
-
-async function deleteAudio(request, response) {
-    const audioId = request.params.audioId;
-    try {
-        await Storage.deleteFile(Storage.fileTypes.audios, audioId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: audioId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at reading audio: ${audioId}`
-        });
-    }
-}
-
-async function deleteVideo(request, response) {
-    const videoId = request.params.videoId;
-    try {
-        await Storage.deleteFile(Storage.fileTypes.videos, videoId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: videoId,
-        });
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at reading video: ${videoId}`
+            message: error + ` Error at deleting file: ${fileId}`
         });
     }
 }
@@ -1179,15 +1068,10 @@ async function exportPersonality(request, response) {
 }
 
 async function getUploadURL(request, response) {
-    const uploadType = request.params.type;
-    if (!["videos", "audios", "images"].includes(uploadType)) {
-        return utils.sendResponse(response, 400, "application/json", {
-            message: `Bad Request: Invalid upload type`
-        });
-    }
+    const type = request.headers["content-type"];
     try {
         const fileId = crypto.generateId();
-        const uploadURL = await Storage.getUploadURL(uploadType, fileId);
+        const uploadURL = await Storage.getUploadURL(type, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             data: {
                 uploadURL: uploadURL,
@@ -1203,15 +1087,10 @@ async function getUploadURL(request, response) {
 }
 
 async function getDownloadURL(request, response) {
-    const downloadType = request.params.type;
+    const type = request.headers["content-type"];
     const fileId = request.params.fileId;
-    if (!["videos", "audios", "images"].includes(downloadType)) {
-        return utils.sendResponse(response, 400, "application/json", {
-            message: `Bad Request: Invalid download type`
-        });
-    }
     try {
-        const downloadURL = await Storage.getDownloadURL(downloadType, fileId);
+        const downloadURL = await Storage.getDownloadURL(type, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             data: {
                 downloadURL: downloadURL
@@ -1228,6 +1107,10 @@ async function getDownloadURL(request, response) {
 module.exports = {
     getUploadURL,
     getDownloadURL,
+    headFile,
+    getFile,
+    putFile,
+    deleteFile,
     getFileObjectsMetadata,
     getFileObject,
     getFileObjects,
@@ -1263,18 +1146,6 @@ module.exports = {
     deleteSpaceAnnouncement,
     getChatTextResponse,
     getChatTextStreamingResponse,
-    putImage,
-    getImage,
-    deleteImage,
-    putAudio,
-    deleteAudio,
-    getAudio,
-    putVideo,
-    getVideo,
-    headImage,
-    headAudio,
-    headVideo,
-    deleteVideo,
     exportPersonality,
     importPersonality,
     getSpaceChat,

@@ -429,6 +429,7 @@ export class ParagraphItem {
                 <div>
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="insertFile" data-name="Insert File" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addParagraphTable" data-name="Add Paragraph Table" data-highlight="light-highlight"></list-item>
                 </div>`,
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
@@ -552,5 +553,8 @@ export class ParagraphItem {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.paragraph.id, this);
         }
+    }
+    async insertFile() {
+        await this.commandsEditor.insertAttachmentCommand("files");
     }
 }
