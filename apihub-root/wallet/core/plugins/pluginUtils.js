@@ -1,31 +1,47 @@
 import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
 const applicationModule = require("assistos").loadModule("application", {});
-async function openPlugin(componentName, type, context, selectionItemId, presenter) {
+async function openPlugin(componentName, type, context, presenter, selectionItemId) {
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
     }
-    await initializePlugin(type, componentName);
-    await assistOS.UI.showModal(componentName, {
-        context: encodeURIComponent(JSON.stringify(context)),
-    }, true);
+    let plugin = assistOS.plugins[type].find(p => p.componentName === componentName);
+    await initializePlugin(plugin);
+    if(plugin.type === "component"){
+        highlightPlugin(type, componentName, presenter);
+        let pluginContainer = presenter.element.querySelector(`.${type}-plugin-container`);
+        let contextString = encodeURIComponent(JSON.stringify(context));
+        pluginContainer.innerHTML = `<${componentName} data-context="${contextString}" data-presenter="${componentName}"></${componentName}>`;
+    } else {
+        await assistOS.UI.showModal(componentName, {
+            context: encodeURIComponent(JSON.stringify(context)),
+        }, true);
+    }
     if(selectionItemId){
         await selectionUtils.deselectItem(selectionItemId, presenter);
     }
 }
-async function initializePlugin(type, componentName) {
-    let plugin = assistOS.plugins[type].find(p => p.componentName === componentName);
+function highlightPlugin(type, componentName, presenter) {
+    let highlightPluginClass = `${type}-highlight-plugin`;
+    let highlightPlugin = presenter.element.querySelector(`.${highlightPluginClass}`);
+    if(highlightPlugin){
+        highlightPlugin.classList.remove(highlightPluginClass);
+    }
+    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${componentName}`);
+    pluginIcon.classList.add(highlightPluginClass);
+}
+async function initializePlugin(plugin) {
     if(plugin.applicationId && !plugin.inialized){
-        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === componentName);
+        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.componentName);
         if(alreadyLoadedComponent) {
             plugin.inialized = true;
         } else {
             let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, plugin.applicationId);
             let component = await assistOS.getApplicationComponent(assistOS.space.id, plugin.applicationId, manifest.componentsDirPath, {
-                name: componentName,
+                name: plugin.componentName,
                 presenterClassName: plugin.presenterClassName,
             });
             component.presenterClassName = plugin.presenterClassName;
-            component.name = componentName;
+            component.name = plugin.componentName;
             assistOS.UI.configs.components.push(component);
             await assistOS.UI.defineComponent(component);
             plugin.inialized = true;

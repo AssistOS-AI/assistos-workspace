@@ -44,26 +44,39 @@ export class ParagraphItem {
         this.fontFamily= assistOS.constants.fontFamilyMap[textFontFamily]
         this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
         this.textIndent= assistOS.constants.textIndentMap[textIndent]
-
         this.loadedParagraphText = this.paragraph.text || "";
+    }
 
-        //this.decidePreviewType();
-    }
-    decidePreviewType() {
-        if(this.paragraph.commands.video || this.paragraph.commands.audio || this.paragraph.commands.silence){
-            this.previewComponent = `<paragraph-video-preview data-presenter="paragraph-video-preview"></paragraph-video-preview>`
-        } else if(this.paragraph.commands.image){
-            this.previewComponent = `<paragraph-image-preview data-presenter="paragraph-image-preview"></paragraph-image-preview>`
-        } else if(this.isHMTLCode(this.paragraph.text)){
-            this.previewComponent = `<paragraph-html-preview data-presenter="paragraph-html-preview"></paragraph-html-preview>`
-        }
-    }
-    isHMTLCode(text){
-        return text.includes("<") && text.includes(">");
-    }
     async afterRender() {
         let paragraphPluginsContainer = this.element.querySelector(".paragraph-plugins-container");
         await pluginUtils.renderPluginIcons(paragraphPluginsContainer, "paragraph");
+        let allAttachmentHighlights = this.element.querySelectorAll(".plugin-circle");
+        allAttachmentHighlights.forEach(attachment => {
+            attachment.classList.remove("highlight-attachment");
+        });
+
+        if (this.paragraph.commands.image) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.image-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        } else if (this.paragraph.commands.audio) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.audio-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        } else if (this.paragraph.commands.video) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.video-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        }
+
+        if(this.paragraph.comment.trim() !== ""){
+            let commentHighlight = this.element.querySelector(".plugin-circle.comment");
+            commentHighlight.classList.add("highlight-attachment");
+        }
+
         let paragraphContainer = this.element.querySelector(".paragraph-container");
         if (!paragraphContainer) {
             console.error("Nu s-a găsit .paragraph-container!");
@@ -89,8 +102,7 @@ export class ParagraphItem {
 
                 paragraphContainer.insertAdjacentHTML("afterbegin", `
                 <paragraph-html-preview data-presenter="paragraph-html-preview">
-                </paragraph-html-preview>
-                `);
+                </paragraph-html-preview>`);
 
                 setTimeout(() => {
                     let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
@@ -441,7 +453,7 @@ export class ParagraphItem {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         }
-        await pluginUtils.openPlugin(pluginName, type, context, selectionItemId, this);
+        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
 
     openMenu(targetElement, menuName) {

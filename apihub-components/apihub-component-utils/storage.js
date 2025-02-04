@@ -1,8 +1,8 @@
 const config = require("../../data-volume/config/config.json");
 const fileTypes= {
-    images: "image/png",
-    audios: "audio/mp3",
-    videos: "video/mp4",
+    images: "images",
+    audios: "audios",
+    videos: "videos",
 }
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 

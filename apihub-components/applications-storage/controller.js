@@ -240,7 +240,12 @@ async function loadApplicationFile(request, response) {
         const fullPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
 
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
-        const file = await fsPromises.readFile(fullPath, 'utf8');
+        let defaultOptions = "utf8";
+        let imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
+        if(imageTypes.includes(fileType)) {
+            defaultOptions = "";
+        }
+        const file = await fsPromises.readFile(fullPath, defaultOptions);
         return await sendFileToClient(response, file, fileType);
     } catch (error) {
         return handleFileError(response, error);

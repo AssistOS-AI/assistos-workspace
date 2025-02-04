@@ -28,12 +28,6 @@
             "presenterClassName": "ChapterBackgroundAudio"
         },
         {
-            "name": "paragraph-video-preview",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "ParagraphVideoPreview"
-        },
-        {
             "name": "effect-item",
             "directory": "document",
             "type": "components",
@@ -153,12 +147,6 @@
             "directory": "document",
             "type": "components",
             "presenterClassName": "TaskItem"
-        },
-        {
-            "name": "document-video-preview",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "DocumentVideoPreview"
         },
         {
             "name": "history-image",

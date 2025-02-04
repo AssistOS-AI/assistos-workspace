@@ -183,33 +183,6 @@ export default class CommandsEditor {
     buildCommandsHTML() {
         let html = "";
         if (this.editMode === modes.NORMAL) {
-            let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
-            let allAttachmentHighlights = this.paragraphPresenter.element.querySelectorAll(".plugin-circle");
-            allAttachmentHighlights.forEach(attachment => {
-                attachment.classList.remove("highlight-attachment");
-            });
-            for (let command of commands) {
-                if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.image-creator");
-                    if(attachmentHighlight){
-                        attachmentHighlight.classList.add("highlight-attachment");
-                    }
-                } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.audio-creator");
-                    if(attachmentHighlight){
-                        attachmentHighlight.classList.add("highlight-attachment");
-                    }
-                } else if (command.name === "video") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.video-creator");
-                    if(attachmentHighlight){
-                        attachmentHighlight.classList.add("highlight-attachment");
-                    }
-                }
-            }
-            if(this.paragraph.comment.trim() !== ""){
-                let commentHighlight = this.paragraphPresenter.element.querySelector(".plugin-circle.comment");
-                commentHighlight.classList.add("highlight-attachment");
-            }
         } else {
             html = utilModule.buildCommandsString(this.paragraph.commands);
         }

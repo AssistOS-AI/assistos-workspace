@@ -498,12 +498,6 @@ export class DocumentViewPage {
         }
     }
 
-    playVideoPreview(targetElement) {
-        let videoPlayer = `<document-video-preview class="minimized" data-presenter="document-video-preview"></document-video-preview>`;
-        let pageHeader = this.element.querySelector(".document-page-header");
-        pageHeader.insertAdjacentHTML("afterend", videoPlayer);
-    }
-
     toggleEditingState(isEditable) {
         let documentEditor = this.element.querySelector(".document-editor");
         let disabledMask = this.element.querySelector(".disabled-mask");
@@ -583,13 +577,13 @@ export class DocumentViewPage {
             let context = {
                 documentId: this._document.id
             }
-            await pluginUtils.openPlugin(pluginName, "document", context);
+            await pluginUtils.openPlugin(pluginName, "document", context, this);
         } else if(type === "abstract"){
             let itemId = `${this.abstractId}_${pluginName}`;
             let context = {
                 abstract: ""
             }
-            await pluginUtils.openPlugin(pluginName, "abstract", context, itemId, this);
+            await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
         }
     }
 }

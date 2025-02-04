@@ -271,13 +271,6 @@ document-view-page::-webkit-scrollbar-track {
     display: flex;
     align-items: center;
 }
-.play-video-preview{
-    margin-right: 15px;
-    cursor: pointer;
-    width: 35px;
-    display: flex;
-    justify-content: center;
-}
 .new-tasks-badge {
     position: absolute;
     top: -2px;
@@ -380,4 +373,10 @@ html[theme="dark"] input.document-title{
     box-shadow: 0px 1px 7.3px 0px #00000040;
     background-color: var(--white);
     border-radius: 10px;
+}
+.document-highlight-plugin,
+.abstract-highlight-plugin,
+.chapter-highlight-plugin,
+.paragraph-highlight-plugin{
+    border: 2px solid var(--medium-blue);
 }
