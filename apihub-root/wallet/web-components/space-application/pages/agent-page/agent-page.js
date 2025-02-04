@@ -4,6 +4,8 @@ export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+
+
         assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
         const agentState = localStorage.getItem("agentOn")
         if (!agentState) {
@@ -17,14 +19,31 @@ export class AgentPage {
         }
         this.ongoingStreams = new Map();
         this.observedElement = null;
-        this.lastScrollWasManual = false;
-        this.scrollCheckTimeout = null;
+        this.userHasScrolledManually = false;
 
+        this.localContext = [];
 
         this.invalidate(async () => {
             this.boundOnChatUpdate = this.onChatUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.agent.agentData.id}`, this.boundOnChatUpdate);
         });
+    }
+
+    async addToLocalContext(chatRef) {
+        this.localContext.push(
+            {
+                role: chatRef.role,
+                message: assistOS.UI.unsanitize(chatRef.message)
+            }
+        )
+    }
+
+    async addToGlobalContext(chatRef) {
+
+    }
+
+    async resetLocalContext(target){
+        this.localContext=[];
     }
 
     onChatUpdate() {
@@ -35,11 +54,11 @@ export class AgentPage {
         if (this.agentOn) {
             this.toggleAgentButton.classList.remove("agent-on");
             this.toggleAgentButton.classList.add("agent-off");
-            this.toggleAgentButton.innerHTML="Agent:OFF";
+            this.toggleAgentButton.innerHTML = "Agent:OFF";
         } else {
             this.toggleAgentButton.classList.remove("agent-off");
             this.toggleAgentButton.classList.add("agent-on");
-            this.toggleAgentButton.innerHTML="Agent:ON";
+            this.toggleAgentButton.innerHTML = "Agent:ON";
         }
         this.agentOn = !this.agentOn;
         localStorage.setItem("agentOn", this.agentOn);
@@ -70,9 +89,9 @@ export class AgentPage {
             }
             if (role !== "Space") {
                 if (messageIndex === this.chat.length - 1) {
-                    stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                    stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${message.user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
                 } else {
-                    stringHTML += `<chat-item role="${role}" message="${message.message}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
+                    stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
                 }
             }
         }
@@ -84,10 +103,10 @@ export class AgentPage {
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = assistOS.agent.agentData.name;
         let llmName = assistOS.agent.agentData.llms.text;
-        let splitLLMName=llmName.split("/");
-        if(splitLLMName.length>1){
+        let splitLLMName = llmName.split("/");
+        if (splitLLMName.length > 1) {
             this.personalityLLM = splitLLMName[1];
-        }else{
+        } else {
             this.personalityLLM = llmName;
         }
         this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
@@ -100,44 +119,44 @@ export class AgentPage {
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
-        this.boundFn = this.preventRefreshOnEnter.bind(this, this.form);
-        this.userInput.addEventListener("keydown", this.boundFn);
+
+        this.userInput.addEventListener("keydown", this.preventRefreshOnEnter.bind(this, this.form));
+
         this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
         await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
         this.initObservers();
-        if (this.conversation) {
-            this.resizeObserver.observe(this.conversation);
-        }
+        this.conversation.addEventListener('scroll', () => {
+            const threshold = 300;
+            const distanceFromBottom =
+                this.conversation.scrollHeight
+                - this.conversation.scrollTop
+                - this.conversation.clientHeight;
+            this.userHasScrolledManually = distanceFromBottom > threshold;
+        });
+
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
     }
-    initObservers() {
-        this.resizeObserver = new ResizeObserver((entries) => {
-            if (!this.lastScrollWasManual) {
-                this.checkScrollNeeded();
-            }
-        });
 
-        this.intersectionObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (!entry.isIntersecting && !this.lastScrollWasManual) {
-                    this.scrollToElementWithOffset(entry.target);
+    initObservers() {
+        this.intersectionObserver = new IntersectionObserver(entries => {
+            for (let entry of entries) {
+                if (entry.target === this.observedElement) {
+                    if (entry.intersectionRatio < 1) {
+                        if (!this.userHasScrolledManually) {
+                            this.conversation.scrollTo({top: this.conversation.scrollHeight + 100, behavior: 'auto'});
+                        }
+                    } else {
+                        this.userHasScrolledManually = false;
+                    }
                 }
-            });
+            }
         }, {
             root: this.conversation,
-            threshold: 0.9
-        });
-
-        this.conversation?.addEventListener('scroll', () => {
-            this.lastScrollWasManual = true;
-            clearTimeout(this.scrollCheckTimeout);
-            this.scrollCheckTimeout = setTimeout(() => {
-                this.lastScrollWasManual = false;
-            }, 1500);
+            threshold: 1
         });
     }
 
-    scrollToElementWithOffset(element) {
+    /*scrollToElementWithOffset(element) {
         const elementRect = element.getBoundingClientRect();
         const containerRect = this.conversation.getBoundingClientRect();
         const scrollOffset = elementRect.bottom - containerRect.bottom + 80;
@@ -157,53 +176,48 @@ export class AgentPage {
         if (elementRect.bottom + 30 > containerRect.bottom) {
             this.scrollToElementWithOffset(this.observedElement);
         }
-    }
+    }*/
 
-    changeStopEndStreamButtonVisibility(visible){
-        this.chatActionButtonContainer.innerHTML= visible?`
+    changeStopEndStreamButtonVisibility(visible) {
+        this.chatActionButtonContainer.innerHTML = visible ? `
             <button type="button" id="stopLastStream" data-local-action="stopLastStream">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
-            </button>`:this.chatActionButton
+            </button>` : this.chatActionButton
     }
 
-    async addressEndStream(element){
+    async addressEndStream(element) {
         this.ongoingStreams.delete(element);
-        if(this.ongoingStreams.size === 0){
+        if (this.ongoingStreams.size === 0) {
             this.changeStopEndStreamButtonVisibility(false);
         }
     }
-    async stopLastStream(_target){
+
+    async stopLastStream(_target) {
         const getLastStreamedElement = (mapList) => {
             return Array.from(mapList.keys()).pop();
         }
         const lastStreamedElement = getLastStreamedElement(this.ongoingStreams);
-        if(lastStreamedElement){
+        if (lastStreamedElement) {
             await lastStreamedElement.webSkelPresenter.stopResponseStream();
         }
     }
+
     observerElement(element) {
         if (this.observedElement) {
-            this.resizeObserver.unobserve(element);
-            this.intersectionObserver.unobserve(element);
+            this.intersectionObserver.unobserve(this.observedElement);
         }
-
         this.observedElement = element;
-
         if (element) {
-            this.resizeObserver.observe(element);
             this.intersectionObserver.observe(element);
-            this.checkScrollNeeded();
         }
-
     }
+
     async handleNewChatStreamedItem(element) {
         this.observerElement(element);
         const presenterElement = element.closest('chat-item');
         this.ongoingStreams.set(presenterElement, true);
         this.changeStopEndStreamButtonVisibility(true);
     }
-
-
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -226,22 +240,54 @@ export class AgentPage {
         await assistOS.UI.showModal("change-personality-modal");
     }
 
-    async displayMessage(role, text) {
-        const messageHTML = `<chat-item role="${role}" message="${text}" data-presenter="chat-item" data-last-item="true" user="${assistOS.user.id}"></chat-item>`;
+    async displayMessage(role, messageIndex) {
+        const messageHTML = `<chat-item role="${role}" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${assistOS.user.id}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
-      /*  const isNearBottom = this.conversation.scrollHeight - this.conversation.scrollTop < this.conversation.clientHeight + 100;
-        if (isNearBottom) {
-            lastReplyElement.scrollIntoView({behavior: "smooth", block: "nearest"});
-        }*/
     }
 
+    async createChatUnitResponse() {
+        this.chat.push({
+            message: "",
+            role: "assistant",
+
+        })
+        const streamContainerHTML = `<chat-item role="assistant" messageIndex="${this.chat.length - 1}" data-presenter="chat-item" user="${assistOS.agent.agentData.id}" data-last-item="true"/>`;
+
+        this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
+        const waitForElement = (container, selector) => {
+            return new Promise((resolve, reject) => {
+                const element = container.querySelector(selector);
+                if (element) {
+                    resolve(element);
+                } else {
+                    const observer = new MutationObserver((mutations, me) => {
+                        const element = container.querySelector(selector);
+                        if (element) {
+                            me.disconnect();
+                            resolve(element);
+                        }
+                    });
+
+                    observer.observe(container, {
+                        childList: true,
+                        subtree: true
+                    });
+
+                    setTimeout(() => {
+                        observer.disconnect();
+                        reject(new Error(`Element ${selector} did not appear in time`));
+                    }, 10000);
+                }
+            });
+        };
+        return await waitForElement(this.conversation.lastElementChild, '.message');
+    }
 
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();
-
             if (!event.ctrlKey) {
                 await this.sendMessage(form);
                 this.userInput.style.height = "50px";
@@ -275,20 +321,24 @@ export class AgentPage {
         const userRequestMessage = assistOS.UI.customTrim(formInfo.data.input)
 
         const unsanitizedMessage = assistOS.UI.unsanitize(userRequestMessage);
-        const parsedUnsanitizedMessage = marked.parse(unsanitizedMessage);
 
         formInfo.elements.input.element.value = "";
         if (!userRequestMessage.trim()) {
             return;
         }
-        await this.displayMessage("own", userRequestMessage);
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, userRequestMessage)).messageId
-        const context = {};
-        context.chatHistory = this.getChatHistory();
 
-        const conversationContainer = this.element.querySelector('.conversation');
+        this.chat.push({
+            role: "own",
+            message: userRequestMessage
+        })
+
+        await this.displayMessage("own", this.chat.length - 1);
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, userRequestMessage)).messageId
+
+
         if (this.agentOn) {
-            await assistOS.agent.processUserRequest(parsedUnsanitizedMessage,context, conversationContainer, messageId);
+            const streamLocationElement = await this.createChatUnitResponse();
+            await assistOS.agent.processUserRequest(unsanitizedMessage, this.localContext, streamLocationElement, messageId);
         }
     }
 
@@ -301,6 +351,7 @@ export class AgentPage {
     async resetConversation() {
         await assistOS.loadifyFunction(async function (spaceModule) {
             await spaceModule.resetSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+            this.localContext=[];
             this.invalidate();
         }.bind(this, spaceModule));
     }

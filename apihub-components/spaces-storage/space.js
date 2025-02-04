@@ -375,7 +375,7 @@ async function resetSpaceChat(spaceId, chatId) {
 
 async function updateSpaceChatMessage(spaceId, chatId,entityId,messageId, message) {
     const aosUtil = require('assistos').loadModule('util', {});
-    message = aosUtil.sanitize(message);
+    //message = aosUtil.sanitize(message);
     const tableName = `chat_${chatId}`
     const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
     const record= await lightDB.getRecord(spaceId, tableName, primaryKey);
@@ -389,7 +389,7 @@ async function updateSpaceChatMessage(spaceId, chatId,entityId,messageId, messag
 }
 async function addSpaceChatMessage(spaceId,chatId, entityId, role, messageData) {
     const aosUtil = require('assistos').loadModule('util', {});
-    messageData = aosUtil.sanitize(messageData);
+    //messageData = aosUtil.sanitize(messageData);
     const messageId = crypto.generateId();
     const tableName = `chat_${chatId}`
     const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
