@@ -48,29 +48,11 @@ export class ParagraphItem {
     }
 
     async afterRender() {
-        let paragraphPluginsContainer = this.element.querySelector(".paragraph-plugins-container");
-        await pluginUtils.renderPluginIcons(paragraphPluginsContainer, "paragraph");
-        let allAttachmentHighlights = this.element.querySelectorAll(".plugin-circle");
-        allAttachmentHighlights.forEach(attachment => {
-            attachment.classList.remove("highlight-attachment");
-        });
-
-        if (this.paragraph.commands.image) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.image-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
-        } else if (this.paragraph.commands.audio) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.audio-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
-        } else if (this.paragraph.commands.video) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.video-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
-        }
+        // let paragraphPlugins = assistOS.plugins.paragraph;
+        // if(paragraphPlugins.length > 0){
+        //     let defaultOpenPlugin = paragraphPlugins.find(plugin => plugin.type === "component");
+        //     await this.openPlugin("", "paragraph", defaultOpenPlugin.componentName);
+        // }
 
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
@@ -325,6 +307,34 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
+        let paragraphPluginsContainer = this.element.querySelector(".paragraph-plugins-container");
+        if(paragraphPluginsContainer.innerHTML === ""){
+            await pluginUtils.renderPluginIcons(paragraphPluginsContainer, "paragraph");
+        }
+        let allAttachmentHighlights = this.element.querySelectorAll(".plugin-circle");
+        allAttachmentHighlights.forEach(attachment => {
+            attachment.classList.remove("highlight-attachment");
+        });
+
+        if (this.paragraph.commands.image) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.image-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        }
+        if (this.paragraph.commands.audio) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.audio-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        }
+        if (this.paragraph.commands.video) {
+            let attachmentHighlight = this.element.querySelector(".plugin-circle.video-creator");
+            if(attachmentHighlight){
+                attachmentHighlight.classList.add("highlight-attachment");
+            }
+        }
+
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');

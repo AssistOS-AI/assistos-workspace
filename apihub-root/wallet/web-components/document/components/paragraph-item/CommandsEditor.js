@@ -78,7 +78,6 @@ export default class CommandsEditor {
             await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            this.videoPresenter.refreshVideoPreview();
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
             this.appendCommandAdvancedMode(type, data);
@@ -115,7 +114,6 @@ export default class CommandsEditor {
             await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            this.videoPresenter.refreshVideoPreview();
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
             let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
@@ -236,7 +234,6 @@ export default class CommandsEditor {
         }
         await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
         this.renderViewModeCommands();
-        await this.videoPresenter.setupVideoPreview();
         this.paragraphPresenter.showUnfinishedTasks();
     }
     async handleCommand(commandName, commandStatus) {
@@ -294,7 +291,6 @@ export default class CommandsEditor {
             this.renderViewModeCommands();
             await this.invalidateCompiledVideos()
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
-            await this.videoPresenter.setupVideoPreview();
             return true;
         } else {
             this.appendCommandAdvancedMode(name, data);
