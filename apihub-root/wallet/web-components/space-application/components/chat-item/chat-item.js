@@ -9,7 +9,14 @@ export class ChatItem {
     }
 
     async beforeRender() {
-        this.message= this.element.getAttribute("message");
+        function decodeHTML(html) {
+            let txt = document.createElement("textarea");
+            txt.innerHTML = html;
+            return txt.value;
+        }
+        let agentPagePresenter = this.element.closest('agent-page').webSkelPresenter
+        let messageIndex = this.element.getAttribute("messageIndex");
+        this.message= agentPagePresenter.chat[messageIndex].message
         this.role = this.element.getAttribute("role");
         // own = message sent by "myself"
         if (this.role !== "own") {
@@ -24,7 +31,7 @@ export class ChatItem {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
             } else if(this.role === "assistant"){
-                this.message= marked.parse(this.message);
+                this.message = marked.parse(decodeHTML(this.message));
                 try {
                     imageSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
                 } catch (e) {
@@ -39,7 +46,7 @@ export class ChatItem {
                 <button class="copy-button chat-option-button" data-local-action="copyMessage"> 
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path></svg>
                 </button>
-                <button class="chat-option-button">Add</button>
+                <button class="chat-option-button" data-local-action="addToLocalContext">Add</button>
             </div>`
         } else {
             /* message was sent by myself */
@@ -51,11 +58,22 @@ export class ChatItem {
                   <button class="copy-button chat-option-button" data-local-action="copyMessage"> 
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path></svg>
                 </button>
-                <button class="chat-option-button">Add</button>
-                <button class="chat-option-button">Memo</button>
+                <button class="chat-option-button" data-local-action="addToLocalContext">Add</button>
+                <button class="chat-option-button" data-local-action="addToGlobalContext">Memo</button>
             </div>`
         }
     }
+
+    /* could be replaced with event delegation if webskel was stable*/
+
+    async addToLocalContext(_target){
+        await this.chatContainerPresenter.addToLocalContext(this)
+    }
+
+    async addToGlobalContext(_target){
+        await this.chatContainerPresenter.addToGlobalContext(this)
+    }
+
     async copyMessage(eventTarget){
         let message = this.element.querySelector(".message").innerText;
         await navigator.clipboard.writeText(message);
@@ -81,11 +99,11 @@ export class ChatItem {
 
     async afterRender() {
         if (this.element.getAttribute('data-last-item') === "true") {
-            setTimeout(()=>{
-                this.element.scrollIntoView({ behavior: "instant", block: "end", inline: "end" });
+            setTimeout(() => {
                 const container = this.element.parentElement;
-                container.scrollTop += 20;
-            },100)
+                container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+            }, 100);
+
         }
         if (this.role !== "own") {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");

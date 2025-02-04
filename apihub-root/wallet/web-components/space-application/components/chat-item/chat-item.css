@@ -10,19 +10,19 @@ chat-item{
     flex-wrap:wrap;
 }
 .chat-options{
+    position:absolute;
     display:none;
     margin-block-start:10px;
     width:fit-content;
+    bottom:-40px;
 }
 
 .other-message{
-    position:absolute;
     justify-content: flex-start;
     left:0;
 }
 
 .myself-message{
-    position:absolute;
     justify-content: flex-end;
     right:0;
 }

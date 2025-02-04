@@ -504,6 +504,7 @@ function closeDefaultLoader() {
     window.assistOS = new AssistOS(configuration);
     await assistOS.boot(UI_CONFIGS_PATH);
 
+
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
@@ -512,4 +513,5 @@ function closeDefaultLoader() {
     closeDefaultLoader()
     await assistOS.loadPage();
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
+
 })();
