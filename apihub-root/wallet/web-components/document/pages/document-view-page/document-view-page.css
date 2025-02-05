@@ -366,7 +366,7 @@ html[theme="dark"] input.document-title{
 }
 .plugin-name{
     z-index: 2;
-    left: 35px;
+    top: 32px;
     padding: 5px;
     display: none;
     position: absolute;
@@ -378,5 +378,5 @@ html[theme="dark"] input.document-title{
 .abstract-highlight-plugin,
 .chapter-highlight-plugin,
 .paragraph-highlight-plugin{
-    border: 2px solid var(--medium-blue);
+    border: 3px solid var(--medium-blue);
 }

@@ -122,32 +122,6 @@ async function installApplication(spaceId, applicationId) {
     } catch (error) {
         CustomError.throwServerError("Failed to read or parse Application manifest", error);
     }
-    if (application.flowsRepository) {
-        const flowsFolderPath = getApplicationFlowsPath(spaceId, application.name);
-        try {
-            await git.clone(application.flowsRepository, flowsFolderPath);
-        } catch (error) {
-            CustomError.throwServerError("Failed to clone Application flows repository", error);
-        }
-        try {
-            await fsPromises.unlink(path.join(applicationFolderPath, "README.md"));
-        } catch (error) {
-            /* ignore */
-        }
-    }
-    if (application.tasksRepository) {
-        const tasksFolderPath = getApplicationTasksPath(spaceId, application.name);
-        try {
-            await git.clone(application.tasksRepository, tasksFolderPath);
-        } catch (error) {
-            CustomError.throwServerError("Failed to clone Application tasks repository", error);
-        }
-        try {
-            await fsPromises.unlink(path.join(applicationFolderPath, "README.md"));
-        } catch (error) {
-            /* ignore */
-        }
-    }
     application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
     await git.installDependencies(manifest.dependencies);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);

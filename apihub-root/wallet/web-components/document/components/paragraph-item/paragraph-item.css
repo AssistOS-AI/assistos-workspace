@@ -245,6 +245,6 @@ textarea.paragraph-commands{
 html[theme="dark"] textarea.paragraph-text{
     background: var(--white)
 }
-.paragraph-plugins-container{
+.paragraph-plugins-icons{
     display: flex;
 }

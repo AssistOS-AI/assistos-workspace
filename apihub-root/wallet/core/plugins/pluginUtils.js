@@ -4,9 +4,9 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
     }
-    let plugin = assistOS.plugins[type].find(p => p.componentName === componentName);
+    let plugin = assistOS.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
-    if(plugin.type === "component"){
+    if(plugin.type === "embedded"){
         highlightPlugin(type, componentName, presenter);
         let pluginContainer = presenter.element.querySelector(`.${type}-plugin-container`);
         let contextString = encodeURIComponent(JSON.stringify(context));
@@ -31,17 +31,17 @@ function highlightPlugin(type, componentName, presenter) {
 }
 async function initializePlugin(plugin) {
     if(plugin.applicationId && !plugin.inialized){
-        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.componentName);
+        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.component);
         if(alreadyLoadedComponent) {
             plugin.inialized = true;
         } else {
             let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, plugin.applicationId);
             let component = await assistOS.getApplicationComponent(assistOS.space.id, plugin.applicationId, manifest.componentsDirPath, {
-                name: plugin.componentName,
-                presenterClassName: plugin.presenterClassName,
+                name: plugin.component,
+                presenterClassName: plugin.presenter,
             });
-            component.presenterClassName = plugin.presenterClassName;
-            component.name = plugin.componentName;
+            component.presenterClassName = plugin.presenter;
+            component.name = plugin.component;
             assistOS.UI.configs.components.push(component);
             await assistOS.UI.defineComponent(component);
             plugin.inialized = true;
@@ -61,10 +61,10 @@ async function renderPluginIcons(containerElement, type) {
     for(let i = 0 ; i < plugins.length; i++){
         let icon = icons[i];
         let containerDiv = document.createElement("div");
-        containerDiv.classList.add("plugin-circle", plugins[i].componentName);
-        containerDiv.setAttribute("data-local-action", `openPlugin ${type} ${plugins[i].componentName}`);
+        containerDiv.classList.add("plugin-circle", plugins[i].component);
+        containerDiv.setAttribute("data-local-action", `openPlugin ${type} ${plugins[i].component}`);
         containerDiv.innerHTML = `<img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">
-                                  <div class="plugin-name">${plugins[i].name}</div>`;
+                                  <div class="plugin-name">${plugins[i].tooltip}</div>`;
         containerDiv.addEventListener("mouseover", async ()=>{
             containerDiv.querySelector(".plugin-name").style.display = "block";
         });
