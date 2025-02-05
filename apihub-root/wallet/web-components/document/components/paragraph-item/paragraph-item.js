@@ -307,9 +307,9 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
-        let paragraphPluginsContainer = this.element.querySelector(".paragraph-plugins-container");
-        if(paragraphPluginsContainer.innerHTML === ""){
-            await pluginUtils.renderPluginIcons(paragraphPluginsContainer, "paragraph");
+        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
+        if(paragraphPluginsIcons.innerHTML === ""){
+            await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
         }
         let allAttachmentHighlights = this.element.querySelectorAll(".plugin-circle");
         allAttachmentHighlights.forEach(attachment => {
