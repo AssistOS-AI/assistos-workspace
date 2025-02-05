@@ -236,10 +236,7 @@ textarea.paragraph-commands{
     pointer-events: none;
 }
 .status-icon{
-    pointer-events: none;
-    position: absolute;
-    left: -35px;
-    bottom:39%;
+
 }
 
 html[theme="dark"] textarea.paragraph-text{
@@ -247,4 +244,10 @@ html[theme="dark"] textarea.paragraph-text{
 }
 .paragraph-plugins-icons{
     display: flex;
+}
+.preview-icons{
+    pointer-events: none;
+    position: absolute;
+    left: -35px;
+    bottom:39%;
 }
