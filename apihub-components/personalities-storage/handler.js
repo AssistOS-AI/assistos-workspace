@@ -23,7 +23,7 @@ async function addPersonality(request, spaceId, personalityData) {
     SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, "personalities"));
     SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
 
-    await createSpaceChat(spaceId, personalityData);
+    await createSpaceChat(spaceId, personalityData.id);
 }
 
 module.exports = {

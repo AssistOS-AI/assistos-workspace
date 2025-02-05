@@ -94,6 +94,12 @@
             "presenterClassName": "LlmDemoPage"
         },
         {
+            "name": "view-context-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ViewContextModal"
+        },
+        {
             "name": "video-menu",
             "directory": "document",
             "type": "modals",

@@ -14,6 +14,7 @@ const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
 
+
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
 }
@@ -393,13 +394,37 @@ async function addSpaceChatMessage(spaceId,chatId, entityId, role, messageData) 
     const messageId = crypto.generateId();
     const tableName = `chat_${chatId}`
     const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
-    await lightDB.insertRecord(spaceId, tableName, primaryKey, {
+    const chatObj = {
         role: role,
         message: messageData,
         user: entityId,
         id: messageId
-    });
+    }
+    await lightDB.insertRecord(spaceId, tableName, primaryKey, chatObj);
+    //await addSpaceChatDocumentItem(spaceId,chatId,chatObj)
     return messageId
+}
+
+async function addSpaceChatDocumentItem(spaceId,chatId,chatItemObj){
+    const documentId = `CHAT_${chatId}`;
+    const documentRecord = await lightDB.getContainerObject(spaceId,documentId);
+
+    if(documentRecord.chapters.length === 0){
+
+    }
+
+}
+
+async function createSpaceChatDocument(spaceId,chatId){
+    const documentData = {
+        title:`CHAT_${chatId}`,
+        topic:'',
+        metadata:["id", "title"],
+        chapters:[],
+        id:`CHAT_${chatId}`
+    }
+    const docId= await lightDB.addContainerObject(spaceId, "documents", documentData)
+    return docId;
 }
 
 async function createSpaceChat(spaceId, chatId,lightDbClient) {
@@ -410,6 +435,8 @@ async function createSpaceChat(spaceId, chatId,lightDbClient) {
     const messageId = crypto.generateId();
     const entryMessagePk = `chat_${chatId}_space_${messageId}`;
     const entryMessage = `This is the workspace chat where you can discuss and collaborate with your team members.`;
+
+
     await lightDbClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
         data: {
             role: "Space",
@@ -417,6 +444,38 @@ async function createSpaceChat(spaceId, chatId,lightDbClient) {
             id: messageId
         }
     });
+    // await createSpaceChatDocument(spaceId, chatId)
+
+
+    const Document = require('../document/services/document')
+    const Paragraph =require('../document/services/paragraph')
+    const Chapter =require('../document/services/chapter')
+
+    const documentData = {
+        title:`chat_${chatId}`,
+        topic:'',
+        chapters:[],
+        id:`chat_${chatId}`
+    }
+    const chatChapterData = {
+        title:`Chat Messages`,
+        paragraphs:[]
+    }
+    const chatContextChapterData = {
+        title: `Chat Context`,
+        paragraphs:[]
+    }
+
+    const paragraphData = {
+        text:`This is the workspace chat where you can discuss and collaborate with your team members.`,
+        commands:{}
+    }
+
+    const docId = await Document.createDocument(spaceId,documentData);
+    const chatItemsChapterId = await Chapter.createChapter(spaceId,docId,chatChapterData)
+    const chatContextChapterId= await Chapter.createChapter(spaceId,docId,chatContextChapterData)
+    const welcomeParagraphId = await Paragraph.createParagraph(spaceId,docId,chatItemsChapterId,paragraphData)
+    return docId;
 }
 
 async function createDefaultSpaceChats(lightDbClient, spaceId) {

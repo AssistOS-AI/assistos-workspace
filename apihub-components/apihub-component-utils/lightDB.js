@@ -131,11 +131,14 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
 
 async function addContainerObject(spaceId, objectType, objectData) {
     async function addContainerObjectToTable(spaceId, objectType, objectData) {
-        let objectId = `${objectType}_${crypto.generateId()}`;
-        await insertRecord(spaceId, objectType, objectId, objectId);
-        objectData.id = objectId;
-        await insertObjectRecords(spaceId, objectId, objectId, objectData);
-        return objectId;
+        if(objectData.id === undefined) {
+            let objectId = `${objectType}_${crypto.generateId()}`;
+            objectData.id = objectId;
+        }
+        await insertRecord(spaceId, objectType, objectData.id, objectData.id);
+
+        await insertObjectRecords(spaceId, objectData.id, objectData.id, objectData);
+        return objectData.id;
     }
 
     try {

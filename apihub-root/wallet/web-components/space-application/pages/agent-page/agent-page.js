@@ -5,7 +5,6 @@ export class AgentPage {
         this.element = element;
         this.invalidate = invalidate;
 
-
         assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
         const agentState = localStorage.getItem("agentOn")
         if (!agentState) {
@@ -354,6 +353,10 @@ export class AgentPage {
             this.localContext=[];
             this.invalidate();
         }.bind(this, spaceModule));
+    }
+
+    async viewAgentContext(_target){
+        await assistOS.UI.showModal('view-context-modal',{presenter:`view-context-modal`});
     }
 
     async saveConversation() {
