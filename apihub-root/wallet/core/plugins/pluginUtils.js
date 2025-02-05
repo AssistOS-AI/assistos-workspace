@@ -30,17 +30,16 @@ function highlightPlugin(type, componentName, presenter) {
     pluginIcon.classList.add(highlightPluginClass);
 }
 async function initializePlugin(plugin) {
-    if(plugin.applicationId && !plugin.inialized){
-        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.component);
-        if(alreadyLoadedComponent) {
-            plugin.inialized = true;
-        } else {
-            await loadPluginComponent(plugin.applicationId, plugin.component, plugin.presenter);
-            plugin.inialized = true;
-        }
+    if(plugin.applicationId && !plugin.initialized){
+        plugin.initialized = true;
+        await loadPluginComponent(plugin.applicationId, plugin.component, plugin.presenter);
     }
 }
 async function loadPluginComponent(appId, componentName, presenter) {
+    let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === componentName);
+    if(alreadyLoadedComponent) {
+        return;
+    }
     let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, appId);
     let component = await assistOS.getApplicationComponent(assistOS.space.id, appId, manifest.componentsDirPath, {
         name: componentName,
@@ -58,10 +57,7 @@ async function renderPluginIcons(containerElement, type) {
     let plugins = assistOS.plugins[type];
     for(let plugin of plugins){
         if(plugin.iconPresenter){
-            let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.iconComponent);
-            if(!alreadyLoadedComponent){
-                await loadPluginComponent(plugin.applicationId, plugin.iconComponent, plugin.iconPresenter);
-            }
+            await loadPluginComponent(plugin.applicationId, plugin.iconComponent, plugin.iconPresenter);
             let iconContainer = document.createElement("div");
             attachPluginTooltip(iconContainer, plugin, type);
             let iconContext = {icon: plugin.icon, plugin: plugin.component, type};
@@ -102,5 +98,6 @@ async function getPluginIcon(plugin) {
 export default {
     openPlugin,
     getContext,
-    renderPluginIcons
+    renderPluginIcons,
+    loadPluginComponent
 }
