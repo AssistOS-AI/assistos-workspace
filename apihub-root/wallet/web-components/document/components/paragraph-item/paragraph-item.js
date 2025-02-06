@@ -48,14 +48,11 @@ export class ParagraphItem {
     }
 
     async afterRender() {
-        // let paragraphPlugins = assistOS.plugins.paragraph;
-        // if(paragraphPlugins.length > 0){
-        //     let defaultOpenPlugin = paragraphPlugins.find(plugin => plugin.type === "component");
-        //     await this.openPlugin("", "paragraph", defaultOpenPlugin.componentName);
-        // }
         let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
         await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
-
+        if(this.currentPlugin){
+            this.openPlugin("", "paragraph", this.currentPlugin);
+        }
 
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
@@ -440,6 +437,7 @@ export class ParagraphItem {
 
     async openPlugin(targetElement, type, pluginName) {
         let selectionItemId = `${this.paragraph.id}_${pluginName}`;
+        this.currentPlugin = pluginName;
         let context = {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
