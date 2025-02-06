@@ -148,7 +148,7 @@ export class ParagraphItem {
         let commands = this.paragraph.commands;
         if (commands.video && commands.audio) {
             let videoDuration = commands.video.end - commands.video.start;
-            if (commands.audio.duration > videoDuration) {
+            if (commands.audio.duration !== videoDuration) {
                 icon = "warning";
             }
         }
@@ -205,13 +205,16 @@ export class ParagraphItem {
             this.commandsEditor.renderCommands();
         }
     }
-    async deleteParagraph() {
+    async deleteParagraph(skipConfirmation) {
         await this.documentPresenter.stopTimer(true);
-        let message = "Are you sure you want to delete this paragraph?";
-        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
-        if (!confirmation) {
-            return;
+        if(!skipConfirmation){
+            let message = "Are you sure you want to delete this paragraph?";
+            let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+            if (!confirmation) {
+                return;
+            }
         }
+
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
         await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
@@ -411,7 +414,7 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
-        await this.deleteParagraph();
+        await this.deleteParagraph(true);
         delete window.cutParagraph.id;
     }
 
