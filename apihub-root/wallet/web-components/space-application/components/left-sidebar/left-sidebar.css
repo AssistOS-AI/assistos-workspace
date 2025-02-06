@@ -8,16 +8,35 @@ left-sidebar {
 }
 
 .features-list-wrapper {
-    padding: 15px;
+    padding: 15px 15px 15px 0;
     display: flex;
     flex-direction: column;
-    height: 72.5%;
+    height: 63%;
 }
 .features-list{
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    width: 300px;
+    scrollbar-width: initial;
 }
+.installed-applications::-webkit-scrollbar {
+    display: block;
+}
+.installed-applications{
+    height: calc(100% - 75px);
+    overflow-y: scroll;
+}
+.installed-applications::-webkit-scrollbar-thumb {
+    height: 20px;
+    background-color: #ec0d0d;
+}
+
+.installed-applications::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+
 .closed{
     display: none;
 }
@@ -55,24 +74,23 @@ left-sidebar {
 }
 
 .feature{
-    justify-content: center;
+    cursor: pointer;
     position: relative;
     align-items: center;
     display: flex;
-    padding: 5px;
+    padding: 5px 5px 5px 15px;
     margin-top: 10px;
     max-height: 100%;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
-.feature:hover {
+.page-logo:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
     cursor: pointer;
     z-index: 1;
 }
 .app-focus{
-    left: -12px;
+    left: -1px;
     position: absolute;
     height: 80%;
     width: 5px;
@@ -96,6 +114,7 @@ left-sidebar {
     width: 41px;
     height: 41px;
     object-fit: cover;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .user-photo {
@@ -169,8 +188,8 @@ html[theme="dark"] {
 .app-separator{
     background-color: #505050;
     height: 2.5px;
-    margin: 5px 0;
-    width: 70%;
+    width: 42px;
+    margin: 5px 0 5px 15px;
 }
 .long{
     width: 82%;

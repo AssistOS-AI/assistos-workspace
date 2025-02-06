@@ -395,7 +395,7 @@ export class ChapterItem {
             return;
         }
         if(data.selected){
-            await selectionUtils.setUserIcon(data.userImageId, data.selectId, this.titleClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, this.titleClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
                 return selectionUtils.lockItem(this.titleClass, this);
             }

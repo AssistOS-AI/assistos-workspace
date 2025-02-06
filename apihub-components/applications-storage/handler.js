@@ -122,32 +122,6 @@ async function installApplication(spaceId, applicationId) {
     } catch (error) {
         CustomError.throwServerError("Failed to read or parse Application manifest", error);
     }
-    if (application.flowsRepository) {
-        const flowsFolderPath = getApplicationFlowsPath(spaceId, application.name);
-        try {
-            await git.clone(application.flowsRepository, flowsFolderPath);
-        } catch (error) {
-            CustomError.throwServerError("Failed to clone Application flows repository", error);
-        }
-        try {
-            await fsPromises.unlink(path.join(applicationFolderPath, "README.md"));
-        } catch (error) {
-            /* ignore */
-        }
-    }
-    if (application.tasksRepository) {
-        const tasksFolderPath = getApplicationTasksPath(spaceId, application.name);
-        try {
-            await git.clone(application.tasksRepository, tasksFolderPath);
-        } catch (error) {
-            CustomError.throwServerError("Failed to clone Application tasks repository", error);
-        }
-        try {
-            await fsPromises.unlink(path.join(applicationFolderPath, "README.md"));
-        } catch (error) {
-            /* ignore */
-        }
-    }
     application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
     await git.installDependencies(manifest.dependencies);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);
@@ -225,6 +199,27 @@ async function getApplicationTasks(spaceId, applicationId) {
     let tasks = TaskManager.serializeTasks(spaceId);
     return tasks.filter(task => task.applicationId === applicationId);
 }
+async function getApplicationsPlugins(spaceId) {
+    const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
+    const applications = spaceStatusObject.installedApplications;
+    let plugins = {};
+    for(let app of applications){
+        let manifest = await loadApplicationConfig(spaceId, app.name);
+        if(!manifest.plugins){
+            continue;
+        }
+        for(let pluginType of Object.keys(manifest.plugins)){
+            if(!plugins[pluginType]){
+                plugins[pluginType] = [];
+            }
+            for(let plugin of manifest.plugins[pluginType]){
+                plugin.applicationId = app.name;
+            }
+            plugins[pluginType] = plugins[pluginType].concat(manifest.plugins[pluginType]);
+        }
+    }
+    return plugins;
+}
 module.exports = {
     installApplication,
     uninstallApplication,
@@ -235,6 +230,6 @@ module.exports = {
     updateApplication,
     requiresUpdate,
     getApplicationTasks,
-    getApplicationTaskPath
+    getApplicationsPlugins
 };
 

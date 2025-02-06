@@ -131,11 +131,14 @@ async function getContainerObjectsMetadata(spaceId, objectType) {
 
 async function addContainerObject(spaceId, objectType, objectData) {
     async function addContainerObjectToTable(spaceId, objectType, objectData) {
-        let objectId = `${objectType}_${crypto.generateId()}`;
-        await insertRecord(spaceId, objectType, objectId, objectId);
-        objectData.id = objectId;
-        await insertObjectRecords(spaceId, objectId, objectId, objectData);
-        return objectId;
+        if(objectData.id === undefined) {
+            let objectId = `${objectType}_${crypto.generateId()}`;
+            objectData.id = objectId;
+        }
+        await insertRecord(spaceId, objectType, objectData.id, objectData.id);
+
+        await insertObjectRecords(spaceId, objectData.id, objectData.id, objectData);
+        return objectData.id;
     }
 
     try {
@@ -212,7 +215,9 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
                 return objectData.map(item => item.id);
             }
             //single object
-            objectData.id = `${objectType}_${crypto.generateId()}`;
+            if(!objectData.id){
+                objectData.id = `${objectType}_${crypto.generateId()}`;
+            }
             if (objectData.position !== undefined) {
                 position = objectData.position;
                 object[objectType].splice(objectData.position, 0, objectData.id);
@@ -446,6 +451,10 @@ async function swapEmbeddedObjects(spaceId, objectURI, embeddedIds, direction) {
     }
 
 }
+async function deleteAllRecords(spaceId,tableId) {
+    const records = await getAllRecords(spaceId, tableId);
+    await Promise.all(records.map(record => deleteRecord(spaceId, tableId, record.pk)));
+}
 
 module.exports = {
     getContainerObject,
@@ -457,5 +466,9 @@ module.exports = {
     addEmbeddedObject,
     updateEmbeddedObject,
     deleteEmbeddedObject,
-    swapEmbeddedObjects
+    swapEmbeddedObjects,
+    getRecord,
+    insertRecord,
+    updateRecord,
+    deleteAllRecords
 }

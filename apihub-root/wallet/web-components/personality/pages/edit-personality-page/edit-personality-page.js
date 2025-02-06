@@ -79,7 +79,7 @@ export class EditPersonalityPage {
         }
 
         this.availableLlms = await llmModule.listLlms(assistOS.space.id);
-
+        this.chatPrompt=this.personality.chatPrompt;
         this.llmSelectionSection = generateLlmSection(this.availableLlms);
 
         let voicesHTML = "";
@@ -92,9 +92,14 @@ export class EditPersonalityPage {
             voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
         this.voicesOptions = voicesHTML;
+
+        this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>`;
+
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
             this.disabled = "disabled";
+            this.deletePersonalityButton="";
         }
+
         if (this.personality.imageId) {
             try {
                 this.photo = await spaceModule.getImageURL(this.personality.imageId);
@@ -202,9 +207,12 @@ export class EditPersonalityPage {
             this.personality.name = formInfo.data.name || this.personality.name;
             this.personality.description = formInfo.data.description;
             this.personality.voiceId = formInfo.data.voiceId;
+            this.personality.chatPrompt= formInfo.data.chatPrompt;
+
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
             });
+            //hardcoded dependency due to no state binding
             if (this.photoAsFile) {
                 let reader = new FileReader();
                 reader.onload = async (e) => {
@@ -216,6 +224,10 @@ export class EditPersonalityPage {
                 reader.readAsArrayBuffer(this.photoAsFile);
             } else {
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+                if(this.personalityName === assistOS.agent.agentData.name){
+                    await assistOS.changeAgent(this.personality.id);
+                    document.querySelector('agent-page').webSkelPresenter.invalidate();
+                }
                 await this.openPersonalitiesPage();
             }
         }
@@ -226,6 +238,13 @@ export class EditPersonalityPage {
             spaceId: assistOS.space.id,
             personalityId: this.personality.id
         });
+        if(this.personality.id === assistOS.agent.agentData.id){
+            if(localStorage.getItem("agent") === this.personality.id) {
+                localStorage.removeItem("agent");
+            }
+            await assistOS.changeAgent();
+            document.querySelector('agent-page').webSkelPresenter.invalidate();
+        }
         await this.openPersonalitiesPage();
     }
 

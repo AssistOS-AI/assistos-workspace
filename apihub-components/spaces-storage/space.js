@@ -2,16 +2,19 @@ const path = require('path');
 const fsPromises = require('fs').promises;
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
-const crypto = require("../apihub-component-utils/crypto");
+const crypto = require("../apihub-component-utils/crypto.js");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
+const lightDB = require('../apihub-component-utils/lightDB.js');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
+const cookie = require("../apihub-component-utils/cookie");
+
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -183,14 +186,18 @@ async function getDefaultPersonality(spaceId) {
     }
 }
 
-async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
+async function createChat(spaceId, chatId) {
 
+
+}
+
+async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
     await file.createDirectory(personalitiesPath);
     const files = await fsPromises.readdir(defaultPersonalitiesPath, {withFileTypes: true});
-    let metadata = [];
+
     let promises = [];
     const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
     const defaultLlms = (await defaultLlmsRes.json()).data;
@@ -199,8 +206,10 @@ async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId,
             promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms));
         }
     }
-    metadata = await Promise.all(promises);
-    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(metadata), 'utf8');
+    const personalitiesData = await Promise.all(promises);
+
+    await Promise.all(personalitiesData.map(personalityData => createChat(spaceId, personalityData.id)));
+    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(personalitiesData), 'utf8');
 }
 
 async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms) {
@@ -328,13 +337,15 @@ async function createSpace(spaceName, userId, spaceModule) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
     await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-    await createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName);
+
+    await createDefaultSpaceChats(lightDBEnclaveClient, spaceId);
+
     return spaceObj;
 }
 
-async function getSpaceChat(spaceId) {
+async function getSpaceChat(spaceId, chatId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    const tableName = `chat_${spaceId}`
+    const tableName = `chat_${chatId}`
     let records = await $$.promisify(lightDBEnclaveClient.filter)($$.SYSTEM_IDENTIFIER, tableName);
     let chat = []
     for (let record of records) {
@@ -348,37 +359,153 @@ async function getSpaceChat(spaceId) {
     return chat;
 }
 
-async function addSpaceChatMessage(spaceId, entityId, role, messageData) {
-    const aosUtil = require('assistos').loadModule('util', {});
-    messageData = aosUtil.sanitize(messageData);
-    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
+async function storeSpaceChat(spaceId, chatId) {
+    const chat = await getSpaceChat(spaceId, chatId);
+    const personality = await getPersonalityData(spaceId, chatId);
+    if (!personality.chats) {
+        personality.chats = {}
+    }
+    const id = crypto.generateId();
+    personality.chats[id] = chat;
+    await updatePersonalityData(spaceId, chatId, personality);
+}
+
+async function resetSpaceChat(spaceId, chatId) {
+    const tableName = `chat_${chatId}`
+    await lightDB.deleteAllRecords(spaceId, tableName);
+}
+
+async function updateSpaceChatDocument(spaceId, chatId, chatItemObj) {
+    let documentId = `documents_chat_${chatId}`
+    const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, chatItemObj.id)
+    chatDocumentRecord.data.text = chatItemObj.message;
+    await lightDB.updateRecord(spaceId, documentId, chatItemObj.id, chatDocumentRecord.data)
+}
+
+async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData) {
     const messageId = crypto.generateId();
-    const tableName = `chat_${spaceId}`
-    const primaryKey = `chat_${spaceId}_${entityId}_${messageId}`
-    await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, primaryKey, {
-        data: {
-            role: role,
-            message: messageData,
-            messageId: messageId,
-            user: entityId
-        }
-    })
+    const tableName = `chat_${chatId}`
+    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
+    const chatObj = {
+        role: role,
+        message: messageData,
+        user: entityId,
+        id: messageId
+    }
+
+    await Promise.all([lightDB.insertRecord(spaceId, tableName, primaryKey, chatObj),addSpaceChatDocumentItem(spaceId, chatId, chatObj)])
     return messageId
 }
 
-async function createDefaultSpaceChats(lightDBEnclaveClient, spaceId, spaceName) {
-    const createWorkspaceChat = async () => {
-        const tableName = `chat_${spaceId}`;
-        const entryMessagePk = `chat_${spaceId}`;
-        const entryMessage = `Welcome to ${spaceName}! This is the workspace chat where you can discuss and collaborate with your team members.`
-        await lightDBEnclaveClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
-            data: {
-                role: "Space",
-                message: entryMessage,
-            }
-        })
+const composeParagraphMessage = function (chatObj) {
+    return chatObj.message
+}
+
+async function addSpaceChatDocumentItem(spaceId, chatId, chatItemObj) {
+    const documentId = `documents_chat_${chatId}`;
+    const documentRecord = await lightDB.getContainerObject(spaceId, documentId);
+
+    let messagesChapterId
+
+    let authSecret = await secrets.getApiHubAuthSecret();
+
+    let securityContextConfig = {
+        headers: {
+            cookie: cookie.createApiHubAuthCookies(authSecret, this.userId, this.spaceId)
+        }
     }
-    await createWorkspaceChat();
+    const SecurityContext = require('assistos').ServerSideSecurityContext;
+    const securityContext = new SecurityContext(securityContextConfig);
+    const documentModule = require('assistos').loadModule('document', securityContext)
+
+    if (documentRecord.chapters.length === 0) {
+
+        const chatChapterData = {
+            title: `Chat Messages`,
+            paragraphs: []
+        }
+        await documentModule.addChapter(spaceId, documentId,chatChapterData);
+    } else {
+        messagesChapterId = documentRecord.chapters[0].id;
+    }
+
+    const paragraphObj = {
+        text: composeParagraphMessage(chatItemObj),
+        commands: {
+            replay: {
+                role: chatItemObj.role,
+                name: chatItemObj.user,
+            }
+        },
+        id: chatItemObj.id,
+        comment: JSON.stringify(chatItemObj)
+    }
+    await documentModule.addParagraph(spaceId, documentId, messagesChapterId, paragraphObj);
+}
+
+async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, message) {
+    const tableName = `chat_${chatId}`
+    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
+    const record = await lightDB.getRecord(spaceId, tableName, primaryKey);
+    if (!record) {
+        const error = new Error(`Message with id ${messageId} not found`);
+        error.statusCode = 404;
+        throw error;
+    }
+    record.data.message = message;
+   await Promise.all([lightDB.updateRecord(spaceId, tableName, primaryKey, record.data), updateSpaceChatDocument(spaceId, chatId, record.data)]);
+}
+
+async function createSpaceChat(spaceId, chatId, lightDbClient) {
+    lightDbClient = enclave.initialiseLightDBEnclave(spaceId);
+    let tableName = `chat_${chatId}`;
+    const messageId = crypto.generateId();
+    const entryMessagePk = `chat_${chatId}_space_${messageId}`;
+    const entryMessage = `This is the workspace chat where you can discuss and collaborate with your team members.`;
+
+
+    await lightDbClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
+        data: {
+            role: "Space",
+            message: entryMessage,
+            id: messageId
+        }
+    });
+
+    const Document = require('../document/services/document.js')
+    const Paragraph = require('../document/services/paragraph.js')
+    const Chapter = require('../document/services/chapter.js')
+
+    const documentData = {
+        title: `chat_${chatId}`,
+        topic: '',
+        metadata: ["id", "title"],
+        id: `documents_chat_${chatId}`
+    }
+    const chatChapterData = {
+        title: `Chat Messages`,
+        paragraphs: []
+    }
+    const chatContextChapterData = {
+        title: `Chat Context`,
+        paragraphs: []
+    }
+
+    const paragraphData = {
+        text: `This is the workspace chat where you can discuss and collaborate with your team members.`,
+        commands: {}
+    }
+
+    const docId = await Document.createDocument(spaceId, documentData);
+    const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
+    const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
+    const welcomeParagraphId = await Paragraph.createParagraph(spaceId, docId, chatItemsChapterId.id, paragraphData)
+    return docId;
+}
+
+async function createDefaultSpaceChats(lightDbClient, spaceId) {
+    const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
+    await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id, lightDbClient)));
 }
 
 
@@ -392,6 +519,11 @@ async function getPersonalityData(spaceId, personalityId) {
         error.statusCode = 404;
         throw error;
     }
+}
+
+async function updatePersonalityData(spaceId, personalityId, personalityData) {
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
+    await fsPromises.writeFile(personalityPath, JSON.stringify(personalityData, null, 2), 'utf8');
 }
 
 async function createSpaceStatus(spacePath, spaceObject) {
@@ -581,14 +713,6 @@ async function archivePersonality(spaceId, personalityId) {
 
     archive.append(contentBuffer, {name: 'data.json'});
     archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-    if (personalityData.imageId) {
-        try {
-            let {fileStream, headers} = await Storage.getFile(Storage.fileTypes.images, personalityData.imageId);
-            archive.append(fileStream, {name: `${personalityData.imageId}.png`});
-        } catch (e) {
-            delete personalityData.imageId;
-        }
-    }
 
     archive.finalize();
     return stream;
@@ -605,11 +729,6 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    if (personalityData.imageId) {
-        const personalityImagePath = path.join(extractedPath, `${personalityData.imageId}.png`);
-        let imageStream = fs.createReadStream(personalityImagePath);
-        await Storage.putFile(Storage.fileTypes.images, personalityData.imageId, imageStream);
-    }
     const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
 
     let personalityId, overriden = false, personalityName = personalityData.name;
@@ -650,9 +769,9 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
         return "You don't have permission to delete a collaborator";
     }
     let userRoles = spaceStatusObject.users[userId].roles;
-    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
         let owners = getOwnersCount(spaceStatusObject.users);
-        if(owners === 1){
+        if (owners === 1) {
             return "Can't delete the last owner of the space";
         }
     }
@@ -660,25 +779,28 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
     await user.unlinkSpaceFromUser(userId, spaceId);
 }
+
 async function getSpaceCollaborators(spaceId) {
     const user = require('../users-storage/user.js');
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let users = [];
-    for(let userId in spaceStatusObject.users){
+    for (let userId in spaceStatusObject.users) {
         const userFile = await user.getUserFile(userId);
-        users.push({id: userId, email:userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
+        users.push({id: userId, email: userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
     }
     return users;
 }
-function getOwnersCount(users){
+
+function getOwnersCount(users) {
     let owners = 0;
-    for(let id in users){
-        if(users[id].roles.includes(spaceConstants.spaceRoles.owner)){
+    for (let id in users) {
+        if (users[id].roles.includes(spaceConstants.spaceRoles.owner)) {
             owners++;
         }
     }
     return owners;
 }
+
 async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let referrerRoles = spaceStatusObject.users[referrerId].roles;
@@ -686,19 +808,21 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
         return "You don't have permission to change the role of a collaborator";
     }
     let userRoles = spaceStatusObject.users[userId].roles;
-    if(userRoles.includes(spaceConstants.spaceRoles.owner)){
+    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
         let owners = getOwnersCount(spaceStatusObject.users);
-        if(owners === 1 && role !== spaceConstants.spaceRoles.owner){
+        if (owners === 1 && role !== spaceConstants.spaceRoles.owner) {
             return "Can't change the role of the last owner of the space";
         }
     }
     spaceStatusObject.users[userId].roles = [role];
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
-function getPriorityRole(roles){
+
+function getPriorityRole(roles) {
     let rolePriority = [spaceConstants.spaceRoles.owner, spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.member];
     return rolePriority.find(priorityRole => roles.includes(priorityRole));
 }
+
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     const user = require('../users-storage/user.js');
     const emailService = require('../email').instance;
@@ -724,6 +848,7 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     }
     return existingCollaborators;
 }
+
 module.exports = {
     APIs: {
         addApplicationToSpaceObject,
@@ -761,7 +886,11 @@ module.exports = {
         getSpaceCollaborators,
         setSpaceCollaboratorRole,
         inviteSpaceCollaborators,
-        deleteSpaceCollaborator
+        deleteSpaceCollaborator,
+        createSpaceChat,
+        updateSpaceChatMessage,
+        resetSpaceChat,
+        storeSpaceChat
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

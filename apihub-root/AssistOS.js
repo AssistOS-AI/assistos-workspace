@@ -4,9 +4,9 @@ import NotificationManager from "./wallet/core/NotificationManager.js";
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
-const agentModule = require('assistos').loadModule('personality', {});
-const flowModule = require('assistos').loadModule('flow', {});
 const personalityModule = require('assistos').loadModule('personality', {});
+const flowModule = require('assistos').loadModule('flow', {});
+
 
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
@@ -29,28 +29,28 @@ const textIndentMap = Object.freeze({
     72: "text-indent-72"
 })
 const textFontSizeMap = Object.freeze({
-    8:"xx-small",
-    10:"x-small",
-    12:"small",
-    14:"medium",
-    16:"large",
-    18:"x-large",
-    20:"xx-large",
-    22:"xxx-large",
-    24:"xxxx-large",
-    28:"xxxxx-large",
-    32:"xxxxxx-large",
-    36:"xxxxxxx-large",
-    48:"xxxxxxxx-large",
-    72:"xxxxxxxxx-large"
+    8: "xx-small",
+    10: "x-small",
+    12: "small",
+    14: "medium",
+    16: "large",
+    18: "x-large",
+    20: "xx-large",
+    22: "xxx-large",
+    24: "xxxx-large",
+    28: "xxxxx-large",
+    32: "xxxxxx-large",
+    36: "xxxxxxx-large",
+    48: "xxxxxxxx-large",
+    72: "xxxxxxxxx-large"
 });
 
 const textFontFamilyMap = Object.freeze({
-    "Arial":"font-arial",
-    "Georgia":"font-georgia",
-    "Courier New":"font-courier-new",
-    "Times New Roman":"font-times-new-roman",
-    "Verdana":"font-verdana"
+    "Arial": "font-arial",
+    "Georgia": "font-georgia",
+    "Courier New": "font-courier-new",
+    "Times New Roman": "font-times-new-roman",
+    "Verdana": "font-verdana"
 });
 
 class AssistOS {
@@ -60,10 +60,10 @@ class AssistOS {
         }
         this.configuration = configuration;
         this.notificationMonitor = "closed";
-        this.constants={
-            fontSizeMap:textFontSizeMap,
-            fontFamilyMap:textFontFamilyMap,
-            textIndentMap:textIndentMap
+        this.constants = {
+            fontSizeMap: textFontSizeMap,
+            fontFamilyMap: textFontFamilyMap,
+            textIndentMap: textIndentMap
         };
         this.NotificationRouter = new NotificationManager();
         AssistOS.instance = this;
@@ -92,6 +92,9 @@ class AssistOS {
                     });
                 }
             });
+            let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
+            defaultPlugins = await defaultPlugins.json();
+            this.plugins = defaultPlugins;
         };
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
@@ -110,6 +113,20 @@ class AssistOS {
         await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
 
+    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
+        const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
+        const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
+        let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath);
+        let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath);
+        let presenterModule = "";
+        if (component.presenterClassName) {
+            const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
+            presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
+        }
+        loadedCSSs = [loadedCSSs];
+        return {loadedTemplate, loadedCSSs, presenterModule};
+    }
+
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
@@ -119,27 +136,17 @@ class AssistOS {
                 await assistOS.initialisedApplications[appName].manager.loadAppData?.();
             }
             for (let component of assistOS.initialisedApplications[appName].components) {
+                let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
+                if (alreadyLoadedComponent) {
+                    continue;
+                }
                 component = {
-                    ...await getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
+                    ...await this.getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
                     ...component
                 }
                 assistOS.UI.configs.components.push(component);
                 await assistOS.UI.defineComponent(component);
             }
-        }
-
-        const getApplicationComponent = async (spaceId, appId, appComponentsDirPath, component) => {
-            const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
-            const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-            let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath)
-            let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath)
-            let presenterModule = "";
-            if (component.presenterClassName) {
-                const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-                presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
-            }
-            loadedCSSs = [loadedCSSs];
-            return {loadedTemplate, loadedCSSs, presenterModule};
         }
 
         const applicationContainer = document.querySelector("#page-content");
@@ -201,10 +208,26 @@ class AssistOS {
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
+        let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
+        for (let pluginType in applicationPlugins) {
+            if (!this.plugins[pluginType]) {
+                this.plugins[pluginType] = [];
+            }
+            this.plugins[pluginType] = this.plugins[pluginType].concat(applicationPlugins[pluginType]);
+        }
     }
 
-    async loadAgent(spaceId) {
-        const personalityData = await agentModule.getAgent(spaceId);
+    async loadAgent(spaceId, agentId) {
+        if (!agentId) {
+            agentId = localStorage.getItem("agent") ?? undefined;
+        }
+        let personalityData;
+        try {
+            personalityData = await personalityModule.getAgent(spaceId, agentId);
+        } catch (error) {
+            personalityData = await personalityModule.getAgent(spaceId);
+        }
+        localStorage.setItem("agent", personalityData.id);
         assistOS.agent = new personalityModule.models.agent(personalityData);
     }
 
@@ -235,8 +258,8 @@ class AssistOS {
         this.notificationMonitor = "closed";
     }
 
-    async createSpace(spaceName, apiKey) {
-        await spaceModule.createSpace(spaceName, apiKey);
+    async createSpace(spaceName) {
+        await spaceModule.createSpace(spaceName);
         await this.loadPage(false, true);
     }
 
@@ -481,6 +504,7 @@ function closeDefaultLoader() {
     window.assistOS = new AssistOS(configuration);
     await assistOS.boot(UI_CONFIGS_PATH);
 
+
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
@@ -489,4 +513,5 @@ function closeDefaultLoader() {
     closeDefaultLoader()
     await assistOS.loadPage();
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
+
 })();

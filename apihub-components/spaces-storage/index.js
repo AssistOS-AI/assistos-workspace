@@ -34,44 +34,40 @@ const {
     deleteSpaceAnnouncement,
     getChatTextResponse,
     getChatTextStreamingResponse,
-    putImage,
-    getImage,
-    deleteImage,
-    putAudio,
-    deleteAudio,
-    getAudio,
-    deleteVideo,
-    headAudio,
-    headImage,
-    headVideo,
     exportPersonality,
     importPersonality,
-    getVideo,
     getSpaceChat,
     getFileObjects,
-    putVideo,
     getUploadURL,
     getDownloadURL,
-    deleteSpace
+    headFile,
+    getFile,
+    putFile,
+    deleteFile,
+    deleteSpace,
+    resetSpaceChat,
+    saveSpaceChat
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
-    server.head("/spaces/audios/:audioId", headAudio);
-    server.head("/spaces/images/:imageId", headImage);
-    server.head("/spaces/videos/:videoId", headVideo);
-
-    server.get("/spaces/audios/:audioId", getAudio);
-    server.get("/spaces/images/:imageId", getImage);
-    server.get("/spaces/videos/:videoId", getVideo);
+    server.head("/spaces/files/:fileId", headFile);
+    server.get("/spaces/files/:fileId", getFile);
 
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.use("/apis/v1/spaces/*", authentication);
     server.use("/spaces/*", authentication);
+
+    /*Attachments*/
+    server.get("/spaces/uploads", getUploadURL);
+    server.get("/spaces/downloads/:fileId", getDownloadURL);
+    server.put("/spaces/files/:fileId", putFile);
+    server.delete("/spaces/files/:fileId", deleteFile);
+
     /*spaces*/
     server.get("/spaces", getSpace);
     server.get("/spaces/:spaceId", getSpace);
@@ -110,8 +106,10 @@ function SpaceStorage(server) {
     server.put("/spaces/collaborators/:spaceId/:collaboratorId", setSpaceCollaboratorRole);
     server.delete("/spaces/collaborators/:spaceId/:collaboratorId", deleteSpaceCollaborator);
 
-    server.post("/spaces/:spaceId/chat", addSpaceChatMessage);
-    server.get("/spaces/:spaceId/chat", getSpaceChat);
+    server.post("/spaces/chat/:spaceId/:chatId", addSpaceChatMessage);
+    server.get("/spaces/chat/:spaceId/:chatId", getSpaceChat);
+    server.delete("/spaces/chat/:spaceId/:chatId", resetSpaceChat);
+    server.post("/spaces/chat/save/:spaceId/:chatId", saveSpaceChat);
 
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMetadata);
@@ -130,16 +128,6 @@ function SpaceStorage(server) {
     /*Chat*/
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
     server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);
-
-    /*Attachments*/
-    server.get("/spaces/uploads/:type", getUploadURL);
-    server.get("/spaces/downloads/:type/:fileId", getDownloadURL);
-    server.put("/spaces/images/:imageId", putImage);
-    server.put("/spaces/audios/:audioId", putAudio);
-    server.put("/spaces/videos/:videoId", putVideo);
-    server.delete("/spaces/images/:imageId", deleteImage);
-    server.delete("/spaces/audios/:audioId", deleteAudio);
-    server.delete("/spaces/videos/:videoId", deleteVideo);
 
     /*Personalities*/
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);

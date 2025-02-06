@@ -115,10 +115,11 @@ hr{
     top: 30px;
     left: 50px;
 }
-textarea#description {
+textarea#description, textarea#chatPrompt{
     resize: none;
     height: 150px;
 }
+
 .edit-personality-form{
     margin-left: 15px;
     width: 50%;

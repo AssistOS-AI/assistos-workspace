@@ -1,6 +1,7 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const galleryModule = require("assistos").loadModule("gallery", {});
 import {videoUtils} from "../../../../imports.js";
+
 export class InsertAttachmentModal {
     constructor(element, invalidate) {
         this.element = element;
@@ -21,21 +22,33 @@ export class InsertAttachmentModal {
         } else if(this.type === "video") {
             this.accept = "video/mp4";
             this.fileHandler = this.selectVideoHandler;
+        } else if(this.type === "files") {
+            const response = await fetch("./wallet/web-components/document/modals/insert-attachment-modal/mimeTypes.json");
+            this.MIME_TYPES = await response.json();
+            let fileTypes = "";
+            for (let key in this.MIME_TYPES) {
+                fileTypes += `${this.MIME_TYPES[key]},`;
+            }
+            this.accept = fileTypes.slice(0, -1);
+            this.fileHandler = this.autoDetectFileHandler;
         }
-        this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
-        let galleriesHMTL = "";
-        if (this.galleries.length > 0) {
-            this.galleries.forEach((gallery) => {
-                galleriesHMTL += `<gallery-item data-name="${gallery.config.name}" 
+        if (this.modalBody === this.galleryImagesSection) {
+            this.galleries = await galleryModule.getGalleriesMetadata(assistOS.space.id);
+            let galleriesHMTL = "";
+            if (this.galleries.length > 0) {
+                this.galleries.forEach((gallery) => {
+                    galleriesHMTL += `<gallery-item data-name="${gallery.config.name}" 
                 data-id="${gallery.id}" data-local-action="openGallery ${gallery.id}"></gallery-item>`;
-            });
-        } else {
-            galleriesHMTL = `<div> There are no galleries yet </div>`;
+                });
+            } else {
+                galleriesHMTL = `<div> There are no galleries yet </div>`;
+            }
+            this.gallerySection = `
+                <div class="modal-body gallery-section">
+                 ${galleriesHMTL}
+                </div>`;
         }
-        this.gallerySection = `
-        <div class="modal-body gallery-section">
-         ${galleriesHMTL}
-        </div>`;
+
     }
     afterRender() {
         if (this.modalBody === this.galleryImagesSection) {
@@ -185,6 +198,29 @@ export class InsertAttachmentModal {
                 this.attachmentElement.src = e.target.result;
             };
             reader.readAsDataURL(file);
+        }
+        reader.readAsArrayBuffer(file);
+    }
+    autoDetectFileHandler(modal, event) {
+        const file = event.target.files[0];
+        let fileType = file.type;
+        if(!fileType) {
+            const extension = file.name.split('.').pop().toLowerCase();
+            fileType = this.MIME_TYPES[extension];
+        }
+        if(!fileType) {
+            fileType = "application/octet-stream";
+        }
+        let fileData = {
+            name: file.name,
+            type: fileType,
+            size: file.size
+        }
+        let reader = new FileReader();
+        reader.onload = async (e) => {
+            const uint8Array = new Uint8Array(e.target.result);
+            fileData.id = await spaceModule.putFile(uint8Array, fileType);
+            assistOS.UI.closeModal(modal, fileData);
         }
         reader.readAsArrayBuffer(file);
     }

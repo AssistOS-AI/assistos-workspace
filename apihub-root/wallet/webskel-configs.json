@@ -4,12 +4,6 @@
     "services": [],
     "components": [
         {
-            "name": "translate-document-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "TranslateDocumentModal"
-        },
-        {
             "name": "diagram-menu",
             "directory": "document",
             "type": "modals",
@@ -22,28 +16,10 @@
             "presenterClassName": "NotificationToast"
         },
         {
-            "name": "edit-effect-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "EditEffectModal"
-        },
-        {
             "name": "chapter-background-audio",
             "directory": "document",
             "type": "modals",
             "presenterClassName": "ChapterBackgroundAudio"
-        },
-        {
-            "name": "paragraph-video-preview",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "ParagraphVideoPreview"
-        },
-        {
-            "name": "effect-item",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "EffectItem"
         },
         {
             "name": "fb-musicgen-sm-model-page",
@@ -106,10 +82,10 @@
             "presenterClassName": "LlmDemoPage"
         },
         {
-            "name": "text-menu",
-            "directory": "document",
+            "name": "view-context-modal",
+            "directory": "space-application",
             "type": "modals",
-            "presenterClassName": "TextMenu"
+            "presenterClassName": "ViewContextModal"
         },
         {
             "name": "video-menu",
@@ -165,12 +141,6 @@
             "directory": "document",
             "type": "components",
             "presenterClassName": "TaskItem"
-        },
-        {
-            "name": "document-video-preview",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "DocumentVideoPreview"
         },
         {
             "name": "history-image",

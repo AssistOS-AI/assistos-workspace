@@ -271,10 +271,6 @@ document-view-page::-webkit-scrollbar-track {
     display: flex;
     align-items: center;
 }
-.play-video-preview{
-    margin-right: 15px;
-    cursor: pointer;
-}
 .new-tasks-badge {
     position: absolute;
     top: -2px;
@@ -287,11 +283,26 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 /*selections*/
-.user-icon{
+.name-tooltip{
+    display: none;
+    position: absolute;
+    left: 50px;
+    top: 0;
+    background-color: var(--white);
+    padding: 5px;
+    border-radius: 5px;
+    box-shadow: 0px 1px 5.5px 0px #65666754;
+}
+.user-icon-container{
     position: absolute;
     left: -50px;
+}
+.user-icon{
     width: 40px;
     border-radius: 50%;
+}
+.user-icon-container:hover > .name-tooltip{
+    display: block;
 }
 .focused.locked-item{
     background-color: var(--very-light-gray);
@@ -310,8 +321,20 @@ html[theme="dark"] input.document-title{
     background: var(--white)
 }
 
+.snapshots-menu{
+    display: flex;
+    align-items: center;
+    width: 35px;
+}
+.document-plugins-container{
+    display: flex;
+}
+.document-plugins-container .plugin-circle{
+    margin-right: 0;
+    margin-left: 15px;
+}
 /*plugins*/
-.attachment-circle{
+.plugin-circle{
     width: 35px;
     height: 35px;
     border-radius: 50%;
@@ -319,16 +342,41 @@ html[theme="dark"] input.document-title{
     align-items: center;
     justify-content: center;
     margin-right: 15px;
-}
-.menu-container{
     position: relative;
-    display: flex;
 }
-.menu-container.locked-item{
+.plugin-circle.locked-item{
     background-color: var(--very-light-gray);
     pointer-events: none;
 }
 .toolbar{
     display: none;
     padding-bottom: 10px;
+    align-items: center;
+}
+.plugins-separator{
+    width: 2px;
+    height: 30px;
+    background-color: #505050;
+    border-radius: 2px;
+    margin: 0 15px 0 15px;
+}
+.document-plugin{
+    margin-right: 0 !important;
+    margin-left: 15px;
+}
+.plugin-name{
+    z-index: 2;
+    top: 32px;
+    padding: 5px;
+    display: none;
+    position: absolute;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
+    background-color: var(--white);
+    border-radius: 10px;
+}
+.document-highlight-plugin,
+.abstract-highlight-plugin,
+.chapter-highlight-plugin,
+.paragraph-highlight-plugin{
+    border: 3px solid var(--medium-blue);
 }

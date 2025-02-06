@@ -102,6 +102,7 @@ async function loadApplicationConfig(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
         const applicationManifest = await ApplicationHandler.loadApplicationConfig(spaceId, applicationId);
+        response.setHeader('Cache-Control', 'public, max-age=10');
         return sendResponse(response, 200, "application/json", {
             message: "",
             data: applicationManifest
@@ -240,7 +241,13 @@ async function loadApplicationFile(request, response) {
         const fullPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
 
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
-        const file = await fsPromises.readFile(fullPath, 'utf8');
+        let defaultOptions = "utf8";
+        let imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
+        if(imageTypes.includes(fileType)) {
+            defaultOptions = "";
+        }
+        const file = await fsPromises.readFile(fullPath, defaultOptions);
+        response.setHeader('Cache-Control', 'public, max-age=10');
         return await sendFileToClient(response, file, fileType);
     } catch (error) {
         return handleFileError(response, error);
@@ -275,7 +282,19 @@ async function loadAppFlows(request, response) {
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
-
+async function getApplicationsPlugins(request, response) {
+    const {spaceId} = request.params;
+    try {
+        const plugins = await ApplicationHandler.getApplicationsPlugins(spaceId);
+        return sendResponse(response, 200, "application/json", {
+            data: plugins
+        });
+    } catch (error) {
+        return sendResponse(response, 500, "application/json", {
+            message: `Failed to get applications plugins: ${error}`,
+        });
+    }
+}
 module.exports = {
     loadApplicationsMetadata,
     installApplication,
@@ -290,5 +309,6 @@ module.exports = {
     runApplicationFlow,
     requiresUpdate,
     updateApplication,
-    getApplicationTasks
+    getApplicationTasks,
+    getApplicationsPlugins
 }

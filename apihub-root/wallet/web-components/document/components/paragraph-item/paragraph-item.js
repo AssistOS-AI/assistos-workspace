@@ -1,7 +1,7 @@
 const documentModule = require("assistos").loadModule("document", {});
 import CommandsEditor from "./CommandsEditor.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
-
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -16,39 +16,12 @@ export class ParagraphItem {
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
 
-    plugins = {
-        "image-menu": {
-            icon: `<div data-local-action="openPlugin image-menu" class="attachment-circle menu-container image-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/image.svg" alt="icon">
-                </div>`
-        },
-        "diagram-menu": {
-            icon: `<div data-local-action="openPlugin diagram-menu" class="attachment-circle menu-container diagram-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/diagram-logo.svg" alt="icon">
-                </div>`
-        },
-        "audio-menu": {
-            icon: `<div data-local-action="openPlugin audio-menu" class="attachment-circle menu-container audio-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/audio.svg" alt="icon">
-                </div>`
-        },
-        "video-menu": {
-            icon: `<div data-local-action="openPlugin video-menu" class="attachment-circle menu-container video-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/video.svg" alt="icon">
-                </div>`
-        },
-        "text-menu": {
-            icon: `<div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
-                    <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
-                </div>`
-        }
-    }
-
     async subscribeToParagraphEvents() {
         this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
+        this.plugins = assistOS.plugins.paragraph;
         for (let pluginName of Object.keys(this.plugins)) {
             this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
             assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
@@ -71,28 +44,20 @@ export class ParagraphItem {
         this.fontFamily= assistOS.constants.fontFamilyMap[textFontFamily]
         this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
         this.textIndent= assistOS.constants.textIndentMap[textIndent]
-
         this.loadedParagraphText = this.paragraph.text || "";
+    }
 
-        this.pluginsIcons = "";
-        for (let pluginName of Object.keys(this.plugins)) {
-            this.pluginsIcons += this.plugins[pluginName].icon;
-        }
-        //this.decidePreviewType();
-    }
-    decidePreviewType() {
-        if(this.paragraph.commands.video || this.paragraph.commands.audio || this.paragraph.commands.silence){
-            this.previewComponent = `<paragraph-video-preview data-presenter="paragraph-video-preview"></paragraph-video-preview>`
-        } else if(this.paragraph.commands.image){
-            this.previewComponent = `<paragraph-image-preview data-presenter="paragraph-image-preview"></paragraph-image-preview>`
-        } else if(this.isHMTLCode(this.paragraph.text)){
-            this.previewComponent = `<paragraph-html-preview data-presenter="paragraph-html-preview"></paragraph-html-preview>`
-        }
-    }
-    isHMTLCode(text){
-        return text.includes("<") && text.includes(">");
-    }
     async afterRender() {
+        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
+        await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
+        if(this.currentPlugin){
+            this.openPlugin("", "paragraph", this.currentPlugin);
+        }
+
+        if(this.paragraph.comment.trim() !== ""){
+            let commentHighlight = this.element.querySelector(".plugin-circle.comment");
+            commentHighlight.classList.add("highlight-attachment");
+        }
 
         let paragraphContainer = this.element.querySelector(".paragraph-container");
         if (!paragraphContainer) {
@@ -119,8 +84,7 @@ export class ParagraphItem {
 
                 paragraphContainer.insertAdjacentHTML("afterbegin", `
                 <paragraph-html-preview data-presenter="paragraph-html-preview">
-                </paragraph-html-preview>
-                `);
+                </paragraph-html-preview>`);
 
                 setTimeout(() => {
                     let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
@@ -150,7 +114,7 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if (selected) {
             for (let selection of selected.users) {
-                await selectionUtils.setUserIcon(selection.userImageId, selection.selectId, this.textClass, this);
+                await selectionUtils.setUserIcon(selection.userImageId, selection.userEmail, selection.selectId, this.textClass, this);
             }
             if (selected.lockOwner) {
                 selectionUtils.lockItem(this.textClass, this);
@@ -184,19 +148,20 @@ export class ParagraphItem {
         let commands = this.paragraph.commands;
         if (commands.video && commands.audio) {
             let videoDuration = commands.video.end - commands.video.start;
-            if (commands.audio.duration > videoDuration) {
+            if (commands.audio.duration !== videoDuration) {
                 icon = "warning";
             }
         }
-        let statusIcon = this.element.querySelector(".status-icon");
+        let iconsContainer = this.element.querySelector(".preview-icons");
+        let statusIcon = iconsContainer.querySelector(".status-icon");
         if(statusIcon){
             statusIcon.remove();
         }
         if(icon){
             let iconHTML = `<img loading="lazy" src="./wallet/assets/icons/${icon}.svg" class="status-icon" alt="${icon}">`;
-            this.element.insertAdjacentHTML('beforeend', iconHTML);
+            iconsContainer.insertAdjacentHTML('beforeend', iconHTML);
         } else {
-            let statusIcon = this.element.querySelector(".status-icon");
+            let statusIcon = iconsContainer.querySelector(".status-icon");
             if(statusIcon){
                 statusIcon.remove();
             }
@@ -216,7 +181,9 @@ export class ParagraphItem {
                     commands.video.end = commands.video.start + commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
                     this.checkVideoAndAudioDuration();
-                    this.videoPresenter.setVideoPreviewDuration();
+                    if(this.videoPresenter){
+                        this.videoPresenter.setVideoPreviewDuration();
+                    }
                 }, "by cutting video");
             } else {
                 this.hideParagraphWarning();
@@ -238,13 +205,16 @@ export class ParagraphItem {
             this.commandsEditor.renderCommands();
         }
     }
-    async deleteParagraph() {
+    async deleteParagraph(skipConfirmation) {
         await this.documentPresenter.stopTimer(true);
-        let message = "Are you sure you want to delete this paragraph?";
-        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
-        if (!confirmation) {
-            return;
+        if(!skipConfirmation){
+            let message = "Are you sure you want to delete this paragraph?";
+            let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+            if (!confirmation) {
+                return;
+            }
         }
+
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
         await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
@@ -343,6 +313,7 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
+
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
@@ -428,7 +399,9 @@ export class ParagraphItem {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
-            this.videoPresenter.refreshVideoPreview();
+            if(this.videoPresenter){
+                this.videoPresenter.refreshVideoPreview();
+            }
             this.showUnfinishedTasks();
         }
     }
@@ -441,7 +414,7 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
-        await this.deleteParagraph();
+        await this.deleteParagraph(true);
         delete window.cutParagraph.id;
     }
 
@@ -456,21 +429,23 @@ export class ParagraphItem {
 
     menus = {
         "insert-document-element": `
-                <div class="insert-document-element">
+                <div>
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
-                    <list-item data-local-action="addChapter" data-name="Add Chapter" data-highlight="light-highlight"></list-item>
-                    <list-item data-local-action="addParagraphTable" data-name="Add Paragraph Table" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="insertFile" data-name="Insert File" data-highlight="light-highlight"></list-item>
                 </div>`,
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
     }
 
-    async openPlugin(targetElement, pluginClass) {
-        await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
-        await assistOS.UI.showModal(pluginClass, {
-            "chapter-id": this.chapter.id,
-            "paragraph-id": this.paragraph.id
-        }, true);
-        await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
+    async openPlugin(targetElement, type, pluginName) {
+        let selectionItemId = `${this.paragraph.id}_${pluginName}`;
+        this.currentPlugin = pluginName;
+        let context = {
+            chapterId: this.chapter.id,
+            paragraphId: this.paragraph.id
+        }
+        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
 
     openMenu(targetElement, menuName) {
@@ -562,7 +537,7 @@ export class ParagraphItem {
         }
         if (data.selected) {
             if (!this.plugins[itemClass]) {
-                await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
+                await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             }
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
@@ -582,5 +557,8 @@ export class ParagraphItem {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.paragraph.id, this);
         }
+    }
+    async insertFile() {
+        await this.commandsEditor.insertAttachmentCommand("files");
     }
 }

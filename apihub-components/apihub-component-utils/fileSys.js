@@ -2,29 +2,23 @@ const path = require("path");
 const fsPromises = require("fs/promises");
 const volumeManager = require('../volumeManager.js');
 const fs = require("fs");
-const https = require("https");
 const { Readable } = require('stream');
 const { pipeline } = require('stream');
 const util = require('util');
 const pipe = util.promisify(pipeline);
 const fileTypes = Object.freeze({
-        audios: {
-            contentType: "audio/mp3",
+    "audio/mp3": {
+            dir: "audios",
             extension: "mp3"
         },
-        images: {
-            contentType: "image/png",
+    "image/png": {
+            dir: "images",
             extension: "png"
         },
-        videos: {
-            contentType: "video/mp4",
+    "video/mp4": {
+            dir: "videos",
             extension: "mp4"
         },
-        json: {
-            contentType: "application/json",
-            extension: "json"
-        }
-
     }
 )
 
@@ -43,21 +37,24 @@ async function downloadData(url, dest) {
     }
 }
 
-function getFilePath(relativeDir, fileId) {
-    let extension = fileTypes[relativeDir].extension;
-    return path.join(volumeManager.paths.assets, relativeDir, `${fileId}.${extension}`);
+function getFilePath(type, fileId) {
+    if(!fileTypes[type]){
+        path.join(volumeManager.paths.assets, type, `${fileId}.txt`);
+    }
+    let extension = fileTypes[type].extension;
+    return path.join(volumeManager.paths.assets, fileTypes[type].dir, `${fileId}.${extension}`);
 }
 
 function isReadableStream(obj) {
     return obj instanceof Readable && typeof obj._read === 'function';
 }
 
-function putFile(relativeDir, fileId, stream) {
+function putFile(type, fileId, stream) {
     return new Promise((resolve, reject) => {
         if (!isReadableStream(stream)) {
             stream = Readable.from([JSON.stringify(stream)]);
         }
-        const filePath = getFilePath(relativeDir, fileId);
+        const filePath = getFilePath(type, fileId);
         const writeStream = fs.createWriteStream(filePath);
         stream.pipe(writeStream);
         writeStream.on('finish', () => {
@@ -69,62 +66,67 @@ function putFile(relativeDir, fileId, stream) {
     });
 }
 
-async function getFiles(relativeDir) {
-    const filesPath = path.join(volumeManager.paths.assets, relativeDir);
+async function getFiles(type) {
+    const filesPath = path.join(volumeManager.paths.assets, type);
     const files = await fsPromises.readdir(filesPath);
     return files.map(file => file.split(".")[0]);
 }
 
-async function deleteFile(relativeDir, fileId) {
-    const filePath = getFilePath(relativeDir, fileId);
+async function deleteFile(type, fileId) {
+    const filePath = getFilePath(type, fileId);
     await fsPromises.rm(filePath);
 }
-
-async function getFile(relativeDir, fileId, range) {
-    async function getFileRange(filePath, range, defaultChunkSize = 1024 * 1024 * 3) {
-        const stat = await fs.promises.stat(filePath);
-        const fileSize = stat.size;
-
-        if (range) {
-            const parts = range.replace(/bytes=/, "").split("-");
-            const start = parseInt(parts[0], 10);
-            const end = parts[1] ? parseInt(parts[1], 10) : start + defaultChunkSize;
-            const validEnd = Math.min(end, fileSize - 1);
-            return {start, end: validEnd, fileSize};
-        }
-
-        return {start: 0, end: fileSize - 1, fileSize};
+async function getFileRange(filePath, range, defaultChunkSize = 1024 * 1024 * 3) {
+    const stat = await fs.promises.stat(filePath);
+    const fileSize = stat.size;
+    if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : start + defaultChunkSize;
+        const validEnd = Math.min(end, fileSize - 1);
+        return {start, end: validEnd, fileSize};
     }
-
-    if (!fileTypes[relativeDir]) {
-        throw new Error(`Invalid file type: ${relativeDir}`);
-    }
-    const filePath = getFilePath(relativeDir, fileId);
+    return {start: 0, end: fileSize - 1, fileSize};
+}
+async function getFile(type, filePath, range) {
+    filePath = path.join(volumeManager.paths.assets, decodeURIComponent(filePath));
     const {start, end, fileSize} = await getFileRange(filePath, range);
 
+    let contentType;
+    if(fileTypes[type]){
+        contentType = fileTypes[type].contentType;
+    } else {
+        contentType = "text/plain";
+    }
     const fileStream = fs.createReadStream(filePath, {start, end});
     const headers = {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': (end - start) + 1,
-        'Content-Type': fileTypes[relativeDir].contentType,
+        'Content-Type': contentType,
     };
     return {fileStream, headers};
 }
 
-async function headFile(relativeDir, fileId) {
-    const filePath = getFilePath(relativeDir, fileId);
+async function headFile(type, fileId) {
+    const filePath = getFilePath(type, fileId);
     return await fsPromises.stat(filePath);
 }
 
-async function getUploadURL(uploadType, fileId) {
+async function getUploadURL(type, fileId) {
     const baseURL = volumeManager.getBaseURL();
-    return `${baseURL}/spaces/${uploadType}/${fileId}`;
+    return `${baseURL}/spaces/files/${fileId}`;
 }
 
-async function getDownloadURL(downloadType, fileId) {
+async function getDownloadURL(type, fileId) {
     const baseURL = volumeManager.getBaseURL();
-    return `${baseURL}/spaces/${downloadType}/${fileId}`;
+    let filePath;
+    if(fileTypes[type]){
+        filePath = `${fileTypes[type].dir}/${fileId}.${fileTypes[type].extension}`;
+    } else {
+        filePath = `${fileId}.txt`;
+    }
+    return `${baseURL}/spaces/files/${encodeURIComponent(filePath)}`;
 }
 
 module.exports = {

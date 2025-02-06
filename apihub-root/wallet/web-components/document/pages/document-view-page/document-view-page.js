@@ -3,14 +3,12 @@ const personalityModule = require("assistos").loadModule("personality", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 
 export class DocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.refreshDocument = async () => {
-            this._document = await documentModule.getDocument(assistOS.space.id, this._document.id);
-        }
         this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
             this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
@@ -166,7 +164,6 @@ export class DocumentViewPage {
         this.abstractFontFamily = this.documentFontFamily
         this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
 
-
         await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
@@ -191,7 +188,11 @@ export class DocumentViewPage {
         abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
     }
 
-    afterRender() {
+    async afterRender() {
+        let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
+        await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
+        let abstractPluginsContainer = this.element.querySelector(".abstract-plugins-container");
+        await pluginUtils.renderPluginIcons(abstractPluginsContainer, "abstract");
         this.renderDocumentTitle();
         this.renderAbstract();
         if (assistOS.space.currentChapterId) {
@@ -277,10 +278,10 @@ export class DocumentViewPage {
         }
     }
 
-    async addChapter(targetElement, mode) {
+    async addChapter(targetElement, direction) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
-            if (mode === "above") {
+            if (direction === "above") {
                 position = this._document.chapters.findIndex(
                     (chapter) => chapter.id === assistOS.space.currentChapterId);
 
@@ -497,12 +498,6 @@ export class DocumentViewPage {
         }
     }
 
-    playVideoPreview(targetElement) {
-        let videoPlayer = `<document-video-preview class="minimized" data-presenter="document-video-preview"></document-video-preview>`;
-        let pageHeader = this.element.querySelector(".document-page-header");
-        pageHeader.insertAdjacentHTML("afterend", videoPlayer);
-    }
-
     toggleEditingState(isEditable) {
         let documentEditor = this.element.querySelector(".document-editor");
         let disabledMask = this.element.querySelector(".disabled-mask");
@@ -538,16 +533,6 @@ export class DocumentViewPage {
         tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
 
-    async openGenerateBookModal(_target) {
-        const taskId = await assistOS.UI.showModal("books-generator-modal", {
-            "presenter": "books-generator-modal",
-            "documentId": this._document.id
-        }, true);
-        if (taskId) {
-            assistOS.watchTask(taskId);
-        }
-    }
-
     openDocumentComment(_target) {
         const chapterMenu = `<document-comment-menu data-presenter="document-comment-menu"></document-comment-menu>`;
         this.element.querySelector('.document-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
@@ -567,7 +552,7 @@ export class DocumentViewPage {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.userImageId, data.selectId, itemClass, this);
+            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
                 return selectionUtils.lockItem(itemClass, this);
             }
@@ -587,11 +572,18 @@ export class DocumentViewPage {
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
-    // async openPlugin(targetElement, pluginClass) {
-    //     await selectionUtils.selectItem(true, `${this.paragraph.id}_${pluginClass}`, pluginClass, this);
-    //     await assistOS.UI.showModal(pluginClass, {
-    //
-    //     }, true);
-    //     await selectionUtils.deselectItem(`${this.paragraph.id}_${pluginClass}`, this);
-    // }
+    async openPlugin(targetElement, type, pluginName) {
+        if(type === "document"){
+            let context = {
+                documentId: this._document.id
+            }
+            await pluginUtils.openPlugin(pluginName, "document", context, this);
+        } else if(type === "abstract"){
+            let itemId = `${this.abstractId}_${pluginName}`;
+            let context = {
+                abstract: ""
+            }
+            await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
+        }
+    }
 }

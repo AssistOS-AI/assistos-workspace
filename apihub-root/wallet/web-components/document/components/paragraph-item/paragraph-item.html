@@ -1,5 +1,5 @@
 <div class="paragraph-container">
-    <paragraph-video-preview data-presenter="paragraph-video-preview"></paragraph-video-preview>
+    <div class="paragraph-plugin-container"></div>
     <div class="paragraph-header-container">
         <div class="paragraph-toolbar">
             <div class="toolbar-left-section">
@@ -8,14 +8,15 @@
                 <img data-local-action="moveParagraph down" loading="lazy" class="toolbar-margin rotate-down pointer black-icon" src="./wallet/assets/icons/arrow-up.svg" alt="icon">
                 <img class="toolbar-margin pointer black-icon" loading="lazy" src="./wallet/assets/icons/copy.svg" alt="icon">
                 <img data-local-action="cutParagraph" loading="lazy" class="toolbar-margin pointer black-icon" src="./wallet/assets/icons/cut.svg" alt="icon">
-                <div data-local-action="openMenu insert-document-element" class="toolbar-margin pointer menu-container black-icon">
+                <div data-local-action="openMenu insert-document-element" class="toolbar-margin pointer insert-document-element">
                     <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
                 </div>
 
-                <div data-local-action="openMenu paragraph-comment-menu" class="attachment-circle menu-container comment">
+                <div data-local-action="openMenu paragraph-comment-menu" class="comment-menu plugin-circle comment">
                     <img loading="lazy" class="pointer black-icon" src="./wallet/assets/icons/comment.svg" alt="icon">
                 </div>
-                $$pluginsIcons
+                <div class="plugins-separator"></div>
+                <div class="paragraph-plugins-icons"></div>
             </div>
             <div class="pointer toolbar-right-section">
                 <div class="commands-icon toolbar-margin">
@@ -36,4 +37,4 @@
         <textarea class="paragraph-text focusable $$textIndent $$fontFamily $$fontSize font-color" data-local-action="editItem paragraphText" data-metadata="$$data-metadata "></textarea>
     </div>
 </div>
-
+<div class="preview-icons"></div>

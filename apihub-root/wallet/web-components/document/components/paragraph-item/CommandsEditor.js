@@ -78,13 +78,9 @@ export default class CommandsEditor {
             await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            this.videoPresenter.refreshVideoPreview();
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
-            let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
-            let commandString = utilModule.buildCommandString(type, data);
-            commands.value += "\n" + commandString;
-            commands.style.height = commands.scrollHeight + 'px';
+            this.appendCommandAdvancedMode(type, data);
         }
         return data.id;
     }
@@ -118,7 +114,6 @@ export default class CommandsEditor {
             await this.invalidateCompiledVideos();
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
             this.renderViewModeCommands();
-            this.videoPresenter.refreshVideoPreview();
             this.paragraphPresenter.checkVideoAndAudioDuration();
         } else {
             let commands = this.paragraphPresenter.element.querySelector('.paragraph-commands');
@@ -186,27 +181,6 @@ export default class CommandsEditor {
     buildCommandsHTML() {
         let html = "";
         if (this.editMode === modes.NORMAL) {
-            let commands = utilModule.getSortedCommandsArray(this.paragraph.commands);
-            let allAttachmentHighlights = this.paragraphPresenter.element.querySelectorAll(".attachment-circle");
-            allAttachmentHighlights.forEach(attachment => {
-                attachment.classList.remove("highlight-attachment");
-            });
-            for (let command of commands) {
-                if (command.name === "image") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.image-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                } else if (command.name === "audio") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.audio-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                } else if (command.name === "video") {
-                    let attachmentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.video-menu");
-                    attachmentHighlight.classList.add("highlight-attachment");
-                }
-            }
-            if(this.paragraph.comment.trim() !== ""){
-                let commentHighlight = this.paragraphPresenter.element.querySelector(".attachment-circle.comment");
-                commentHighlight.classList.add("highlight-attachment");
-            }
         } else {
             html = utilModule.buildCommandsString(this.paragraph.commands);
         }
@@ -260,7 +234,6 @@ export default class CommandsEditor {
         }
         await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
         this.renderViewModeCommands();
-        await this.videoPresenter.setupVideoPreview();
         this.paragraphPresenter.showUnfinishedTasks();
     }
     async handleCommand(commandName, commandStatus) {
@@ -318,7 +291,6 @@ export default class CommandsEditor {
             this.renderViewModeCommands();
             await this.invalidateCompiledVideos()
             await documentModule.updateParagraphCommands(assistOS.space.id, this.documentId, this.paragraph.id, this.paragraph.commands);
-            await this.videoPresenter.setupVideoPreview();
             return true;
         } else {
             this.appendCommandAdvancedMode(name, data);

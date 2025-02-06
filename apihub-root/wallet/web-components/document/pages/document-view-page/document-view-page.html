@@ -9,7 +9,9 @@
         <div class="doc-title-breadcrumb pointer">$$docTitle</div>
     </div>
     <div class="menu-section">
-        <img class="play-video-preview black-icon" data-local-action="playVideoPreview" src="./wallet/assets/icons/play-video.svg" alt="icon">
+        <div class="document-plugins-container"></div>
+        <div class="plugins-separator"></div>
+
         <div class="tasks-menu">
             <img data-local-action="openTasksModal" class="task-icon black-icon" src="./wallet/assets/icons/task.svg">
         </div>
@@ -20,13 +22,9 @@
                            data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="exportDocument" data-name="Export Document"
                            data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="openGenerateBookModal" data-name="Generate Book"
-                           data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="documentToVideo" data-name="Export Video"
+                <list-item data-local-action="documentToVideo" data-name="Create Video"
                            data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="printDocument" data-name="Print Document"
-                           data-highlight="light-highlight"></list-item>
-                <list-item data-local-action="translateDocument" data-name="Translate"
                            data-highlight="light-highlight"></list-item>
             </div>
         </div>
@@ -48,18 +46,17 @@
                     Abstract
                 </div>
                 <div class="toolbar">
-                    <div data-local-action="openPlugin text-menu" class="attachment-circle menu-container text-menu">
-                        <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/light-bulb.svg" alt="icon">
-                    </div>
-                    <div data-local-action="undoOperation" class="attachment-circle menu-container">
+                    <div data-local-action="undoOperation" class="plugin-circle menu-container">
                         <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/undo.svg" alt="icon">
                     </div>
-                    <div data-local-action="redoOperation" class="attachment-circle menu-container">
+                    <div data-local-action="redoOperation" class="plugin-circle menu-container">
                         <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/redo.svg" alt="icon">
                     </div>
-                    <div data-local-action="openPlugin snapshots-menu" class="attachment-circle menu-container snapshots-menu">
+                    <div data-local-action="openAbstractPlugin snapshots-menu" class="snapshots-menu">
                         <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/snapshot.svg" alt="icon">
                     </div>
+                    <div class="plugins-separator"></div>
+                    <div class="abstract-plugins-container"></div>
                 </div>
             </div>
 
@@ -73,6 +70,7 @@
         </div>
     </div>
 </div>
+<div class="document-plugin-container"></div>
 
 
 

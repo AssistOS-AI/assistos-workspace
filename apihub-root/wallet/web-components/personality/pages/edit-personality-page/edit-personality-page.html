@@ -16,7 +16,10 @@
             <label class="form-label" for="description">Description</label>
             <textarea class="form-input" name="description" data-id="description" id="description"></textarea>
         </div>
-
+        <div class="form-item">
+            <label class="form-label" for="chatPrompt">Chat Prompt</label>
+            <textarea class="form-input" name="chatPrompt" data-id="chatPrompt" id="chatPrompt">$$chatPrompt</textarea>
+        </div>
         <div class="form-item">
             <label class="form-label" for="photo">Photo</label>
             <div class="input-file-container" data-id="photo" data-local-action="triggerInputFileOpen photo">
@@ -50,7 +53,7 @@
         <div class="form-footer">
             <button type="button" class="general-button right-margin" data-local-action="saveChanges">Save</button>
             <button type="button" class="general-button cancel-btn" data-local-action="openPersonalitiesPage">Cancel</button>
-            <div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>
+            $$deletePersonalityButton
         </div>
     </form>
 </div>

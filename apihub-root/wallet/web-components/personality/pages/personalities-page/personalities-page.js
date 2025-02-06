@@ -47,7 +47,10 @@ export class PersonalitiesPage {
         this.setContext();
     }
     async showAddPersonalityModal() {
-        await assistOS.UI.showModal("add-personality-modal");
+        const data = await assistOS.UI.showModal("add-personality-modal",true);
+        if(data.refresh){
+            this.invalidate(this.refreshPersonalities);
+        }
     }
 
     async selectPersonality(_target){
