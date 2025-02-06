@@ -53,6 +53,9 @@ export class ParagraphItem {
         //     let defaultOpenPlugin = paragraphPlugins.find(plugin => plugin.type === "component");
         //     await this.openPlugin("", "paragraph", defaultOpenPlugin.componentName);
         // }
+        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
+        await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
+
 
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
@@ -181,7 +184,9 @@ export class ParagraphItem {
                     commands.video.end = commands.video.start + commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
                     this.checkVideoAndAudioDuration();
-                    this.videoPresenter.setVideoPreviewDuration();
+                    if(this.videoPresenter){
+                        this.videoPresenter.setVideoPreviewDuration();
+                    }
                 }, "by cutting video");
             } else {
                 this.hideParagraphWarning();
@@ -308,10 +313,6 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
-        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
-        if(paragraphPluginsIcons.innerHTML === ""){
-            await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
-        }
 
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
@@ -398,7 +399,9 @@ export class ParagraphItem {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
-            this.videoPresenter.refreshVideoPreview();
+            if(this.videoPresenter){
+                this.videoPresenter.refreshVideoPreview();
+            }
             this.showUnfinishedTasks();
         }
     }

@@ -102,6 +102,7 @@ async function loadApplicationConfig(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
         const applicationManifest = await ApplicationHandler.loadApplicationConfig(spaceId, applicationId);
+        response.setHeader('Cache-Control', 'public, max-age=10');
         return sendResponse(response, 200, "application/json", {
             message: "",
             data: applicationManifest
@@ -246,6 +247,7 @@ async function loadApplicationFile(request, response) {
             defaultOptions = "";
         }
         const file = await fsPromises.readFile(fullPath, defaultOptions);
+        response.setHeader('Cache-Control', 'public, max-age=10');
         return await sendFileToClient(response, file, fileType);
     } catch (error) {
         return handleFileError(response, error);

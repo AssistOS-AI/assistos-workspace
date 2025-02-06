@@ -93,10 +93,12 @@ export class ChapterBackgroundAudio {
         await this.invalidateCompiledVideo();
         for(let paragraph of this.chapter.paragraphs){
             let paragraphPresenter = document.querySelector(`paragraph-item[data-paragraph-id="${paragraph.id}"]`).webSkelPresenter;
-            let chapterAudioElement = paragraphPresenter.videoPresenter.chapterAudioElement;
-            if(chapterAudioElement){
-                chapterAudioElement.volume = this.chapter.backgroundSound.volume / 100;
-                chapterAudioElement.loop = this.chapter.backgroundSound.loop;
+            if(paragraphPresenter.videoPresenter){
+                let chapterAudioElement = paragraphPresenter.videoPresenter.chapterAudioElement;
+                if(chapterAudioElement){
+                    chapterAudioElement.volume = this.chapter.backgroundSound.volume / 100;
+                    chapterAudioElement.loop = this.chapter.backgroundSound.loop;
+                }
             }
         }
         this.closeModal();
