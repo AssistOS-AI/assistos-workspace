@@ -184,7 +184,9 @@ export class ParagraphItem {
                     commands.video.end = commands.video.start + commands.audio.duration;
                     await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
                     this.checkVideoAndAudioDuration();
-                    this.videoPresenter.setVideoPreviewDuration();
+                    if(this.videoPresenter){
+                        this.videoPresenter.setVideoPreviewDuration();
+                    }
                 }, "by cutting video");
             } else {
                 this.hideParagraphWarning();
@@ -397,7 +399,9 @@ export class ParagraphItem {
         if (status === "completed") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
-            this.videoPresenter.refreshVideoPreview();
+            if(this.videoPresenter){
+                this.videoPresenter.refreshVideoPreview();
+            }
             this.showUnfinishedTasks();
         }
     }
