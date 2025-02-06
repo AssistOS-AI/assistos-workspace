@@ -53,6 +53,9 @@ export class ParagraphItem {
         //     let defaultOpenPlugin = paragraphPlugins.find(plugin => plugin.type === "component");
         //     await this.openPlugin("", "paragraph", defaultOpenPlugin.componentName);
         // }
+        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
+        await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
+
 
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
@@ -308,10 +311,6 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
-        let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
-        if(paragraphPluginsIcons.innerHTML === ""){
-            await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
-        }
 
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
