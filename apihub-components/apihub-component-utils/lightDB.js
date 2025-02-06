@@ -215,7 +215,9 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
                 return objectData.map(item => item.id);
             }
             //single object
-            objectData.id = `${objectType}_${crypto.generateId()}`;
+            if(!objectData.id){
+                objectData.id = `${objectType}_${crypto.generateId()}`;
+            }
             if (objectData.position !== undefined) {
                 position = objectData.position;
                 object[objectType].splice(objectData.position, 0, objectData.id);

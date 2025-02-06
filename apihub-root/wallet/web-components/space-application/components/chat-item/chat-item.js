@@ -16,7 +16,7 @@ export class ChatItem {
         }
         let agentPagePresenter = this.element.closest('agent-page').webSkelPresenter
         let messageIndex = this.element.getAttribute("messageIndex");
-        this.message= agentPagePresenter.chat[messageIndex].message
+        this.message= agentPagePresenter.getMessage(messageIndex);
         this.role = this.element.getAttribute("role");
         // own = message sent by "myself"
         if (this.role !== "own") {
@@ -161,6 +161,7 @@ export class ChatItem {
             }, 100);
 
         }
+
         if (this.role !== "own") {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");
         }
