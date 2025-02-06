@@ -16,22 +16,10 @@
             "presenterClassName": "NotificationToast"
         },
         {
-            "name": "edit-effect-modal",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "EditEffectModal"
-        },
-        {
             "name": "chapter-background-audio",
             "directory": "document",
             "type": "modals",
             "presenterClassName": "ChapterBackgroundAudio"
-        },
-        {
-            "name": "effect-item",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "EffectItem"
         },
         {
             "name": "fb-musicgen-sm-model-page",

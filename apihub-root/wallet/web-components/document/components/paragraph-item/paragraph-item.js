@@ -152,15 +152,16 @@ export class ParagraphItem {
                 icon = "warning";
             }
         }
-        let statusIcon = this.element.querySelector(".status-icon");
+        let iconsContainer = this.element.querySelector(".preview-icons");
+        let statusIcon = iconsContainer.querySelector(".status-icon");
         if(statusIcon){
             statusIcon.remove();
         }
         if(icon){
             let iconHTML = `<img loading="lazy" src="./wallet/assets/icons/${icon}.svg" class="status-icon" alt="${icon}">`;
-            this.element.insertAdjacentHTML('beforeend', iconHTML);
+            iconsContainer.insertAdjacentHTML('beforeend', iconHTML);
         } else {
-            let statusIcon = this.element.querySelector(".status-icon");
+            let statusIcon = iconsContainer.querySelector(".status-icon");
             if(statusIcon){
                 statusIcon.remove();
             }
@@ -310,29 +311,6 @@ export class ParagraphItem {
         let paragraphPluginsIcons = this.element.querySelector(".paragraph-plugins-icons");
         if(paragraphPluginsIcons.innerHTML === ""){
             await pluginUtils.renderPluginIcons(paragraphPluginsIcons, "paragraph");
-        }
-        let allAttachmentHighlights = this.element.querySelectorAll(".plugin-circle");
-        allAttachmentHighlights.forEach(attachment => {
-            attachment.classList.remove("highlight-attachment");
-        });
-
-        if (this.paragraph.commands.image) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.image-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
-        }
-        if (this.paragraph.commands.audio) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.audio-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
-        }
-        if (this.paragraph.commands.video) {
-            let attachmentHighlight = this.element.querySelector(".plugin-circle.video-creator");
-            if(attachmentHighlight){
-                attachmentHighlight.classList.add("highlight-attachment");
-            }
         }
 
         assistOS.space.currentParagraphId = this.paragraph.id;

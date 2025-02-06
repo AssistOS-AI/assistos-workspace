@@ -30,49 +30,62 @@ function highlightPlugin(type, componentName, presenter) {
     pluginIcon.classList.add(highlightPluginClass);
 }
 async function initializePlugin(plugin) {
-    if(plugin.applicationId && !plugin.inialized){
-        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === plugin.component);
-        if(alreadyLoadedComponent) {
-            plugin.inialized = true;
-        } else {
-            let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, plugin.applicationId);
-            let component = await assistOS.getApplicationComponent(assistOS.space.id, plugin.applicationId, manifest.componentsDirPath, {
-                name: plugin.component,
-                presenterClassName: plugin.presenter,
-            });
-            component.presenterClassName = plugin.presenter;
-            component.name = plugin.component;
-            assistOS.UI.configs.components.push(component);
-            await assistOS.UI.defineComponent(component);
-            plugin.inialized = true;
-        }
+    if(plugin.applicationId && !plugin.initialized){
+        plugin.initialized = true;
+        await loadPluginComponent(plugin.applicationId, plugin.component, plugin.presenter);
     }
+}
+async function loadPluginComponent(appId, componentName, presenter) {
+    let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === componentName);
+    if(alreadyLoadedComponent) {
+        return;
+    }
+    let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, appId);
+    let component = await assistOS.getApplicationComponent(assistOS.space.id, appId, manifest.componentsDirPath, {
+        name: componentName,
+        presenterClassName: presenter,
+    });
+    component.presenterClassName = presenter;
+    component.name = componentName;
+    assistOS.UI.configs.components.push(component);
+    await assistOS.UI.defineComponent(component);
 }
 function getContext(presenterElement) {
     return JSON.parse(decodeURIComponent(presenterElement.getAttribute("data-context")));
 }
 async function renderPluginIcons(containerElement, type) {
     let plugins = assistOS.plugins[type];
-    let pluginIconPromises = [];
     for(let plugin of plugins){
-        pluginIconPromises.push(getPluginIcon(plugin));
+        if(plugin.iconPresenter){
+            await loadPluginComponent(plugin.applicationId, plugin.iconComponent, plugin.iconPresenter);
+            let iconContainer = document.createElement("div");
+            attachPluginTooltip(iconContainer, plugin, type);
+            let iconContext = {icon: plugin.icon, plugin: plugin.component, type};
+            let contextString = encodeURIComponent(JSON.stringify(iconContext));
+            iconContainer.innerHTML += `<${plugin.iconComponent} data-context="${contextString}" data-presenter="${plugin.iconComponent}"></${plugin.iconComponent}>`;
+            containerElement.appendChild(iconContainer);
+        } else {
+            let icon = await getPluginIcon(plugin);
+            let containerDiv = document.createElement("div");
+            containerDiv.innerHTML = `<img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">`;
+            attachPluginTooltip(containerDiv, plugin, type);
+            containerElement.appendChild(containerDiv);
+        }
     }
-    let icons = await Promise.all(pluginIconPromises);
-    for(let i = 0 ; i < plugins.length; i++){
-        let icon = icons[i];
-        let containerDiv = document.createElement("div");
-        containerDiv.classList.add("plugin-circle", plugins[i].component);
-        containerDiv.setAttribute("data-local-action", `openPlugin ${type} ${plugins[i].component}`);
-        containerDiv.innerHTML = `<img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">
-                                  <div class="plugin-name">${plugins[i].tooltip}</div>`;
-        containerDiv.addEventListener("mouseover", async ()=>{
-            containerDiv.querySelector(".plugin-name").style.display = "block";
-        });
-        containerDiv.addEventListener("mouseout", async ()=>{
-            containerDiv.querySelector(".plugin-name").style.display = "none";
-        });
-        containerElement.appendChild(containerDiv);
-    }
+}
+function attachPluginTooltip(containerElement, plugin, type) {
+    containerElement.classList.add("plugin-circle", plugin.component, "pointer");
+    containerElement.setAttribute("data-local-action", `openPlugin ${type} ${plugin.component}`);
+    let tooltip = document.createElement("div");
+    tooltip.classList.add("plugin-name");
+    tooltip.innerHTML = plugin.tooltip;
+    containerElement.appendChild(tooltip);
+    containerElement.addEventListener("mouseover", async ()=>{
+        containerElement.querySelector(".plugin-name").style.display = "block";
+    });
+    containerElement.addEventListener("mouseout", async ()=>{
+        containerElement.querySelector(".plugin-name").style.display = "none";
+    });
 }
 async function getPluginIcon(plugin) {
     let pluginIcon = plugin.icon;
@@ -85,5 +98,6 @@ async function getPluginIcon(plugin) {
 export default {
     openPlugin,
     getContext,
-    renderPluginIcons
+    renderPluginIcons,
+    loadPluginComponent
 }
