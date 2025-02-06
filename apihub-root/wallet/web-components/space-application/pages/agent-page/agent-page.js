@@ -1,5 +1,5 @@
 const spaceModule = require("assistos").loadModule("space", {});
-
+const documentModule = require('assistos').loadModule("document",{})
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -26,6 +26,9 @@ export class AgentPage {
             this.boundOnChatUpdate = this.onChatUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, `chat_${assistOS.agent.agentData.id}`, this.boundOnChatUpdate);
         });
+    }
+    getMessage(messageIndex){
+        return this.chatMessages[messageIndex].text;
     }
 
     async addToLocalContext(chatRef) {
@@ -64,7 +67,7 @@ export class AgentPage {
     }
 
     async beforeRender() {
-        this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
         this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
@@ -74,7 +77,38 @@ export class AgentPage {
           </button>
         `
         let stringHTML = "";
-        for (let messageIndex = 0; messageIndex < this.chat.length; messageIndex++) {
+        /* migration to document */
+        this.documentId = `documents_chat_${assistOS.agent.agentData.id}`
+        this.document=await documentModule.getDocument(assistOS.space.id,this.documentId)
+        this.chatMessages = this.document.chapters[0].paragraphs
+        this.localContext = this.document.chapters[1].paragraphs
+
+        for(let messageIndex =0; messageIndex<this.chatMessages.length;messageIndex++){
+            let paragraph= this.chatMessages[messageIndex]
+            let message =  paragraph.text;
+
+            let role =paragraph.commands.replay?.role;
+
+            if(!role || role==="Space"){
+                continue;
+            }
+            let user=paragraph.commands.replay.name;
+
+           if(user === assistOS.user.id){
+               role="own"
+           }
+            if (role !== "Space") {
+                if (messageIndex === this.chatMessages.length - 1) {
+                    stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                } else {
+                    stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                }
+            }
+
+        }
+
+        //this.chat = await spaceModule.getSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
+        /*for (let messageIndex = 0; messageIndex < this.chat.length; messageIndex++) {
             let message = this.chat[messageIndex];
             let role = "Space";
             if (message.role === "user") {
@@ -93,7 +127,8 @@ export class AgentPage {
                     stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${message.user}" data-presenter="chat-item"></chat-item>`;
                 }
             }
-        }
+        }*/
+
         let personalitiesHTML = "";
         for (let personality of this.personalities) {
             personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
@@ -251,12 +286,25 @@ export class AgentPage {
     }
 
     async createChatUnitResponse() {
-        this.chat.push({
+    /*    this.chat.push({
             message: "",
             role: "assistant",
+        })*/
+        const paragraphData = {
+            text:  "",
+            commands:{
+                replay: {
+                    role: "assistant",
+                    name: assistOS.agent.agentData.id
+                }
+            }
+        }
 
-        })
-        const streamContainerHTML = `<chat-item role="assistant" messageIndex="${this.chat.length - 1}" data-presenter="chat-item" user="${assistOS.agent.agentData.id}" data-last-item="true"/>`;
+        this.chatMessages.push(
+            new documentModule.Paragraph(paragraphData)
+        )
+
+        const streamContainerHTML = `<chat-item role="assistant" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${assistOS.agent.agentData.id}" data-last-item="true"/>`;
 
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
         const waitForElement = (container, selector) => {
@@ -330,12 +378,22 @@ export class AgentPage {
             return;
         }
 
-        this.chat.push({
-            role: "own",
-            message: userRequestMessage
-        })
+        const paragraphData = {
+            text:  userRequestMessage,
+            commands:{
+                replay: {
+                    role: "own",
+                    name: assistOS.user.id
+                }
+            }
+        }
 
-        await this.displayMessage("own", this.chat.length - 1);
+        this.chatMessages.push(
+            new documentModule.Paragraph(paragraphData)
+        )
+
+        await this.displayMessage("own", this.chatMessages.length - 1);
+
         const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, userRequestMessage)).messageId
 
 
