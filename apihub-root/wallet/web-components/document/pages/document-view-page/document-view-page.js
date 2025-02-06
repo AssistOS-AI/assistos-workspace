@@ -278,10 +278,10 @@ export class DocumentViewPage {
         }
     }
 
-    async addChapter(targetElement, mode) {
+    async addChapter(targetElement, direction) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
-            if (mode === "above") {
+            if (direction === "above") {
                 position = this._document.chapters.findIndex(
                     (chapter) => chapter.id === assistOS.space.currentChapterId);
 

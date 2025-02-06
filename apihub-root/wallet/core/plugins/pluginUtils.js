@@ -6,8 +6,8 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
     }
     let plugin = assistOS.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
+    highlightPlugin(type, componentName, presenter);
     if(plugin.type === "embedded"){
-        highlightPlugin(type, componentName, presenter);
         let pluginContainer = presenter.element.querySelector(`.${type}-plugin-container`);
         let contextString = encodeURIComponent(JSON.stringify(context));
         pluginContainer.innerHTML = `<${componentName} data-context="${contextString}" data-presenter="${componentName}"></${componentName}>`;
@@ -15,10 +15,16 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
         await assistOS.UI.showModal(componentName, {
             context: encodeURIComponent(JSON.stringify(context)),
         }, true);
+        removeHighlightPlugin(type, componentName, presenter);
     }
     if(selectionItemId){
         await selectionUtils.deselectItem(selectionItemId, presenter);
     }
+}
+function removeHighlightPlugin(type, componentName, presenter) {
+    let highlightPluginClass = `${type}-highlight-plugin`;
+    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${componentName}`);
+    pluginIcon.classList.remove(highlightPluginClass);
 }
 function highlightPlugin(type, componentName, presenter) {
     let highlightPluginClass = `${type}-highlight-plugin`;
