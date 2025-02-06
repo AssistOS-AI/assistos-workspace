@@ -415,18 +415,6 @@ async function addSpaceChatDocumentItem(spaceId,chatId,chatItemObj){
 
 }
 
-async function createSpaceChatDocument(spaceId,chatId){
-    const documentData = {
-        title:`CHAT_${chatId}`,
-        topic:'',
-        metadata:["id", "title"],
-        chapters:[],
-        id:`CHAT_${chatId}`
-    }
-    const docId= await lightDB.addContainerObject(spaceId, "documents", documentData)
-    return docId;
-}
-
 async function createSpaceChat(spaceId, chatId,lightDbClient) {
     if(!lightDbClient){
         lightDbClient = enclave.initialiseLightDBEnclave(spaceId);
@@ -447,15 +435,15 @@ async function createSpaceChat(spaceId, chatId,lightDbClient) {
     // await createSpaceChatDocument(spaceId, chatId)
 
 
-    const Document = require('../document/services/document')
-    const Paragraph =require('../document/services/paragraph')
-    const Chapter =require('../document/services/chapter')
+    const Document = require('../document/services/document.js')
+    const Paragraph =require('../document/services/paragraph.js')
+    const Chapter =require('../document/services/chapter.js')
 
     const documentData = {
-        title:`chat_${chatId}`,
+        title:`documents_chat_${chatId}`,
         topic:'',
-        chapters:[],
-        id:`chat_${chatId}`
+        metadata:["id","title"],
+        id:`documents_chat_${chatId}`
     }
     const chatChapterData = {
         title:`Chat Messages`,
@@ -474,7 +462,7 @@ async function createSpaceChat(spaceId, chatId,lightDbClient) {
     const docId = await Document.createDocument(spaceId,documentData);
     const chatItemsChapterId = await Chapter.createChapter(spaceId,docId,chatChapterData)
     const chatContextChapterId= await Chapter.createChapter(spaceId,docId,chatContextChapterData)
-    const welcomeParagraphId = await Paragraph.createParagraph(spaceId,docId,chatItemsChapterId,paragraphData)
+    const welcomeParagraphId = await Paragraph.createParagraph(spaceId,docId,chatItemsChapterId.id,paragraphData)
     return docId;
 }
 

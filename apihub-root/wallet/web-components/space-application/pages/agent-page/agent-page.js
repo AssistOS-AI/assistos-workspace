@@ -186,6 +186,10 @@ export class AgentPage {
 
     async addressEndStream(element) {
         this.ongoingStreams.delete(element);
+
+        if(this.observedElement===element){
+            this.intersectionObserver.unobserve(element);
+        }
         if (this.ongoingStreams.size === 0) {
             this.changeStopEndStreamButtonVisibility(false);
         }
@@ -393,6 +397,7 @@ export class AgentPage {
         await assistOS.loadifyFunction(async (id) => {
             await assistOS.changeAgent(id);
             this.invalidate();
+            this.localContext=[];
         }, id);
     }
 }
