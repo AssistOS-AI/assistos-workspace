@@ -78,7 +78,8 @@ export class AgentPage {
         `
         let stringHTML = "";
         /* migration to document */
-        this.documentId = `documents_chat_${assistOS.agent.agentData.id}`
+        this.documentId = assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
+        debugger
         this.document=await documentModule.getDocument(assistOS.space.id,this.documentId)
         this.chatMessages = this.document.chapters[0].paragraphs
         this.localContext = this.document.chapters[1].paragraphs
@@ -396,7 +397,7 @@ export class AgentPage {
 
         await this.displayMessage("own", this.chatMessages.length - 1);
 
-        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, assistOS.agent.agentData.id, userRequestMessage)).messageId
+        const messageId = (await spaceModule.addSpaceChatMessage(assistOS.space.id, this.documentId, userRequestMessage)).messageId
 
 
         if (this.agentOn) {
