@@ -123,7 +123,7 @@ async function installApplication(spaceId, applicationId) {
         CustomError.throwServerError("Failed to read or parse Application manifest", error);
     }
     application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
-    //await git.installDependencies(manifest.dependencies);
+    await git.installDependencies(manifest.dependencies);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);
 }
 
@@ -133,7 +133,7 @@ async function uninstallApplication(spaceId, applicationId) {
         const application = applications.find(app => app.id === applicationId);
         const manifestPath = getApplicationManifestPath(spaceId, application.name);
         let manifestContent = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
-        //await git.uninstallDependencies(manifestContent.dependencies);
+        await git.uninstallDependencies(manifestContent.dependencies);
         await fsPromises.rm(getApplicationPath(spaceId, applicationId), {recursive: true, force: true});
     } catch (error) {
         CustomError.throwServerError("Failed to uninstall application", error);
