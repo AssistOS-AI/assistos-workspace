@@ -38,6 +38,10 @@ async function keyAlreadyExists(spaceId, keyType, apiKey) {
 async function putSpaceKey(spaceId, keyType, apiKeyObj) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
+    if(keyType === "GitHub" && !process.env.GIT_TOKEN){
+        process.env.GIT_TOKEN = apiKeyObj.APIKey;
+        console.warn("GitHub Token added to process.env")
+    }
     if (!spaceAPIKeyObject[keyType]) {
         const error = new Error("Key Type not supported")
         error.statusCode = 400
