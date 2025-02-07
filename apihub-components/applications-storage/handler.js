@@ -114,7 +114,7 @@ async function installApplication(spaceId, applicationId) {
     } catch (error) {
         if(error.message.includes("already exists and is not an empty directory")){
             try {
-                await fsPromises.rm(applicationFolderPath);
+                await fsPromises.rm(applicationFolderPath, {recursive: true, force: true});
             } catch (e) {
                 //multiple users
             }
