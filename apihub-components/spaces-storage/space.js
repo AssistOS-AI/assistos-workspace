@@ -375,12 +375,6 @@ async function resetSpaceChat(spaceId, chatId) {
     await lightDB.deleteAllRecords(spaceId, tableName);
 }
 
-async function updateSpaceChatDocument(spaceId, chatId,messageId, message) {
-    let documentId = await getPersonalityChatId(chatId);
-    const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, messageId)
-    chatDocumentRecord.data.text = message;
-    await lightDB.updateRecord(spaceId, documentId, messageId, chatDocumentRecord.data)
-}
 
 async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData) {
     const messageId = crypto.generateId();
@@ -391,7 +385,9 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
         user: entityId,
         id: messageId
     }
-
+    if(!chatId.includes("documents")){
+        chatId=await getPersonalityChatId(spaceId,entityId)
+    }
     const documentRecord = await lightDB.getContainerObject(spaceId, chatId);
 
     let messagesChapterId
@@ -442,10 +438,11 @@ async function getPersonalityChatId(spaceId,personalityId){
     return personalityData.chats[personalityData.chats.length-1];
 }
 
-
-
 async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, message) {
-   await updateSpaceChatDocument(spaceId, chatId,messageId,message)
+    let documentId = await getPersonalityChatId(spaceId,entityId);
+    const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, messageId)
+    chatDocumentRecord.data.text = message;
+    await lightDB.updateRecord(spaceId, documentId, messageId, chatDocumentRecord.data)
 }
 
 async function createSpaceChat(spaceId, personalityId) {
