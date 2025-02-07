@@ -112,6 +112,13 @@ async function installApplication(spaceId, applicationId) {
     try {
         await git.clone(application.repository, applicationFolderPath);
     } catch (error) {
+        if(error.message.includes("already exists and is not an empty directory")){
+            try {
+                await fsPromises.rm(applicationFolderPath);
+            } catch (e) {
+                //multiple users
+            }
+        }
         CustomError.throwServerError("Failed to clone Application repository", error);
     }
     const manifestPath = getApplicationManifestPath(spaceId, application.name);
