@@ -425,6 +425,7 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
                 name: chatObj.user,
             }
         },
+        position:documentRecord.chapters[0].paragraphs.length,
         id: chatObj.id,
         comment: JSON.stringify(chatObj)
     }
