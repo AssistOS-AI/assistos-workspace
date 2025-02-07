@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 async function clone(repository, folderPath) {
-    const token = process.env.GITHUB_TOKEN;
+    const token = process.env.GIT_TOKEN;
     if (!token) {
         throw new Error("GITHUB_TOKEN is not set in environment variables.");
     }
@@ -35,7 +35,7 @@ async function checkForUpdates(localPath, remoteUrl) {
         throw new Error("The specified path is not a Git repository.");
     }
 
-    const token = process.env.GITHUB_TOKEN;
+    const token = process.env.GIT_TOKEN;
     const remoteUrlWithToken = token
         ? remoteUrl.replace("https://github.com/", `https://${token}@github.com/`)
         : remoteUrl;

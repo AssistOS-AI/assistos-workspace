@@ -4,7 +4,6 @@ export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-
         assistOS.space.observeChange(assistOS.space.getNotificationId(), invalidate);
         const agentState = localStorage.getItem("agentOn")
         if (!agentState) {
@@ -67,7 +66,6 @@ export class AgentPage {
     }
 
     async beforeRender() {
-
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
         this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
