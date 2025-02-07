@@ -456,50 +456,38 @@ async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, mess
    await Promise.all([lightDB.updateRecord(spaceId, tableName, primaryKey, record.data), updateSpaceChatDocument(spaceId, chatId, record.data)]);
 }
 
-async function createSpaceChat(spaceId, chatId, lightDbClient) {
-    lightDbClient = enclave.initialiseLightDBEnclave(spaceId);
-    let tableName = `chat_${chatId}`;
-    const messageId = crypto.generateId();
-    const entryMessagePk = `chat_${chatId}_space_${messageId}`;
-    const entryMessage = `This is the workspace chat where you can discuss and collaborate with your team members.`;
+async function createSpaceChat(spaceId, personalityId, lightDbClient) {
 
+    const personalityData= await getPersonalityData(spaceId,personalityId);
 
-    await lightDbClient.insertRecord($$.SYSTEM_IDENTIFIER, tableName, entryMessagePk, {
-        data: {
-            role: "Space",
-            message: entryMessage,
-            id: messageId
-        }
-    });
+    if(!personalityData.chats){
+        personalityData.chats=[];
+    }
 
     const Document = require('../document/services/document.js')
-    const Paragraph = require('../document/services/paragraph.js')
     const Chapter = require('../document/services/chapter.js')
 
     const documentData = {
-        title: `chat_${chatId}`,
+        title: `chat_${personalityId}`,
         topic: '',
         metadata: ["id", "title"],
-        id: `documents_chat_${chatId}`
+        id: `documents_chat_${personalityId}`
     }
+
     const chatChapterData = {
-        title: `Chat Messages`,
-        paragraphs: []
-    }
-    const chatContextChapterData = {
-        title: `Chat Context`,
+        title: `Messages`,
         paragraphs: []
     }
 
-    const paragraphData = {
-        text: `This is the workspace chat where you can discuss and collaborate with your team members.`,
-        commands: {}
+    const chatContextChapterData = {
+        title: `Context`,
+        paragraphs: []
     }
 
     const docId = await Document.createDocument(spaceId, documentData);
     const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
     const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
-    const welcomeParagraphId = await Paragraph.createParagraph(spaceId, docId, chatItemsChapterId.id, paragraphData)
+
     return docId;
 }
 
@@ -725,7 +713,6 @@ async function importPersonality(spaceId, extractedPath, request) {
     let securityContext = new SecurityContext(request);
     let personalityModule = require("assistos").loadModule("personality", securityContext);
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
-
 
     const personalityData = await streamToJson(personalityDataStream);
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);

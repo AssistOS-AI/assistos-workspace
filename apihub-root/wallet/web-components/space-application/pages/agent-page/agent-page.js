@@ -71,7 +71,9 @@ export class AgentPage {
         this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
         this.chatActionButton = `
           <button type="button" id="stopLastStream" data-local-action="sendMessage">
-                &rarr;
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/>
+</svg>
           </button>
         `
         let stringHTML = "";
@@ -172,6 +174,7 @@ export class AgentPage {
     initObservers() {
         this.intersectionObserver = new IntersectionObserver(entries => {
             for (let entry of entries) {
+
                 if (entry.target === this.observedElement) {
                     if (entry.intersectionRatio < 1) {
                         if (!this.userHasScrolledManually) {
@@ -213,7 +216,7 @@ export class AgentPage {
     changeStopEndStreamButtonVisibility(visible) {
         this.chatActionButtonContainer.innerHTML = visible ? `
             <button type="button" id="stopLastStream" data-local-action="stopLastStream">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="white"></rect></svg>
             </button>` : this.chatActionButton
     }
 
@@ -224,6 +227,7 @@ export class AgentPage {
             this.intersectionObserver.unobserve(element);
         }
         if (this.ongoingStreams.size === 0) {
+            this.observerElement()
             this.changeStopEndStreamButtonVisibility(false);
         }
     }

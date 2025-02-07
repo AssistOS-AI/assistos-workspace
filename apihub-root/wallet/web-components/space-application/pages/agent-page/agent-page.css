@@ -207,6 +207,33 @@ agent-page {
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
+#stopLastStream {
+    background-color: #3478C6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, transform 0.2s;
+    cursor: pointer;
+}
+
+#stopLastStream:hover {
+    background-color: #2d6bb1;
+}
+
+#stopLastStream:active {
+    transform: scale(0.95);
+}
+
+#stopLastStream svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+}
 #llm::after{
     content: attr(data-tooltip);
     visibility: hidden;
