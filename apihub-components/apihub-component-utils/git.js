@@ -7,7 +7,8 @@ const path = require("path");
 async function clone(repository, folderPath) {
     const token = process.env.GIT_TOKEN;
     if (!token) {
-        throw new Error("GITHUB_TOKEN is not set in environment variables.");
+        const errorMessage = `Token is not set in environment variables. GIT_TOKEN Exists:${process.env.GIT_TOKEN===undefined?"NO":"YES"}, GITHUB_TOKEN Exists:${process.env.GITHUB_TOKEN===undefined?"NO":"YES"}`
+        throw new Error(errorMessage);
     }
 
     const authenticatedRepo = repository.replace(
