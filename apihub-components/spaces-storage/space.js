@@ -375,17 +375,16 @@ async function resetSpaceChat(spaceId, chatId) {
     await lightDB.deleteAllRecords(spaceId, tableName);
 }
 
-async function updateSpaceChatDocument(spaceId, chatId, chatItemObj) {
-    let documentId = `documents_chat_${chatId}`
-    const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, chatItemObj.id)
-    chatDocumentRecord.data.text = chatItemObj.message;
-    await lightDB.updateRecord(spaceId, documentId, chatItemObj.id, chatDocumentRecord.data)
+async function updateSpaceChatDocument(spaceId, chatId,messageId, message) {
+    let documentId = await getPersonalityChatId(chatId);
+    const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, messageId)
+    chatDocumentRecord.data.text = message;
+    await lightDB.updateRecord(spaceId, documentId, messageId, chatDocumentRecord.data)
 }
 
 async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData) {
     const messageId = crypto.generateId();
-    const tableName = `chat_${chatId}`
-    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
+
     const chatObj = {
         role: role,
         message: messageData,
@@ -393,17 +392,7 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
         id: messageId
     }
 
-    await Promise.all([lightDB.insertRecord(spaceId, tableName, primaryKey, chatObj),addSpaceChatDocumentItem(spaceId, chatId, chatObj)])
-    return messageId
-}
-
-const composeParagraphMessage = function (chatObj) {
-    return chatObj.message
-}
-
-async function addSpaceChatDocumentItem(spaceId, chatId, chatItemObj) {
-    const documentId = `documents_chat_${chatId}`;
-    const documentRecord = await lightDB.getContainerObject(spaceId, documentId);
+    const documentRecord = await lightDB.getContainerObject(spaceId, chatId);
 
     let messagesChapterId
 
@@ -419,44 +408,46 @@ async function addSpaceChatDocumentItem(spaceId, chatId, chatItemObj) {
     const documentModule = require('assistos').loadModule('document', securityContext)
 
     if (documentRecord.chapters.length === 0) {
-
         const chatChapterData = {
             title: `Chat Messages`,
             paragraphs: []
         }
-        await documentModule.addChapter(spaceId, documentId,chatChapterData);
+        await documentModule.addChapter(spaceId, chatId ,chatChapterData);
     } else {
         messagesChapterId = documentRecord.chapters[0].id;
     }
 
     const paragraphObj = {
-        text: composeParagraphMessage(chatItemObj),
+        text: composeParagraphMessage(chatObj),
         commands: {
             replay: {
-                role: chatItemObj.role,
-                name: chatItemObj.user,
+                role: chatObj.role,
+                name: chatObj.user,
             }
         },
-        id: chatItemObj.id,
-        comment: JSON.stringify(chatItemObj)
+        id: chatObj.id,
+        comment: JSON.stringify(chatObj)
     }
-    await documentModule.addParagraph(spaceId, documentId, messagesChapterId, paragraphObj);
+    await documentModule.addParagraph(spaceId, chatId, messagesChapterId, paragraphObj);
+    return messageId
 }
+
+const composeParagraphMessage = function (chatObj) {
+    return chatObj.message
+}
+
+async function getPersonalityChatId(spaceId,personalityId){
+    const personalityData =  await getPersonalityData(spaceId,personalityId)
+    return personalityData.chats[personalityData.chats.length-1];
+}
+
+
 
 async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, message) {
-    const tableName = `chat_${chatId}`
-    const primaryKey = `chat_${chatId}_${entityId}_${messageId}`
-    const record = await lightDB.getRecord(spaceId, tableName, primaryKey);
-    if (!record) {
-        const error = new Error(`Message with id ${messageId} not found`);
-        error.statusCode = 404;
-        throw error;
-    }
-    record.data.message = message;
-   await Promise.all([lightDB.updateRecord(spaceId, tableName, primaryKey, record.data), updateSpaceChatDocument(spaceId, chatId, record.data)]);
+   await updateSpaceChatDocument(spaceId, chatId,messageId,message)
 }
 
-async function createSpaceChat(spaceId, personalityId, lightDbClient) {
+async function createSpaceChat(spaceId, personalityId) {
 
     const personalityData= await getPersonalityData(spaceId,personalityId);
 
@@ -470,8 +461,7 @@ async function createSpaceChat(spaceId, personalityId, lightDbClient) {
     const documentData = {
         title: `chat_${personalityId}`,
         topic: '',
-        metadata: ["id", "title"],
-        id: `documents_chat_${personalityId}`
+        metadata: ["id", "title"]
     }
 
     const chatChapterData = {
@@ -485,6 +475,8 @@ async function createSpaceChat(spaceId, personalityId, lightDbClient) {
     }
 
     const docId = await Document.createDocument(spaceId, documentData);
+    personalityData.chats.push(docId);
+    await updatePersonalityData(spaceId,personalityId,personalityData)
     const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
     const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
 
@@ -493,7 +485,7 @@ async function createSpaceChat(spaceId, personalityId, lightDbClient) {
 
 async function createDefaultSpaceChats(lightDbClient, spaceId) {
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id, lightDbClient)));
+    await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));
 }
 
 
