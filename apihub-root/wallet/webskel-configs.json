@@ -317,12 +317,6 @@
             "presenterClassName": "LeftSidebar"
         },
         {
-            "name": "collaborators-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "CollaboratorsPage"
-        },
-        {
             "name": "tasks-page",
             "directory": "space-application",
             "type": "pages",

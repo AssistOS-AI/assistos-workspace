@@ -156,19 +156,6 @@ async function addSpaceToSpaceMap(spaceId, spaceName) {
     await updateSpaceMap(spacesMapObject);
 }
 
-async function copyDefaultFlows(spacePath) {
-
-    const defaultFlowsPath = volumeManager.paths.defaultFlows;
-    const flowsPath = path.join(spacePath, 'flows');
-    await file.createDirectory(flowsPath);
-
-    const files = await fsPromises.readdir(defaultFlowsPath);
-    for (const file of files) {
-        const filePath = path.join(defaultFlowsPath, file);
-        const destFilePath = path.join(flowsPath, file);
-        await fsPromises.copyFile(filePath, destFilePath);
-    }
-}
 
 async function getDefaultPersonality(spaceId) {
     const spacePath = getSpacePath(spaceId);
@@ -316,9 +303,7 @@ async function createSpace(spaceName, userId, spaceModule) {
     await secrets.createSpaceSecretsContainer(spaceId);
 
     const filesPromises = [
-        () => copyDefaultFlows(spacePath),
         () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule),
-        () => file.createDirectory(path.join(spacePath, 'documents')),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
         () => User.linkSpaceToUser(userId, spaceId),

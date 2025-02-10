@@ -234,20 +234,6 @@ export class LeftSidebar {
     async addSpace() {
         await assistOS.UI.showModal("add-space-modal", {presenter: "add-space-modal"});
     }
-    async changePage(_target, pageId, applicationId, refreshFlag = '0') {
-        await assistOS.callFlow("ChangeApplication", {
-            pageId: pageId,
-            refreshFlag: refreshFlag
-        });
-        assistOS.UI.getClosestParentElement(_target, ".feature").setAttribute("id", "selected-page");
-        let paths = _target.querySelectorAll("path");
-        paths.forEach((path) => {
-            if (path.hasAttribute("stroke")) {
-                path.setAttribute("stroke", "var(--left-sidebar)");
-            }
-            path.setAttribute("fill", "var(--left-sidebar)");
-        });
-    }
 
     showNotifications(_target) {
         assistOS.openNotificationMonitor();
