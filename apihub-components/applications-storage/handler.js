@@ -36,32 +36,12 @@ async function updateApplication(spaceId, applicationId) {
     if (!applicationMetadata) {
         CustomError.throwNotFoundError("Application not Found");
     }
-
     const applicationPath = getApplicationPath(spaceId, applicationId);
-    const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
-
-    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-
-    const flowsNeedsUpdate = applicationMetadata.flowsRepository ?
-        await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
-        : false;
-    const tasksNeedsUpdate = applicationMetadata.tasksRepository ?
-        await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
-        : false;
-
-    if (!applicationNeedsUpdate && !flowsNeedsUpdate && !tasksNeedsUpdate) {
-        CustomError.throwBadRequestError("No updates available");
-    }
-
+    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
     if (applicationNeedsUpdate) {
         await git.updateRepo(applicationPath);
-    }
-    if (flowsNeedsUpdate) {
-        await git.updateRepo(applicationFlowsPath);
-    }
-    if (tasksNeedsUpdate) {
-        await git.updateRepo(applicationTasksPath);
+    } else{
+        CustomError.throwBadRequestError("No updates available");
     }
 }
 
@@ -70,33 +50,8 @@ async function requiresUpdate(spaceId, applicationId) {
     if (!applicationMetadata) {
         CustomError.throwNotFoundError("Application not Found");
     }
-
     const applicationPath = getApplicationPath(spaceId, applicationId);
-    const applicationFlowsPath = getApplicationFlowsPath(spaceId, applicationId);
-    const applicationTasksPath = getApplicationTasksPath(spaceId, applicationId);
-
-    const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository);
-
-    let flowsNeedsUpdate = false;
-    let tasksNeedsUpdate = false;
-
-    try {
-        await fsPromises.access(applicationFlowsPath);
-        flowsNeedsUpdate = applicationMetadata.flowsRepository
-            ? await git.checkForUpdates(applicationFlowsPath, applicationMetadata.flowsRepository)
-            : false;
-    } catch (error) {
-        /* ignore */
-    }
-    try{
-        await fsPromises.access(applicationTasksPath);
-        tasksNeedsUpdate = applicationMetadata.tasksRepository
-            ? await git.checkForUpdates(applicationTasksPath, applicationMetadata.tasksRepository)
-            : false;
-    }catch(error){
-        /* ignore */
-    }
-    return applicationNeedsUpdate || flowsNeedsUpdate || tasksNeedsUpdate;
+    return await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
 }
 
 
@@ -110,7 +65,7 @@ async function installApplication(spaceId, applicationId) {
     const applicationFolderPath = getApplicationPath(spaceId, application.name);
 
     try {
-        await git.clone(application.repository, applicationFolderPath);
+        await git.clone(application.repository, applicationFolderPath, spaceId);
     } catch (error) {
         if(error.message.includes("already exists and is not an empty directory")){
             try {
@@ -119,7 +74,7 @@ async function installApplication(spaceId, applicationId) {
                 //multiple users
             }
         }
-        CustomError.throwServerError("Failed to clone Application repository", error);
+        throw new Error("Failed to clone application repository " + error.message);
     }
     const manifestPath = getApplicationManifestPath(spaceId, application.name);
     let manifestContent, manifest;
@@ -143,7 +98,7 @@ async function uninstallApplication(spaceId, applicationId) {
         await git.uninstallDependencies(manifestContent.dependencies);
         await fsPromises.rm(getApplicationPath(spaceId, applicationId), {recursive: true, force: true});
     } catch (error) {
-        CustomError.throwServerError("Failed to uninstall application", error);
+        throw new Error("Failed to uninstall application " + error.message);
     }
     await Space.APIs.removeApplicationFromSpaceObject(spaceId, applicationId);
 }

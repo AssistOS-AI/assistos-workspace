@@ -55,11 +55,15 @@ export class ApplicationItem {
 
     async installApplication() {
         /* create a modal to ask for confirmation */
+        try {
+            await assistOS.loadifyFunction(async (spaceId, appName) => {
+                await applicationModule.installApplication(spaceId, appName);
+            }, assistOS.space.id, this.appName)
+            location.reload();
+        } catch (e) {
+            await showApplicationError("Failed to install application", assistOS.UI.sanitize(e.message), "");
+        }
 
-        await assistOS.loadifyFunction(async (spaceId, appName) => {
-            await applicationModule.installApplication(spaceId, appName);
-        }, assistOS.space.id, this.appName)
-        location.reload();
     }
 
     async uninstallApplication() {
