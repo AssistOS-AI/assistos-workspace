@@ -58,6 +58,10 @@ export class ParagraphItem {
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
             commentHighlight.classList.add("highlight-attachment");
         }
+        if(this.paragraph.commands.files && this.paragraph.commands.files.length > 0){
+            let filesMenu = this.element.querySelector(".files-menu");
+            filesMenu.classList.add("highlight-attachment");
+        }
 
         let paragraphContainer = this.element.querySelector(".paragraph-container");
         if (!paragraphContainer) {
@@ -433,9 +437,9 @@ export class ParagraphItem {
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
-                    <list-item data-local-action="insertFile" data-name="Insert File" data-highlight="light-highlight"></list-item>
                 </div>`,
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "files-menu": `<files-menu data-presenter="files-menu"></files-menu>`
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -557,8 +561,5 @@ export class ParagraphItem {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.paragraph.id, this);
         }
-    }
-    async insertFile() {
-        await this.commandsEditor.insertAttachmentCommand("files");
     }
 }

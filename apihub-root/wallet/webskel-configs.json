@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "files-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "FilesMenu"
+        },
+        {
             "name": "diagram-menu",
             "directory": "document",
             "type": "modals",
