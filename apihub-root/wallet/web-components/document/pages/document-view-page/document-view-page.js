@@ -377,6 +377,9 @@ export class DocumentViewPage {
     changeToolbarView(targetElement, mode) {
         let containerElement = targetElement.closest(".container-element");
         let toolbar = containerElement.querySelector(".toolbar");
+        if(!toolbar){
+            return;
+        }
         mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
     }
     async highlightAbstract(targetElement) {
@@ -585,5 +588,11 @@ export class DocumentViewPage {
             }
             await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
         }
+    }
+    async undoOperation(){
+        await documentModule.undoOperation(assistOS.space.id, this._document.id);
+    }
+    async redoOperation(){
+        await documentModule.redoOperation(assistOS.space.id, this._document.id);
     }
 }

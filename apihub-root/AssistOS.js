@@ -92,9 +92,6 @@ class AssistOS {
                     });
                 }
             });
-            let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
-            defaultPlugins = await defaultPlugins.json();
-            this.plugins = defaultPlugins;
         };
 
         this.UI = await WebSkel.initialise(uiConfigsPath);
@@ -208,12 +205,15 @@ class AssistOS {
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
+        let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
+        defaultPlugins = await defaultPlugins.json();
+        assistOS.space.plugins = defaultPlugins;
         let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
         for (let pluginType in applicationPlugins) {
-            if (!this.plugins[pluginType]) {
-                this.plugins[pluginType] = [];
+            if (!assistOS.space.plugins[pluginType]) {
+                assistOS.space.plugins[pluginType] = [];
             }
-            this.plugins[pluginType] = this.plugins[pluginType].concat(applicationPlugins[pluginType]);
+            assistOS.space.plugins[pluginType] = assistOS.space.plugins[pluginType].concat(applicationPlugins[pluginType]);
         }
     }
 

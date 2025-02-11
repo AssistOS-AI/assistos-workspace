@@ -21,7 +21,7 @@ export class ParagraphItem {
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
-        this.plugins = assistOS.plugins.paragraph;
+        this.plugins = assistOS.space.plugins.paragraph;
         for (let pluginName of Object.keys(this.plugins)) {
             this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
             assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
@@ -209,7 +209,7 @@ export class ParagraphItem {
             this.commandsEditor.renderCommands();
         }
     }
-    async deleteParagraph(skipConfirmation) {
+    async deleteParagraph(targetElement, skipConfirmation) {
         await this.documentPresenter.stopTimer(true);
         if(!skipConfirmation){
             let message = "Are you sure you want to delete this paragraph?";
@@ -418,7 +418,7 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
-        await this.deleteParagraph(true);
+        await this.deleteParagraph("", true);
         delete window.cutParagraph.id;
     }
 

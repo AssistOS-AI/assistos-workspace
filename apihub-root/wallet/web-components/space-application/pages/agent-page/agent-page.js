@@ -79,7 +79,6 @@ export class AgentPage {
         let stringHTML = "";
         /* migration to document */
         this.documentId = assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
-        debugger
         this.document=await documentModule.getDocument(assistOS.space.id,this.documentId)
         this.chatMessages = this.document.chapters[0].paragraphs
         this.localContext = this.document.chapters[1].paragraphs
