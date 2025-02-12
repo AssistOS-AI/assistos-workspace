@@ -67,7 +67,7 @@ async function insertObjectRecords(spaceId, tableId, objectId, objectData) {
             object[key] = objectData[key];
         }
     }
-    await insertRecord(spaceId, tableId, objectId, objectData);
+    await insertRecord(spaceId, tableId, objectId, object);
 }
 
 async function getContainerObject(spaceId, objectId) {
@@ -470,5 +470,7 @@ module.exports = {
     getRecord,
     insertRecord,
     updateRecord,
-    deleteAllRecords
+    deleteAllRecords,
+    getAllRecords,
+    deleteRecord
 }
