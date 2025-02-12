@@ -37,7 +37,6 @@ async function getDocument(req, res) {
 
 async function getDocumentsMetadata(req, res) {
     const {spaceId} = req.params;
-    console.log("-----------------GET DOCUMENTS METADATA-----------------");
     if (!spaceId) {
         return utils.sendResponse(res, 400, "application/json", {
             message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
@@ -319,6 +318,7 @@ async function storeDocument(spaceId, extractedPath, request) {
             if (exportType === 'full') {
                 await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
             }
+            delete paragraph.id;
             paragraph.id = await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
             if (paragraph.commands.speech) {
                 if (paragraph.commands.speech.taskId) {
@@ -694,6 +694,30 @@ async function exportDocumentAsDocx(request, response) {
     }
 }
 
+async function undoOperation(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    try {
+        let success = await documentService.undoOperation(spaceId, documentId);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: success
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", error.message);
+    }
+}
+async function redoOperation(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    try {
+        let success = await documentService.redoOperation(spaceId, documentId);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: success
+        });
+    } catch (error) {
+        return utils.sendResponse(response, 500, "application/json", error.message);
+    }
+}
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -708,5 +732,7 @@ module.exports = {
     getSelectedDocumentItems,
     downloadDocumentArchive,
     downloadDocumentVideo,
-    exportDocumentAsDocx
+    exportDocumentAsDocx,
+    undoOperation,
+    redoOperation
 }

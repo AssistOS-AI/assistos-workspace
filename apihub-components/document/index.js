@@ -13,6 +13,10 @@ function document(server) {
     server.put("/documents/:spaceId/:documentId", documentHandler.updateDocument);
     server.delete("/documents/:spaceId/:documentId", documentHandler.deleteDocument);
 
+    //Undo & Redo
+    server.put("/documents/undo/:spaceId/:documentId", documentHandler.undoOperation);
+    server.put("/documents/redo/:spaceId/:documentId", documentHandler.redoOperation);
+
     //Selections
     server.get("/documents/select/:spaceId/:documentId", documentHandler.getSelectedDocumentItems);
     server.put("/documents/select/:spaceId/:documentId/:itemId", documentHandler.selectDocumentItem);

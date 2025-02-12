@@ -207,7 +207,19 @@ export class ParagraphItem {
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.commandsEditor.renderCommands();
+            if(this.currentPlugin){
+                let pluginItem = this.element.querySelector(`${this.currentPlugin}`);
+                if(pluginItem){
+                    pluginItem.webSkelPresenter.invalidate();
+                }
+                let pluginIconContainer = this.element.querySelector(`.plugin-circle.${this.currentPlugin}`);
+                if(pluginIconContainer){
+                    let pluginIcon = pluginIconContainer.querySelector("simple-state-icon");
+                    pluginIcon.webSkelPresenter.invalidate();
+                }
+            }
         }
+        this.documentPresenter.toggleEditingState(true);
     }
     async deleteParagraph(targetElement, skipConfirmation) {
         await this.documentPresenter.stopTimer(true);
@@ -380,10 +392,13 @@ export class ParagraphItem {
                 const currentUIText = assistOS.UI.customTrim(paragraphText.value);
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
                 if (textChanged || this.textIsDifferentFromAudio) {
+                    let commandsChanged = false;
                     for (let command of Object.keys(this.paragraph.commands)) {
-                        await this.commandsEditor.handleCommand(command, "changed");
+                        commandsChanged = await this.commandsEditor.handleCommand(command, "changed");
                     }
-                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    if(commandsChanged){
+                        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    }
                     await this.saveParagraph(paragraphText);
                 }
                 this.textIsDifferentFromAudio = false;

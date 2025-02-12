@@ -352,6 +352,7 @@ async function updateEmbeddedObject(spaceId, objectURI, objectData, sessionId) {
             }
             object[propertyName] = objectData;
             await updateRecord(spaceId, tableId, objectId, object);
+            //TODO check if this is used, doesnt seem to be, we use prefixed ids
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
                 SubscriptionManager.notifyClients(sessionId, objectId, propertyName);
             } else {

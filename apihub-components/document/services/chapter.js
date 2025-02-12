@@ -1,6 +1,7 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
-const paragraphService = require('../services/paragraph.js');
 const TaskManager = require('../../tasks/TaskManager');
+const documentService = require('./document.js');
+const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 
 function constructChapterURI(documentId, chapterId, property) {
     return `${documentId}/${chapterId}${property ? `/${property}` : ''}`
@@ -10,6 +11,7 @@ async function getChapterParagraphIds(spaceId, documentId, chapterId) {
     return chapterParagraphs.map(paragraph => paragraph.id);
 }
 async function getChapterTasks(spaceId, documentId, chapterId) {
+    const paragraphService = require('../services/paragraph.js');
     const chapterParagraphIds = await getChapterParagraphIds(spaceId, documentId, chapterId);
     const paragraphTasks = await Promise.allSettled(chapterParagraphIds.map(paragraphId => {
         return paragraphService.getParagraphTasks(spaceId, documentId, paragraphId);
@@ -25,7 +27,24 @@ async function deleteChapter(spaceId, documentId, chapterId) {
     await Promise.allSettled(chapterTasks.map(async taskId => {
         return TaskManager.cancelTaskAndRemove(taskId);
     }));
-    return await lightDB.deleteEmbeddedObject(spaceId, constructChapterURI(documentId, chapterId))
+    let chapterURI = constructChapterURI(documentId, chapterId);
+    let chapter = await getChapter(spaceId, documentId, chapterId, {});
+    let documentRecord = await lightDB.getRecord(spaceId, documentId, documentId);
+    let position = documentRecord.data.chapters.findIndex(id => id === chapterId);
+    chapter.position = position;
+    await documentService.addOperation(spaceId, documentId, {
+        type: "delete",
+        objectURI: chapterURI,
+        data: chapter,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(spaceId, documentId),
+            eventData: {
+                position: position,
+                chapterId: chapterId
+            }
+        }
+    });
+    return await lightDB.deleteEmbeddedObject(spaceId, chapterURI);
 }
 
 async function getChapter(spaceId, documentId, chapterId, queryParams) {
@@ -46,29 +65,76 @@ async function getChapter(spaceId, documentId, chapterId, queryParams) {
 }
 
 async function createChapter(spaceId, documentId, chapterData) {
-    return await lightDB.addEmbeddedObject(spaceId, constructChapterURI(documentId, "chapters"), chapterData)
+    let {id, position} = await lightDB.addEmbeddedObject(spaceId, constructChapterURI(documentId, "chapters"), chapterData);
+    await documentService.addOperation(spaceId, documentId, {
+        type: "add",
+        objectURI: constructChapterURI(documentId, id),
+        data: chapterData,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(spaceId, documentId),
+            eventData: {
+                chapterId: id,
+                position: position
+            }
+        }
+    });
+    return {id, position};
 }
 
 async function updateChapter(spaceId, documentId, chapterId, chapterData, queryParams, sessionId) {
+    let chapterURI;
+    let oldData;
     if (Object.keys(queryParams).length === 0) {
-        return await lightDB.updateEmbeddedObject(spaceId, constructChapterURI(documentId, chapterId), chapterData, sessionId)
-    }
-    if (queryParams.fields) {
+        chapterURI = constructChapterURI(documentId, chapterId);
+        oldData = await getChapter(spaceId, documentId, chapterId, {});
+        await lightDB.updateEmbeddedObject(spaceId, chapterURI, chapterData, sessionId)
+    } else if (queryParams.fields) {
         if (Array.isArray(queryParams.fields)) {
             for (const field of queryParams.fields) {
                 await lightDB.updateEmbeddedObject(spaceId, constructChapterURI(documentId, chapterId, field), chapterData[field])
             }
         } else {
-            return await lightDB.updateEmbeddedObject(spaceId, constructChapterURI(documentId, chapterId, queryParams.fields), chapterData)
+            chapterURI = constructChapterURI(documentId, chapterId, queryParams.fields);
+            oldData = await getChapter(spaceId, documentId, chapterId, queryParams);
+            await lightDB.updateEmbeddedObject(spaceId, chapterURI, chapterData)
         }
     }
+    await documentService.addOperation(spaceId, documentId, {
+        type: "update",
+        objectURI: chapterURI,
+        oldData: oldData,
+        newData: chapterData,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(documentId, chapterId),
+            eventData: queryParams.fields
+        }
+    });
 }
 
 async function swapChapters(spaceId, documentId, chapterId1, chapterId2, direction) {
-    return await lightDB.swapEmbeddedObjects(spaceId, constructChapterURI(documentId, "chapters"),{
+    let chapterURI = constructChapterURI(documentId, "chapters");
+    await lightDB.swapEmbeddedObjects(spaceId, chapterURI,{
         item1: chapterId1,
         item2: chapterId2
     }, direction)
+    await documentService.addOperation(spaceId, documentId, {
+        type: "swap",
+        objectURI: chapterURI,
+        data: {
+            item1: chapterId1,
+            item2: chapterId2
+        },
+        direction: direction,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(spaceId, documentId),
+            eventData: {
+                operationType: "swap",
+                chapterId: chapterId1,
+                swapChapterId: chapterId2,
+                direction: direction
+            }
+        }
+    });
 }
 
 
