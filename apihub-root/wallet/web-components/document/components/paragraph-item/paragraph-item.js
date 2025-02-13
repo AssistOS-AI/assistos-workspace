@@ -202,7 +202,7 @@ export class ParagraphItem {
             this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
             this.hasExternalChanges = true;
             let paragraphText = this.element.querySelector(".paragraph-text");
-            paragraphText.innerHTML = this.paragraph.text;
+            paragraphText.value = assistOS.UI.unsanitize(this.paragraph.text);
 
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
