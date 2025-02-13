@@ -99,26 +99,28 @@ function getOperationsTableName(documentId){
 async function addOperation(spaceId, documentId, operationData) {
     let documentOperations = await lightDB.getEmbeddedObject(spaceId, "documents", constructDocumentURI(documentId, "operations"));
     let operationId = `operations_${crypto.generateId()}`;
+    let opTable = getOperationsTableName(documentId);
     if(documentOperations.previousOp){
         //is not first op on the document
         operationData.previousOp = documentOperations.previousOp;
-        let record = await lightDB.getRecord(spaceId, getOperationsTableName(documentId), documentOperations.previousOp);
+        let record = await lightDB.getRecord(spaceId, opTable, documentOperations.previousOp);
         let previousOperation = record.data;
         if(previousOperation.nextOp){
             //unlink invalid chain
             documentOperations.count = await deleteLinkedOperations(spaceId, documentId, previousOperation.nextOp, documentOperations.count);
+            documentOperations.nextOp = null;
         }
         previousOperation.nextOp = operationId;
-        await lightDB.updateRecord(spaceId, getOperationsTableName(documentId), documentOperations.previousOp, previousOperation);
+        await lightDB.updateRecord(spaceId, opTable, documentOperations.previousOp, previousOperation);
     }
     operationData.id = operationId;
-    await lightDB.insertRecord(spaceId, getOperationsTableName(documentId), operationId, operationData);
+    await lightDB.insertRecord(spaceId, opTable, operationId, operationData);
 
     if(documentOperations.count === maxOperations){
         //delete oldest operation
-        let records = await lightDB.getAllRecords(spaceId, getOperationsTableName(documentId));
+        let records = await lightDB.getAllRecords(spaceId, opTable);
         const oldestRecord = records.reduce((oldest, record) => record.__timestamp < oldest.__timestamp ? record : oldest);
-        await lightDB.deleteRecord(spaceId, getOperationsTableName(documentId), oldestRecord.id);
+        await lightDB.deleteRecord(spaceId, opTable, oldestRecord.id);
     }
     documentOperations.count += 1;
     documentOperations.previousOp = operationId;
@@ -128,9 +130,15 @@ async function addOperation(spaceId, documentId, operationData) {
 async function deleteLinkedOperations(spaceId, documentId, operationId, opCount){
     while (operationId) {
         let record = await lightDB.getRecord(spaceId, getOperationsTableName(documentId), operationId);
-        if (!record) break;
+        if (!record) {
+            break;
+        }
         let operation = record.data;
-        await lightDB.deleteRecord(spaceId, getOperationsTableName(documentId), operationId);
+        try {
+            await lightDB.deleteRecord(spaceId, getOperationsTableName(documentId), operationId);
+        } catch (e) {
+            console.error("Failed to delete operation", operationId);
+        }
         opCount -= 1;
         operationId = operation.nextOp;
     }

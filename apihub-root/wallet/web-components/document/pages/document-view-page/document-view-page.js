@@ -288,7 +288,8 @@ export class DocumentViewPage {
             }
 
         }
-        let chapterData = {title: "New Chapter", paragraphs: [
+        let chapterTitle = assistOS.UI.sanitize("New Chapter");
+        let chapterData = {title: chapterTitle, paragraphs: [
                 {
                     text: "",
                     position: 0,
