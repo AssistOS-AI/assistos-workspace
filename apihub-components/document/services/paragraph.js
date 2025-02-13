@@ -1,6 +1,7 @@
 const lightDB = require('../../apihub-component-utils/lightDB.js');
 const TaskManager = require('../../tasks/TaskManager');
-
+const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const documentService = require('./document.js');
 function constructParagraphURI(pathSegments) {
     let paragraphURI = "";
     if (pathSegments.documentId) {
@@ -38,11 +39,28 @@ async function deleteParagraphTasks(spaceId, documentId, paragraphId) {
 
 async function deleteParagraph(spaceId, documentId, chapterId, paragraphId) {
     await deleteParagraphTasks(spaceId, documentId, paragraphId);
-    return await lightDB.deleteEmbeddedObject(spaceId, constructParagraphURI({
+    let objectURI = constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
         paragraphId: paragraphId
-    }))
+    });
+    let paragraph = await getParagraph(spaceId, documentId, paragraphId, {});
+    let chapterRecord = await lightDB.getRecord(spaceId, documentId, chapterId);
+    let position = chapterRecord.data.paragraphs.findIndex(id => id === paragraphId);
+    paragraph.position = position;
+    await documentService.addOperation(spaceId, documentId, {
+        type: "delete",
+        objectURI: objectURI,
+        data: paragraph,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(documentId, chapterId),
+            eventData: {
+                position: position,
+                paragraphId: paragraphId
+            }
+        }
+    });
+    return await lightDB.deleteEmbeddedObject(spaceId, objectURI);
 }
 
 async function getParagraph(spaceId, documentId, paragraphId, queryParams) {
@@ -74,22 +92,44 @@ async function getParagraph(spaceId, documentId, paragraphId, queryParams) {
 }
 
 async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
-    return await lightDB.addEmbeddedObject(spaceId, constructParagraphURI({
+    let objectURI = constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
         paragraphId: "paragraphs"
-    }), paragraphData)
+    });
+    let {id, position} = await lightDB.addEmbeddedObject(spaceId, objectURI, paragraphData);
+    let deleteObjURI = constructParagraphURI({
+        documentId: documentId,
+        chapterId: chapterId,
+        paragraphId: id
+    });
+    await documentService.addOperation(spaceId, documentId, {
+        type: "add",
+        objectURI: deleteObjURI,
+        data: paragraphData,
+        reverseOpNotification: {
+            objectId: chapterId,
+            eventData: {
+                paragraphId: id
+            }
+        }
+    });
+    return {id, position};
 }
 
 async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, queryParams) {
+    let paragraphURI;
+    let oldData;
     if (Object.keys(queryParams).length === 0) {
-        return await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
+        paragraphURI = constructParagraphURI({
             documentId: documentId,
             paragraphId: paragraphId
-        }), paragraphData)
-    }
-    if (queryParams.fields) {
+        })
+        oldData = await getParagraph(spaceId, documentId, paragraphId, {});
+        await lightDB.updateEmbeddedObject(spaceId, paragraphURI, paragraphData);
+    } else {
         if (Array.isArray(queryParams.fields)) {
+            //TODO check if used
             for (const field of queryParams.fields) {
                 await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
                     documentId: documentId,
@@ -98,24 +138,55 @@ async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, 
                 }), paragraphData[field])
             }
         } else {
-            return await lightDB.updateEmbeddedObject(spaceId, constructParagraphURI({
+            paragraphURI = constructParagraphURI({
                 documentId: documentId,
                 paragraphId: paragraphId,
                 property: queryParams.fields
-            }), paragraphData)
+            });
+            oldData = await getParagraph(spaceId, documentId, paragraphId, queryParams);
+            await lightDB.updateEmbeddedObject(spaceId, paragraphURI, paragraphData);
         }
     }
+    await documentService.addOperation(spaceId, documentId, {
+        type: "update",
+        objectURI: paragraphURI,
+        oldData: oldData,
+        newData: paragraphData,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(documentId, paragraphId),
+            eventData: queryParams.fields
+        }
+    });
 }
 
 async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, paragraphId2, direction) {
-    return await lightDB.swapEmbeddedObjects(spaceId, constructParagraphURI({
+    let paragraphURI = constructParagraphURI({
         documentId: documentId,
         chapterId: chapterId,
         paragraphId: "paragraphs"
-    }), {
+    });
+    await lightDB.swapEmbeddedObjects(spaceId, paragraphURI, {
         item1: paragraphId,
         item2: paragraphId2
     }, direction);
+    await documentService.addOperation(spaceId, documentId, {
+        type: "swap",
+        objectURI: paragraphURI,
+        data: {
+            item1: paragraphId,
+            item2: paragraphId2
+        },
+        direction: direction,
+        reverseOpNotification: {
+            objectId: SubscriptionManager.getObjectId(documentId, chapterId),
+            eventData: {
+                operationType: "swap",
+                paragraphId: paragraphId,
+                swapParagraphId: paragraphId2,
+                direction: direction,
+            }
+        }
+    });
 }
 
 

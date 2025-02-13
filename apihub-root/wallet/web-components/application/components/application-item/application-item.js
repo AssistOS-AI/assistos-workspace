@@ -48,18 +48,22 @@ export class ApplicationItem {
     async updateApplication(_target) {
         await assistOS.loadifyFunction(async (spaceId, appName) => {
             await applicationModule.updateApplication(spaceId, appName);
-            assistOS.UI.reverseQuerSelector(this.element, "applications-marketplace-page")?.webSkelPresenter?.invalidate();
+            this.invalidate();
         }, assistOS.space.id, this.appName);
 
     }
 
     async installApplication() {
         /* create a modal to ask for confirmation */
+        try {
+            await assistOS.loadifyFunction(async (spaceId, appName) => {
+                await applicationModule.installApplication(spaceId, appName);
+            }, assistOS.space.id, this.appName)
+            location.reload();
+        } catch (e) {
+            await showApplicationError("Failed to install application", assistOS.UI.sanitize(e.message), "");
+        }
 
-        await assistOS.loadifyFunction(async (spaceId, appName) => {
-            await applicationModule.installApplication(spaceId, appName);
-        }, assistOS.space.id, this.appName)
-        location.reload();
     }
 
     async uninstallApplication() {

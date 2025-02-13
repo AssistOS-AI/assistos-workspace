@@ -3,11 +3,12 @@ const util = require("util");
 const execAsync = util.promisify(exec);
 const fs = require("fs");
 const path = require("path");
-
-async function clone(repository, folderPath) {
-    const token = process.env.GITHUB_TOKEN;
+const secrets = require("./secrets");
+async function clone(repository, folderPath, spaceId) {
+    const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+    const token = tokenObj.APIKey;
     if (!token) {
-        throw new Error("GITHUB_TOKEN is not set in environment variables.");
+        throw new Error("GitHub token not set");
     }
 
     const authenticatedRepo = repository.replace(
@@ -26,7 +27,7 @@ async function getLastCommitDate(repoPath) {
         throw new Error(`Failed to get last commit date: ${error.message}`);
     }
 }
-async function checkForUpdates(localPath, remoteUrl) {
+async function checkForUpdates(localPath, remoteUrl, spaceId) {
     if (!fs.existsSync(localPath)) {
         throw new Error("Local repository path does not exist.");
     }
@@ -35,16 +36,20 @@ async function checkForUpdates(localPath, remoteUrl) {
         throw new Error("The specified path is not a Git repository.");
     }
 
-    const token = process.env.GITHUB_TOKEN;
+    const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+    const token = tokenObj.APIKey;
+    if (!token) {
+        return false;
+    }
     const remoteUrlWithToken = token
         ? remoteUrl.replace("https://github.com/", `https://${token}@github.com/`)
         : remoteUrl;
 
     try {
-        const { stdout: currentRemoteUrl } = await execAsync(`git -C ${localPath} remote get-url origin`);
-        if (currentRemoteUrl.trim() !== remoteUrl && currentRemoteUrl.trim() !== remoteUrlWithToken) {
-            throw new Error(`Remote URL mismatch. Expected: ${remoteUrl} or ${remoteUrlWithToken}, Found: ${currentRemoteUrl.trim()}`);
-        }
+        // const { stdout: currentRemoteUrl } = await execAsync(`git -C ${localPath} remote get-url origin`);
+        // if (currentRemoteUrl.trim() !== remoteUrl && currentRemoteUrl.trim() !== remoteUrlWithToken) {
+        //     throw new Error(`Remote URL mismatch. Expected: ${remoteUrl} or ${remoteUrlWithToken}, Found: ${currentRemoteUrl.trim()}`);
+        // }
 
         await execAsync(`git -C ${localPath} fetch`);
 

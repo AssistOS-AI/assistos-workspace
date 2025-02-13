@@ -127,35 +127,7 @@ export class AddFlowModal {
     }
 
     async addFlow(_target) {
-        let formInfo = await assistOS.UI.extractFormInformation(_target);
-        if (formInfo.isValid) {
-            const name = formInfo.data.name;
-            const action = formInfo.data.action;
-            const intent = formInfo.data.intent;
-            const code = formInfo.data.code;
-            delete formInfo.data.name;
-            delete formInfo.data.action;
-            delete formInfo.data.intent;
-            delete formInfo.data.code;
-            let parameters = {};
-            for (let key in formInfo.data) {
-                if (key.includes('param-name')) {
-                    const index = key.match(/\d+/)[0];
-                    parameters[formInfo.data[key]] = {
-                        type: formInfo.data[`param-type${index}`],
-                        required: formInfo.data[`param-required${index}`] === 'on'
-                    };
-                }
-            }
-            await assistOS.callFlow("AddFlow", {
-                name: name,
-                code: assistOS.UI.unsanitize(code),
-                flowParametersSchema: parameters,
-                intent: intent,
-                action: action
-            });
-            assistOS.UI.closeModal(_target);
-        }
+        alert("to be done");
     }
 
     addParameter(_target) {

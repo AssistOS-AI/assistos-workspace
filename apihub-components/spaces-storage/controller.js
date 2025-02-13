@@ -839,7 +839,6 @@ async function getChatTextStreamingResponse(request, response) {
 
     const updateQueue = [];
     let isProcessingQueue = false;
-
     try {
         response.on('close', async () => {
             if (!streamClosed) {

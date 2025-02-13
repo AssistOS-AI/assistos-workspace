@@ -21,7 +21,7 @@ export class ParagraphItem {
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.textClass = "paragraph-text";
         this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
-        this.plugins = assistOS.plugins.paragraph;
+        this.plugins = assistOS.space.plugins.paragraph;
         for (let pluginName of Object.keys(this.plugins)) {
             this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
             assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
@@ -57,6 +57,10 @@ export class ParagraphItem {
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
             commentHighlight.classList.add("highlight-attachment");
+        }
+        if(this.paragraph.commands.files && this.paragraph.commands.files.length > 0){
+            let filesMenu = this.element.querySelector(".files-menu");
+            filesMenu.classList.add("highlight-attachment");
         }
 
         let paragraphContainer = this.element.querySelector(".paragraph-container");
@@ -198,14 +202,26 @@ export class ParagraphItem {
             this.paragraph.text = await documentModule.getParagraphText(assistOS.space.id, this._document.id, this.paragraph.id);
             this.hasExternalChanges = true;
             let paragraphText = this.element.querySelector(".paragraph-text");
-            paragraphText.innerHTML = this.paragraph.text;
+            paragraphText.value = assistOS.UI.unsanitize(this.paragraph.text);
 
         } else if (type === "commands") {
             this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
             this.commandsEditor.renderCommands();
+            if(this.currentPlugin){
+                let pluginItem = this.element.querySelector(`${this.currentPlugin}`);
+                if(pluginItem){
+                    pluginItem.webSkelPresenter.invalidate();
+                }
+                let pluginIconContainer = this.element.querySelector(`.plugin-circle.${this.currentPlugin}`);
+                if(pluginIconContainer){
+                    let pluginIcon = pluginIconContainer.querySelector("simple-state-icon");
+                    pluginIcon.webSkelPresenter.invalidate();
+                }
+            }
         }
+        this.documentPresenter.toggleEditingState(true);
     }
-    async deleteParagraph(skipConfirmation) {
+    async deleteParagraph(targetElement, skipConfirmation) {
         await this.documentPresenter.stopTimer(true);
         if(!skipConfirmation){
             let message = "Are you sure you want to delete this paragraph?";
@@ -376,10 +392,13 @@ export class ParagraphItem {
                 const currentUIText = assistOS.UI.customTrim(paragraphText.value);
                 const textChanged = assistOS.UI.normalizeSpaces(cachedText) !== assistOS.UI.normalizeSpaces(currentUIText);
                 if (textChanged || this.textIsDifferentFromAudio) {
+                    let commandsChanged = false;
                     for (let command of Object.keys(this.paragraph.commands)) {
-                        await this.commandsEditor.handleCommand(command, "changed");
+                        commandsChanged = await this.commandsEditor.handleCommand(command, "changed");
                     }
-                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    if(commandsChanged){
+                        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                    }
                     await this.saveParagraph(paragraphText);
                 }
                 this.textIsDifferentFromAudio = false;
@@ -414,7 +433,7 @@ export class ParagraphItem {
 
     async cutParagraph(_target) {
         window.cutParagraph = this.paragraph;
-        await this.deleteParagraph(true);
+        await this.deleteParagraph("", true);
         delete window.cutParagraph.id;
     }
 
@@ -433,9 +452,9 @@ export class ParagraphItem {
                     <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
-                    <list-item data-local-action="insertFile" data-name="Insert File" data-highlight="light-highlight"></list-item>
                 </div>`,
         "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "files-menu": `<files-menu data-presenter="files-menu"></files-menu>`
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -557,8 +576,5 @@ export class ParagraphItem {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.paragraph.id, this);
         }
-    }
-    async insertFile() {
-        await this.commandsEditor.insertAttachmentCommand("files");
     }
 }

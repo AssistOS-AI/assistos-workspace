@@ -11,7 +11,12 @@
     <div class="menu-section">
         <div class="document-plugins-container"></div>
         <div class="plugins-separator"></div>
-
+        <div data-local-action="undoOperation" class="plugin-circle menu-container undo-button">
+            <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/undo.svg" alt="icon">
+        </div>
+        <div data-local-action="redoOperation" class="plugin-circle menu-container redo-button">
+            <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/redo.svg" alt="icon">
+        </div>
         <div class="tasks-menu">
             <img data-local-action="openTasksModal" class="task-icon black-icon" src="./wallet/assets/icons/task.svg">
         </div>
@@ -43,15 +48,9 @@
         <div class="abstract-section container-element" data-metadata="abstract of the document">
             <div class="abstract-header-section">
                 <div class="abstract-subtitle font-color $$abstractFontFamily">
-                    Abstract
+                    Document Info
                 </div>
                 <div class="toolbar">
-                    <div data-local-action="undoOperation" class="plugin-circle menu-container">
-                        <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/undo.svg" alt="icon">
-                    </div>
-                    <div data-local-action="redoOperation" class="plugin-circle menu-container">
-                        <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/redo.svg" alt="icon">
-                    </div>
                     <div data-local-action="openAbstractPlugin snapshots-menu" class="snapshots-menu">
                         <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/snapshot.svg" alt="icon">
                     </div>

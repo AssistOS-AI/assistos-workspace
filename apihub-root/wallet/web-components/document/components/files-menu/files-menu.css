@@ -1,0 +1,65 @@
+.files-menu{
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.toolbar-menu.files-menu{
+    min-width: 200px;
+    position: absolute;
+    background-color: var(--white);
+    min-height: 50px;
+    align-items: flex-start;
+    padding: 10px;
+}
+.paragraph-file{
+    display: flex;
+    padding: 5px;
+    border-radius: 5px;
+}
+.paragraph-file:hover{
+    background-color: var(--very-light-gray);
+}
+.file-name,
+.file-type{
+    display: flex;
+    margin-right: 20px;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.file-type{
+    width: 110px;
+}
+.file-name{
+    width: 240px;
+}
+.file-size{
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+    width: 70px;
+}
+.files-header{
+    display: flex;
+    margin: 10px 0;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 0 5px;
+}
+.insert-file{
+
+}
+.download-file-header{
+    margin-right: 40px;
+}
+.download-file {
+    margin-left: 18px;
+    margin-right: 40px;
+}
+.delete-file{
+    margin-left: 28px;
+}
+.no-files{
+    margin-top: 10px;
+}

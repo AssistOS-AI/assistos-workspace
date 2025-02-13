@@ -56,18 +56,7 @@ export class EditFlowModal {
 
     }
     async saveFlow(_target) {
-        let form = this.element.querySelector("form")
-        let formInfo = await assistOS.UI.extractFormInformation(form);
-        if(formInfo.isValid) {
-            let flowName = this.element.getAttribute("data-name");
-            await assistOS.callFlow("UpdateFlow", {
-                spaceId: assistOS.space.id,
-                flowName: flowName,
-                flowData: formInfo.data.flowCode,
-                appId: this.element.getAttribute("data-appId")
-            });
-            assistOS.UI.closeModal(_target);
-        }
+        alert("to be done");
     }
     formatCode() {
 

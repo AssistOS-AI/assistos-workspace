@@ -126,36 +126,33 @@ export class DocumentViewPage {
         if (typeof data === "object") {
             if (data.operationType === "add") {
                 await this.insertNewChapter(data.chapterId, data.position);
-                return;
-            }
-            if (data.operationType === "delete") {
+            } else if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
-                return;
-            }
-            if (data.operationType === "swap") {
+            } else if (data.operationType === "swap") {
                 this.swapChapters(data.chapterId, data.swapChapterId, data.direction);
-                return;
+            }
+        } else {
+            switch (data) {
+                case "delete":
+                    await this.openDocumentsPage();
+                    alert("The document has been deleted");
+                    break;
+                case "title":
+                    let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
+                    this._document.title = title;
+                    this.renderDocumentTitle();
+                    break;
+                case "abstract":
+                    let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
+                    this._document.abstract = abstract;
+                    this.renderAbstract();
+                    break;
+                default:
+                    console.error("Document: Unknown update type ", data);
+                    break;
             }
         }
-        switch (data) {
-            case "delete":
-                await this.openDocumentsPage();
-                alert("The document has been deleted");
-                break;
-            case "title":
-                let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                this._document.title = title;
-                this.renderDocumentTitle();
-                break;
-            case "abstract":
-                let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                this._document.abstract = abstract;
-                this.renderAbstract();
-                break;
-            default:
-                console.error("Document: Unknown update type ", data);
-                break;
-        }
+        this.toggleEditingState(true);
     }
 
     async beforeRender() {
@@ -163,8 +160,6 @@ export class DocumentViewPage {
         this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
         this.abstractFontFamily = this.documentFontFamily
         this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
-
-        await documentModule.updateDocumentCommands(assistOS.space.id, this._document.id, this._document.commands);
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
@@ -185,7 +180,7 @@ export class DocumentViewPage {
 
     renderAbstract() {
         let abstract = this.element.querySelector(".document-abstract");
-        abstract.innerHTML = this._document.abstract || "No abstract has been set or generated for this document";
+        abstract.innerHTML = this._document.abstract || "This document doesn't have any information about its content";
     }
 
     async afterRender() {
@@ -206,6 +201,10 @@ export class DocumentViewPage {
             this.boundRemoveFocusHandler = this.removeFocusHandler.bind(this);
             document.addEventListener("click", this.boundRemoveFocusHandler);
         }
+        this.documentEditor = this.element.querySelector(".document-editor");
+        this.disabledMask = this.element.querySelector(".disabled-mask");
+        this.undoButton = this.element.querySelector(".undo-button");
+        this.redoButton = this.element.querySelector(".redo-button");
     }
 
     async removeFocusHandler(event) {
@@ -291,14 +290,17 @@ export class DocumentViewPage {
             }
 
         }
-        let chapterData = {title: "New Chapter", paragraphs: []};
+        let chapterTitle = assistOS.UI.sanitize("New Chapter");
+        let chapterData = {title: chapterTitle, commands: {}, paragraphs: [
+                {
+                    text: "",
+                    position: 0,
+                    commands: {}
+                }
+            ]};
         chapterData.position = position;
         assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-        assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, assistOS.space.currentChapterId, {
-            text: "",
-            position: 0,
-            commands: {}
-        });
+
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
@@ -377,6 +379,9 @@ export class DocumentViewPage {
     changeToolbarView(targetElement, mode) {
         let containerElement = targetElement.closest(".container-element");
         let toolbar = containerElement.querySelector(".toolbar");
+        if(!toolbar){
+            return;
+        }
         mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
     }
     async highlightAbstract(targetElement) {
@@ -499,14 +504,16 @@ export class DocumentViewPage {
     }
 
     toggleEditingState(isEditable) {
-        let documentEditor = this.element.querySelector(".document-editor");
-        let disabledMask = this.element.querySelector(".disabled-mask");
         if (!isEditable) {
-            disabledMask.style.display = "block";
-            documentEditor.classList.add("disabled-editor");
+            this.disabledMask.style.display = "block";
+            this.documentEditor.classList.add("disabled-editor");
+            this.undoButton.classList.add("disabled");
+            this.redoButton.classList.add("disabled");
         } else {
-            documentEditor.classList.remove("disabled-editor");
-            disabledMask.style.display = "none";
+            this.documentEditor.classList.remove("disabled-editor");
+            this.disabledMask.style.display = "none";
+            this.undoButton.classList.remove("disabled");
+            this.redoButton.classList.remove("disabled");
         }
     }
 
@@ -584,6 +591,38 @@ export class DocumentViewPage {
                 abstract: ""
             }
             await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
+        }
+    }
+    showToast(containerElement, message, timeout){
+        let toast = `<div class="timeout-toast">${message}</div>`;
+        let positionStyle = containerElement.style.position
+        containerElement.style.position = "relative";
+        containerElement.insertAdjacentHTML("beforeend", toast);
+        setTimeout(() => {
+            containerElement.querySelector(".timeout-toast").remove();
+            containerElement.style.position = positionStyle;
+        }, timeout);
+    }
+    async undoOperation(targetElement){
+        this.toggleEditingState(false);
+        let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
+        if(!success){
+            let toast = targetElement.querySelector(".timeout-toast");
+            if(!toast){
+                this.showToast(targetElement, "Nothing to undo", 1500);
+            }
+            this.toggleEditingState(true);
+        }
+    }
+    async redoOperation(targetElement){
+        this.toggleEditingState(false);
+        let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
+        if(!success){
+            let toast = targetElement.querySelector(".timeout-toast");
+            if(!toast){
+                this.showToast(targetElement, "Nothing to redo", 1500);
+            }
+            this.toggleEditingState(true);
         }
     }
 }

@@ -67,7 +67,7 @@ async function insertObjectRecords(spaceId, tableId, objectId, objectData) {
             object[key] = objectData[key];
         }
     }
-    await insertRecord(spaceId, tableId, objectId, objectData);
+    await insertRecord(spaceId, tableId, objectId, object);
 }
 
 async function getContainerObject(spaceId, objectId) {
@@ -352,6 +352,7 @@ async function updateEmbeddedObject(spaceId, objectURI, objectData, sessionId) {
             }
             object[propertyName] = objectData;
             await updateRecord(spaceId, tableId, objectId, object);
+            //TODO check if this is used, doesnt seem to be, we use prefixed ids
             if (segments.length === 3 || (segments.length === 2 && !Array.isArray(object[propertyName]))) {
                 SubscriptionManager.notifyClients(sessionId, objectId, propertyName);
             } else {
@@ -470,5 +471,7 @@ module.exports = {
     getRecord,
     insertRecord,
     updateRecord,
-    deleteAllRecords
+    deleteAllRecords,
+    getAllRecords,
+    deleteRecord
 }

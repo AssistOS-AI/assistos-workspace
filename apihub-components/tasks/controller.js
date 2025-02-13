@@ -246,7 +246,12 @@ function getDocumentTasks(request, response) {
     let spaceId = request.params.spaceId;
     let documentId = request.params.documentId;
     try {
-        let tasks = TaskManager.serializeTasks(spaceId).filter(task => task.configs.documentId === documentId);
+        let tasks = TaskManager.serializeTasks(spaceId).filter((task) => {
+            if(!task.configs){
+                return false;
+            }
+            return task.configs.documentId === documentId
+        });
         sendResponse(response, 200, "application/json", {
             data: tasks
         });

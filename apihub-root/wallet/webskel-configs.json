@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "files-menu",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "FilesMenu"
+        },
+        {
             "name": "diagram-menu",
             "directory": "document",
             "type": "modals",
@@ -309,12 +315,6 @@
             "directory": "space-application",
             "type": "components",
             "presenterClassName": "LeftSidebar"
-        },
-        {
-            "name": "collaborators-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "CollaboratorsPage"
         },
         {
             "name": "tasks-page",
