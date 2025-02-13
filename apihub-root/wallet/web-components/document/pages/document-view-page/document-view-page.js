@@ -203,6 +203,8 @@ export class DocumentViewPage {
         }
         this.documentEditor = this.element.querySelector(".document-editor");
         this.disabledMask = this.element.querySelector(".disabled-mask");
+        this.undoButton = this.element.querySelector(".undo-button");
+        this.redoButton = this.element.querySelector(".redo-button");
     }
 
     async removeFocusHandler(event) {
@@ -289,7 +291,7 @@ export class DocumentViewPage {
 
         }
         let chapterTitle = assistOS.UI.sanitize("New Chapter");
-        let chapterData = {title: chapterTitle, paragraphs: [
+        let chapterData = {title: chapterTitle, commands: {}, paragraphs: [
                 {
                     text: "",
                     position: 0,
@@ -505,9 +507,13 @@ export class DocumentViewPage {
         if (!isEditable) {
             this.disabledMask.style.display = "block";
             this.documentEditor.classList.add("disabled-editor");
+            this.undoButton.classList.add("disabled");
+            this.redoButton.classList.add("disabled");
         } else {
             this.documentEditor.classList.remove("disabled-editor");
             this.disabledMask.style.display = "none";
+            this.undoButton.classList.remove("disabled");
+            this.redoButton.classList.remove("disabled");
         }
     }
 
@@ -598,7 +604,6 @@ export class DocumentViewPage {
         }, timeout);
     }
     async undoOperation(targetElement){
-        targetElement.classList.add("disabled");
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
         if(!success){
@@ -608,10 +613,8 @@ export class DocumentViewPage {
             }
             this.toggleEditingState(true);
         }
-        targetElement.classList.remove("disabled");
     }
     async redoOperation(targetElement){
-        targetElement.classList.add("disabled");
         this.toggleEditingState(false);
         let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
         if(!success){
@@ -621,6 +624,5 @@ export class DocumentViewPage {
             }
             this.toggleEditingState(true);
         }
-        targetElement.classList.remove("disabled");
     }
 }
