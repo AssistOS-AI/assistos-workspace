@@ -309,7 +309,7 @@ document-view-page::-webkit-scrollbar-track {
 }
 .focused.locked-item{
     background-color: var(--very-light-gray);
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 document-view-page .right-margin {
     margin-right: 10px;
@@ -349,7 +349,7 @@ html[theme="dark"] input.document-title{
 }
 .plugin-circle.locked-item{
     background-color: var(--very-light-gray);
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 .toolbar{
     display: none;
