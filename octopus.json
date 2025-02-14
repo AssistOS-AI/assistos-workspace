@@ -63,6 +63,30 @@
         ]
       },
       {
+        "name": "temp",
+        "src": "https://github.com/AssistOS-AI/CreditManager.git",
+        "actions": [
+          {
+            "type": "smartClone",
+            "target": ".",
+            "collectLog": false
+          },
+          {
+            "type": "copy",
+            "src": "./temp",
+            "target": "./creditManager",
+            "options": {
+              "overwrite": true,
+              "ignoreErrors": true
+            }
+          },
+          {
+            "type": "remove",
+            "target": "./temp"
+          }
+        ]
+      },
+      {
         "name": "assistos-sdk",
         "src":"https://github.com/AssistOS-AI/assistos-sdk.git",
         "actions": [
