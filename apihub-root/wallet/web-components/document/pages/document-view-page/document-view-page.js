@@ -206,9 +206,14 @@ export class DocumentViewPage {
         this.undoButton = this.element.querySelector(".undo-button");
         this.redoButton = this.element.querySelector(".redo-button");
         let tasksMenu = this.element.querySelector(".tasks-menu");
+        let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
+        this.attachTooltip(snapshotsButton, "Snapshots");
+    }
+    async openSnapshotsModal(targetElement) {
+        await assistOS.UI.showModal("document-snapshots-modal");
     }
     attachTooltip(containerElement, tooltip) {
         let tooltipDiv = document.createElement("div");
