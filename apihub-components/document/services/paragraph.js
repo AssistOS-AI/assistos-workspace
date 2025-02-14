@@ -103,14 +103,16 @@ async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
         chapterId: chapterId,
         paragraphId: id
     });
+    paragraphData.position = position;
     await documentService.addOperation(spaceId, documentId, {
         type: "add",
         objectURI: deleteObjURI,
         data: paragraphData,
         reverseOpNotification: {
-            objectId: chapterId,
+            objectId: SubscriptionManager.getObjectId(documentId, chapterId),
             eventData: {
-                paragraphId: id
+                paragraphId: id,
+                position: position
             }
         }
     });

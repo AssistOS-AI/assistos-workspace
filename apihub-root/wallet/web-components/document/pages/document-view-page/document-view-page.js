@@ -615,8 +615,8 @@ export class DocumentViewPage {
             assistOS.showToast("Undo successful.", 1500, "success");
         } else {
             assistOS.showToast("Nothing to undo.", 1500);
+            this.toggleEditingState(true);
         }
-        this.toggleEditingState(true);
     }
     async redoOperation(targetElement){
         this.toggleEditingState(false);
@@ -625,7 +625,7 @@ export class DocumentViewPage {
             assistOS.showToast("Redo successful.", 1500, "success");
         } else {
             assistOS.showToast("Nothing to redo.", 1500);
+            this.toggleEditingState(true);
         }
-        this.toggleEditingState(true);
     }
 }
