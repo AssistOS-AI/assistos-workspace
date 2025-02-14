@@ -205,8 +205,23 @@ export class DocumentViewPage {
         this.disabledMask = this.element.querySelector(".disabled-mask");
         this.undoButton = this.element.querySelector(".undo-button");
         this.redoButton = this.element.querySelector(".redo-button");
+        let tasksMenu = this.element.querySelector(".tasks-menu");
+        this.attachTooltip(this.undoButton, "Undo");
+        this.attachTooltip(this.redoButton, "Redo");
+        this.attachTooltip(tasksMenu, "Tasks");
     }
-
+    attachTooltip(containerElement, tooltip) {
+        let tooltipDiv = document.createElement("div");
+        tooltipDiv.classList.add("tooltip-name");
+        tooltipDiv.innerHTML = tooltip;
+        containerElement.appendChild(tooltipDiv);
+        containerElement.addEventListener("mouseover", async ()=>{
+            containerElement.querySelector(".tooltip-name").style.display = "block";
+        });
+        containerElement.addEventListener("mouseout", async ()=>{
+            containerElement.querySelector(".tooltip-name").style.display = "none";
+        });
+    }
     async removeFocusHandler(event) {
         let closestContainer = event.target.closest(".document-editor");
         if (!closestContainer && !event.target.closest(".maintain-focus")) {
@@ -593,36 +608,24 @@ export class DocumentViewPage {
             await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
         }
     }
-    showToast(containerElement, message, timeout){
-        let toast = `<div class="timeout-toast">${message}</div>`;
-        let positionStyle = containerElement.style.position
-        containerElement.style.position = "relative";
-        containerElement.insertAdjacentHTML("beforeend", toast);
-        setTimeout(() => {
-            containerElement.querySelector(".timeout-toast").remove();
-            containerElement.style.position = positionStyle;
-        }, timeout);
-    }
     async undoOperation(targetElement){
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
-        if(!success){
-            let toast = targetElement.querySelector(".timeout-toast");
-            if(!toast){
-                this.showToast(targetElement, "Nothing to undo", 1500);
-            }
-            this.toggleEditingState(true);
+        if(success){
+            assistOS.showToast("Undo successful.", 1500, "success");
+        } else {
+            assistOS.showToast("Nothing to undo.", 1500);
         }
+        this.toggleEditingState(true);
     }
     async redoOperation(targetElement){
         this.toggleEditingState(false);
         let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
-        if(!success){
-            let toast = targetElement.querySelector(".timeout-toast");
-            if(!toast){
-                this.showToast(targetElement, "Nothing to redo", 1500);
-            }
-            this.toggleEditingState(true);
+        if(success){
+            assistOS.showToast("Redo successful.", 1500, "success");
+        } else {
+            assistOS.showToast("Nothing to redo.", 1500);
         }
+        this.toggleEditingState(true);
     }
 }

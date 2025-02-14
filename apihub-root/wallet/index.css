@@ -724,3 +724,79 @@ dialog {
 .text-indent-72 {
     text-indent: 72px;
 }
+
+
+/*toast*/
+.toast-container{
+    pointer-events: none;
+    position: absolute;
+    width: 350px;
+    right: 0;
+    top: 70px;
+}
+.timeout-toast{
+    pointer-events: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 10;
+    overflow: hidden;
+    border: 1px solid;
+    padding: 15px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+}
+.message-type{
+    font-weight: bold;
+    margin-right: 5px;
+    display: flex;
+    align-items: center;
+}
+.toast-message{
+    max-width: 210px;
+}
+.timeout-toast .close{
+    color: rgba(0, 0, 0, 0.3);
+}
+.toast-left{
+    display: flex;
+}
+.toast-icon{
+    margin-right: 10px;
+}
+
+.timeout-toast.success{
+    background-color: #D4EDDA;
+    color: #28A745;
+    border-color: #28A745;
+}
+.timeout-toast.success .message-type{
+    color: #28A745;
+}
+
+.timeout-toast.info{
+    background-color: #D9ECFF;
+    color: #007BFF;
+    border-color: #007BFF;
+}
+.timeout-toast.info .message-type{
+    color: #007BFF;
+}
+
+.timeout-toast.warning{
+    background-color: #FFF4D6;
+    color: #FFA726;
+    border-color: #FFA726;
+}
+.timeout-toast.warning .message-type{
+    color: #FFA726;
+}
+
+.timeout-toast.error{
+    background-color: #F8D7DA;
+    color: #DC3545;
+    border-color: #DC3545;
+}
+.timeout-toast.error .message-type{
+    color: #DC3545;
+}

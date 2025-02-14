@@ -382,6 +382,30 @@ class AssistOS {
                 throw new Error("Module doesn't exist");
         }
     }
+    showToast(message, timeout, type = "info") {
+        let toastContainer = document.querySelector(".toast-container");
+        let toast = document.createElement("div");
+        toast.classList.add("timeout-toast");
+        toast.classList.add(type);
+        toast.innerHTML = `
+            <div class="toast-left">
+                <img src="./wallet/assets/icons/${type}.svg" alt="${type} icon" class="toast-icon">
+                <div class="message-type">${type.charAt(0).toUpperCase() + type.slice(1)}:</div>
+                <div class="toast-message">${message}</div>
+            </div>
+            <button type="button" class="close" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>`;
+        toastContainer.appendChild(toast);
+        let timeoutId = setTimeout(() => {
+            toast.remove();
+        }, timeout);
+        let closeButton = toast.querySelector(".close");
+        closeButton.addEventListener("click", () => {
+            clearTimeout(timeoutId);
+            toast.remove();
+        });
+    }
 }
 
 export function changeSelectedPageFromSidebar(url) {
