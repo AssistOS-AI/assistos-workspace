@@ -127,6 +127,11 @@ function getOperationsTableName(documentId){
 async function processOperation(spaceId, documentId, operationData){
     let documentOperations;
     documentOperations = await lightDB.getEmbeddedObject(spaceId, "documents", constructDocumentURI(documentId, "operations"));
+    if(!documentOperations){
+        documentOperations = {
+            count: 0
+        };
+    }
     let operationId = `operations_${crypto.generateId()}`;
     let opTable = getOperationsTableName(documentId);
     if(documentOperations.previousOp){
