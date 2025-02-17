@@ -1,4 +1,3 @@
-import {generateId} from "../../../../imports.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
 export class DocumentSnapshotsModal{
@@ -12,15 +11,14 @@ export class DocumentSnapshotsModal{
     async beforeRender() {
         let snapshotsHTML = "";
         let headerHTML = `<div class="no-snapshots">no snapshots created</div>`;
-        let snapshots = Object.values(this.document.snapshots);
-        if(snapshots.length > 0){
+        if(this.document.snapshots.length > 0){
             headerHTML = `<div class="list-header">
                                         <span class="snapshot-date">Date</span>
                                         <span class="snapshot-user">Created by</span>
                                         <span class="export-snapshot">Export</span>
                                         <span>Delete</span>
                                     </div>`;
-            for (let snapshot of snapshots) {
+            for (let snapshot of this.document.snapshots) {
                 snapshotsHTML += `<div class="document-snapshot">
                                           <div class="snapshot-date">${snapshot.date}</div>
                                           <div class="snapshot-user">${snapshot.userEmail}</div>
@@ -38,11 +36,17 @@ export class DocumentSnapshotsModal{
         assistOS.UI.closeModal(this.element);
     }
     async addSnapshot(){
-        let snapshotId = generateId();
-        let documentClone = JSON.parse(JSON.stringify(this.document));
-        documentClone.snapshotId = snapshotId;
-        await spaceModule.addContainerObject(assistOS.space.id, "documentSnapshots", snapshotId, documentClone);
-        this.document.snapshots[snapshotId] = { id: snapshotId, timestamp: Date.now(), userEmail: assistOS.user.email };
-        await documentModule.updateDocumentSnapshots(assistOS.space.id, this.document.id, this.document.snapshots);
+        let snapshotData = {
+            timestamp: Date.now(),
+            email: assistOS.user.email
+        }
+        await documentModule.addDocumentSnapshot(assistOS.space.id, this.document.id, snapshotData);
+        this.document.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, this.document.id);
+        this.invalidate();
+    }
+    async deleteSnapshot(snapshotId){
+        await documentModule.deleteDocumentSnapshot(assistOS.space.id, this.document.id, snapshotId);
+        this.document.snapshots.filter(snapshot => snapshot.id !== snapshotId);
+        this.invalidate();
     }
 }
