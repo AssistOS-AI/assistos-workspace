@@ -1,4 +1,4 @@
-const {createSpaceChat} = require('../spaces-storage/space.js').APIs;
+const {createSpaceChat,getPersonalityData,getSpaceStatusObject,getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
 const crypto = require("../apihub-component-utils/crypto");
 const {promises: fsPromises} = require("fs");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
@@ -26,6 +26,30 @@ async function addPersonality(request, spaceId, personalityData) {
     await createSpaceChat(spaceId, personalityData.id);
 }
 
+async function addConversation(spaceId,personalityId){
+    return await createSpaceChat(spaceId,personalityId);
+}
+
+async function getConversationIds(spaceId,personalityId){
+    const personalityData = await getPersonalityData(spaceId,personalityId)
+    return personalityData.chats;
+}
+
+async function ensurePersonalityChat(spaceId,personalityId){
+    const personalityData = await getPersonalityData(spaceId,personalityId)
+    if(personalityData.chats === undefined){
+        await addConversation(spaceId,personalityId)
+    }
+}
+
+async function ensurePersonalityChats(spaceId){
+    const spacePersonalities = await getSpacePersonalities(spaceId);
+    return await Promise.all(spacePersonalities.map(personality=>ensurePersonalityChat(spaceId,personality.id)))
+}
+
 module.exports = {
-    addPersonality
+    addPersonality,
+    addConversation,
+    getConversationIds,
+    ensurePersonalityChats
 }

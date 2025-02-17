@@ -82,7 +82,16 @@ export class EditPersonalityPage {
         this.chatPrompt=this.personality.chatPrompt;
         this.llmSelectionSection = generateLlmSection(this.availableLlms);
 
+
+        let personalityChats = await personalityModule.getPersonalitiesConversations(assistOS.space.id,assistOS.agent.agentData.id)
+
+        this.chatOptions = personalityChats.map((chatId, index) => {
+            return `<option value="${chatId}" ${assistOS.agent.agentData.selectedChat === chatId ? "selected" : ""}>${chatId}</option>`;
+        });
+
+
         let voicesHTML = "";
+
         for (let voice of this.voices) {
             let accent = voice.accent ? `, accent: ${voice.accent}` : "";
             let age = voice.age ? `, age: ${voice.age}` : "";
@@ -91,6 +100,7 @@ export class EditPersonalityPage {
             let tempo = voice.tempo ? `, tempo: ${voice.tempo}` : "";
             voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
+
         this.voicesOptions = voicesHTML;
 
         this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>`;
@@ -208,7 +218,8 @@ export class EditPersonalityPage {
             this.personality.description = formInfo.data.description;
             this.personality.voiceId = formInfo.data.voiceId;
             this.personality.chatPrompt= formInfo.data.chatPrompt;
-
+            this.personality.selectedChat = formInfo.data.chatId
+            assistOS.agent.agentData.selectedChat= this.personality.selectedChat
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
             });
