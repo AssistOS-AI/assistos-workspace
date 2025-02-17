@@ -1,5 +1,7 @@
 const spaceModule = require("assistos").loadModule("space", {});
 const documentModule = require('assistos').loadModule("document",{})
+const personalityModule = require('assistos').loadModule("personality",{})
+
 export class AgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -65,6 +67,12 @@ export class AgentPage {
         localStorage.setItem("agentOn", this.agentOn);
     }
 
+    async newConversation(target){
+        const docId = await personalityModule.createNewConversation(assistOS.space.id,assistOS.agent.agentData.id)
+        assistOS.agent.agentData.selectedChat=docId;
+        this.invalidate();
+    }
+
     async beforeRender() {
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
@@ -74,12 +82,12 @@ export class AgentPage {
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
   <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/>
 </svg>
-          </button>
+            </button>
         `
         let stringHTML = "";
-        /* migration to document */
-        this.documentId = assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
-        debugger
+
+        this.documentId = assistOS.agent.agentData.selectedChat || assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
+
         this.document=await documentModule.getDocument(assistOS.space.id,this.documentId)
         this.chatMessages = this.document.chapters[0].paragraphs
         this.localContext = this.document.chapters[1].paragraphs

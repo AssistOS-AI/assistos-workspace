@@ -474,6 +474,7 @@ async function createSpaceChat(spaceId, personalityId) {
 
     const docId = await Document.createDocument(spaceId, documentData);
     personalityData.chats.push(docId);
+    personalityData.selectedChat = docId;
     await updatePersonalityData(spaceId,personalityId,personalityData)
     const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
     const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
@@ -867,7 +868,8 @@ module.exports = {
         createSpaceChat,
         updateSpaceChatMessage,
         resetSpaceChat,
-        storeSpaceChat
+        storeSpaceChat,
+        getPersonalityData
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
