@@ -70,7 +70,7 @@
   {
     "name": "LLMReasoningBenchmark",
     "description": "LLMReasoningBenchmark is a benchmark for large language models to test their reasoning capabilities.",
-    "image": "./wallet/assets/images/biasDetector.png",
+    "image": "./wallet/assets/images/LLMReasoningBenchmark.png",
     "svg": "<svg width=\"41\" height=\"41\" viewBox=\"0 0 41 41\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"12\" cy=\"20.5\" r=\"4\" fill=\"#2196F3\"/><circle cx=\"29\" cy=\"12.5\" r=\"4\" fill=\"#2196F3\"/><circle cx=\"29\" cy=\"28.5\" r=\"4\" fill=\"#2196F3\"/><path d=\"M15 19.5L26 13.5\" stroke=\"#2196F3\" stroke-width=\"2\"/><path d=\"M15 21.5L26 27.5\" stroke=\"#2196F3\" stroke-width=\"2\"/><rect x=\"19\" y=\"11\" width=\"8\" height=\"3\" transform=\"rotate(30)\" fill=\"#2196F3\" opacity=\"0.6\"/><rect x=\"16\" y=\"24\" width=\"8\" height=\"3\" transform=\"rotate(-30)\" fill=\"#2196F3\" opacity=\"0.6\"/></svg>",
     "repository": "https://github.com/AssistOS-AI/LLMReasoningBenchmark.git",
     "id": "LLMReasoningBenchmark"
