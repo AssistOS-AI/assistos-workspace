@@ -16,7 +16,6 @@ apihub-root/keys-secret
 apihub-root/wallet/lib
 apihub-root/wallet/scripts/bundles/
 apihub-root/wallet/bundles/
-!apihub-root/wallet/bundles/tau-prolog.min.js
 /data-volume/users
 /data-volume/assets
 /data-volume/spaces
