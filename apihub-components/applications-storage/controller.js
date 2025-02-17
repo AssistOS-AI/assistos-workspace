@@ -14,7 +14,7 @@ async function installApplication(request, response) {
         });
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
-            message: `Failed to install application. Error:` + error.message,
+            message: error.message,
         });
     }
 }

@@ -237,13 +237,15 @@ export default class CommandsEditor {
         this.paragraphPresenter.showUnfinishedTasks();
     }
     async handleCommand(commandName, commandStatus) {
+        let changed = false;
         if (constants.COMMANDS_CONFIG.ATTACHMENTS.includes(commandName)) {
-            return;
+            return changed;
         }
         if (commandStatus === "new") {
             const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.chapterId, this.paragraph.id, {});
             this.paragraph.commands[commandName].taskId = taskId;
             await this.paragraphPresenter.addUITask(taskId);
+            changed = true;
         } else if (commandStatus === "changed") {
             if (this.paragraph.commands[commandName].taskId) {
                 //cancel the task so it can be re-executed, same if it was cancelled, failed, pending
@@ -257,10 +259,12 @@ export default class CommandsEditor {
                 const taskId = await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === commandName).EXECUTE(assistOS.space.id, this.documentId, this.chapterId, this.paragraph.id, {});
                 this.paragraph.commands[commandName].taskId = taskId;
                 await this.paragraphPresenter.addUITask(taskId);
+                changed = true;
             }
         } else if (commandStatus === "deleted") {
             await this.deleteTaskFromCommand(commandName);
         }
+        return changed;
     }
     async insertCommandWithTask(name, data) {
         if (this.editMode === modes.NORMAL) {

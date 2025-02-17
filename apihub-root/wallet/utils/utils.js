@@ -99,7 +99,7 @@ export function unescapeHtmlEntities(value) {
     tempElement.innerHTML = value;
     return tempElement.value;
 }
-export function generateId(length) {
+export function generateId(length = 16) {
     let random = crypto.getRandomSecret(length);
     let randomStringId = "";
     while (randomStringId.length < length) {

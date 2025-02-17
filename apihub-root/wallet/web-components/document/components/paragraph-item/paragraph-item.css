@@ -233,7 +233,7 @@ textarea.paragraph-commands{
 
 .menu-container.locked-item{
     background-color: var(--very-light-gray);
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 .status-icon{
 

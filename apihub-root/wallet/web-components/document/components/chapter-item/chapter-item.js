@@ -85,14 +85,10 @@ export class ChapterItem {
         await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
     }
     async beforeRender() {
-
-        this.chapterFontSize=assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
-        this.chapterFontFamily=assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
-
-        await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
+        this.chapterFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-
         let iterator = 0;
         this.chapter.paragraphs.forEach((paragraph) => {
             iterator++;
@@ -158,41 +154,42 @@ export class ChapterItem {
     async onChapterUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
-                return await this.insertNewParagraph(data.paragraphId, data.position);
+                await this.insertNewParagraph(data.paragraphId, data.position);
+            }else if (data.operationType === "delete") {
+                this.deleteParagraph(data.paragraphId);
+            }else if (data.operationType === "swap") {
+                this.swapParagraphs(data.paragraphId, data.swapParagraphId, data.direction);
             }
-            if (data.operationType === "delete") {
-                return this.deleteParagraph(data.paragraphId);
-            }
-            if (data.operationType === "swap") {
-                return this.swapParagraphs(data.paragraphId, data.swapParagraphId, data.direction);
-            }
-        }
-        switch (data) {
-            case "title": {
-                let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-                if (title !== this.chapter.title) {
-                    this.chapter.title = title;
-                    this.renderChapterTitle();
+        } else {
+            switch (data) {
+                case "title": {
+                    let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
+                    if (title !== this.chapter.title) {
+                        this.chapter.title = title;
+                        this.renderChapterTitle();
+                    }
+                    break;
                 }
-                return;
-            }
-            case "backgroundSound": {
-                this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
-                return;
-            }
-            case "visibility": {
-                //dont do anything
-                return;
-            }
-            case "commands": {
-                this.chapter.commands = await documentModule.getChapterCommands(assistOS.space.id, this._document.id, this.chapter.id);
-                return;
-            }
-            default: {
-                let chapterIndex = this._document.getChapterIndex(this.chapter.id);
-                console.error(`chapterItem index ${chapterIndex}: Unknown update type: ${data}`);
+                case "backgroundSound": {
+                    this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
+                    break;
+                }
+                case "visibility": {
+                    //dont do anything
+                    break;
+                }
+                case "commands": {
+                    this.chapter.commands = await documentModule.getChapterCommands(assistOS.space.id, this._document.id, this.chapter.id);
+                    break;
+                }
+                default: {
+                    let chapterIndex = this._document.getChapterIndex(this.chapter.id);
+                    console.error(`chapterItem index ${chapterIndex}: Unknown update type: ${data}`);
+                    break;
+                }
             }
         }
+        this.documentPresenter.toggleEditingState(true);
     }
 
     async saveTitle(titleElement) {

@@ -4,7 +4,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
     }
-    let plugin = assistOS.plugins[type].find(p => p.component === componentName);
+    let plugin = assistOS.space.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
     highlightPlugin(type, componentName, presenter);
     if(plugin.type === "embedded"){
@@ -60,7 +60,7 @@ function getContext(presenterElement) {
     return JSON.parse(decodeURIComponent(presenterElement.getAttribute("data-context")));
 }
 async function renderPluginIcons(containerElement, type) {
-    let plugins = assistOS.plugins[type];
+    let plugins = assistOS.space.plugins[type];
     for(let plugin of plugins){
         if(plugin.iconPresenter){
             await loadPluginComponent(plugin.applicationId, plugin.iconComponent, plugin.iconPresenter);

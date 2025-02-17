@@ -50,11 +50,7 @@ export class FlowsPage {
     }
 
     async deleteAction(_target) {
-        await assistOS.callFlow("DeleteFlow", {
-            spaceId: assistOS.space.id,
-            flowName: this.getFlowName(_target)
-        });
-        this.invalidate(this.refreshFlows);
+        alert("to be done")
     }
 
     importFlows() {
