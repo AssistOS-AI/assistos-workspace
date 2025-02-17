@@ -233,6 +233,10 @@ async function getPersonalitiesIds(spaceId, personalityNames) {
     }
     return personalityIds;
 }
+async function getSpacePersonalities(spaceId){
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
+    return JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
+}
 
 function createDefaultAnnouncement(spaceName) {
     const defaultSpaceAnnouncement = require('./templates/defaultSpaceAnnouncement.json');
@@ -854,7 +858,8 @@ module.exports = {
         updateSpaceChatMessage,
         resetSpaceChat,
         storeSpaceChat,
-        getPersonalityData
+        getPersonalityData,
+        getSpacePersonalities
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

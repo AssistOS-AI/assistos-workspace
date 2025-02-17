@@ -4,7 +4,8 @@ const {
     getDefaultPersonality,
     addPersonality,
     createConversation,
-    getConversationIds
+    getConversationIds,
+    ensurePersonalityChats
 } = require("./controller");
 
 function PersonalitiesStorage(server){
@@ -14,6 +15,7 @@ function PersonalitiesStorage(server){
     server.post("/personalities/chats/:spaceId/:personalityId",createConversation)
     server.get("/personalities/chats/:spaceId/:personalityId",getConversationIds)
     server.post("/personalities/:spaceId/ensure-default-llms",ensurePersonalitiesDefaultLllms);
+    server.get("/personalities/:spaceId/ensure-personality-chats",ensurePersonalityChats)
 }
 
 module.exports = PersonalitiesStorage;

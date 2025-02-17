@@ -206,6 +206,11 @@ class AssistOS {
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
+        try {
+            await fetch(`/personalities/${assistOS.space.id}/ensure-personality-chats`, {method: "GET"})
+        }catch(error){
+            console.log(error);
+        }
         defaultPlugins = await defaultPlugins.json();
         assistOS.space.plugins = defaultPlugins;
         let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);

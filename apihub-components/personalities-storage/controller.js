@@ -67,10 +67,20 @@ async function createConversation(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const personalityId = request.params.personalityId;
-        const conversationId = await PersonalitiesHandler.addConversation(request, spaceId, personalityId);
+        const conversationId = await PersonalitiesHandler.addConversation(spaceId, personalityId);
         return Request.sendResponse(response, 200, "application/json", {message: `Conversation ${conversationId} created`,data:conversationId});
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while creating a new conversation`});
+    }
+}
+
+async function ensurePersonalityChats(request,response){
+    try{
+        const spaceId = request.params.spaceId;
+        await PersonalitiesHandler.ensurePersonalityChats(spaceId);
+        return Request.sendResponse(response, 200, "application/json", {message: `Personality chats created successfully`});
+    }   catch(error){
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while ensuring default chatserror`+error.message});
     }
 }
 
@@ -89,5 +99,6 @@ module.exports = {
     getDefaultPersonality,
     addPersonality,
     createConversation,
-    getConversationIds
+    getConversationIds,
+    ensurePersonalityChats
 };
