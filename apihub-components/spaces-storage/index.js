@@ -46,11 +46,13 @@ const {
     deleteFile,
     deleteSpace,
     resetSpaceChat,
-    saveSpaceChat
+    saveSpaceChat,
+    chatCompleteParagraph
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
+const paragraphHandler = require("../document/controllers/paragraph");
 
 function SpaceStorage(server) {
     server.head("/spaces/files/:fileId", headFile);
@@ -132,6 +134,8 @@ function SpaceStorage(server) {
     /*Personalities*/
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
+
+    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
 }
 
 module.exports = SpaceStorage;

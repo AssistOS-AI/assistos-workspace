@@ -52,6 +52,8 @@ function document(server) {
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
     server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
     server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
+
+
 }
 
 module.exports = document;

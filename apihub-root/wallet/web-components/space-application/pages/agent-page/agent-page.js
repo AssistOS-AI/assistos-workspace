@@ -46,7 +46,8 @@ export class AgentPage {
     }
 
     async resetLocalContext(target){
-        this.localContext=[];
+   /* } else {
+        this.localContext=[];*/
     }
 
     onChatUpdate() {
@@ -58,7 +59,6 @@ export class AgentPage {
             this.toggleAgentButton.classList.remove("agent-on");
             this.toggleAgentButton.classList.add("agent-off");
             this.toggleAgentButton.innerHTML = "Agent:OFF";
-        } else {
             this.toggleAgentButton.classList.remove("agent-off");
             this.toggleAgentButton.classList.add("agent-on");
             this.toggleAgentButton.innerHTML = "Agent:ON";
