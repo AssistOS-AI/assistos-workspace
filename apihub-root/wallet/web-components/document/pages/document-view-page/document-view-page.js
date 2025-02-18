@@ -147,6 +147,9 @@ export class DocumentViewPage {
                     this._document.abstract = abstract;
                     this.renderAbstract();
                     break;
+                case "snapshots":
+                    this._document.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, this._document.id);
+                    break;
                 default:
                     console.error("Document: Unknown update type ", data);
                     break;

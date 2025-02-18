@@ -273,7 +273,8 @@ async function storeDocument(spaceId, extractedPath, request) {
     const docId = await documentModule.addDocument(spaceId, {
         title: docMetadata.title,
         topic: docMetadata.topic,
-        metadata: ["id", "title"]
+        metadata: ["id", "title", "type"],
+        type: "document"
     });
     const personalities = docData.personalities || [];
     const personalityPath = path.join(extractedPath, 'personalities');
@@ -718,6 +719,31 @@ async function redoOperation(request, response) {
         return utils.sendResponse(response, 500, "application/json", error.message);
     }
 }
+
+async function getDocumentSnapshots(request, response) {
+
+}
+async function getDocumentSnapshot(request, response) {
+
+}
+async function addDocumentSnapshot(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const snapshotData = request.body;
+    try {
+       let snapshotId = await documentService.addDocumentSnapshot(spaceId, documentId, snapshotData);
+       utils.sendResponse(response, 200, "application/json", {
+         data: snapshotId
+       });
+    } catch (e) {
+       utils.sendResponse(response, 500, "application/json", {
+         message: e.message
+       });
+    }
+}
+async function deleteDocumentSnapshot(request, response) {
+
+}
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -734,5 +760,9 @@ module.exports = {
     downloadDocumentVideo,
     exportDocumentAsDocx,
     undoOperation,
-    redoOperation
+    redoOperation,
+    getDocumentSnapshot,
+    getDocumentSnapshots,
+    addDocumentSnapshot,
+    deleteDocumentSnapshot
 }

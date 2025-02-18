@@ -128,6 +128,7 @@ class ChapterToVideo extends Task {
                 throw new Error(`Failed to add background sound to chapter ${chapterIndex}: ${e}`);
             }
         }
+        await ffmpegUtils.verifyVideoSettings(outputVideoPath, this);
         await this.uploadFinalVideo(outputVideoPath);
         this.logSuccess(`Video created for chapter ${chapterIndex}`);
         return outputVideoPath;
