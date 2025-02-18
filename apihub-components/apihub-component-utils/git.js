@@ -4,19 +4,83 @@ const execAsync = util.promisify(exec);
 const fs = require("fs");
 const path = require("path");
 const secrets = require("./secrets");
+const https = require('https');
+const { URL } = require('url');
+
+async function checkGitHubRepoVisibility(repoUrl) {
+    try {
+        const url = new URL(repoUrl);
+        let repoPath = url.pathname.replace(/^\/|\/$/g, ''); // Remove leading/trailing slashes
+
+        if(repoPath.includes('.git')){
+            repoPath = repoPath.replace('.git', '');
+        }
+
+        const options = {
+            hostname: 'api.github.com',
+            path: `/repos/${repoPath}`,
+            method: 'GET',
+            headers: {
+                'User-Agent': 'NodeJS',
+            },
+        };
+
+        return new Promise((resolve, reject) => {
+            const req = https.request(options, (res) => {
+                let data = '';
+
+                res.on('data', (chunk) => {
+                    data += chunk;
+                });
+
+                res.on('end', () => {
+                    if (res.statusCode === 200) {
+                        const repoData = JSON.parse(data);
+                        resolve(repoData.private ? 'Private' : 'Public');
+                    } else if (res.statusCode === 404) {
+                        reject(new Error('Repository not found or private'));
+                    } else {
+                        reject(new Error(`GitHub API responded with status code ${res.statusCode}`));
+                    }
+                });
+            });
+
+            req.on('error', (err) => {
+                reject(err);
+            });
+
+            req.end();
+        });
+    } catch (error) {
+        throw error;
+    }
+}
+
 async function clone(repository, folderPath, spaceId) {
-    const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
-    const token = tokenObj.APIKey;
-    if (!token) {
-        throw new Error("GitHub token not set");
+
+    let visibility;
+    try {
+        visibility = await checkGitHubRepoVisibility(repository);
+        console.log(`The repository is ${visibility}`);
+    } catch (error) {
+        console.log(error);
     }
 
-    const authenticatedRepo = repository.replace(
-        "https://github.com/",
-        `https://${token}@github.com/`
-    );
+    if(!visibility || visibility === "Private") {
+        const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+        const token = tokenObj.APIKey;
+        if (!token) {
+            throw new Error("GitHub token not set");
+        }
 
-    await execAsync(`git clone ${authenticatedRepo} ${folderPath}`);
+        const authenticatedRepo = repository.replace(
+            "https://github.com/",
+            `https://${token}@github.com/`
+        );
+        return await execAsync(`git clone ${authenticatedRepo} ${folderPath}`);
+    }
+
+    await execAsync(`git clone ${repository} ${folderPath}`);
 }
 
 async function getLastCommitDate(repoPath) {
