@@ -1,7 +1,12 @@
+document-snapshots-modal{
+    display: block;
+    width: 560px;
+}
 .document-snapshot{
     display: flex;
     padding: 5px;
     border-radius: 5px;
+    cursor: pointer;
 }
 .document-snapshot:hover{
     background-color: var(--very-light-gray);
@@ -15,8 +20,11 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
+.snapshot-date{
+    width: 130px;
+}
 .snapshot-user{
-    width: 110px;
+    width: 300px;
 }
 .list-header{
     display: flex;
@@ -33,7 +41,7 @@
     margin-right: 40px;
 }
 .delete-snapshot{
-    margin-left: 28px;
+    margin-left: 8px;
 }
 .no-snapshots{
     margin-top: 10px;

@@ -257,52 +257,6 @@ async function redoOperation(spaceId, documentId) {
     return true;
 }
 
-async function addDocumentSnapshot(spaceId, documentId, snapshotData) {
-    // let document = await getDocument(spaceId, documentId);
-    // let documentMetadata = {
-    //     title: document.title,
-    //     topic: document.topic,
-    //     type: "snapshot",
-    //     metadata: ["id", "title", "type"]
-    // };
-    //const snapshotId = await createDocument(spaceId, documentId, documentMetadata);
-    // for(let chapter of document.chapters){
-    //     let chapterData = {
-    //         title: chapter.title,
-    //         position: chapter.position || 0,
-    //         backgroundSound: chapter.backgroundSound,
-    //         commands: chapter.commands || {}
-    //     };
-    //     let {id, position} = await chapterService.createChapter(spaceId, documentId, chapterData);
-    //     for (let paragraph of chapter.paragraphs) {
-    //         delete paragraph.id;
-    //         paragraph.id = await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
-    //         if (paragraph.commands.speech) {
-    //             if (paragraph.commands.speech.taskId) {
-    //                 paragraph.commands.speech.taskId = await documentModule.createTextToSpeechTask(spaceId, docId, paragraph.id);
-    //                 await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
-    //             }
-    //         }
-    //         if (paragraph.commands.lipsync) {
-    //             if (paragraph.commands.lipsync.taskId) {
-    //                 paragraph.commands.lipsync.taskId = await documentModule.createLipSyncTask(spaceId, docId, paragraph.id);
-    //                 await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
-    //             }
-    //         }
-    //     }
-    // }
-    //snapshotData.id = snapshotId;
-    //return await lightDB.addEmbeddedObject(spaceId, constructDocumentURI(documentId, "snapshots"), snapshotData);
-}
-async function getDocumentSnapshot(spaceId, documentId, snapshotId) {
-    return await lightDB.getEmbeddedObject(spaceId, constructDocumentURI(documentId, `snapshots/${snapshotId}`));
-}
-async function getDocumentSnapshots(spaceId, documentId) {
-
-}
-async function deleteDocumentSnapshot(spaceId, documentId, snapshotId) {
-    return await lightDB.deleteEmbeddedObject(spaceId, constructDocumentURI(documentId, `snapshots/${snapshotId}`));
-}
 module.exports = {
     deleteDocument,
     getDocument,
@@ -311,9 +265,6 @@ module.exports = {
     updateDocument,
     addOperation,
     undoOperation,
-    redoOperation,
-    addDocumentSnapshot,
-    getDocumentSnapshot,
-    deleteDocumentSnapshot
+    redoOperation
 }
 
