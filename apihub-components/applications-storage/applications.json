@@ -74,5 +74,13 @@
     "svg": "<svg width=\"41\" height=\"41\" viewBox=\"0 0 41 41\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"><circle cx=\"12\" cy=\"20.5\" r=\"4\" fill=\"#2196F3\"/><circle cx=\"29\" cy=\"12.5\" r=\"4\" fill=\"#2196F3\"/><circle cx=\"29\" cy=\"28.5\" r=\"4\" fill=\"#2196F3\"/><path d=\"M15 19.5L26 13.5\" stroke=\"#2196F3\" stroke-width=\"2\"/><path d=\"M15 21.5L26 27.5\" stroke=\"#2196F3\" stroke-width=\"2\"/><rect x=\"19\" y=\"11\" width=\"8\" height=\"3\" transform=\"rotate(30)\" fill=\"#2196F3\" opacity=\"0.6\"/><rect x=\"16\" y=\"24\" width=\"8\" height=\"3\" transform=\"rotate(-30)\" fill=\"#2196F3\" opacity=\"0.6\"/></svg>",
     "repository": "https://github.com/AssistOS-AI/LLMReasoningBenchmark.git",
     "id": "LLMReasoningBenchmark"
+  },
+  {
+    "name": "research-tool",
+    "description": "Research tool description",
+    "image": "./wallet/assets/images/research-tool.png",
+    "svg": "<svg width=\"41\" height=\"41\" viewBox=\"0 0 41 41\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n    <!-- Brain Shape -->\n    <path d=\"M20.5 3C16.5 3 13.5 5.5 12 9C9.5 8 7 10 6 13C4.5 16.5 6 21 9.5 22.5C8 25 9 29.5 11.5 31.5C13.5 33 17 33 18.5 31.5C20 35 26 35 27.5 31.5C29 33 32.5 33 34.5 31.5C37 29.5 38 25 36.5 22.5C40 21 41.5 16.5 40 13C39 10 36.5 8 34 9C32.5 5.5 29.5 3 25.5 3H20.5Z\" fill=\"#2196F3\" stroke=\"#1976D2\" stroke-width=\"2\"/>\n\n    <!-- Gears -->\n    <circle cx=\"14\" cy=\"15\" r=\"3\" fill=\"white\" stroke=\"#1976D2\" stroke-width=\"2\"/>\n    <circle cx=\"27\" cy=\"15\" r=\"3\" fill=\"white\" stroke=\"#1976D2\" stroke-width=\"2\"/>\n\n    <!-- Gear Teeth -->\n    <path d=\"M14 12V11M14 19V18M11 15H10M18 15H17M12.5 12.5L11.5 11.5M16 12.5L17 11.5M12.5 17.5L11.5 18.5M16 17.5L17 18.5\" stroke=\"#1976D2\" stroke-width=\"1.5\"/>\n\n    <path d=\"M27 12V11M27 19V18M24 15H23M31 15H30M25.5 12.5L24.5 11.5M29 12.5L30 11.5M25.5 17.5L24.5 18.5M29 17.5L30 18.5\" stroke=\"#1976D2\" stroke-width=\"1.5\"/>\n</svg>",
+    "repository": "https://github.com/AssistOS-AI/research-tool.git",
+    "id": "research-tool"
   }
 ]

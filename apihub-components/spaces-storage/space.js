@@ -453,11 +453,13 @@ async function createSpaceChat(spaceId, personalityId) {
 
     const chatChapterData = {
         title: `Messages`,
+        position:0,
         paragraphs: []
     }
 
     const chatContextChapterData = {
         title: `Context`,
+        position:1,
         paragraphs: []
     }
 
@@ -815,6 +817,8 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     }
     return existingCollaborators;
 }
+
+
 
 module.exports = {
     APIs: {

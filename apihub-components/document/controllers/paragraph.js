@@ -1,6 +1,7 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const space = require('../../spaces-storage/space.js')
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
