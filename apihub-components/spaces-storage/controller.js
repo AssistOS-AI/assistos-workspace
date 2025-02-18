@@ -1106,17 +1106,30 @@ async function getDownloadURL(request, response) {
 
 async function chatCompleteParagraph(request, response) {
     const spaceId = request.params.spaceId;
-    const userId = request.userId;
-
     const documentId = request.params.documentId;
     const paragraphId = request.params.paragraphId;
 
-    let streamClosed = false;
+    const modelName = request.body.modelName;
+    const agentId = request.body.agentId;
+
+
+    if(modelName === undefined && agentId === undefined){
+        return utils.sendResponse(response,400,"application/json",`modelName or agentId must be defined in the Request Body. Received modelName:${modelName}, agentId:${agentId}`)
+    }
+
+    if(modelName === undefined){
+        const personalityData = await space.APIs.getPersonalityData(spaceId,agentId)
+        if(!personalityData){
+            return utils.sendResponse(response,400,"application/json",`Invalid agentId:${agentId}`)
+        }
+        request.body.modelName = personalityData.llms.text
+    }
 
     const Paragraph = require('../document/services/paragraph.js')
 
     const updateQueue = [];
     let isProcessingQueue = false;
+    let streamClosed = false;
     try {
         response.on('close', async () => {
             if (!streamClosed) {
