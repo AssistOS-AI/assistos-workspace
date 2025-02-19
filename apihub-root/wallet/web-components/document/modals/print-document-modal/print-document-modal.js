@@ -19,7 +19,7 @@ export class PrintDocumentModal {
     }
 
     async beforeRender() {
-        // Cod de inițializare care rulează înainte de redarea paginii
+        // Cod de initializare care ruleaza inainte de redarea paginii
     }
 
     closePrintModal() {
