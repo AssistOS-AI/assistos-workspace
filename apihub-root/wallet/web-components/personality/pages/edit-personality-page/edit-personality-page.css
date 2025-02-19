@@ -119,7 +119,11 @@ textarea#description, textarea#chatPrompt{
     resize: none;
     height: 150px;
 }
-
+textarea#chatIframe{
+    resize: none;
+    height: 180px;
+    width: 450px;
+}
 .edit-personality-form{
     margin-left: 15px;
     width: 50%;

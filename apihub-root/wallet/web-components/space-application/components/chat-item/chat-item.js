@@ -1,5 +1,5 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const userModule = require("assistos").loadModule("user", {});
+/*const spaceModule = require("assistos").loadModule("space", {});
+const userModule = require("assistos").loadModule("user", {});*/
 
 export class ChatItem {
     constructor(element, invalidate) {

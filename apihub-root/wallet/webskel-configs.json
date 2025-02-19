@@ -1,5 +1,5 @@
 {
-    "defaultPage": "agent-page",
+    "defaultPage": "chat-page",
     "webComponentsRootDir": "wallet/web-components",
     "services": [],
     "components": [
@@ -329,10 +329,10 @@
             "presenterClassName": "TasksPage"
         },
         {
-            "name": "agent-page",
+            "name": "chat-page",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "AgentPage"
+            "presenterClassName": "ChatPage"
         },
         {
             "name": "settings-page",

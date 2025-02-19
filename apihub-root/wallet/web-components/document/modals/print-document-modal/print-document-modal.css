@@ -1,4 +1,5 @@
 /* Modal container */
+
 .print-modal-wrapper {
     font-family: Arial, sans-serif;
     background-color: rgba(0, 0, 0, 0.6);
@@ -83,7 +84,7 @@ h2 {
 .print-modal-wrapper .section h3 {
     color: #fff;
     margin-bottom: 15px;
-    border-bottom: 1px solid #444;
+    border-bottom: 3px solid #444;
     padding-bottom: 5px;
 }
 
@@ -102,23 +103,22 @@ h2 {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
     margin-bottom: 15px;
 }
 
 .print-modal-wrapper .section .row label {
 
-    text-align: left; /* Aliniere la stânga */
+    text-align: left;
 }
 
 .print-modal-wrapper .section .row input[type="file"] {
-    flex: 1; /* Ocupă cealaltă jumătate din spațiu */
-    padding: 5px; /* Spațiu intern pentru input */
-    font-size: 14px; /* Uniformizare cu alte inputuri */
-    border: 1px solid #444; /* Pentru consistență */
-    border-radius: 4px; /* Colțuri rotunjite */
-    background-color: #2b2b2b; /* Fundal pentru a se potrivi cu tema */
-    color: #fff; /* Text alb */
+    flex: 1;
+    padding: 5px;
+    font-size: 14px;
+    border: 1px solid #444;
+    border-radius: 4px;
+    background-color: #2b2b2b;
+    color: #fff;
 }
 
 /* Select, inputs and checkboxes */
@@ -155,12 +155,47 @@ h2 {
     width: auto;
 }
 
-/* Padding customization section */
-.print-modal-wrapper .section #PaddingCustomization div {
+.print-modal-wrapper .section#PaddingCustomization {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 10px;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.print-modal-wrapper .section#PaddingCustomization .section-title {
+    text-align: center;
+}
+
+.print-modal-wrapper .section#PaddingCustomization h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #fff;
+    font-weight: bold;
+}
+
+.print-modal-wrapper .section#PaddingCustomization .row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: left;
+    gap: 5px;
+}
+
+/* Etichetele (label) */
+.print-modal-wrapper .section#PaddingCustomization label {
+    font-size: 14px;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+/* Inputurile pentru numere */
+.print-modal-wrapper .section#PaddingCustomization input[type="number"] {
+    width: 100px;
+    padding: 6px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 
 /* Background customization section */
@@ -216,7 +251,7 @@ h2 {
     }
 }
 
-/* Aliniere Font Style (Bold + Italic) pe același rand cu latimi egale */
+/* Aliniere Font Style (Bold + Italic) pe acelasi rand cu latimi egale */
 .font-style-container {
     display: flex;
     justify-content: space-between;
@@ -257,9 +292,53 @@ h2 {
 #chaptersSettings h4,
 #paragraphsSettings h4 {
     margin-right: 0px;
-    margin-bottom: 15px; /* Elimină margin complet */
+    margin-bottom: 15px;
     margin-top: 0px;
     margin-left: 40%;
     padding: 0px;
+}
+
+#sectionSelector {
+    background-color: #2b2b2b;
+    color: white;
+    font-size: 16px;
+    padding: 12px 20px;
+    border: 2px solid #444;
+    border-radius: 8px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#sectionSelector:hover {
+    background-color: #2b2c2c;
+    border-color: #212323;
+}
+
+select:not(#sectionSelector) {
+    background-color: #afafaf;
+    color: #333;
+    font-size: 14px;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+select:not(#sectionSelector):hover {
+    border-color: #888;
+}
+
+select:not(#sectionSelector):focus {
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    border-color: #333;
 }
 

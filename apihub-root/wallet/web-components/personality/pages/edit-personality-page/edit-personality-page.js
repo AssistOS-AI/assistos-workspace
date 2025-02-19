@@ -46,6 +46,15 @@ export class EditPersonalityPage {
 
     async beforeRender() {
         // Generate Dynamically the LLM selection section to automatize the process of adding new LLMs and new LLM types and make it more extensible
+        const iFrameURL = `${window.location.origin}/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
+        this.chatIframe = `
+<iframe 
+    id="chatFrame"
+    src="${iFrameURL}" 
+    allowfullscreen
+    loading="lazy">
+</iframe>
+        `
         const constructLlmOptions = (llmModels, llmType) => {
             let options = [];
 
