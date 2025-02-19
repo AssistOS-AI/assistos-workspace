@@ -8,12 +8,21 @@
 
             <form id="printSettingsForm">
 
-                <!-- Titlu -->
-                <div class="section" id="titleCustomization">
-                    <h3>Title Customization</h3>
+                <!-- Dynamic Select -->
+                <div class="section">
+                    <h3 id="dynamicSectionTitle">Select Section to Customize:</h3>
+                    <select id="sectionSelector">
+                        <option value="title">▶ Title</option>
+                        <option value="abstract">▶ Abstract</option>
+                        <option value="chapters">▶ Chapters</option>
+                        <option value="paragraphs">▶ Paragraphs</option>
+                    </select>
+                </div>
+
+                <div class="section" id="dynamicSection">
                     <div class="row">
-                        <label for="titleFont">Font:</label>
-                        <select id="titleFont" name="titleFont">
+                        <label for="dynamicFont">Font:</label>
+                        <select id="dynamicFont" name="dynamicFont">
                             <option value="Helvetica">Helvetica</option>
                             <option value="Times">Times</option>
                             <option value="Courier">Courier</option>
@@ -26,149 +35,24 @@
                         <label>Font Style:</label>
                         <div class="font-style-container">
                             <div class="font-style-option">
-                                <input type="checkbox" id="titleBoldStyle" name="fontStyle" value="bold">
-                                <label for="titleBoldStyle">Bold</label>
+                                <input type="checkbox" id="dynamicBoldStyle" name="dynamicFontStyle" value="bold">
+                                <label for="dynamicBoldStyle">Bold</label>
                             </div>
                             <div class="font-style-option">
-                                <input type="checkbox" id="titleItalicStyle" name="fontStyle" value="italic">
-                                <label for="titleItalicStyle">Italic</label>
+                                <input type="checkbox" id="dynamicItalicStyle" name="dynamicFontStyle" value="italic">
+                                <label for="dynamicItalicStyle">Italic</label>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
-                        <label for="titleFontSize">Font Size:</label>
-                        <input type="number" id="titleFontSize" name="titleFontSize" value="20" min="1">
+                        <label for="dynamicFontSize">Font Size:</label>
+                        <input type="number" id="dynamicFontSize" name="dynamicFontSize" value="20" min="1">
                     </div>
 
                     <div class="row">
-                        <label for="titleColor">Color:</label>
-                        <input type="color" id="titleColor" name="titleColor" value="#000000">
-                    </div>
-                </div>
-
-                <!-- Abstract -->
-                <div class="section" id="abstractCustomization">
-                    <h3>Abstract Customization</h3>
-                    <div class="row">
-                        <label for="abstractFont">Font:</label>
-                        <select id="abstractFont" name="abstractFont">
-                            <option value="Helvetica">Helvetica</option>
-                            <option value="Times">Times</option>
-                            <option value="Courier">Courier</option>
-                            <option value="Symbol">Symbol</option>
-                            <option value="ZapfDingbats">ZapfDingbats</option>
-                        </select>
-                    </div>
-
-                    <div class="row">
-                        <label>Font Style:</label>
-                        <div class="font-style-container">
-                            <div class="font-style-option">
-                                <input type="checkbox" id="abstractBoldStyle" name="fontStyle" value="bold">
-                                <label for="abstractBoldStyle">Bold</label>
-                            </div>
-                            <div class="font-style-option">
-                                <input type="checkbox" id="abstractItalicStyle" name="fontStyle" value="italic">
-                                <label for="abstractItalicStyle">Italic</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <label for="abstractFontSize">Font Size:</label>
-                        <input type="number" id="abstractFontSize" name="abstractFontSize" value="14" min="1">
-                    </div>
-
-                    <div class="row">
-                        <label for="abstractColor">Color:</label>
-                        <input type="color" id="abstractColor" name="abstractColor" value="#000000">
-                    </div>
-                </div>
-
-                <!-- Capitole & Paragrafe -->
-                <div class="section" id="chaptersCustomization">
-                    <h3>Chapters and Paragraphs Customization</h3>
-
-                    <!-- Container pentru Chapters și Paragraphs -->
-                    <div class="settings-container">
-                        <!-- Capitole -->
-                        <div id="chaptersSettings">
-                            <h4>Chapters</h4>
-                            <div class="row">
-                                <label for="chapterFont">Font:</label>
-                                <select id="chapterFont" name="chapterFont">
-                                    <option value="Helvetica">Helvetica</option>
-                                    <option value="Times">Times</option>
-                                    <option value="Courier">Courier</option>
-                                    <option value="Symbol">Symbol</option>
-                                    <option value="ZapfDingbats">ZapfDingbats</option>
-                                </select>
-                            </div>
-
-                            <div class="row">
-                                <label>Font Style:</label>
-                                <div class="font-style-container">
-                                    <div class="font-style-option">
-                                        <input type="checkbox" id="chapterBoldStyle" name="fontStyle" value="bold">
-                                        <label for="chapterBoldStyle">Bold</label>
-                                    </div>
-                                    <div class="font-style-option">
-                                        <input type="checkbox" id="chapterItalicStyle" name="fontStyle" value="italic">
-                                        <label for="chapterItalicStyle">Italic</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <label for="chapterFontSize">Font Size:</label>
-                                <input type="number" id="chapterFontSize" name="chapterFontSize" value="18" min="1">
-                            </div>
-
-                            <div class="row">
-                                <label for="chapterColor">Color:</label>
-                                <input type="color" id="chapterColor" name="chapterColor" value="#000000">
-                            </div>
-                        </div>
-
-                        <!-- Paragrafe -->
-                        <div id="paragraphsSettings">
-                            <h4>Paragraphs</h4>
-                            <div class="row">
-                                <label for="paragraphFont">Font:</label>
-                                <select id="paragraphFont" name="paragraphFont">
-                                    <option value="Helvetica">Helvetica</option>
-                                    <option value="Times">Times</option>
-                                    <option value="Courier">Courier</option>
-                                    <option value="Symbol">Symbol</option>
-                                    <option value="ZapfDingbats">ZapfDingbats</option>
-                                </select>
-                            </div>
-
-                            <div class="row">
-                                <label>Font Style:</label>
-                                <div class="font-style-container">
-                                    <div class="font-style-option">
-                                        <input type="checkbox" id="paragraphBoldStyle" name="fontStyle" value="bold">
-                                        <label for="paragraphBoldStyle">Bold</label>
-                                    </div>
-                                    <div class="font-style-option">
-                                        <input type="checkbox" id="paragraphItalicStyle" name="fontStyle" value="italic">
-                                        <label for="paragraphItalicStyle">Italic</label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <label for="paragraphFontSize">Font Size:</label>
-                                <input type="number" id="paragraphFontSize" name="paragraphFontSize" value="14" min="1">
-                            </div>
-
-                            <div class="row">
-                                <label for="paragraphColor">Color:</label>
-                                <input type="color" id="paragraphColor" name="paragraphColor" value="#000000">
-                            </div>
-                        </div>
+                        <label for="dynamicColor">Color:</label>
+                        <input type="color" id="dynamicColor" name="dynamicColor" value="#000000">
                     </div>
                 </div>
 
@@ -207,34 +91,11 @@
                     </div>
                 </div>
 
-                <div class="section" id="PaddingCustomization">
-                    <h3>Padding Customization</h3>
-                    <div class="row">
-                        <label for="topPadding">Top Padding (px):</label>
-                        <input type="number" id="topPadding" name="topPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="bottomPadding">Bottom Padding (px):</label>
-                        <input type="number" id="bottomPadding" name="bottomPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="leftPadding">Left Padding (px):</label>
-                        <input type="number" id="leftPadding" name="leftPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="rightPadding">Right Padding (px):</label>
-                        <input type="number" id="rightPadding" name="rightPadding" value="10" min="5"/>
-                    </div>
-                </div>
-
                 <!-- Pagination Placing-->
                 <div class="section" id="paginationSection">
                     <h3>Pagination Position and Style</h3>
                     <div class="row">
-                        <label for="paginationSelect">Select Position:</label>
+                        <label for="paginationSelect">Select Pagination Position:</label>
                         <select id="paginationSelect" name="paginationPosition">
                             <option value="left">Left</option>
                             <option value="center" selected>Center</option>
@@ -255,6 +116,31 @@
                     </div>
                 </div>
 
+                <div class="section" id="PaddingCustomization">
+                    <div class="section-title">
+                        <h3>Padding Customization</h3>
+                    </div>
+
+                    <div class="row">
+                        <label for="topPadding">Top (px):</label>
+                        <input type="number" id="topPadding" name="topPadding" value="10" min="5" />
+                    </div>
+
+                    <div class="row">
+                        <label for="bottomPadding">Bottom  (px):</label>
+                        <input type="number" id="bottomPadding" name="bottomPadding" value="10" min="5" />
+                    </div>
+
+                    <div class="row">
+                        <label for="leftPadding">Left (px):</label>
+                        <input type="number" id="leftPadding" name="leftPadding" value="10" min="5" />
+                    </div>
+
+                    <div class="row">
+                        <label for="rightPadding">Right (px):</label>
+                        <input type="number" id="rightPadding" name="rightPadding" value="10" min="5"/>
+                    </div>
+                </div>
 
 
                 <!-- Butoane de acțiune -->
@@ -268,7 +154,7 @@
 </div>
 
 <!-- Scripturi -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.3/purify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
