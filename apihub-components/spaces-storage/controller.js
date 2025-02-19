@@ -395,6 +395,7 @@ async function getSpaceChat(request, response) {
         });
     }
 }
+
 async function resetSpaceChat(request, response) {
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
@@ -1103,6 +1104,76 @@ async function getDownloadURL(request, response) {
     }
 }
 
+async function chatCompleteParagraph(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const paragraphId = request.params.paragraphId;
+
+    const modelName = request.body.modelName;
+    const agentId = request.body.agentId;
+
+
+    if(modelName === undefined && agentId === undefined){
+        return utils.sendResponse(response,400,"application/json",`modelName or agentId must be defined in the Request Body. Received modelName:${modelName}, agentId:${agentId}`)
+    }
+
+    if(modelName === undefined){
+        const personalityData = await space.APIs.getPersonalityData(spaceId,agentId)
+        if(!personalityData){
+            return utils.sendResponse(response,400,"application/json",`Invalid agentId:${agentId}`)
+        }
+        request.body.modelName = personalityData.llms.text
+    }
+
+    const Paragraph = require('../document/services/paragraph.js')
+
+    const updateQueue = [];
+    let isProcessingQueue = false;
+    let streamClosed = false;
+    try {
+        response.on('close', async () => {
+            if (!streamClosed) {
+                streamClosed = true;
+                updateQueue.length = 0;
+            }
+        });
+
+        const processQueue = async () => {
+            if (isProcessingQueue || streamClosed) return;
+            isProcessingQueue = true;
+
+            while (updateQueue.length > 0 && !streamClosed) {
+                const currentChunk = updateQueue.shift();
+                try {
+                    await Paragraph.updateParagraph(spaceId,documentId,paragraphId,currentChunk, {fields:"text"})
+                } catch (error) {
+                    console.error('Error updating message:', error);
+                }
+            }
+            isProcessingQueue = false;
+        };
+
+        const streamContext = await getTextStreamingResponse(
+            request,
+            response,
+            async (chunk) => {
+                try {
+                    if (streamClosed) return;
+                    updateQueue.push(chunk);
+                    await processQueue();
+                } catch (error) {
+                    console.error('Error processing chunk:', error);
+                }
+            }
+        );
+        await streamContext.streamPromise;
+    } catch (error) {
+        if (!response.headersSent) {
+            response.status(500).json({error: 'Stream error'});
+        }
+    }
+}
+
 module.exports = {
     getUploadURL,
     getDownloadURL,
@@ -1151,5 +1222,6 @@ module.exports = {
     getFileObjectsMetadataPath,
     getFileObjectPath,
     resetSpaceChat,
-    saveSpaceChat
+    saveSpaceChat,
+    chatCompleteParagraph
 }

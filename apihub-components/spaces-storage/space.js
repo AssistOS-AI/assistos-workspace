@@ -233,6 +233,10 @@ async function getPersonalitiesIds(spaceId, personalityNames) {
     }
     return personalityIds;
 }
+async function getSpacePersonalities(spaceId){
+    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
+    return JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
+}
 
 function createDefaultAnnouncement(spaceName) {
     const defaultSpaceAnnouncement = require('./templates/defaultSpaceAnnouncement.json');
@@ -449,16 +453,19 @@ async function createSpaceChat(spaceId, personalityId) {
 
     const chatChapterData = {
         title: `Messages`,
+        position:0,
         paragraphs: []
     }
 
     const chatContextChapterData = {
         title: `Context`,
+        position:1,
         paragraphs: []
     }
 
     const docId = await Document.createDocument(spaceId, documentData);
     personalityData.chats.push(docId);
+    personalityData.selectedChat = docId;
     await updatePersonalityData(spaceId,personalityId,personalityData)
     const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
     const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
@@ -811,6 +818,8 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     return existingCollaborators;
 }
 
+
+
 module.exports = {
     APIs: {
         addApplicationToSpaceObject,
@@ -852,7 +861,9 @@ module.exports = {
         createSpaceChat,
         updateSpaceChatMessage,
         resetSpaceChat,
-        storeSpaceChat
+        storeSpaceChat,
+        getPersonalityData,
+        getSpacePersonalities
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

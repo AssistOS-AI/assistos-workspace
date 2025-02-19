@@ -14,6 +14,7 @@ const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const {Document, Packer, Paragraph, TextRun} = require("docx");
+const lightDB = require("../../apihub-component-utils/lightDB");
 
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -227,9 +228,31 @@ async function importDocument(request, response) {
                     throw new Error(`Required files not found. Files in directory: ${extractedFiles.join(', ')}`);
                 }
 
-                const importResults = await storeDocument(spaceId, extractedPath, request);
+                const docDataPath = path.join(extractedPath, 'data.json');
+                const docDataStream = fs.createReadStream(docDataPath, 'utf8');
+
+                const docData = await space.APIs.streamToJson(docDataStream);
+                const personalities = docData.personalities || [];
+                const personalityPath = path.join(extractedPath, 'personalities');
+                const overriddenPersonalities = new Set();
+                for (let personality of personalities) {
+                    const personalityFileName = `${personality}.persai`;
+                    const filePath = path.join(personalityPath, personalityFileName);
+                    const extractedPath = path.join(personalityPath, 'extracted', personality);
+                    fs.mkdirSync(extractedPath, {recursive: true});
+
+                    await fs.createReadStream(filePath)
+                        .pipe(unzipper.Extract({path: extractedPath}))
+                        .promise();
+
+                    const importResults = await space.APIs.importPersonality(spaceId, extractedPath, request);
+                    if (importResults.overriden) {
+                        overriddenPersonalities.add(importResults.name);
+                    }
+                }
+                const documentId = await storeDocument(spaceId, docData, request, extractedPath);
                 await fs.promises.unlink(filePath);
-                SubscriptionManager.notifyClients("", objectId, importResults)
+                SubscriptionManager.notifyClients("", objectId, {id:documentId, overriddenPersonalities: Array.from(overriddenPersonalities)});
             } catch (error) {
                 console.error('Error processing extracted files:', error);
                 SubscriptionManager.notifyClients("", objectId, {error: error.message});
@@ -256,43 +279,20 @@ async function importDocument(request, response) {
     });
 }
 
-async function storeDocument(spaceId, extractedPath, request) {
+async function storeDocument(spaceId, docData, request, extractedPath) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     const documentModule = require('assistos').loadModule('document', securityContext);
     const spaceModule = require('assistos').loadModule('space', securityContext);
-    const docMetadataPath = path.join(extractedPath, 'metadata.json');
-    const docDataPath = path.join(extractedPath, 'data.json');
 
-    const docMetadataStream = fs.createReadStream(docMetadataPath, 'utf8');
-    const docDataStream = fs.createReadStream(docDataPath, 'utf8');
-
-    const docMetadata = await space.APIs.streamToJson(docMetadataStream);
-    const docData = await space.APIs.streamToJson(docDataStream);
     let exportType = docData.exportType;
     const docId = await documentModule.addDocument(spaceId, {
-        title: docMetadata.title,
-        topic: docMetadata.topic,
-        metadata: ["id", "title"]
+        title: docData.title,
+        topic: docData.topic,
+        metadata: ["id", "title", "type"],
+        type: docData.type || "document",
+        abstract: docData.abstract,
     });
-    const personalities = docData.personalities || [];
-    const personalityPath = path.join(extractedPath, 'personalities');
-    const overriddenPersonalities = new Set();
-    for (let personality of personalities) {
-        const personalityFileName = `${personality}.persai`;
-        const filePath = path.join(personalityPath, personalityFileName);
-        const extractedPath = path.join(personalityPath, 'extracted', personality);
-        fs.mkdirSync(extractedPath, {recursive: true});
-
-        await fs.createReadStream(filePath)
-            .pipe(unzipper.Extract({path: extractedPath}))
-            .promise();
-
-        const importResults = await space.APIs.importPersonality(spaceId, extractedPath, request);
-        if (importResults.overriden) {
-            overriddenPersonalities.add(importResults.name);
-        }
-    }
     //for some reason the chapters are in reverse order
     for (let i = docData.chapters.length - 1; i >= 0; i--) {
         const chapter = docData.chapters[i];
@@ -334,9 +334,10 @@ async function storeDocument(spaceId, extractedPath, request) {
             }
         }
     }
-
-    fs.rmSync(extractedPath, {recursive: true, force: true});
-    return {id: docId, overriddenPersonalities: Array.from(overriddenPersonalities)};
+    if(extractedPath){
+        fs.rmSync(extractedPath, {recursive: true, force: true});
+    }
+    return docId;
 }
 
 async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
@@ -718,6 +719,67 @@ async function redoOperation(request, response) {
         return utils.sendResponse(response, 500, "application/json", error.message);
     }
 }
+
+async function getDocumentSnapshot(request, response) {
+
+}
+async function addDocumentSnapshot(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const snapshotData = request.body;
+    const SecurityContextClass = require('assistos').ServerSideSecurityContext;
+    let securityContext = new SecurityContextClass(request);
+    let documentModule = require('assistos').loadModule('document', securityContext);
+    try {
+        let document = await documentModule.getDocument(spaceId, documentId);
+        document.type = "snapshot";
+        document.abstract = JSON.stringify({originalDocumentId: documentId, ...snapshotData});
+        snapshotData.documentId = await storeDocument(spaceId, document, request);
+        let {id, position} = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
+        snapshotData.id = id;
+        utils.sendResponse(response, 200, "application/json", {
+          data: snapshotData
+        });
+    } catch (e) {
+       utils.sendResponse(response, 500, "application/json", {
+         message: e.message
+       });
+    }
+}
+async function getDocumentSnapshots(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    try {
+        let documentRecord = await lightDB.getRecord(spaceId, documentId, documentId);
+        let snapshots = [];
+        for(let snapshotId of documentRecord.data.snapshots){
+            let snapshot = await lightDB.getEmbeddedObject(spaceId, "snapshots", `${documentId}/${snapshotId}`);
+            snapshots.push(snapshot);
+        }
+        utils.sendResponse(response, 200, "application/json", {
+            data: snapshots
+        });
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+async function deleteDocumentSnapshot(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const snapshotId = request.params.snapshotId;
+    try {
+        let snapshotRecord = await lightDB.getRecord(spaceId, documentId, snapshotId);
+        await lightDB.deleteContainerObject(spaceId, snapshotRecord.data.documentId);
+        await lightDB.deleteEmbeddedObject(spaceId, `${documentId}/${snapshotId}`);
+        utils.sendResponse(response, 200, "application/json", {});
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -734,5 +796,9 @@ module.exports = {
     downloadDocumentVideo,
     exportDocumentAsDocx,
     undoOperation,
-    redoOperation
+    redoOperation,
+    getDocumentSnapshot,
+    getDocumentSnapshots,
+    addDocumentSnapshot,
+    deleteDocumentSnapshot
 }

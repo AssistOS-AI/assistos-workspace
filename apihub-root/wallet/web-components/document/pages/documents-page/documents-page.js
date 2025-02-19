@@ -3,6 +3,7 @@ export class DocumentsPage {
     constructor(element, invalidate) {
         this.refreshDocuments = async () => {
             this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
+            this.documents = this.documents.filter(document => document.type !== documentModule.documentTypes.SNAPSHOT);
         };
         this.invalidate = invalidate;
         this.id = "documents";

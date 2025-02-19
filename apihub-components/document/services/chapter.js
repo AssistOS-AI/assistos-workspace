@@ -66,6 +66,7 @@ async function getChapter(spaceId, documentId, chapterId, queryParams) {
 
 async function createChapter(spaceId, documentId, chapterData) {
     let {id, position} = await lightDB.addEmbeddedObject(spaceId, constructChapterURI(documentId, "chapters"), chapterData);
+    chapterData.position = position;
     await documentService.addOperation(spaceId, documentId, {
         type: "add",
         objectURI: constructChapterURI(documentId, id),

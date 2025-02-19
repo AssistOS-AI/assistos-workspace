@@ -21,6 +21,12 @@
             <textarea class="form-input" name="chatPrompt" data-id="chatPrompt" id="chatPrompt">$$chatPrompt</textarea>
         </div>
         <div class="form-item">
+            <label class="form-label" for="chatId">Conversation</label>
+            <select class="form-input" id="chatId" name="chatId" data-id="chatId">
+                $$chatOptions
+            </select>
+        </div>
+        <div class="form-item">
             <label class="form-label" for="photo">Photo</label>
             <div class="input-file-container" data-id="photo" data-local-action="triggerInputFileOpen photo">
                 <div class="shadow">

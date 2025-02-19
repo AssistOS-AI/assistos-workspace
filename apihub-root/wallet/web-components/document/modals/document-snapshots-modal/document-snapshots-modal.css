@@ -1,0 +1,48 @@
+document-snapshots-modal{
+    display: block;
+    width: 560px;
+}
+.document-snapshot{
+    display: flex;
+    padding: 5px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.document-snapshot:hover{
+    background-color: var(--very-light-gray);
+}
+.snapshot-date,
+.snapshot-user{
+    display: flex;
+    margin-right: 20px;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.snapshot-date{
+    width: 130px;
+}
+.snapshot-user{
+    width: 300px;
+}
+.list-header{
+    display: flex;
+    margin: 10px 0;
+    font-weight: bold;
+    font-size: 12px;
+    padding: 0 5px;
+}
+.export-snapshot{
+    margin-right: 40px;
+}
+.export-document {
+    margin-left: 18px;
+    margin-right: 40px;
+}
+.delete-snapshot{
+    margin-left: 8px;
+}
+.no-snapshots{
+    margin-top: 10px;
+}

@@ -267,9 +267,11 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .tasks-menu {
+    width: 35px;
     position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
 }
 .new-tasks-badge {
     position: absolute;
@@ -307,7 +309,7 @@ document-view-page::-webkit-scrollbar-track {
 }
 .focused.locked-item{
     background-color: var(--very-light-gray);
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 document-view-page .right-margin {
     margin-right: 10px;
@@ -347,7 +349,7 @@ html[theme="dark"] input.document-title{
 }
 .plugin-circle.locked-item{
     background-color: var(--very-light-gray);
-    pointer-events: none;
+    /*pointer-events: none;*/
 }
 .toolbar{
     display: none;
@@ -365,7 +367,8 @@ html[theme="dark"] input.document-title{
     margin-right: 0 !important;
     margin-left: 15px;
 }
-.plugin-name{
+.plugin-name,
+.tooltip-name{
     z-index: 2;
     top: 32px;
     padding: 5px;
@@ -380,18 +383,4 @@ html[theme="dark"] input.document-title{
 .chapter-highlight-plugin,
 .paragraph-highlight-plugin{
     border: 3px solid var(--medium-blue);
-}
-.timeout-toast{
-    display: inline-block;
-    white-space: nowrap;
-    width: fit-content;
-    box-shadow: 0px 1px 7.3px 0px #00000040;
-    font-size: 12px;
-    font-weight: bold;
-    z-index: 2;
-    top: 30px;
-    position: absolute;
-    padding: 5px;
-    background-color: var(--gray-border);
-    border-radius: 10px;
 }

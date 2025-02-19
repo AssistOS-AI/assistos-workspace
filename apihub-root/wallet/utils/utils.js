@@ -99,11 +99,20 @@ export function unescapeHtmlEntities(value) {
     tempElement.innerHTML = value;
     return tempElement.value;
 }
-export function generateId(length) {
+export function generateId(length = 16) {
     let random = crypto.getRandomSecret(length);
     let randomStringId = "";
     while (randomStringId.length < length) {
         randomStringId = crypto.encodeBase58(random).slice(0, length);
     }
     return randomStringId;
+}
+export function formatTimestampToDate(timestamp) {
+    const date = new Date(timestamp);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
 }

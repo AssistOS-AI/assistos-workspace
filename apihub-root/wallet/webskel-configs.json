@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "document-snapshots-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "DocumentSnapshotsModal"
+        },
+        {
             "name": "files-menu",
             "directory": "document",
             "type": "components",

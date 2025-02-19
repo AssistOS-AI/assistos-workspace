@@ -17,6 +17,12 @@ function document(server) {
     server.put("/documents/undo/:spaceId/:documentId", documentHandler.undoOperation);
     server.put("/documents/redo/:spaceId/:documentId", documentHandler.redoOperation);
 
+    //Snapshots
+    server.get("/documents/snapshots/:spaceId/:documentId", documentHandler.getDocumentSnapshots);
+    server.get("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.getDocumentSnapshot);
+    server.post("/documents/snapshots/:spaceId/:documentId", documentHandler.addDocumentSnapshot);
+    server.delete("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.deleteDocumentSnapshot);
+
     //Selections
     server.get("/documents/select/:spaceId/:documentId", documentHandler.getSelectedDocumentItems);
     server.put("/documents/select/:spaceId/:documentId/:itemId", documentHandler.selectDocumentItem);
@@ -46,6 +52,8 @@ function document(server) {
     server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
     server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
     server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
+
+
 }
 
 module.exports = document;
