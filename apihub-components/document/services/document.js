@@ -26,7 +26,7 @@ async function deleteDocument(spaceId, documentId) {
         return TaskManager.cancelTaskAndRemove(taskId);
     }));
     try {
-        await lightDB.deleteContainerObject(spaceId, getOperationsTableName(documentId));
+        await lightDB.deleteContainerObject(spaceId, getOperationsId(documentId));
     } catch (e) {
         throw new Error("Failed to delete operations table");
     }
@@ -57,10 +57,11 @@ async function getDocumentsMetadata(spaceId) {
 }
 
 async function createDocument(spaceId, documentData) {
-    documentData.operations = {
+    let documentId = await lightDB.addContainerObject(spaceId, "documents", documentData);
+    await lightDB.insertRecord(spaceId, documentId, getOperationsId(documentId),{
         count: 0
-    };
-    return await lightDB.addContainerObject(spaceId, "documents", documentData)
+    });
+    return documentId;
 }
 
 async function updateDocument(spaceId, documentId, documentData, queryParams) {
@@ -121,19 +122,21 @@ async function addOperation(spaceId, documentId, operationData) {
     opQueue.push({ spaceId, documentId, operationData });
     processOperationQueue();
 }
-function getOperationsTableName(documentId){
+function getOperationsId(documentId){
     return documentId + "_operations";
 }
 async function processOperation(spaceId, documentId, operationData){
     let documentOperations;
-    documentOperations = await lightDB.getEmbeddedObject(spaceId, "documents", constructDocumentURI(documentId, "operations"));
-    if(!documentOperations){
+    let documentOperationsRecord = await lightDB.getRecord(spaceId, documentId, getOperationsId(documentId));
+    if(!documentOperationsRecord){
         documentOperations = {
             count: 0
         };
+    } else {
+        documentOperations = documentOperationsRecord.data;
     }
     let operationId = `operations_${crypto.generateId()}`;
-    let opTable = getOperationsTableName(documentId);
+    let opTable = getOperationsId(documentId);
     if(documentOperations.previousOp){
         //is not first op on the document
         operationData.previousOp = documentOperations.previousOp;
@@ -158,7 +161,7 @@ async function processOperation(spaceId, documentId, operationData){
         }
     } else {
         documentOperations.oldestOp = operationId;
-        await lightDB.updateEmbeddedObject(spaceId, constructDocumentURI(documentId, "operations"), documentOperations);
+        await lightDB.updateRecord(spaceId, documentId, getOperationsId(documentId), documentOperations);
 
     }
     operationData.id = operationId;
@@ -185,7 +188,7 @@ async function processOperation(spaceId, documentId, operationData){
     documentOperations.count += 1;
     documentOperations.previousOp = operationId;
     try {
-        await lightDB.updateEmbeddedObject(spaceId, constructDocumentURI(documentId, "operations"), documentOperations);
+        await lightDB.updateRecord(spaceId, documentId, getOperationsId(documentId), documentOperations);
     } catch (e) {
         throw new Error("Failed to update document operations " + e.message);
     }
@@ -193,13 +196,13 @@ async function processOperation(spaceId, documentId, operationData){
 }
 async function deleteLinkedOperations(spaceId, documentId, operationId, opCount){
     while (operationId) {
-        let record = await lightDB.getRecord(spaceId, getOperationsTableName(documentId), operationId);
+        let record = await lightDB.getRecord(spaceId, getOperationsId(documentId), operationId);
         if (!record) {
             break;
         }
         let operation = record.data;
         try {
-            await lightDB.deleteRecord(spaceId, getOperationsTableName(documentId), operationId);
+            await lightDB.deleteRecord(spaceId, getOperationsId(documentId), operationId);
         } catch (e) {
             console.error("Failed to delete operation", operationId);
         }
@@ -209,11 +212,12 @@ async function deleteLinkedOperations(spaceId, documentId, operationId, opCount)
     return opCount;
 }
 async function undoOperation(spaceId, documentId) {
-    let documentOps = await lightDB.getEmbeddedObject(spaceId, "documents", constructDocumentURI(documentId, "operations"));
+    let documentOpsRecord = await lightDB.getRecord(spaceId, documentId, getOperationsId(documentId));
+    let documentOps = documentOpsRecord.data;
     if(!documentOps.previousOp){
         return false;
     }
-    let record = await lightDB.getRecord(spaceId, getOperationsTableName(documentId), documentOps.previousOp);
+    let record = await lightDB.getRecord(spaceId, getOperationsId(documentId), documentOps.previousOp);
     let operation = record.data;
     if(operation.type === "delete"){
         await lightDB.addEmbeddedObject(spaceId, operation.objectURI, operation.data);
@@ -229,15 +233,16 @@ async function undoOperation(spaceId, documentId) {
     SubscriptionManager.notifyClients("", operation.reverseOpNotification.objectId, operation.reverseOpNotification.eventData);
     documentOps.previousOp = operation.previousOp;
     documentOps.nextOp = operation.id;
-    await lightDB.updateEmbeddedObject(spaceId, constructDocumentURI(documentId, "operations"), documentOps);
+    await lightDB.updateRecord(spaceId, documentId, getOperationsId(documentId), documentOps);
     return true;
 }
 async function redoOperation(spaceId, documentId) {
-    let documentOps = await lightDB.getEmbeddedObject(spaceId, "documents", constructDocumentURI(documentId, "operations"));
+    let documentOpsRecord = await lightDB.getRecord(spaceId, documentId, getOperationsId(documentId));
+    let documentOps = documentOpsRecord.data;
     if(!documentOps.nextOp){
         return false;
     }
-    let record = await lightDB.getRecord(spaceId, getOperationsTableName(documentId), documentOps.nextOp);
+    let record = await lightDB.getRecord(spaceId, getOperationsId(documentId), documentOps.nextOp);
     let operation = record.data;
     if(operation.type === "delete"){
         await lightDB.deleteEmbeddedObject(spaceId, operation.objectURI);
@@ -253,7 +258,7 @@ async function redoOperation(spaceId, documentId) {
     SubscriptionManager.notifyClients("", operation.reverseOpNotification.objectId, operation.reverseOpNotification.eventData);
     documentOps.previousOp = operation.id;
     documentOps.nextOp = operation.nextOp;
-    await lightDB.updateEmbeddedObject(spaceId, constructDocumentURI(documentId, "operations"), documentOps);
+    await lightDB.updateRecord(spaceId, documentId, getOperationsId(documentId), documentOps);
     return true;
 }
 

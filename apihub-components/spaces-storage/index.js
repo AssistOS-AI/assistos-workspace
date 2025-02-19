@@ -52,7 +52,6 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const paragraphHandler = require("../document/controllers/paragraph");
 
 function SpaceStorage(server) {
     server.head("/spaces/files/:fileId", headFile);

@@ -1,7 +1,7 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
-
+//const lock = require("apihub").getLockInstance("../apihub-root");
 let lightDBClients = {};
 
 function loadDatabaseClient(spaceId) {
@@ -189,9 +189,9 @@ async function insertEmbeddedObjectRecords(spaceId, tableId, objectURI, objectDa
     let segments = objectURI.split("/");
     let pk = segments[0];
     segments = segments.slice(1);
-    let record = await getRecord(spaceId, tableId, pk);
-    let object = record.data;
     if (segments.length === 1) {
+        let record = await getRecord(spaceId, tableId, pk);
+        let object = record.data;
         let objectType = segments[0].split('_')[0];
         if (!object[objectType]) {
             object[objectType] = [];
