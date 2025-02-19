@@ -1,0 +1,18 @@
+{
+  "webComponentsRootDir": "../wallet/web-components",
+  "components": [
+    {
+      "name": "chat-page",
+      "directory": "space-application",
+      "type": "pages",
+      "presenterClassName": "ChatPage"
+    },
+    {
+      "name": "chat-item",
+      "directory": "space-application",
+      "type": "components",
+      "presenterClassName": "ChatItem"
+    }
+  ],
+  "services": []
+}

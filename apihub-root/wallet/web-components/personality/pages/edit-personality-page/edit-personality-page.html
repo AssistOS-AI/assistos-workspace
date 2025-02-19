@@ -11,7 +11,6 @@
             <label class="form-label" for="name">Name</label>
             <input class="form-input" $$disabled name="name" data-id="name" type="text" id="name" value="$$personalityName">
         </div>
-
         <div class="form-item">
             <label class="form-label" for="description">Description</label>
             <textarea class="form-input" name="description" data-id="description" id="description"></textarea>
@@ -41,7 +40,6 @@
                 </div>
             </div>
         </div>
-
         <div class="form-item">
             <label class="form-label" for="voiceId">Select voice</label>
             <select class="form-input" id="voiceId" name="voiceId" data-id="voiceId">
@@ -62,4 +60,8 @@
             $$deletePersonalityButton
         </div>
     </form>
+    <div class="form-item">
+        <label class="form-label" for="chatIframe">Embed Personality Chat</label>
+        <textarea class="form-input" name="chatIframe" id="chatIframe" readonly aria-readonly="true">$$chatIframe</textarea>
+    </div>
 </div>

@@ -20,6 +20,7 @@
         "applications-storage",
         "server-flow-apis",
         "personalities-storage",
+        "chat",
         "subscribers",
         "webhook",
         "tasks",
@@ -48,6 +49,9 @@
         },
         "spaces-storage": {
             "module": "./../../apihub-components/spaces-storage"
+        },
+        "chat": {
+            "module": "./../../apihub-components/chat"
         },
         "personalities-storage": {
             "module": "./../../apihub-components/personalities-storage"
