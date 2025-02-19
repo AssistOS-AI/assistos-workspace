@@ -4,6 +4,11 @@
     "services": [],
     "components": [
         {
+            "name": "action-box-snapshot",
+            "directory": "document",
+            "type": "components"
+        },
+        {
             "name": "document-snapshots-modal",
             "directory": "document",
             "type": "modals",
