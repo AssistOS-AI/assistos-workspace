@@ -10,6 +10,12 @@ export class PrintDocumentModal {
         console.log(this.document);
 
         this.formData = {};
+        this.settings = {
+            title: { font: 'Helvetica', bold: false, italic: false, fontSize: 20, color: '#000000' },
+            abstract: { font: 'Helvetica', bold: false, italic: false, fontSize: 14, color: '#000000' },
+            chapters: { font: 'Helvetica', bold: false, italic: false, fontSize: 18, color: '#000000' },
+            paragraphs: { font: 'Helvetica', bold: false, italic: false, fontSize: 14, color: '#000000' }
+        };
     }
 
     async beforeRender() {
@@ -21,88 +27,60 @@ export class PrintDocumentModal {
     }
 
     async convertToPDF() {
+        console.log('convertToPDF called'); // Debugging
         this.collectFormData();
-        const { jsPDF } = window.jspdf;
-
-        const pageSize = this.formData.pageSize || 'a4';
-        const orientation = this.formData.orientation || 'p';
-        const doc = new jsPDF(orientation, 'mm', pageSize);
-
-        const margins = {
-            top: parseInt(this.formData.topPadding),
-            bottom: parseInt(this.formData.bottomPadding),
-            left: parseInt(this.formData.leftPadding),
-            right: parseInt(this.formData.rightPadding),
-        };
-
-        const footerHeight = 8;
-        const pageHeight = doc.internal.pageSize.height;
-        const pageWidth = doc.internal.pageSize.width;
-
-        // Calculăm spațiul utilizabil (corectat)
-        const usableHeight = pageHeight - margins.top - margins.bottom - footerHeight;
-        const usableWidth = pageWidth - margins.left - margins.right;
 
         const htmlContent = this.generateHTMLFromDocument();
+        const cssContent = this.generateCSSFromForm();
 
-        // Creăm un container temporar pentru HTML
+        // container temporar pentru HTML + CSS
         const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = htmlContent;
+        tempDiv.innerHTML = `<style>${cssContent}</style>${htmlContent}`;
         document.body.appendChild(tempDiv);
 
-        let y = margins.top + 3;
-
-        const addContentToPage = (element) => {
-            const lineHeight = 5; // Distanța între linii
-            const paragraphGap = 5; // Spațiu între paragrafe
-            const elements = element.querySelectorAll('h1, h2, h3, p, img');
-
-            elements.forEach((el) => {
-                const text = el.textContent || '';
-                const tagName = el.tagName.toLowerCase();
-
-                // Dimensiune font în funcție de tag
-                if (tagName === 'h1') {
-                    doc.setFontSize(16);
-                } else if (tagName === 'h2') {
-                    doc.setFontSize(14);
-                } else if (tagName === 'h3') {
-                    doc.setFontSize(12);
-                } else {
-                    doc.setFontSize(10);
-                }
-
-                // Fragmentăm textul pentru a se încadra în pagină
-                const splitText = doc.splitTextToSize(text, usableWidth);
-
-                splitText.forEach((line) => {
-                    // Verificăm dacă linia încape în pagina curentă
-                    if (y + lineHeight > pageHeight - margins.bottom - footerHeight) {
-                        doc.addPage();
-                        y = margins.top;
-                    }
-
-                    doc.text(line, margins.left, y);
-                    y += lineHeight;
-                });
-
-                y += paragraphGap; // Spațiu între paragrafe
-            });
+        // margini personalizate din formular
+        const margins = {
+            top: parseInt(this.formData.topPadding) || 10,
+            bottom: parseInt(this.formData.bottomPadding) || 10,
+            left: parseInt(this.formData.leftPadding) || 10,
+            right: parseInt(this.formData.rightPadding) || 10,
         };
 
-        addContentToPage(tempDiv);
+        // configurare optiuni html2pdf
+        const options = {
+            margin: [margins.top, margins.left, margins.bottom, margins.right],
+            filename: 'document.pdf',
+            image: { type: 'png', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: {
+                unit: 'mm',
+                format: this.formData.pageSize || 'a4',
+                orientation: this.formData.orientation || 'portrait',
+            }
+        };
 
-        // Adăugare paginare și footer
-        const pageCount = doc.internal.getNumberOfPages();
+        // PDF cu html2pdf
+        const pdf = await html2pdf().from(tempDiv).set(options).toPdf().get('pdf');
+
+        // font text paginare
+        const paginationFontSize = 10; // Dimensiunea fontului pentru paginare
+        pdf.setFontSize(paginationFontSize);
+
+        // footer-ului in fct de dimensiunea textului
+        const paginationText = `Page 1 of 1`;
+        const textDimensions = pdf.getTextDimensions(paginationText);
+        const footerHeight = textDimensions.h + 2;
+
+        //paginare + footer -> jsPDF
+        const pageCount = pdf.internal.getNumberOfPages();
         const paginationPosition = this.formData.paginationPosition;
         const paginationStyle = this.formData.paginationStyle || 'number';
 
         for (let i = 1; i <= pageCount; i++) {
-            doc.setPage(i);
+            pdf.setPage(i);
 
             let paginationText = '';
 
-            // Stiluri pentru paginare
             if (paginationStyle === 'simple') {
                 paginationText = `Page ${i} of ${pageCount}`;
             } else if (paginationStyle === 'dashed') {
@@ -118,29 +96,28 @@ export class PrintDocumentModal {
             }
 
             let xPosition;
-            const textWidth = doc.getTextWidth(paginationText);
+            const textWidth = pdf.getTextWidth(paginationText);
 
             if (paginationPosition === 'center') {
-                xPosition = (pageWidth - textWidth) / 2;
+                xPosition = (pdf.internal.pageSize.width - textWidth) / 2;
             } else if (paginationPosition === 'right') {
-                xPosition = pageWidth - margins.right - textWidth;
+                xPosition = pdf.internal.pageSize.width - margins.right - textWidth;
             } else {
                 xPosition = margins.left;
             }
 
-            doc.text(
+            // footer-ul deasupra marginii inferioare
+            pdf.text(
                 paginationText,
                 xPosition,
-                pageHeight - margins.bottom + (footerHeight / 2),
+                pdf.internal.pageSize.height - margins.bottom + (footerHeight / 2),
                 { align: paginationPosition }
             );
         }
 
-        // Eliminare container temporar
-        document.body.removeChild(tempDiv);
+        pdf.save('document.pdf');
 
-        // Salvare fișier PDF
-        doc.save('document.pdf');
+        document.body.removeChild(tempDiv);
     }
 
     async PreviewDocument() {
@@ -161,91 +138,93 @@ export class PrintDocumentModal {
 
     collectFormData() {
         const form = document.getElementById('printSettingsForm');
+        if (!form) {
+            console.error("Form not found!");
+            return;
+        }
+
         const formData = new FormData(form);
 
         this.formData = {
-            titleFont: formData.get('titleFont'),
-            titleFontSize: `${formData.get('titleFontSize')}px`,
-            titleColor: formData.get('titleColor'),
-
-            abstractFont: formData.get('abstractFont'),
-            abstractFontSize: `${formData.get('abstractFontSize')}px`,
-            abstractColor: formData.get('abstractColor'),
-
-            chapterFont: formData.get('chapterFont'),
-            chapterFontSize: `${formData.get('chapterFontSize')}px`,
-            chapterColor: formData.get('chapterColor'),
-
-            paragraphFont: formData.get('paragraphFont'),
-            paragraphFontSize: `${formData.get('paragraphFontSize')}px`,
-            paragraphColor: formData.get('paragraphColor'),
-
-            backgroundColor: formData.get('backgroundColor'),
+            title: {
+                font: formData.get('dynamicFont') || 'Helvetica',
+                fontSize: `${formData.get('dynamicFontSize') || 20}px`,
+                color: formData.get('dynamicColor') || '#000000',
+                bold: formData.get('dynamicBoldStyle') === 'bold',
+                italic: formData.get('dynamicItalicStyle') === 'italic'
+            },
+            abstract: {
+                font: formData.get('abstractFont') || 'Helvetica',
+                fontSize: `${formData.get('abstractFontSize') || 14}px`,
+                color: formData.get('abstractColor') || '#000000',
+                bold: formData.get('abstractBold') === 'bold',
+                italic: formData.get('abstractItalic') === 'italic'
+            },
+            chapter: {
+                font: formData.get('chapterFont') || 'Helvetica',
+                fontSize: `${formData.get('chapterFontSize') || 18}px`,
+                color: formData.get('chapterColor') || '#000000',
+                bold: formData.get('chapterBold') === 'bold',
+                italic: formData.get('chapterItalic') === 'italic'
+            },
+            paragraph: {
+                font: formData.get('paragraphFont') || 'Helvetica',
+                fontSize: `${formData.get('paragraphFontSize') || 14}px`,
+                color: formData.get('paragraphColor') || '#000000',
+                bold: formData.get('paragraphBold') === 'bold',
+                italic: formData.get('paragraphItalic') === 'italic'
+            },
+            backgroundColor: formData.get('backgroundColor') || '#FFFFFF',
             backgroundImage: formData.get('backgroundImage'),
-
-            topPadding: formData.get('topPadding'),
-            bottomPadding: formData.get('bottomPadding'),
-            leftPadding: formData.get('leftPadding'),
-            rightPadding: formData.get('rightPadding'),
-
-            pageSize: formData.get('pageSize'),
-            orientation: formData.get('orientation'),
-
+            topPadding: formData.get('topPadding') || 10,
+            bottomPadding: formData.get('bottomPadding') || 10,
+            leftPadding: formData.get('leftPadding') || 10,
+            rightPadding: formData.get('rightPadding') || 10,
+            pageSize: formData.get('pageSize') || 'a4',
+            orientation: formData.get('orientation') || 'portrait',
             paginationPosition: formData.get('paginationPosition') || 'center',
-            paginationStyle: formData.get('paginationStyle')
+            paginationStyle: formData.get('paginationStyle') || 'number'
         };
+        console.log(formData);
     }
 
     generateCSSFromForm() {
-        const {
-            titleFont, titleFontSize, titleColor,
-            abstractFont, abstractFontSize, abstractColor,
-            chapterFont, chapterFontSize, chapterColor,
-            paragraphFont, paragraphFontSize, paragraphColor,
-            backgroundColor, backgroundImage, topPadding, bottomPadding, leftPadding, rightPadding,
-        } = this.formData;
+        const { title, abstract, chapters, paragraphs } = this.settings;
 
         let cssContent = `
         body {
-            background-color: ${backgroundColor};
-            ${backgroundImage ? `background-image: url('${URL.createObjectURL(backgroundImage)}'); background-size: cover;` : ""}
             margin: 0;
-            padding: ${topPadding} ${rightPadding} ${bottomPadding} ${leftPadding};
+            padding: 10px;
         }
         h1 {
-            font-family: ${titleFont};
-            font-size: ${titleFontSize};
-            color: ${titleColor};
-            margin-bottom: 20px;
+            font-family: ${title.font};
+            font-size: ${title.fontSize}px;
+            color: ${title.color};
+            font-weight: ${title.bold ? 'bold' : 'normal'};
+            font-style: ${title.italic ? 'italic' : 'normal'};
         }
         h3 {
-            font-family: ${abstractFont};
-            font-size: ${abstractFontSize};
-            color: ${abstractColor};
-            margin-bottom: 15px;
+            font-family: ${abstract.font};
+            font-size: ${abstract.fontSize}px;
+            color: ${abstract.color};
+            font-weight: ${abstract.bold ? 'bold' : 'normal'};
+            font-style: ${abstract.italic ? 'italic' : 'normal'};
         }
         h2 {
-            font-family: ${chapterFont};
-            font-size: ${chapterFontSize};
-            color: ${chapterColor};
-            margin-top: 25px;
-            margin-bottom: 15px;
+            font-family: ${chapters.font};
+            font-size: ${chapters.fontSize}px;
+            color: ${chapters.color};
+            font-weight: ${chapters.bold ? 'bold' : 'normal'};
+            font-style: ${chapters.italic ? 'italic' : 'normal'};
         }
         p {
-            font-family: ${paragraphFont};
-            font-size: ${paragraphFontSize};
-            color: ${paragraphColor};
-            line-height: 1.6;
-            margin-bottom: 15px;
+            font-family: ${paragraphs.font};
+            font-size: ${paragraphs.fontSize}px;
+            color: ${paragraphs.color};
+            font-weight: ${paragraphs.bold ? 'bold' : 'normal'};
+            font-style: ${paragraphs.italic ? 'italic' : 'normal'};
         }
-        img {
-            max-width: 100%;
-            height: auto;
-            display: block;
-            margin: 15px 0;
-        }
-        `;
-
+    `;
         return cssContent;
     }
 
@@ -274,7 +253,7 @@ export class PrintDocumentModal {
                         const paragraphText = paragraph.text
                             .replace(/\u00A0/g, ' ')
                             .replace(/&#13;/g, '<br>');
-                        htmlContent += `<p>${paragraphText}</p>`;
+                        htmlContent += `<p style="text-align: justify;">${paragraphText}</p>`;
 
                         if (paragraph.commands && paragraph.commands.image) {
                             const image = paragraph.commands.image;
@@ -291,12 +270,48 @@ export class PrintDocumentModal {
         return htmlContent;
     }
 
+    setupDynamicSection() {
+        const sectionSelector = document.getElementById('sectionSelector');
+        const dynamicFont = document.getElementById('dynamicFont');
+        const dynamicBoldStyle = document.getElementById('dynamicBoldStyle');
+        const dynamicItalicStyle = document.getElementById('dynamicItalicStyle');
+        const dynamicFontSize = document.getElementById('dynamicFontSize');
+        const dynamicColor = document.getElementById('dynamicColor');
+
+        const updateSettings = () => {
+            const selectedSection = sectionSelector.value;
+            this.settings[selectedSection] = {
+                font: dynamicFont.value,
+                bold: dynamicBoldStyle.checked,
+                italic: dynamicItalicStyle.checked,
+                fontSize: dynamicFontSize.value,
+                color: dynamicColor.value
+            };
+        };
+
+        dynamicFont.addEventListener('change', updateSettings);
+        dynamicBoldStyle.addEventListener('change', updateSettings);
+        dynamicItalicStyle.addEventListener('change', updateSettings);
+        dynamicFontSize.addEventListener('change', updateSettings);
+        dynamicColor.addEventListener('change', updateSettings);
+
+        sectionSelector.addEventListener('change', () => {
+            const selectedSection = sectionSelector.value;
+            dynamicFont.value = this.settings[selectedSection].font;
+            dynamicBoldStyle.checked = this.settings[selectedSection].bold;
+            dynamicItalicStyle.checked = this.settings[selectedSection].italic;
+            dynamicFontSize.value = this.settings[selectedSection].fontSize;
+            dynamicColor.value = this.settings[selectedSection].color;
+        });
+    }
+
     async afterRender() {
         this.collectFormData();
         try {
             await this.loadJsPDF();
             await this.loadDompurify();
             await this.loadHTML2Canvas();
+            await this.loadHTML2PDF();
             console.log("All scripts loaded successfully.");
         } catch (error) {
             console.error(error);
@@ -315,6 +330,8 @@ export class PrintDocumentModal {
         } catch (error) {
             console.error("Failed to create the CSS string:", error);
         }
+
+        this.setupDynamicSection();
     }
 
     loadDompurify() {
@@ -327,6 +344,10 @@ export class PrintDocumentModal {
 
     loadHTML2Canvas() {
         return this.loadExternalScript("./wallet/lib/html2canvas/html2canvas.js", "html2canvas");
+    }
+
+    loadHTML2PDF() {
+        return this.loadExternalScript("./wallet/lib/html2pdf/html2pdf.bundle.js", "html2pdf");
     }
 
     loadExternalScript(src, name) {
