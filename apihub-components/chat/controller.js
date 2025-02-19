@@ -1,5 +1,5 @@
 const Request = require('../apihub-component-utils/utils')
-const Handler = require('handler.js')
+const Handler = require('./handler.js')
 
 
 const getChat = async function (request, response) {
