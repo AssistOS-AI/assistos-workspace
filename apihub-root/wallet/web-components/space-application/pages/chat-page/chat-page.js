@@ -149,9 +149,9 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.chat = await getChat(this.spaceId, this.chatId)
+       /* this.chat = await getChat(this.spaceId, this.chatId)
         this.chatMessages = getChatMessages(this.chat);
-        this.localContext = getChatContext(this.chat);
+        this.localContext = getChatContext(this.chat);*/
     }
 
     async afterRender() {
