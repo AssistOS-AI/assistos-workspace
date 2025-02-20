@@ -6,8 +6,13 @@ const { Readable } = require('stream');
 const { pipeline } = require('stream');
 const util = require('util');
 const pipe = util.promisify(pipeline);
+const config = require("../../data-volume/config/config.json");
 
 async function downloadData(url, dest) {
+    if (config.S3 === false) {
+        const baseURL = volumeManager.getBaseURL();
+        url = `${baseURL}${url}`;
+    }
     const response = await fetch(url);
     if (!response.ok) {
         throw new Error(`Failed to fetch: ${response.statusText}`);
