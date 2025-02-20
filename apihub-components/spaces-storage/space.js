@@ -12,10 +12,8 @@ const lightDB = require('../apihub-component-utils/lightDB.js');
 const fs = require('fs');
 const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
-const Storage = require('../apihub-component-utils/storage.js');
 const cookie = require("../apihub-component-utils/cookie");
 const configs = require('../../data-volume/config/config.json')
-const {instance: emailService} = require("../email");
 
 
 function getSpacePath(spaceId) {

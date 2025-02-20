@@ -6,7 +6,7 @@ const date = require('../apihub-component-utils/date.js');
 const config = require('../../data-volume/config/config.json')
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
-const {instance: emailService} = require("../email");
+
 const AnonymousTask = require('../tasks/AnonymousTask.js');
 
 async function registerUser(email, password, imageId, inviteToken) {
@@ -446,6 +446,7 @@ async function sendPasswordResetCode(email) {
         expirationDate: date.incrementUnixTime(date.getCurrentUnixTimeSeconds(), {minutes: 30})
     }
     await updateUserCredentials(userCredentials);
+    const {instance: emailService} = require("../email");
     await emailService.sendPasswordResetCode(email, passwordResetCode);
 }
 
