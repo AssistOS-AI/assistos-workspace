@@ -128,16 +128,41 @@ const getChatItemUser = function (chatItem) {
     return chatItem.commands?.replay?.name || null;
 }
 
-const UI = assistOS?.UI || UI;
+function setCookie(key, value, days = 365) {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
+}
 
-export class ChatPage {
+const IFrameContext = window.assistOS === undefined;
+
+
+const UI = IFrameContext ? window.UI : window.assistOS.UI
+
+
+class BaseChatFrame {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-
         this.chatId = this.element.getAttribute('data-chatId');
         this.personalityId = this.element.getAttribute('data-personalityId');
         this.spaceId = this.element.getAttribute('data-spaceId');
+    }
+
+    async beforeRender() {
+        this.chat = await getChat(this.spaceId, this.chatId)
+        this.chatMessages = getChatMessages(this.chat);
+        this.localContext = getChatContext(this.chat);
+    }
+
+    async afterRender() {
+
+    }
+
+}
+
+export class ChatPage extends BaseChatFrame {
+    constructor(element, invalidate) {
+        super(element, invalidate)
         this.userId = assistOS?.user.id || ""
         this.documentId = assistOS.agent.agentData.selectedChat || assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length - 1];
         const agentState = localStorage.getItem("agentOn")
@@ -155,19 +180,10 @@ export class ChatPage {
     }
 
     async beforeRender() {
-        this.personalities = await assistOS.space.getPersonalitiesMetadata();
-        this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
-        this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
+        await super.beforeRender();
         this.chatActionButton = sendMessageActionButtonHTML
-
-        this.chat = await getChat(this.spaceId, this.chatId)
-        this.chatMessages = getChatMessages(this.chat);
-        this.localContext = getChatContext(this.chat);
-
         let stringHTML = "";
-
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
-
             const chatMessage = this.chatMessages[messageIndex]
             let role = getChatItemRole(chatMessage)
 
@@ -190,11 +206,18 @@ export class ChatPage {
             }
         }
 
-        let personalitiesHTML = "";
-        for (let personality of this.personalities) {
-            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
-        }
-        this.personalitiesHTML = personalitiesHTML;
+       if(!IFrameContext){
+           this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
+           this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
+           this.personalities = await assistOS.space.getPersonalitiesMetadata();
+           let personalitiesHTML = "";
+
+           for (let personality of this.personalities) {
+               personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
+           }
+           this.personalitiesHTML = personalitiesHTML;
+       }
+
         this.spaceConversation = stringHTML;
         this.currentPersonalityName = assistOS.agent.agentData.name;
         let llmName = assistOS.agent.agentData.llms.text;
@@ -369,7 +392,6 @@ export class ChatPage {
     }
 
     async createChatUnitResponse() {
-
         const paragraphData = {
             text: "",
             commands: {
@@ -744,6 +766,7 @@ export class ChatPage {
         // return await LLM.getChatCompletion(assistOS.space.id,chatPrompt);
     }
 
+    // +-
     async resetConversation() {
         await assistOS.loadifyFunction(async function (spaceModule) {
             await spaceModule.resetSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
@@ -762,6 +785,7 @@ export class ChatPage {
         fileInput.click();
     }
 
+    // +-
     hidePersonalities(controller, arrow, event) {
         arrow.setAttribute("data-local-action", "showPersonalities off");
         let target = this.element.querySelector(".personalities-list");
@@ -769,6 +793,8 @@ export class ChatPage {
         controller.abort();
     }
 
+
+    // +-
     showPersonalities(_target, mode) {
         if (mode === "off") {
             let list = this.element.querySelector(".personalities-list");
@@ -779,6 +805,7 @@ export class ChatPage {
         }
     }
 
+    // +-
     async swapPersonality(_target, id) {
         await assistOS.loadifyFunction(async (id) => {
             await assistOS.changeAgent(id);

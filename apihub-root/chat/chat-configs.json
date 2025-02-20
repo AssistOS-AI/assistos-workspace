@@ -12,6 +12,11 @@
       "directory": "space-application",
       "type": "components",
       "presenterClassName": "ChatItem"
+    },
+    {
+      "name": "list-item",
+      "directory": "space-application",
+      "type": "components"
     }
   ],
   "services": []
