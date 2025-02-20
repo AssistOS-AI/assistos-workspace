@@ -9,21 +9,24 @@ export class DocumentSnapshotsModal{
         this.invalidate();
     }
     async beforeRender() {
-        let snapshots = this.document.snapshots;
+        this.snapshots = this.document.snapshots;
         if(this.document.type === documentModule.documentTypes.SNAPSHOT){
             let documentInfo = JSON.parse(this.document.abstract);
-            snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, documentInfo.originalDocumentId);
+            this.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, documentInfo.originalDocumentId);
+            this.documentId = documentInfo.originalDocumentId;
+        } else {
+            this.documentId = this.document.id;
         }
         let snapshotsHTML = "";
         let headerHTML = `<div class="no-snapshots">no snapshots created</div>`;
-        snapshots.sort((a, b) => b.timestamp - a.timestamp);
-        if(snapshots.length > 0){
+        this.snapshots.sort((a, b) => b.timestamp - a.timestamp);
+        if(this.snapshots.length > 0){
             headerHTML = `<div class="list-header">
                                         <span class="snapshot-date">Date</span>
                                         <span class="snapshot-user">Created by</span>
                                         <span>Action</span>
                                     </div>`;
-            for (let snapshot of snapshots) {
+            for (let snapshot of this.snapshots) {
                 snapshotsHTML += `<div class="document-snapshot">
                                           <div class="snapshot-date">${formatTimeAgo(snapshot.timestamp)}</div>
                                           <div class="snapshot-user">${snapshot.email}</div>
@@ -40,9 +43,9 @@ export class DocumentSnapshotsModal{
         this.snapshotsHTML=`${headerHTML}${snapshotsHTML}`;
     }
     afterRender() {
-        let snapshotButton = this.element.querySelector(".snapshot-button");
         if(this.document.type === documentModule.documentTypes.SNAPSHOT){
-            snapshotButton.classList.add("disabled");
+            let currentVersionButton = this.element.querySelector(".current-version");
+            currentVersionButton.style.display = "block";
         }
     }
     closeModal() {
@@ -53,8 +56,8 @@ export class DocumentSnapshotsModal{
             timestamp: Date.now(),
             email: assistOS.user.email
         }
-        let snapshot = await documentModule.addDocumentSnapshot(assistOS.space.id, this.document.id, snapshotData);
-        this.document.snapshots.push(snapshot);
+        let snapshot = await documentModule.addDocumentSnapshot(assistOS.space.id, this.documentId, snapshotData);
+        this.snapshots.push(snapshot);
         this.invalidate();
     }
     async deleteSnapshot(targetElement, snapshotId){
@@ -63,16 +66,16 @@ export class DocumentSnapshotsModal{
         if (!confirmation) {
             return;
         }
-        await documentModule.deleteDocumentSnapshot(assistOS.space.id, this.document.id, snapshotId);
-        this.document.snapshots = this.document.snapshots.filter(snapshot => snapshot.id !== snapshotId);
+        await documentModule.deleteDocumentSnapshot(assistOS.space.id, this.documentId, snapshotId);
+        this.snapshots = this.snapshots.filter(snapshot => snapshot.id !== snapshotId);
         this.invalidate();
     }
     openSnapshot(targetElement, documentId){
         this.closeModal();
         assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
-    showSnapshotsOptions(targetElement, snapshotId, documentId) {
-        let chapterOptions = `<action-box-snapshot data-id="${snapshotId}" data-document-id="${documentId}"></action-box-chapter>`;
+    showSnapshotsOptions(targetElement, snapshotId, snapshotDocumentId) {
+        let chapterOptions = `<action-box-snapshot data-id="${snapshotId}" data-document-id="${snapshotDocumentId}"></action-box-chapter>`;
         targetElement.insertAdjacentHTML("afterbegin", chapterOptions);
         let controller = new AbortController();
         this.boundHideChapterOptions = this.hideSnapshotsOptions.bind(this, controller);
@@ -87,5 +90,16 @@ export class DocumentSnapshotsModal{
     }
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
+    }
+    async replaceSnapshot(targetElement, snapshotId, snapshotDocumentId){
+        let snapshotData = {
+            timestamp: Date.now(),
+            email: assistOS.user.email
+        }
+        await documentModule.addDocumentSnapshot(assistOS.space.id, this.documentId, snapshotData);
+        await documentModule.replaceDocumentSnapshot(assistOS.space.id, this.documentId, snapshotId);
+        this.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, snapshotDocumentId);
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${snapshotDocumentId}`);
+        this.invalidate();
     }
 }

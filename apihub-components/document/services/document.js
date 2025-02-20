@@ -30,7 +30,10 @@ async function deleteDocument(spaceId, documentId) {
     } catch (e) {
         throw new Error("Failed to delete operations table");
     }
-
+    let snapshots = await getSnapshots(spaceId, documentId);
+    for(let snapshot of snapshots){
+        await lightDB.deleteContainerObject(spaceId, snapshot.documentId);
+    }
     return await lightDB.deleteContainerObject(spaceId, documentId);
 }
 
@@ -263,6 +266,18 @@ async function redoOperation(spaceId, documentId) {
     return true;
 }
 
+async function getSnapshots(spaceId, documentId) {
+    let documentRecord = await lightDB.getRecord(spaceId, documentId, documentId);
+    if(!documentRecord.data.snapshots){
+        return [];
+    }
+    let snapshots = [];
+    for(let snapshotId of documentRecord.data.snapshots){
+        let snapshot = await lightDB.getEmbeddedObject(spaceId, "snapshots", `${documentId}/${snapshotId}`);
+        snapshots.push(snapshot);
+    }
+    return snapshots;
+}
 module.exports = {
     deleteDocument,
     getDocument,
@@ -271,6 +286,7 @@ module.exports = {
     updateDocument,
     addOperation,
     undoOperation,
-    redoOperation
+    redoOperation,
+    getSnapshots
 }
 

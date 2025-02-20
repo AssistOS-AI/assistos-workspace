@@ -19,8 +19,8 @@ function document(server) {
 
     //Snapshots
     server.get("/documents/snapshots/:spaceId/:documentId", documentHandler.getDocumentSnapshots);
-    server.get("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.getDocumentSnapshot);
     server.post("/documents/snapshots/:spaceId/:documentId", documentHandler.addDocumentSnapshot);
+    server.put("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.replaceDocumentSnapshot);
     server.delete("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.deleteDocumentSnapshot);
 
     //Selections

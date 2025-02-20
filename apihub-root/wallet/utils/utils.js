@@ -115,7 +115,9 @@ export function formatTimeAgo(timestamp) {
     const diffInHours = Math.floor(diffInMinutes / 60);
     const diffInDays = Math.floor(diffInHours / 24);
 
-    if (diffInMinutes < 60) {
+    if (diffInSeconds < 60) {
+        return "just now";
+    } else if (diffInMinutes < 60) {
         return diffInMinutes === 1 ? "1 minute ago" : `${diffInMinutes} minutes ago`;
     } else if (diffInHours < 24) {
         return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;

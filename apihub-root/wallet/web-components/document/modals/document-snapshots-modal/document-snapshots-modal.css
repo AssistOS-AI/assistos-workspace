@@ -52,3 +52,7 @@ document-snapshots-modal{
 .action-box-snapshots:hover{
     background-color: var(--very-light-gray);
 }
+.current-version{
+    margin-top: 10px;
+    display: none;
+}

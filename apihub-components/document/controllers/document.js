@@ -720,9 +720,6 @@ async function redoOperation(request, response) {
     }
 }
 
-async function getDocumentSnapshot(request, response) {
-
-}
 async function addDocumentSnapshot(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -750,15 +747,43 @@ async function getDocumentSnapshots(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
     try {
-        let documentRecord = await lightDB.getRecord(spaceId, documentId, documentId);
-        let snapshots = [];
-        for(let snapshotId of documentRecord.data.snapshots){
-            let snapshot = await lightDB.getEmbeddedObject(spaceId, "snapshots", `${documentId}/${snapshotId}`);
-            snapshots.push(snapshot);
-        }
+        let snapshots = await documentService.getSnapshots(spaceId, documentId);
         utils.sendResponse(response, 200, "application/json", {
             data: snapshots
         });
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+async function replaceDocumentSnapshot(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+    const snapshotId = request.params.snapshotId;
+    try {
+        let snapshots = await documentService.getSnapshots(spaceId, documentId);
+        let replaceSnapshot = snapshots.find(snapshot => snapshot.id === snapshotId);
+        snapshots = snapshots.filter(snapshot => snapshot.id !== snapshotId);
+        for(let snapshot of snapshots){
+            let documentRecord = await lightDB.getRecord(spaceId, snapshot.documentId, snapshot.documentId);
+            let abstract = JSON.parse(documentRecord.data.abstract);
+            abstract.originalDocumentId = replaceSnapshot.documentId;
+            documentRecord.data.abstract = JSON.stringify(abstract);
+            await lightDB.updateRecord(spaceId, snapshot.documentId, snapshot.documentId, documentRecord.data);
+        }
+
+        let replaceSnapshotDocumentRecord = await lightDB.getRecord(spaceId, replaceSnapshot.documentId, replaceSnapshot.documentId);
+        replaceSnapshotDocumentRecord.data.type = "document";
+        replaceSnapshotDocumentRecord.data.abstract = "";
+        await lightDB.updateRecord(spaceId, replaceSnapshot.documentId, replaceSnapshot.documentId, replaceSnapshotDocumentRecord.data);
+        for(let snapshot of snapshots){
+            await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshot);
+        }
+        await lightDB.deleteEmbeddedObject(spaceId, `${documentId}/${snapshotId}`);
+
+        await documentService.deleteDocument(spaceId, documentId);
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
             message: e.message
@@ -797,8 +822,8 @@ module.exports = {
     exportDocumentAsDocx,
     undoOperation,
     redoOperation,
-    getDocumentSnapshot,
     getDocumentSnapshots,
     addDocumentSnapshot,
-    deleteDocumentSnapshot
+    deleteDocumentSnapshot,
+    replaceDocumentSnapshot
 }
