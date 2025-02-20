@@ -1,7 +1,6 @@
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require("../apihub-component-utils/crypto.js");
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
-//const lock = require("apihub").getLockInstance("../apihub-root");
 let lightDBClients = {};
 
 function loadDatabaseClient(spaceId) {

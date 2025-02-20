@@ -1,20 +1,18 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
 
-const emailConfig = require('../data-volume/config/emailConfig.json');
-
 class Email {
     constructor() {
         const nodemailer = require('nodemailer');
-
+        this.emailConfig=require('../data-volume/config/emailConfig.json');
         if (Email.instance) {
             return Email.instance;
         }
         this.transporter = nodemailer.createTransport({
-            service: emailConfig.service,
+            service: this.emailConfig.service,
             auth: {
-                user: emailConfig.emailAuth,
-                pass: emailConfig.password,
+                user: this.emailConfig.emailAuth,
+                pass: this.emailConfig.password,
             },
         });
     }
@@ -26,7 +24,7 @@ class Email {
         return Email.instance;
     }
 
-    async sendEmail(from = emailConfig.email, sendToAddr, subject, html) {
+    async sendEmail(from = this.emailConfig.email, sendToAddr, subject, html) {
         const mailOptions = {
             from: from,
             to: sendToAddr,
@@ -46,17 +44,17 @@ class Email {
 
         const activationLink = `${baseURL}/users/verify?activationToken=${encodeURIComponent(activationToken)}`;
         const emailHtml = data.fillTemplate(activationEmailTemplate, {
-            companyLogoURL: emailConfig.companyLogoURL,
+            companyLogoURL: this.emailConfig.companyLogoURL,
             activationLink: activationLink,
-            companyName: emailConfig.companyName,
-            streetAddress: emailConfig.streetAddress,
-            city: emailConfig.city,
-            country: emailConfig.country,
-            zipCode: emailConfig.zipCode,
-            supportEmail: emailConfig.supportEmail,
-            phoneNumber: emailConfig.phoneNumber,
+            companyName: this.emailConfig.companyName,
+            streetAddress: this.emailConfig.streetAddress,
+            city: this.emailConfig.city,
+            country: this.emailConfig.country,
+            zipCode: this.emailConfig.zipCode,
+            supportEmail: this.emailConfig.supportEmail,
+            phoneNumber: this.emailConfig.phoneNumber,
         });
-        await this.sendEmail(emailConfig.email, emailAddress, 'Account Activation', emailHtml);
+        await this.sendEmail(this.emailConfig.email, emailAddress, 'Account Activation', emailHtml);
     }
 
     async sendUserAddedToSpaceEmail(email, spaceName, invitationToken) {
@@ -74,35 +72,35 @@ class Email {
         const emailHtml = data.fillTemplate(spaceInvitationTemplate, {
             spaceName: spaceName,
             appLink: appLink,
-            companyLogoURL: emailConfig.companyLogoURL,
-            companyName: emailConfig.companyName,
-            streetAddress: emailConfig.streetAddress,
-            city: emailConfig.city,
-            country: emailConfig.country,
-            zipCode: emailConfig.zipCode,
-            supportEmail: emailConfig.supportEmail,
-            phoneNumber: emailConfig.phoneNumber,
+            companyLogoURL: this.emailConfig.companyLogoURL,
+            companyName: this.emailConfig.companyName,
+            streetAddress: this.emailConfig.streetAddress,
+            city: this.emailConfig.city,
+            country: this.emailConfig.country,
+            zipCode: this.emailConfig.zipCode,
+            supportEmail: this.emailConfig.supportEmail,
+            phoneNumber: this.emailConfig.phoneNumber,
         });
 
-        await this.sendEmail(emailConfig.email, email, `You have been added to ${spaceName}`, emailHtml);
+        await this.sendEmail(this.emailConfig.email, email, `You have been added to ${spaceName}`, emailHtml);
     }
     async sendPasswordResetCode(email, resetToken) {
         const data = require('../../apihub-component-utils/data.js')
         const passwordResetTemplatePath = path.join(__dirname, '..', 'templates', 'passwordResetTemplate.html');
         const passwordResetTemplate = await fsPromises.readFile(passwordResetTemplatePath, 'utf8')
         const emailHtml = data.fillTemplate(passwordResetTemplate, {
-            companyLogoURL: emailConfig.companyLogoURL,
+            companyLogoURL: this.emailConfig.companyLogoURL,
             passwordResetCode: resetToken,
-            companyName: emailConfig.companyName,
-            streetAddress: emailConfig.streetAddress,
-            city: emailConfig.city,
-            country: emailConfig.country,
-            zipCode: emailConfig.zipCode,
-            supportEmail: emailConfig.supportEmail,
-            phoneNumber: emailConfig.phoneNumber,
+            companyName: this.emailConfig.companyName,
+            streetAddress: this.emailConfig.streetAddress,
+            city: this.emailConfig.city,
+            country: this.emailConfig.country,
+            zipCode: this.emailConfig.zipCode,
+            supportEmail: this.emailConfig.supportEmail,
+            phoneNumber: this.emailConfig.phoneNumber,
         });
 
-        await this.sendEmail(emailConfig.email, email, 'Password Reset', emailHtml);
+        await this.sendEmail(this.emailConfig.email, email, 'Password Reset', emailHtml);
     }
 }
 

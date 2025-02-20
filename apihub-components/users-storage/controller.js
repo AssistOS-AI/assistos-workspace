@@ -1,7 +1,7 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
-
+const configs= require('../../data-volume/config/config.json')
 async function resetPassword(request,response){
     const email = request.body.email;
     const password = request.body.password;
@@ -104,11 +104,24 @@ async function activateUser(request, response) {
     }
     try {
         await User.activateUser(activationToken);
-        const activationSuccessHTML = await User.getActivationSuccessHTML();
-        await utils.sendFileToClient(response, activationSuccessHTML, "html",200)
+        if(configs.ENABLE_EMAIL_SERVICE){
+            const activationSuccessHTML = await User.getActivationSuccessHTML();
+            await utils.sendFileToClient(response, activationSuccessHTML, "html",200)
+        }else{
+            return utils.sendResponse(response, 200, "application/json", {
+                message: ""
+            });
+        }
+
     } catch (error) {
-        const activationFailHTML = await User.getActivationFailHTML(error.message);
-        await utils.sendFileToClient(response, activationFailHTML, "html",400)
+        if(configs.ENABLE_EMAIL_SERVICE){
+            const activationFailHTML = await User.getActivationFailHTML(error.message);
+            await utils.sendFileToClient(response, activationFailHTML, "html",400)
+        }else{
+            return utils.sendResponse(response, 400, "application/json", {
+                message: ""
+            });
+        }
     }
 }
 
