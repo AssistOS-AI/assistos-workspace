@@ -4,9 +4,7 @@ const directoriesToCreate = [
     "spaces",
     "users",
     "Temp",
-    "assets/images",
-    "assets/audios",
-    "assets/videos"
+    "assets",
 ];
 const mainDir = "data-volume";
 const filesToCreate = [

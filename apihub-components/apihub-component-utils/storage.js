@@ -6,9 +6,6 @@ const fileTypes= {
 }
 const storageClient = config.S3 ? require('./S3.js') : require('./fileSys.js');
 
-async function getFiles(spaceId, location){
-    return await storageClient.getFiles(spaceId, location);
-}
 async function putFile(type, fileId, stream){
     return await storageClient.putFile(type, fileId, stream);
 }
