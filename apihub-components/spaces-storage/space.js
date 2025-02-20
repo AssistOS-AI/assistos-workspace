@@ -14,6 +14,8 @@ const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const Storage = require('../apihub-component-utils/storage.js');
 const cookie = require("../apihub-component-utils/cookie");
+const configs = require('../../data-volume/config/config.json')
+const {instance: emailService} = require("../email");
 
 
 function getSpacePath(spaceId) {
@@ -233,7 +235,8 @@ async function getPersonalitiesIds(spaceId, personalityNames) {
     }
     return personalityIds;
 }
-async function getSpacePersonalities(spaceId){
+
+async function getSpacePersonalities(spaceId) {
     const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
     return JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
 }
@@ -374,8 +377,8 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
         user: entityId,
         id: messageId
     }
-    if(!chatId.includes("documents")){
-        chatId=await getPersonalityChatId(spaceId,entityId)
+    if (!chatId.includes("documents")) {
+        chatId = await getPersonalityChatId(spaceId, entityId)
     }
     const documentRecord = await lightDB.getContainerObject(spaceId, chatId);
 
@@ -397,7 +400,7 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
             title: `Chat Messages`,
             paragraphs: []
         }
-        await documentModule.addChapter(spaceId, chatId ,chatChapterData);
+        await documentModule.addChapter(spaceId, chatId, chatChapterData);
     } else {
         messagesChapterId = documentRecord.chapters[0].id;
     }
@@ -410,7 +413,7 @@ async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData)
                 name: chatObj.user,
             }
         },
-        position:documentRecord.chapters[0].paragraphs.length,
+        position: documentRecord.chapters[0].paragraphs.length,
         id: chatObj.id,
         comment: JSON.stringify(chatObj)
     }
@@ -422,13 +425,13 @@ const composeParagraphMessage = function (chatObj) {
     return chatObj.message
 }
 
-async function getPersonalityChatId(spaceId,personalityId){
-    const personalityData =  await getPersonalityData(spaceId,personalityId)
-    return personalityData.chats[personalityData.chats.length-1];
+async function getPersonalityChatId(spaceId, personalityId) {
+    const personalityData = await getPersonalityData(spaceId, personalityId)
+    return personalityData.chats[personalityData.chats.length - 1];
 }
 
 async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, message) {
-    let documentId = await getPersonalityChatId(spaceId,entityId);
+    let documentId = await getPersonalityChatId(spaceId, entityId);
     const chatDocumentRecord = await lightDB.getRecord(spaceId, documentId, messageId)
     chatDocumentRecord.data.text = message;
     await lightDB.updateRecord(spaceId, documentId, messageId, chatDocumentRecord.data)
@@ -436,10 +439,10 @@ async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, mess
 
 async function createSpaceChat(spaceId, personalityId) {
 
-    const personalityData= await getPersonalityData(spaceId,personalityId);
+    const personalityData = await getPersonalityData(spaceId, personalityId);
 
-    if(!personalityData.chats){
-        personalityData.chats=[];
+    if (!personalityData.chats) {
+        personalityData.chats = [];
     }
 
     const Document = require('../document/services/document.js')
@@ -453,20 +456,20 @@ async function createSpaceChat(spaceId, personalityId) {
 
     const chatChapterData = {
         title: `Messages`,
-        position:0,
+        position: 0,
         paragraphs: []
     }
 
     const chatContextChapterData = {
         title: `Context`,
-        position:1,
+        position: 1,
         paragraphs: []
     }
 
     const docId = await Document.createDocument(spaceId, documentData);
     personalityData.chats.push(docId);
     personalityData.selectedChat = docId;
-    await updatePersonalityData(spaceId,personalityId,personalityData)
+    await updatePersonalityData(spaceId, personalityId, personalityData)
     const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
     const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
 
@@ -809,15 +812,19 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
         }
         if (userId) {
             await user.addSpaceCollaborator(spaceId, userId, collaborator.role, referrerId);
-            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
+            if (configs.ENABLE_EMAIL_SERVICE) {
+                await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
+            }
+
         } else {
             const invitationToken = await user.registerInvite(referrerId, spaceId, collaborator.email);
-            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName, invitationToken);
+            if (configs.ENABLE_EMAIL_SERVICE) {
+                await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName, invitationToken);
+            }
         }
     }
     return existingCollaborators;
 }
-
 
 
 module.exports = {
