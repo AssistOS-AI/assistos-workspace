@@ -132,6 +132,7 @@ async function processOperation(spaceId, documentId, operationData){
         documentOperations = {
             count: 0
         };
+        await lightDB.insertRecord(spaceId, documentId, getOperationsId(documentId), documentOperations);
     } else {
         documentOperations = documentOperationsRecord.data;
     }

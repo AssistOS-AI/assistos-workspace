@@ -107,12 +107,27 @@ export function generateId(length = 16) {
     }
     return randomStringId;
 }
-export function formatTimestampToDate(timestamp) {
-    const date = new Date(timestamp);
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
+export function formatTimeAgo(timestamp) {
+    const now = Date.now();
+    const diffInMs = now - timestamp;
+    const diffInSeconds = Math.floor(diffInMs / 1000);
+    const diffInMinutes = Math.floor(diffInSeconds / 60);
+    const diffInHours = Math.floor(diffInMinutes / 60);
+    const diffInDays = Math.floor(diffInHours / 24);
+
+    if (diffInMinutes < 60) {
+        return diffInMinutes === 1 ? "1 minute ago" : `${diffInMinutes} minutes ago`;
+    } else if (diffInHours < 24) {
+        return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+    } else if (diffInDays === 1) {
+        return "yesterday";
+    } else if (diffInDays < 7) {
+        return `${diffInDays} days ago`;
+    } else if (diffInDays < 30) {
+        const diffInWeeks = Math.floor(diffInDays / 7);
+        return diffInWeeks === 1 ? "1 week ago" : `${diffInWeeks} weeks ago`;
+    } else {
+        const diffInMonths = Math.floor(diffInDays / 30);
+        return diffInMonths === 1 ? "1 month ago" : `${diffInMonths} months ago`;
+    }
 }

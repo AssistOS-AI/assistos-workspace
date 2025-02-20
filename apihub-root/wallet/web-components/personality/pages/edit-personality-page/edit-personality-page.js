@@ -246,7 +246,7 @@ export class EditPersonalityPage {
                 await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
                 if(this.personalityName === assistOS.agent.agentData.name){
                     await assistOS.changeAgent(this.personality.id);
-                    document.querySelector('agent-page').webSkelPresenter.invalidate();
+                    document.querySelector('chat-page').webSkelPresenter.invalidate();
                 }
                 await this.openPersonalitiesPage();
             }

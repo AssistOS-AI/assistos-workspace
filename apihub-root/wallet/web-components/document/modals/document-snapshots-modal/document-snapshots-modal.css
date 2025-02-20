@@ -6,10 +6,6 @@ document-snapshots-modal{
     display: flex;
     padding: 5px;
     border-radius: 5px;
-    cursor: pointer;
-}
-.document-snapshot:hover{
-    background-color: var(--very-light-gray);
 }
 .snapshot-date,
 .snapshot-user{
@@ -40,9 +36,19 @@ document-snapshots-modal{
     margin-left: 18px;
     margin-right: 40px;
 }
-.delete-snapshot{
-    margin-left: 8px;
-}
 .no-snapshots{
     margin-top: 10px;
+}
+.action-box-snapshots{
+    margin-left: 8px;
+    cursor: pointer;
+    position: relative;
+    width: 25px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.action-box-snapshots:hover{
+    background-color: var(--very-light-gray);
 }
