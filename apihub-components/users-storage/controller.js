@@ -79,13 +79,14 @@ async function registerUser(request, response) {
         });
     }
     try {
-        await User.registerUser(
+        const verificationToken = await User.registerUser(
             userData.email,
             userData.password,
             userData.imageId,
             userData.inviteToken);
         utils.sendResponse(response, 200, "application/json", {
-            message: `User ${userData.name} registered successfully. Please check your email for the verification code`
+            message: `User ${userData.name} registered successfully. Please check your email for the verification code`,
+            data:{verificationToken}
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -104,10 +105,10 @@ async function activateUser(request, response) {
     try {
         await User.activateUser(activationToken);
         const activationSuccessHTML = await User.getActivationSuccessHTML();
-        await utils.sendFileToClient(response, activationSuccessHTML, "html")
+        await utils.sendFileToClient(response, activationSuccessHTML, "html",200)
     } catch (error) {
         const activationFailHTML = await User.getActivationFailHTML(error.message);
-        await utils.sendFileToClient(response, activationFailHTML, "html")
+        await utils.sendFileToClient(response, activationFailHTML, "html",400)
     }
 }
 

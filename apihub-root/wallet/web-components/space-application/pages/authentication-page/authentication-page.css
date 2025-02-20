@@ -19,7 +19,36 @@ authentication-page{
     width:100%;
     position: relative;
 }
-
+#successful-activation{
+    margin-block-start:12px;
+    margin-block-end:12px;
+}
+#verificationToken{
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+#verificationToken:focus{
+    border-color: #007bff;
+    outline: none;
+}
+#activateButton{
+    margin-block-start:20px;
+    padding: 12px;
+    background: #007bff;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#activateButton:hover{
+    background: #0056b3;
+}
 .slideshow-container {
     width: 66%;
     position: relative;

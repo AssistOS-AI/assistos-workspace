@@ -14,7 +14,7 @@ const parseCookies = function (cookieString) {
         }, {});
 }
 
-const initializeChat= async function(){
+const initializeChat = async function(){
     const appContainer = document.getElementById('app-container');
     const {chatId=null} = parseCookies(document.cookie)
 

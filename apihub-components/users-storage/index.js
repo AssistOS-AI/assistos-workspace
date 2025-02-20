@@ -13,14 +13,19 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
+const securityConfig = require("../../data-volume/config/securityConfig.json");
+const configs = require("../../data-volume/config/config.json");
+const User = require("./user");
 
 function UserStorage(server) {
+
     setTimeout(async () => {
-        const config = require('../../data-volume/config/config.json');
+        const configs = require('../../data-volume/config/config.json');
         const apihub = require('apihub');
         const securityConfig = require('../../data-volume/config/securityConfig.json');
-        const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
         const crypto = require("../apihub-component-utils/crypto.js");
+
+        const secretService = await apihub.getSecretsServiceInstanceAsync(securityConfig.SERVER_ROOT_FOLDER);
         const secrets = ['AccessToken', 'RefreshToken', 'EmailToken'];
 
         for (const secret of secrets) {
@@ -34,7 +39,7 @@ function UserStorage(server) {
             }
         }
 
-        if (config.REGENERATE_TOKEN_SECRETS_ON_RESTART === true) {
+        if (configs.REGENERATE_TOKEN_SECRETS_ON_RESTART === true) {
 
             const jwtConfig = securityConfig.JWT;
 
@@ -55,22 +60,16 @@ function UserStorage(server) {
             await secretService.putSecretAsync('JWT', 'RefreshToken', refreshToken);
             await secretService.putSecretAsync('JWT', 'EmailToken', emailToken);
         }
-    }, 0);
-
-    setTimeout(async () => {
-        const configs = require('../../data-volume/config/config.json');
-        const createDefaultUser = configs.CREATE_DEMO_USER;
-        if (createDefaultUser) {
-            const User = require('./user.js');
-            try {
-                await User.createDemoUser();
-            } catch (e) {
-                //user already exists
-                console.error(e)
+            const createDefaultUser = configs.CREATE_DEMO_USER;
+            if (createDefaultUser) {
+                const User = require('./user.js');
+                try {
+                    await User.createDemoUser();
+                } catch (e) {
+                    console.warn(e)
+                }
             }
-        }
     }, 0);
-
 
     server.use("/users/*", bodyReader);
     server.post("/users/secrets/exists/:spaceId", userSecretExists);

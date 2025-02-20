@@ -16,7 +16,7 @@ function extractQueryParams(request) {
 }
 
 
-async function sendFileToClient(response, resource, fileType) {
+async function sendFileToClient(response, resource, fileType,statusCode) {
     try {
         let contentType = "";
         switch (fileType) {
@@ -61,7 +61,7 @@ async function sendFileToClient(response, resource, fileType) {
                     message: "File type not supported",
                 });
         }
-        sendResponse(response, 200, contentType, resource);
+        sendResponse(response, statusCode??200, contentType, resource);
     } catch (error) {
         throw Error(error);
     }

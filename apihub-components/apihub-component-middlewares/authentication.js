@@ -4,7 +4,9 @@ const utils = require('../apihub-component-utils/utils.js');
 const config = require('../../data-volume/config/config.json');
 const User = require('../users-storage/user.js');
 const secrets = require('../apihub-component-utils/secrets.js');
+const demoUser = require('../users-storage/demoUser.json')
 async function authentication(req, res, next) {
+
     const cookies = cookie.parseCookies(req);
     const sessionId = cookies['sessionId'];
     const authToken = cookies['authToken'];
@@ -57,7 +59,7 @@ function authenticationError(res, next) {
     const error = new Error('Authentication failed');
     error.statusCode = 401;
     if (config.CREATE_DEMO_USER === true) {
-        const {email, password} = User.templates.demoUser;
+        const {email, password} = demoUser
         utils.sendResponse(res, 401, "application/json", {
             message: "Unauthorized"
         }, [cookie.createDemoUserCookie(email, password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);

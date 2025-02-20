@@ -12,12 +12,48 @@ export class AuthenticationPage {
         this.invalidate();
     }
 
-    beforeRender() {
+    async activateAccount() {
+        const handleSuccessfulActivation = function(){
+            this.element.setAttribute('data-subpage',"successful-activation");
+            this.invalidate();
+        }
+
+        const handleUnsuccessfulActivation =function(){
+            alert('Invalid activation Token');
+        }
+
+        const handleServerError = function(){
+            alert('Server Error');
+        }
+
+        const verificationToken = this.element.querySelector('#verificationToken').value;
+        const activationResult = await fetch(`/users/verify?activationToken=${verificationToken}`)
+
+        switch(activationResult.status){
+            case 200:{
+                Reflect.apply(handleSuccessfulActivation,this,[]);
+                break;
+            }
+            case 400:{
+                Reflect.apply(handleUnsuccessfulActivation,this,[])
+                break;
+            }
+            case 500:
+            default:{
+                Reflect.apply(handleServerError,this,[]);
+            }
+        }
+
+    }
+
+
+    async beforeRender() {
         this.inviteToken = window.location.hash.split("/")[2];
         this.dataSubpage = this.element.getAttribute("data-subpage");
         if (this.inviteToken && this.dataSubpage !== "register-confirmation-with-invite") {
             this.dataSubpage = "register-page";
         }
+
         switch (this.dataSubpage) {
             case "register-page": {
                 let hiddenClass = this.inviteToken ? "hidden" : "email";
@@ -39,7 +75,7 @@ export class AuthenticationPage {
                         <input class="form-input"  accept="image/png, image/jpeg" data-condition="verifyPhotoSize" name="photo" type="file" data-id="photo" id="photo" placeholder="Select a Profile Image">
                     </div>
                     <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="registerUser">${this.inviteToken?"Create Account":"Get Secret Token"}</button>
+                        <button type="button" class="general-button" data-local-action="registerUser">${this.inviteToken ? "Create Account" : "Get Secret Token"}</button>
                     </div>
                 </form>
            </div>`;
@@ -71,9 +107,11 @@ export class AuthenticationPage {
                 this.subpage = `
               <div>
                    <div class="form-item">
-                        <label class="form-label">
-                            <p>Thank you for registering with us! A confirmation email has been sent to your email address!</p>
+                        <label class="form-label" for="verificationToken">
+                            <p>To confirm registration enter the code that has been sent to your email</p>
+                            <input type="text" name="verificationToken" id="verificationToken" value="${this.verificationToken || ''}">
                         </label>
+                        <button type="button" data-local-action="activateAccount" id="activateButton">Activate Account</button>
                     </div>
               </div>`;
                 break;
@@ -134,6 +172,13 @@ export class AuthenticationPage {
                     </div>
                 </form>
               </div>`;
+                break;
+            }
+            case "successful-activation":{
+                this.subpage=`
+                 <div id="successful-activation">
+              </div>
+                `
                 break;
             }
             default: {
@@ -203,6 +248,18 @@ export class AuthenticationPage {
                 await this.navigateToLoginPage();
             }, 3000);
         }
+        if(this.dataSubpage === "successful-activation"){
+            const innerElement = this.element.querySelector('#successful-activation');
+            let time =5;
+            let intervalId = setInterval(async ()=>{
+                if(time === 0){
+                    clearInterval(intervalId);
+                    return await this.navigateToLoginPage();
+                }
+                innerElement.innerHTML =`Account Activated! Redirecting to log in page in ${time} seconds`
+                time--;
+            },1000)
+        }
     }
 
     async startSlideshow(milliseconds) {
@@ -268,6 +325,7 @@ export class AuthenticationPage {
     async navigateToLoginPage() {
         await this.navigateToPage("login-page");
     }
+
     uploadImage(file) {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -280,18 +338,19 @@ export class AuthenticationPage {
             reader.readAsArrayBuffer(file);
         });
     }
+
     async registerUser(_target) {
         let email = this.element.querySelector("#user-email").value;
         let password = this.element.querySelector("#user-password").value;
         let photoFile = this.element.querySelector("#photo").files[0];
         let uint8ArrayImage;
-        if(this.inviteToken){
+        if (this.inviteToken) {
             email = "";
-        }else if(!email){
+        } else if (!email) {
             alert("Email is required");
             return;
         }
-        if(!password){
+        if (!password) {
             alert("Password is required");
             return;
         }
@@ -307,7 +366,9 @@ export class AuthenticationPage {
         // }
         try {
             this.loader = assistOS.UI.showLoading();
-            await userModule.registerUser(email, password, "", this.inviteToken);
+            const registrationResult = await userModule.registerUser(email, password, "", this.inviteToken)
+            debugger
+            this.verificationToken = registrationResult .verificationToken || '';
         } catch (error) {
             let message = JSON.parse(error.message);
             switch (message.status) {
@@ -317,10 +378,12 @@ export class AuthenticationPage {
                 default:
                     alert(message.message);
             }
-            this.invalidate(async () => {
-                if(this.inviteToken){
+            await assistOS.UI.hideLoading(this.loader);
+            delete this.loader;
+            return this.invalidate(async () => {
+                if (this.inviteToken) {
                     this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
-                }else {
+                } else {
                     this.element.setAttribute("data-subpage", "register-page")
                 }
             });
@@ -374,7 +437,7 @@ export class AuthenticationPage {
     }
 
     async loginUser(_target) {
-        await assistOS.loadifyComponent(_target, async function(_target){
+        await assistOS.loadifyComponent(_target, async function (_target) {
             _target.setAttribute("disabled", "true");
             const formInfo = await assistOS.UI.extractFormInformation(_target);
             if (formInfo.isValid) {
@@ -383,7 +446,7 @@ export class AuthenticationPage {
                     await assistOS.login(email, password);
                     try {
                         await assistOS.loadPage(true);
-                        if(!assistOS.user.imageId){
+                        if (!assistOS.user.imageId) {
                             let uint8Array = await this.generateUserAvatar(email);
                             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
                             await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
@@ -397,7 +460,7 @@ export class AuthenticationPage {
                     alert(error.message);
                 }
             }
-        }.bind(this,_target));
+        }.bind(this, _target));
     }
 
 
@@ -453,7 +516,7 @@ export class AuthenticationPage {
                             this.element.setAttribute("data-subpage", "password-reset-successfully")
                         });
                     } catch (error) {
-                        switch(error.statusCode){
+                        switch (error.statusCode) {
                             case 401:
                                 alert("Invalid Verification Code");
                                 break;

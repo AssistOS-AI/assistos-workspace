@@ -3,11 +3,12 @@ const path = require('path');
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
-
+const config = require('../../data-volume/config/config.json')
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 const {instance: emailService} = require("../email");
 const AnonymousTask = require('../tasks/AnonymousTask.js');
+
 async function registerUser(email, password, imageId, inviteToken) {
     const currentDate = date.getCurrentUTCDate();
     if(!email && inviteToken){
@@ -37,7 +38,12 @@ async function registerUser(email, password, imageId, inviteToken) {
     if (inviteToken) {
         return await activateUser(registrationUserObject.verificationToken);
     }
-    await sendActivationEmail(email, registrationUserObject.verificationToken);
+
+    if(config.ENABLE_EMAIL_SERVICE){
+        await sendActivationEmail(email, registrationUserObject.verificationToken);
+    }
+
+    return registrationUserObject.verificationToken
 }
 
 async function createUser(email, imageId, withDefaultSpace = false) {
@@ -167,10 +173,8 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
 }
 
 async function createDemoUser() {
-    const {username, email, password} = require('./demoUser.json');
-    await registerUser(username, email, crypto.hashPassword(password))
-    const userPendingActivation = await getUserPendingActivation()
-    const activationToken = Object.keys(userPendingActivation)[0]
+    const {email, password} = require('./demoUser.json');
+    const activationToken = await registerUser(email, crypto.hashPassword(password),'')
     await activateUser(activationToken);
 }
 
