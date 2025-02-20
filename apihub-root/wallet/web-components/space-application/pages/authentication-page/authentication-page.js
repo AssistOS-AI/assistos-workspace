@@ -367,7 +367,6 @@ export class AuthenticationPage {
         try {
             this.loader = assistOS.UI.showLoading();
             const registrationResult = await userModule.registerUser(email, password, "", this.inviteToken)
-            debugger
             this.verificationToken = registrationResult .verificationToken || '';
         } catch (error) {
             let message = JSON.parse(error.message);
