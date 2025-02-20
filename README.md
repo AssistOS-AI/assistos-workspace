@@ -21,7 +21,7 @@ In order to use the workspace, we need to follow a list of steps presented below
 ### Step 1: Clone the workspace
 
 ```sh
-$ git clone https://github.com/OutfinityResearch/aiauthor-workspace.git
+$ git clone [https://github.com/OutfinityResearch/aiauthor-workspace.git](https://github.com/AssistOS-AI/assistos-workspace)
 ```
 
 ### Step 2: Copy secrets
