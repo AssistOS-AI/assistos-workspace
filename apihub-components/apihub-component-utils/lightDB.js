@@ -84,6 +84,9 @@ async function getContainerObject(spaceId, objectId) {
 
         let object = getRecordDataAndRemove(recordsArray, objectId);
         for (let key of Object.keys(object)) {
+            if(key === "metadata"){
+                continue;
+            }
             if (Array.isArray(object[key])) {
                 for (let i = 0; i < object[key].length; i++) {
                     object[key][i] = constructObject(recordsArray, object[key][i]);
@@ -148,22 +151,24 @@ async function addContainerObject(spaceId, objectType, objectData) {
 }
 
 async function updateContainerObject(spaceId, objectId, objectData) {
-    async function deleteContainerObjectTable(spaceId, objectId) {
+    async function deleteContainerObjectRef(spaceId, objectId) {
         let objectType = objectId.split('_')[0];
         await deleteRecord(spaceId, objectType, objectId);
         return objectId;
     }
 
     async function addContainerObjectToTable(spaceId, objectType, objectData) {
-        let objectId = `${objectType}_${crypto.generateId()}`;
-        await insertRecord(spaceId, objectType, objectId, objectId);
-        objectData.id = objectId;
-        await insertObjectRecords(spaceId, objectId, objectId, objectData);
-        return objectId;
+        if(!objectData.id) {
+            objectData.id = `${objectType}_${crypto.generateId()}`;
+        }
+        await insertRecord(spaceId, objectType, objectData.id, objectData.id);
+        await insertObjectRecords(spaceId, objectData.id, objectData.id, objectData);
+        return objectData.id;
     }
 
     try {
-        await deleteContainerObjectTable(spaceId, objectId);
+        await deleteContainerObjectRef(spaceId, objectId);
+        await deleteTable(spaceId, objectId);
         let objectType = objectId.split('_')[0];
         await addContainerObjectToTable(spaceId, objectType, objectData);
         return objectId;
