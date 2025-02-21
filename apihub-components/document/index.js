@@ -20,7 +20,7 @@ function document(server) {
     //Snapshots
     server.get("/documents/snapshots/:spaceId/:documentId", documentHandler.getDocumentSnapshots);
     server.post("/documents/snapshots/:spaceId/:documentId", documentHandler.addDocumentSnapshot);
-    server.put("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.replaceDocumentSnapshot);
+    server.put("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.restoreDocumentSnapshot);
     server.delete("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.deleteDocumentSnapshot);
 
     //Selections

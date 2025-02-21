@@ -30,7 +30,7 @@ async function getDocument(req, res) {
         });
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to retrieve document ${documentId}` + error.message
+            message: `Failed to retrieve document ${documentId}` + error.message || ""
         });
     }
 
@@ -731,7 +731,9 @@ async function addDocumentSnapshot(request, response) {
         let document = await documentModule.getDocument(spaceId, documentId);
         document.type = "snapshot";
         document.abstract = JSON.stringify({originalDocumentId: documentId, ...snapshotData});
-        snapshotData.documentId = await storeDocument(spaceId, document, request);
+        delete document.id;
+        document.snapshots = [];
+        snapshotData.documentId = await documentModule.addDocument(spaceId, document);
         let {id, position} = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
         snapshotData.id = id;
         utils.sendResponse(response, 200, "application/json", {
@@ -757,32 +759,37 @@ async function getDocumentSnapshots(request, response) {
         });
     }
 }
-async function replaceDocumentSnapshot(request, response) {
+async function restoreDocumentSnapshot(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
     const snapshotId = request.params.snapshotId;
+    let newSnapshotData = request.body;
     try {
-        let snapshots = await documentService.getSnapshots(spaceId, documentId);
-        let replaceSnapshot = snapshots.find(snapshot => snapshot.id === snapshotId);
-        snapshots = snapshots.filter(snapshot => snapshot.id !== snapshotId);
-        for(let snapshot of snapshots){
-            let documentRecord = await lightDB.getRecord(spaceId, snapshot.documentId, snapshot.documentId);
-            let abstract = JSON.parse(documentRecord.data.abstract);
-            abstract.originalDocumentId = replaceSnapshot.documentId;
-            documentRecord.data.abstract = JSON.stringify(abstract);
-            await lightDB.updateRecord(spaceId, snapshot.documentId, snapshot.documentId, documentRecord.data);
-        }
+        let restoreSnapshot = await lightDB.getRecord(spaceId, documentId, snapshotId);
+        let restoreDocumentId = restoreSnapshot.data.documentId;
+        let restoreSnapshotDocument = await documentService.getDocument(spaceId, restoreDocumentId, {});
+        let document = await documentService.getDocument(spaceId, documentId, {});
 
-        let replaceSnapshotDocumentRecord = await lightDB.getRecord(spaceId, replaceSnapshot.documentId, replaceSnapshot.documentId);
-        replaceSnapshotDocumentRecord.data.type = "document";
-        replaceSnapshotDocumentRecord.data.abstract = "";
-        await lightDB.updateRecord(spaceId, replaceSnapshot.documentId, replaceSnapshot.documentId, replaceSnapshotDocumentRecord.data);
-        for(let snapshot of snapshots){
-            await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshot);
-        }
-        await lightDB.deleteEmbeddedObject(spaceId, `${documentId}/${snapshotId}`);
-
-        await documentService.deleteDocument(spaceId, documentId);
+        let originalDocumentType = document.type;
+        let originalDocumentAbstract = document.abstract;
+        let originalDocumentSnapshots = JSON.parse(JSON.stringify(document.snapshots));
+        //create new snapshot
+        let newSnapshotDocument = JSON.parse(JSON.stringify(document));
+        newSnapshotDocument.type = "snapshot";
+        newSnapshotDocument.abstract = JSON.stringify({originalDocumentId: documentId, ...newSnapshotData});
+        delete newSnapshotDocument.id;
+        newSnapshotDocument.snapshots = [];
+        newSnapshotData.documentId = await documentService.createDocument(spaceId, newSnapshotDocument);
+        //restore snapshot
+        document = JSON.parse(JSON.stringify(restoreSnapshotDocument));
+        document.id = documentId;
+        document.type = originalDocumentType;
+        document.abstract = originalDocumentAbstract;
+        document.snapshots = originalDocumentSnapshots;
+        document.snapshots = document.snapshots.filter(snapshot => snapshot.id !== snapshotId);
+        document.snapshots.push(newSnapshotData);
+        await documentService.updateDocument(spaceId, documentId, document, {});
+        await documentService.deleteDocument(spaceId, restoreDocumentId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
@@ -825,5 +832,5 @@ module.exports = {
     getDocumentSnapshots,
     addDocumentSnapshot,
     deleteDocumentSnapshot,
-    replaceDocumentSnapshot
+    restoreDocumentSnapshot
 }

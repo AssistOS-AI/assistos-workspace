@@ -56,3 +56,6 @@ document-snapshots-modal{
     margin-top: 10px;
     display: none;
 }
+.current-snapshot-version{
+    background-color: var(--very-light-gray);
+}

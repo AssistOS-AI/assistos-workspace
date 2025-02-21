@@ -11,23 +11,23 @@ export class DocumentSnapshotsModal{
     async beforeRender() {
         this.snapshots = this.document.snapshots;
         if(this.document.type === documentModule.documentTypes.SNAPSHOT){
-            let documentInfo = JSON.parse(this.document.abstract);
+            let documentInfo = JSON.parse(assistOS.UI.unsanitize(this.document.abstract));
             this.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, documentInfo.originalDocumentId);
-            this.documentId = documentInfo.originalDocumentId;
+            this.originalDocumentId = documentInfo.originalDocumentId;
         } else {
-            this.documentId = this.document.id;
+            this.originalDocumentId = this.document.id;
         }
         let snapshotsHTML = "";
         let headerHTML = `<div class="no-snapshots">no snapshots created</div>`;
         this.snapshots.sort((a, b) => b.timestamp - a.timestamp);
         if(this.snapshots.length > 0){
             headerHTML = `<div class="list-header">
-                                        <span class="snapshot-date">Date</span>
+                                        <span class="snapshot-date">Time</span>
                                         <span class="snapshot-user">Created by</span>
                                         <span>Action</span>
                                     </div>`;
             for (let snapshot of this.snapshots) {
-                snapshotsHTML += `<div class="document-snapshot">
+                snapshotsHTML += `<div class="document-snapshot" data-id="${snapshot.documentId}">
                                           <div class="snapshot-date">${formatTimeAgo(snapshot.timestamp)}</div>
                                           <div class="snapshot-user">${snapshot.email}</div>
                                             <div class="action-box-snapshots" data-local-action="showSnapshotsOptions ${snapshot.id} ${snapshot.documentId}">
@@ -46,6 +46,8 @@ export class DocumentSnapshotsModal{
         if(this.document.type === documentModule.documentTypes.SNAPSHOT){
             let currentVersionButton = this.element.querySelector(".current-version");
             currentVersionButton.style.display = "block";
+            let snapshotItem = this.element.querySelector(`.document-snapshot[data-id="${this.document.id}"]`);
+            snapshotItem.classList.add("current-snapshot-version");
         }
     }
     closeModal() {
@@ -56,7 +58,7 @@ export class DocumentSnapshotsModal{
             timestamp: Date.now(),
             email: assistOS.user.email
         }
-        let snapshot = await documentModule.addDocumentSnapshot(assistOS.space.id, this.documentId, snapshotData);
+        let snapshot = await documentModule.addDocumentSnapshot(assistOS.space.id, this.originalDocumentId, snapshotData);
         this.snapshots.push(snapshot);
         this.invalidate();
     }
@@ -66,13 +68,13 @@ export class DocumentSnapshotsModal{
         if (!confirmation) {
             return;
         }
-        await documentModule.deleteDocumentSnapshot(assistOS.space.id, this.documentId, snapshotId);
+        await documentModule.deleteDocumentSnapshot(assistOS.space.id, this.originalDocumentId, snapshotId);
         this.snapshots = this.snapshots.filter(snapshot => snapshot.id !== snapshotId);
         this.invalidate();
     }
-    openSnapshot(targetElement, documentId){
+    async openSnapshot(targetElement, documentId){
         this.closeModal();
-        assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${documentId}`);
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
     showSnapshotsOptions(targetElement, snapshotId, snapshotDocumentId) {
         let chapterOptions = `<action-box-snapshot data-id="${snapshotId}" data-document-id="${snapshotDocumentId}"></action-box-chapter>`;
@@ -91,15 +93,13 @@ export class DocumentSnapshotsModal{
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
-    async replaceSnapshot(targetElement, snapshotId, snapshotDocumentId){
+    async restoreSnapshot(targetElement, snapshotId, snapshotDocumentId){
         let snapshotData = {
             timestamp: Date.now(),
             email: assistOS.user.email
         }
-        await documentModule.addDocumentSnapshot(assistOS.space.id, this.documentId, snapshotData);
-        await documentModule.replaceDocumentSnapshot(assistOS.space.id, this.documentId, snapshotId);
-        this.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, snapshotDocumentId);
-        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${snapshotDocumentId}`);
-        this.invalidate();
+        await documentModule.restoreDocumentSnapshot(assistOS.space.id, this.originalDocumentId, snapshotId, snapshotData);
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${this.originalDocumentId}`);
+        this.closeModal();
     }
 }

@@ -72,7 +72,7 @@ async function updateDocument(spaceId, documentId, documentData, queryParams) {
     let oldData;
     if (Object.keys(queryParams).length === 0) {
         documentURI = documentId;
-        oldData = await getDocument(spaceId, documentId);
+        oldData = await getDocument(spaceId, documentId, queryParams);
         await lightDB.updateContainerObject(spaceId, documentId, documentData)
     } else if (queryParams.fields) {
         if (Array.isArray(queryParams.fields)) {
