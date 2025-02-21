@@ -79,7 +79,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/agents/:agentId", getAgent);
 
     /*fileObjects*/
-    /* TODO route to actually get all files of an objectType , or to pass some filtering function   */
+    /* TODO route to actually get all files of an objectType , or to pass some filtering function */
     server.get("/spaces/fileObject/:spaceId/:objectType/data", getFileObjects);
     server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
     server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);

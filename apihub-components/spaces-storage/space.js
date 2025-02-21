@@ -823,10 +823,20 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     }
     return existingCollaborators;
 }
+async function addChatToPersonality(spaceId,personalityId,chatId){
+    const personalityData = await getPersonalityData(spaceId, personalityId);
 
+    if (!personalityData.chats) {
+        personalityData.chats = [];
+    }
+    personalityData.chats.push(chatId);
+    personalityData.selectedChat = chatId;
+    await updatePersonalityData(spaceId, personalityId, personalityData)
+}
 
 module.exports = {
     APIs: {
+        addChatToPersonality,
         addApplicationToSpaceObject,
         removeApplicationFromSpaceObject,
         addSpaceAnnouncement,
