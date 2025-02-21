@@ -23,19 +23,24 @@ const getChat = async function (request, response) {
 
     }
 }
+
 const createChat = async function (request, response) {
     const spaceId = request.params.spaceId;
+    const personalityId = request.params.personalityId;
     if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
+
     try {
+        const chatId = await Handler.createChat(spaceId,personalityId);
 
     } catch (error) {
 
     }
 }
+
 const watchChat = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
@@ -56,6 +61,7 @@ const watchChat = async function (request, response) {
 
     }
 }
+
 const sendMessage = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
@@ -75,6 +81,7 @@ const sendMessage = async function (request, response) {
 
     }
 }
+
 const sendQuery = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
@@ -95,6 +102,27 @@ const sendQuery = async function (request, response) {
     }
 }
 
+const resetChat = async function (request, response) {
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!spaceId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    try {
+
+    } catch (error) {
+
+    }
+}
+
+
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery
+    getChat, createChat, watchChat, sendMessage, sendQuery,resetChat
 }
