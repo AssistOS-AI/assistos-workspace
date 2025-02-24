@@ -4,7 +4,15 @@
         <span aria-hidden="true">&times;</span>
     </div>
 </div>
-<form class="add-document-form modal-body">
+<div class="source-toggle">
+    <div class="source-option active" data-tab="create">
+        <i class="fas fa-file-alt"></i> Create Document
+    </div>
+    <div class="source-option" data-tab="upload">
+        <i class="fas fa-upload"></i> Upload File(s)
+    </div>
+</div>
+<form class="add-document-form modal-body" id="createDocumentForm">
     <div class="form-item">
         <label class="form-label" for="documentTitle">Title</label>
         <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" maxlength="50" required placeholder="Title of Document">
@@ -16,5 +24,14 @@
     </div>
     <div class="modal-footer">
         <button type="button" class="general-button" data-local-action="addDocument">Create</button>
+    </div>
+</form>
+<form class="add-document-form modal-body" id="uploadDocumentForm" style="display: none;">
+    <div class="form-item">
+        <label class="form-label" for="fileUpload">Choose File(s)</label>
+        <input type="file" id="fileUpload" name="fileUpload" multiple class="form-input file-input">
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="general-button" data-local-action="uploadFiles">Upload</button>
     </div>
 </form>
