@@ -26,6 +26,7 @@
         "tasks",
         "logger",
         "flows",
+        "telegram-chat",
         "lightDBEnclave",
         "staticServer"
     ],
@@ -76,6 +77,9 @@
         },
         "logger": {
             "module": "./../../apihub-components/logger"
+        },
+        "telegram-chat": {
+            "module": "./../../apihub-components/telegram-chat"
         }
     },
     "responseHeaders": {

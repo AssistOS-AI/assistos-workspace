@@ -241,3 +241,7 @@ input[type="file"]{
 #export-personality-btn{
     margin-right: 40px;
 }
+
+.right-side{
+    height: 100%;
+}

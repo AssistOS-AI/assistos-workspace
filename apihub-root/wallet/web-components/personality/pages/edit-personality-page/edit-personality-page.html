@@ -60,8 +60,18 @@
             $$deletePersonalityButton
         </div>
     </form>
-    <div class="form-item">
-        <label class="form-label" for="chatIframe">Embed Personality Chat</label>
-        <textarea class="form-input" name="chatIframe" id="chatIframe" readonly aria-readonly="true">$$chatIframe</textarea>
+    <div class="right-side">
+        <div class="form-item">
+            <label class="form-label" for="chatIframe">Embed Personality Chat</label>
+            <textarea class="form-input" name="chatIframe" id="chatIframe" readonly aria-readonly="true">$$chatIframe</textarea>
+        </div>
+        <div class="telegram-bot">
+            <div class="section-title">Telegram Bot</div>
+            <div class="form-item">
+                <label class="form-label" for="botId">Bot ID</label>
+                <input type="text" class="form-input" name="botId" id="botId">
+            </div>
+            <button class="general-button" data-local-action="startTelegramBot">Start Bot</button>
+        </div>
     </div>
 </div>

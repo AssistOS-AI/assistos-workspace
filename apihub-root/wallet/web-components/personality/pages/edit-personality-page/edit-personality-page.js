@@ -172,6 +172,10 @@ export class EditPersonalityPage {
                 await this.loadVoices(audioSelect.value);
             });
         });
+        if(this.personality.telegramBot){
+            let telegramBotInput = this.element.querySelector("#botId");
+            telegramBotInput.value = this.personality.telegramBot.botId;
+        }
     }
 
     preventRefreshOnEnter(event) {
@@ -294,5 +298,14 @@ export class EditPersonalityPage {
         } catch (error) {
             alert("Exporting personality failed");
         }
+    }
+    async startTelegramBot(targetElement){
+        let botIdInput = this.element.querySelector("#botId");
+        let botId = botIdInput.value;
+        if(!botId){
+            alert("Please provide a bot id");
+            return;
+        }
+        await spaceModule.startTelegramBot(assistOS.space.id, this.personality.id, botId);
     }
 }
