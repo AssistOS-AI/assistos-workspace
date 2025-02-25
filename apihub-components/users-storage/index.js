@@ -13,10 +13,6 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
-const securityConfig = require("../../data-volume/config/securityConfig.json");
-const configs = require("../../data-volume/config/config.json");
-const User = require("./user");
-
 function UserStorage(server) {
 
     setTimeout(async () => {

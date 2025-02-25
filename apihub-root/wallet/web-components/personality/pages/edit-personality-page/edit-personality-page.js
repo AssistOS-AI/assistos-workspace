@@ -45,7 +45,7 @@ export class EditPersonalityPage {
     }
 
     async beforeRender() {
-        // Generate Dynamically the LLM selection section to automatize the process of adding new LLMs and new LLM types and make it more extensible
+        this.contextSize = this.personality.contextSize||3;
         const iFrameURL = `${window.location.origin}/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
         this.chatIframe = `
 <iframe 
@@ -228,6 +228,7 @@ export class EditPersonalityPage {
             this.personality.voiceId = formInfo.data.voiceId;
             this.personality.chatPrompt= formInfo.data.chatPrompt;
             this.personality.selectedChat = formInfo.data.chatId
+            this.personality.contextSize = formInfo.data.contextSize;
             assistOS.agent.agentData.selectedChat= this.personality.selectedChat
             Object.keys(this.availableLlms).forEach(llmType => {
                 this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];

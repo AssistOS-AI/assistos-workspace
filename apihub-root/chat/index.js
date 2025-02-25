@@ -40,7 +40,6 @@ const initializeChat = async function(){
     const personalityId = urlParams.get("personalityId")||null;
     const spaceId = urlParams.get("spaceId")||null;
 
-
     appContainer.innerHTML = `<chat-page data-chatId="${chatId}" data-personalityId="${personalityId}" data-spaceId="${spaceId}" data-userId="${userId}" data-presenter="chat-page"></chat-page>`
 }
 
