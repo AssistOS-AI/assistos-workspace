@@ -76,29 +76,46 @@ const generateRequest = function (method, headers = {}, body = null) {
     };
 };
 
-const createNewChat = (spaceId, body = {}) => {
+const createNewChat = async  (spaceId, body = {}) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, body);
-    return request(`/chats/${spaceId}`);
+    return await request(`/chats/${spaceId}`);
 };
 
-const getChat = (spaceId, chatId) => {
+const getChat = async (spaceId, chatId) => {
     const request = generateRequest("GET");
-    return request(`/chats/${spaceId}/${chatId}`);
+    const response = await request(`/chats/${spaceId}/${chatId}`);
+    return response.data;
 };
 
-const watchChat = (spaceId, chatId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"}, body);
-    return request(`/chats/watch/${spaceId}/${chatId}`);
+const watchChat = async (spaceId, chatId) => {
+    const request = generateRequest("POST", {"Content-Type": "application/json"});
+    return await request(`/chats/watch/${spaceId}/${chatId}`);
 };
 
-const sendMessage = (spaceId, chatId, message) => {
+const sendMessage = async (spaceId, chatId, message) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
-    return request(`/chats/message/${spaceId}/${chatId}`);
+    return await request(`/chats/message/${spaceId}/${chatId}`);
 };
 
-const sendQuery = (spaceId, chatId, query) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"}, {query});
-    return request(`/chats/query/${spaceId}/${chatId}`);
+const sendQuery = async (spaceId, chatId,personalityId,context, prompt,responseContainerLocation) => {
+        const controller = new AbortController();
+        const requestData = {
+            prompt,context
+        }
+        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+            body: JSON.stringify(requestData),
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            alert(`Error: ${error.message}`);
+            return;
+        }
+        await this.dataStreamContainer(response, responseContainerLocation, controller);
 };
 
 const resetChat = (spaceId, chatId) => {
@@ -165,23 +182,21 @@ class BaseChatFrame {
             const chatMessage = this.chatMessages[messageIndex]
             let role = getChatItemRole(chatMessage)
 
-            if (!role || role === "Space") {
+            if (!role) {
                 continue;
             }
-
             const user = getChatItemUser(chatMessage);
 
             if (user === this.userId) {
                 role = "own"
             }
 
-            if (role !== "Space") {
-                if (messageIndex === this.chatMessages.length - 1) {
-                    this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-                } else {
-                    this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
-                }
+            if (messageIndex === this.chatMessages.length - 1) {
+                this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+            } else {
+                this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
+
         }
         this.spaceConversation = this.stringHTML;
     }
@@ -222,9 +237,6 @@ class BaseChatFrame {
     async sendMessage(_target) {
         let formInfo = await UI.extractFormInformation(_target);
         const userRequestMessage = UI.customTrim(formInfo.data.input)
-
-        const unsanitizedMessage = UI.unsanitize(userRequestMessage);
-
         formInfo.elements.input.element.value = "";
         if (!userRequestMessage.trim()) {
             return;
@@ -240,20 +252,13 @@ class BaseChatFrame {
                 }
             }
         )
-
         await this.displayMessage("own", this.chatMessages.length - 1);
-
         let messageId;
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
-            messageId = await sendQuery(this.spaceId, this.chatId, userRequestMessage)
+            messageId = await sendQuery(this.spaceId, this.chatId,this.personalityId,this.localContext,userRequestMessage,streamLocationElement)
         } else {
             messageId = await sendMessage(this.spaceId, this.chatId, userRequestMessage)
-        }
-
-        if (this.agentOn) {
-            const streamLocationElement = await this.createChatUnitResponse();
-            await this.processUserRequest(unsanitizedMessage, this.localContext, streamLocationElement, messageId);
         }
     }
 
@@ -348,7 +353,7 @@ class BaseChatFrame {
     async createChatUnitResponse() {
         this.chatMessages.push(
             {
-                text: "",
+                text: "Thinking ...",
                 commands: {
                     replay: {
                         role: "assistant",
@@ -385,6 +390,96 @@ class BaseChatFrame {
             });
         };
         return await waitForElement(this.conversation.lastElementChild, '.message');
+    }
+
+    async processUserQuery(spaceId,chatId,personalityId,query,context,streamLocationElement) {
+        /*
+        const decision = await this.analyzeRequest(userRequest, context);
+         const promises = [];
+         if (decision.flows.length > 0) {
+             const flowPromises = decision.flows.map(async (flow) => {
+                 const missingParameters = Object.keys(this.flows[flow.flowName].flowParametersSchema).filter(parameter => !Object.keys(flow.extractedParameters).includes(parameter));
+                 const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
+                 if (missingParameters.length > 0) {
+                     return this.handleMissingParameters(context, missingParameters, userRequest, this.flows[flow.flowName], responseLocation);
+                 } else {
+                     return this.callFlow(flow.flowName, flow.extractedParameters, responseLocation);
+                 }
+             });
+             promises.push(...flowPromises);
+         }
+
+         if (decision.normalLLMRequest.skipRewrite === "true") {
+             const normalLLMPromise = (async () => {
+                 const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
+                 await this.handleNormalLLMResponse(userRequest, responseLocation);
+             })();
+             promises.push(normalLLMPromise);
+         }
+
+         if (decision.normalLLMRequest.prompt !== "") {
+             const normalLLMPromise = (async () => {
+                 const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
+                 await this.handleNormalLLMResponse(decision.normalLLMRequest.prompt, responseLocation);
+             })();
+             promises.push(normalLLMPromise);
+         }
+         await Promise.all(promises);*/
+    }
+
+    async dataStreamContainer(response, responseContainerLocation, controller) {
+        const responseContainerPresenter = responseContainerLocation.closest("[data-presenter]")?.webSkelPresenter;
+        const reader = response.body.getReader();
+        await responseContainerPresenter.handleStartStream(controller);
+
+        const decoder = new TextDecoder("utf-8");
+        let buffer = '';
+        let markdownBuffer = ''
+        const handleStreamEvent = (event, responseContainerLocation) => {
+            try {
+                if (event.data !== "") {
+                    const json = JSON.parse(event.data)
+                    if (json.sessionId) {
+                        this.sessionId = json.sessionId
+                    }
+                    if (json.message) {
+                        markdownBuffer += json.message
+                        responseContainerPresenter.message = markdownBuffer;
+                        responseContainerLocation.innerHTML = marked.parse(markdownBuffer)
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to parse event data:', e)
+            }
+        }
+
+        while (true) {
+            const {done, value} = await reader.read();
+            if (done) {
+                await responseContainerPresenter.handleEndStream();
+                break;
+            }
+            buffer += decoder.decode(value, {stream: true});
+            let lines = buffer.split("\n");
+
+            buffer = lines.pop();
+
+            for (let line of lines) {
+                if (line.startsWith("event:")) {
+                    const eventName = line.replace("event:", "").trim();
+                    lines.shift();
+                    const eventData = lines.shift().replace("data:", "").trim();
+                    handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
+                } else if (line.startsWith("data:")) {
+                    const eventData = line.replace("data:", "").trim();
+                    handleStreamEvent({type: "message", data: eventData}, responseContainerLocation);
+                }
+            }
+        }
+
+        if (buffer.trim()) {
+            handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
+        }
     }
 }
 
@@ -430,135 +525,6 @@ if (IFrameContext) {
             localStorage.setItem("agentOn", this.agentOn);
         }
 
-        async processUserRequest(userRequest, context, streamLocationElement,) {
-            /* TODO huggingface models only support alternating assistant/user so we need to find a solution for this */
-            await this.handleNormalLLMResponse(userRequest, context, streamLocationElement);
-            /* //huggingface models are too dumb for this
-            const decision = await this.analyzeRequest(userRequest, context);
-             const promises = [];
-             if (decision.flows.length > 0) {
-                 const flowPromises = decision.flows.map(async (flow) => {
-                     const missingParameters = Object.keys(this.flows[flow.flowName].flowParametersSchema).filter(parameter => !Object.keys(flow.extractedParameters).includes(parameter));
-                     const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
-                     if (missingParameters.length > 0) {
-                         return this.handleMissingParameters(context, missingParameters, userRequest, this.flows[flow.flowName], responseLocation);
-                     } else {
-                         return this.callFlow(flow.flowName, flow.extractedParameters, responseLocation);
-                     }
-                 });
-                 promises.push(...flowPromises);
-             }
-
-             if (decision.normalLLMRequest.skipRewrite === "true") {
-                 const normalLLMPromise = (async () => {
-                     const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
-                     await this.handleNormalLLMResponse(userRequest, responseLocation);
-                 })();
-                 promises.push(normalLLMPromise);
-             }
-
-             if (decision.normalLLMRequest.prompt !== "") {
-                 const normalLLMPromise = (async () => {
-                     const responseLocation = await this.createChatUnitResponse(responseContainerLocation, responseContainerLocation.lastElementChild.id);
-                     await this.handleNormalLLMResponse(decision.normalLLMRequest.prompt, responseLocation);
-                 })();
-                 promises.push(normalLLMPromise);
-             }
-             await Promise.all(promises);*/
-        }
-
-        async handleNormalLLMResponse(userRequest, context, responseContainerLocation) {
-            const decoratedPrompt = `
-        ${this.agentData.chatPrompt}
-        
-        **Conversation** 
-        ${context.length > 0 ? context.map(({role, message}) => `${role} : ${message}`).join('\n') : '""'}
-        
-        **Respond to this request**:
-        ${userRequest}
-        `;
-
-            const requestData = {
-                modelName: this.agentData.llms.text,
-                prompt: UI.unsanitize(decoratedPrompt),
-                agentId: this.agentData.id
-            };
-            try {
-                const controller = new AbortController();
-                const response = await fetch(`/apis/v1/spaces/${assistOS.space.id}/chats/${chatId}/llms/text/streaming/generate`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    signal: controller.signal,
-                    body: JSON.stringify(requestData),
-                });
-                if (!response.ok) {
-                    const error = await response.json();
-                    alert(`Error: ${error.message}`);
-                    return;
-                }
-                await this.dataStreamContainer(response, responseContainerLocation, controller);
-            } catch (error) {
-                console.error('Failed to fetch:', error);
-            }
-        }
-
-        async dataStreamContainer(response, responseContainerLocation, controller) {
-            const responseContainerPresenter = responseContainerLocation.closest("[data-presenter]")?.webSkelPresenter;
-            const reader = response.body.getReader();
-            responseContainerPresenter.handleStartStream(controller);
-
-            const decoder = new TextDecoder("utf-8");
-            let buffer = '';
-            let markdownBuffer = ''
-            const handleStreamEvent = (event, responseContainerLocation) => {
-                try {
-                    if (event.data !== "") {
-                        const json = JSON.parse(event.data)
-                        if (json.sessionId) {
-                            this.sessionId = json.sessionId
-                        }
-                        if (json.message) {
-                            markdownBuffer += json.message
-                            responseContainerPresenter.message = markdownBuffer;
-                            responseContainerLocation.innerHTML = marked.parse(markdownBuffer)
-                        }
-                    }
-                } catch (e) {
-                    console.error('Failed to parse event data:', e)
-                }
-            }
-
-            while (true) {
-                const {done, value} = await reader.read();
-                if (done) {
-                    await responseContainerPresenter.handleEndStream();
-                    break;
-                }
-                buffer += decoder.decode(value, {stream: true});
-                let lines = buffer.split("\n");
-
-                buffer = lines.pop();
-
-                for (let line of lines) {
-                    if (line.startsWith("event:")) {
-                        const eventName = line.replace("event:", "").trim();
-                        lines.shift();
-                        const eventData = lines.shift().replace("data:", "").trim();
-                        handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
-                    } else if (line.startsWith("data:")) {
-                        const eventData = line.replace("data:", "").trim();
-                        handleStreamEvent({type: "message", data: eventData}, responseContainerLocation);
-                    }
-                }
-            }
-
-            if (buffer.trim()) {
-                handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
-            }
-        }
-
         async handleMissingParameters(context, missingParameters, userRequest, chosenFlow, responseContainerLocation) {
             const prompt = `
             You have received a user request and determined that the chosen flow requires additional parameters that are missing.
@@ -596,7 +562,6 @@ if (IFrameContext) {
         }
 
         async callFlow(flowId, parameters, responseContainerLocation) {
-            console.log(`Executing flow: ${flowId} with parameters: ${JSON.stringify(parameters)}`);
             let flowResult;
             try {
                 flowResult = await assistOS.callFlow(flowId, parameters, this.personalityId);
@@ -635,9 +600,6 @@ if (IFrameContext) {
         }
 
         createChatHistory(userChatHistory) {
-            /* For more context awareness, prior consecutive assistant messages will be merged into one
-               to address the case where the user doesn't use directly the reply function
-             */
             let chatHistory = [];
             let i = 0;
             let currentMessage = "";

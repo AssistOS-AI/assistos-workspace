@@ -6,7 +6,7 @@ export class SpaceApplicationPage {
         this.invalidate();
     }
 
-    beforeRender() {
+    async beforeRender() {
         if (assistOS.UI.sidebarState === "closed") {
             this.transformStyle = "transform:translateX(80%);";
             this.arrowRotationToggle = "arrow-rotated"
@@ -14,6 +14,14 @@ export class SpaceApplicationPage {
             this.transformStyle = "transform:translateX(0%);";
             this.arrowRotationToggle = ""
         }
+
+    }
+
+    async afterRender() {
+        this.sidebar = this.element.querySelector(".right-sidebar");
+        this.currentPage = this.element.querySelector(".current-page");
+        this.agentPage = this.element.querySelector("agent-page");
+        this.highlightSidebarItem();
     }
 
     highlightSidebarItem() {
@@ -23,13 +31,6 @@ export class SpaceApplicationPage {
                 item.classList.add("highlighted");
             }
         });
-    }
-
-    async afterRender() {
-        this.sidebar = this.element.querySelector(".right-sidebar");
-        this.currentPage = this.element.querySelector(".current-page");
-        this.agentPage = this.element.querySelector("agent-page");
-        this.highlightSidebarItem();
     }
 
     async toggleChat(_target, mode, width) {
@@ -124,8 +125,6 @@ export class SpaceApplicationPage {
             }
         }
     }
-
-
 
     async navigateToPage(_target, page) {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);

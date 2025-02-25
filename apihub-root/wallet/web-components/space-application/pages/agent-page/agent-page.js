@@ -1,13 +1,15 @@
 const spaceModule = require("assistos").loadModule("space", {});
-const userModule = require("assistos").loadModule("user", {});
 const personalityModule = require('assistos').loadModule("personality",{})
 
 export class AgentPage{
     constructor(element,invalidate){
         this.element=element;
         this.invalidate=invalidate;
+        this.invalidate();
     }
     async beforeRender(){
+        const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
+        this.chatPage =`<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         let personalitiesHTML = "";
         for (let personality of this.personalities) {
@@ -30,6 +32,7 @@ export class AgentPage{
     async afterRender(){
 
     }
+
     async newConversation(target) {
         assistOS.agent.agentData.selectedChat = await personalityModule.createNewConversation(assistOS.space.id, assistOS.agent.agentData.id)
         this.invalidate();

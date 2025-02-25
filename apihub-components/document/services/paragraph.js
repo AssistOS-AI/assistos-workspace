@@ -119,7 +119,7 @@ async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
     return {id, position};
 }
 
-async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, queryParams) {
+async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, queryParams={}) {
     let paragraphURI;
     let oldData;
     if (Object.keys(queryParams).length === 0) {

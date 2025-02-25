@@ -1,10 +1,11 @@
-const {addChatToPersonality} = require('../spaces-storage/space.js').APIs
+const {addChatToPersonality,getPersonalityData} = require('../spaces-storage/space.js').APIs
 const Document = require('../document/services/document.js')
 const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
 
-const getChat = async function (spaceId, documentId) {
-    return await Document.getDocument(spaceId, documentId)
+const {getTextStreamingResponse} = require('../llms/controller.js');
+const getChat = async function (spaceId, chatId) {
+    return await Document.getDocument(spaceId, chatId)
 }
 
 const createChat = async function (spaceId, personalityId) {
@@ -13,19 +14,16 @@ const createChat = async function (spaceId, personalityId) {
         topic: '',
         metadata: ["id", "title"]
     }
-
     const chatChapterData = {
         title: `Messages`,
         position: 0,
         paragraphs: []
     }
-
     const chatContextChapterData = {
         title: `Context`,
         position: 1,
         paragraphs: []
     }
-
     const chatId = await Document.createDocument(spaceId, documentData);
 
     const chatItemsChapterId = await Chapter.createChapter(spaceId, chatId, chatChapterData)
@@ -40,23 +38,112 @@ const watchChat = async function () {
 
 }
 
-const sendMessage = async function (spaceId, chatId, userId, message) {
+const sendMessage = async function (spaceId, chatId, userId, message, role) {
     const chat = await Document.getDocument(spaceId, chatId);
-    const messagesId = chat.chapters[0].id;
+    let chapterId;
+    if (chat.chapters.length === 0) {
+        const chatChapterData = {
+            title: `Chat Messages`,
+            paragraphs: []
+        }
+        chapterId = await Chapter.createChapter(spaceId, chatId, chatChapterData);
+    } else {
+        chapterId = chat.chapters[0].id;
+    }
+
     const paragraphData = {
         text: message,
         commands: {
             replay: {
-                role: "own",
+                role,
                 name: userId
             }
         }
     }
-    return await Paragraph.createParagraph(spaceId, chatId, messagesId, paragraphData);
+    return (await Paragraph.createParagraph(spaceId, chatId, chapterId, paragraphData)).id;
 }
 
-const sendQuery = async function () {
+const sendQuery = async function (request, response, spaceId, chatId, personalityId,userId,context, prompt) {
+    function unsanitize(value) {
+        if (value != null && typeof value === "string") {
+            return value.replace(/&nbsp;/g, ' ')
+                .replace(/&#13;/g, '\n')
+                .replace(/&amp;/g, '&')
+                .replace(/&#39;/g, "'")
+                .replace(/&quot;/g, '"')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>');
+        }
+        return '';
+    }
 
+    const applyChatPrompt = (chatPrompt,context,prompt)=>
+`${chatPrompt}
+**Conversation**
+${context.length > 0 ? context.map(({role, message}) => `${role} : ${message}`).join('\n') : '""'}
+**Respond to this request**:
+${prompt}
+`;
+    const personalityData = await getPersonalityData(spaceId, personalityId);
+    let {chatPrompt} = personalityData;
+    chatPrompt = unsanitize(chatPrompt);
+    let unsPrompt = unsanitize(prompt);
+
+    request.body.prompt = applyChatPrompt(chatPrompt,context,unsPrompt);
+    request.body.modelName = personalityData.llms.text;
+
+    await sendMessage(spaceId, chatId, userId, prompt, "user");
+
+    let messageId = null;
+    let isFirstChunk = true;
+    let streamClosed = false;
+
+    const updateQueue = [];
+    let isProcessingQueue = false;
+
+    response.on('close', async () => {
+        if (!streamClosed) {
+            streamClosed = true;
+            updateQueue.length = 0;
+        }
+    });
+
+    const processQueue = async () => {
+        if (isProcessingQueue || streamClosed) return;
+        isProcessingQueue = true;
+
+        while (updateQueue.length > 0 && !streamClosed) {
+            const currentChunk = updateQueue.shift();
+            await updateMessage(
+                spaceId,
+                chatId,
+                messageId,
+                currentChunk
+            );
+        }
+        isProcessingQueue = false;
+    };
+
+    const streamContext = await getTextStreamingResponse(
+        request,
+        response,
+        async (chunk) => {
+            try {
+                if (streamClosed) return;
+                if (isFirstChunk) {
+                    isFirstChunk = false;
+                    messageId = await sendMessage(spaceId, chatId, personalityId, chunk, "assistant");
+                } else {
+                    if (!messageId) return;
+                    updateQueue.push(chunk);
+                    await processQueue();
+                }
+            } catch (error) {
+
+            }
+        }
+    );
+    await streamContext.streamPromise;
 }
 
 const resetChat = async function (spaceId, chatId) {
@@ -75,6 +162,10 @@ const resetChat = async function (spaceId, chatId) {
     return chatId;
 }
 
+const updateMessage = async function (spaceId, chatId, messageId, message) {
+    await Paragraph.updateParagraph(spaceId, chatId, messageId, message, {fields: "text"});
+}
+
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat
+    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat, updateMessage
 }

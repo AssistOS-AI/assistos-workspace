@@ -1,13 +1,10 @@
 const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
-//const Request = require('../apihub-component-utils/utils')
-//const Handler = require('handler.js')
 
 
 const getChat = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
-
     if (!chatId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid chatId received ${chatId}`
@@ -18,11 +15,16 @@ const getChat = async function (request, response) {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
-
     try {
-        const chat = Handler.getChat()
+        const chat = await Handler.getChat(spaceId, chatId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
+            data: chat
+        })
     } catch (error) {
-
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`
+        })
     }
 }
 
@@ -34,18 +36,52 @@ const createChat = async function (request, response) {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
-
     try {
-        const chatId = await Handler.createChat(spaceId,personalityId);
-
+        const chatId = await Handler.createChat(spaceId, personalityId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Successfully created chat ${chatId}`,
+            data: {chatId}
+        })
     } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error:${error.message} while trying to create a new chat`
+        })
+    }
+}
 
+
+const sendMessage = async function (request, response) {
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    const userId = request.userId;
+    const {message} = request.body;
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!spaceId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    try {
+        const messageId = Handler.sendMessage(spaceId, chatId, userId, message, "user");
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Successfully added message ${messageId}`,
+            data: {messageId}
+        })
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to add message to space ${spaceId}, chat ${chatId}`
+        })
     }
 }
 
 const watchChat = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
+    const userId = request.userId;
     if (!chatId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid chatId received ${chatId}`
@@ -58,73 +94,69 @@ const watchChat = async function (request, response) {
     }
 
     try {
-
+        await Handler.watchChat(spaceId, chatId, userId);
+        return Request.sendResponse(response, 200, "application/json", {message: `Successfully started watching chat ${chatId} from space ${spaceId}`})
     } catch (error) {
-
-    }
-}
-
-const sendMessage = async function (request, response) {
-    const chatId = request.params.chatId;
-    const spaceId = request.params.spaceId;
-    if (!chatId) {
-        return Request.sendResponse(response, 400, "application/json", {
-            message: `Invalid chatId received ${chatId}`
-        })
-    }
-    if (!spaceId) {
-        return Request.sendResponse(response, 400, "application/json", {
-            message: `Invalid spaceId received ${spaceId}`
-        })
-    }
-    try {
-
-    } catch (error) {
-
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `Encountered an error : ${error.message} while trying to watch chat ${chatId} from space ${spaceId}`})
     }
 }
 
 const sendQuery = async function (request, response) {
-    const chatId = request.params.chatId;
+    const userId = request.userId;
     const spaceId = request.params.spaceId;
-    if (!chatId) {
-        return Request.sendResponse(response, 400, "application/json", {
-            message: `Invalid chatId received ${chatId}`
-        })
-    }
+    const chatId = request.params.chatId;
+    const personalityId = request.params.personalityId;
+
+    const {prompt,context} = request.body;
+
     if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!personalityId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid personalityId received ${personalityId}`
+        })
+    }
     try {
-
+        await Handler.sendQuery(request, response, spaceId, chatId, personalityId,userId,context, prompt)
     } catch (error) {
-
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to send query to chat ${chatId} from space ${spaceId}`
+        })
     }
 }
 
 const resetChat = async function (request, response) {
-    const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
-    if (!chatId) {
-        return Request.sendResponse(response, 400, "application/json", {
-            message: `Invalid chatId received ${chatId}`
-        })
-    }
+    const chatId = request.params.chatId;
     if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
     try {
-
+        await Handler.resetChat(spaceId, chatId);
+        return Request.sendResponse(response, 200, "application/json", {message: `Chat ${chatId} reset successfully`})
     } catch (error) {
-
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to reset chat ${chatId} from space ${spaceId}`
+        })
     }
 }
 
 
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery,resetChat
+    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat
 }
