@@ -62,12 +62,20 @@ async function getFile(type, fileId, range) {
 
 async function getUploadURL(type, fileId) {
     const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/uploads?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`, 'GET');
-    return (await response.json()).data;
+    let url = (await response.json()).data;
+    return {
+        uploadURL: url,
+        externalRequest: true
+    }
 }
 
 async function getDownloadURL(type, fileId) {
     const response = await sendLLMAdapterRequest(`${llmAdapterUrl}/apis/v1/downloads?type=${encodeURIComponent(type)}&fileId=${encodeURIComponent(fileId)}`, 'GET');
-    return (await response.json()).data;
+    let url = (await response.json()).data;
+    return {
+        downloadURL: url,
+        externalRequest: true
+    }
 }
 
 module.exports = {
