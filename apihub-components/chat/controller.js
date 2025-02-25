@@ -157,6 +157,23 @@ const resetChat = async function (request, response) {
 }
 
 
+const getPublicChat = async function (request, response) {
+
+}
+
+const createPublicChat = async function (request, response) {
+
+}
+
+const sendPublicMessage = async function (request, response) {
+
+}
+
+const sendPublicQuery = async function (request, response) {
+
+}
+
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat
+    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat,
+    getPublicChat, createPublicChat, sendPublicMessage, sendPublicQuery
 }

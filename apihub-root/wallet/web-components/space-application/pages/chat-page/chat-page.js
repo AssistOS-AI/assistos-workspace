@@ -76,7 +76,7 @@ const generateRequest = function (method, headers = {}, body = null) {
     };
 };
 
-const createNewChat = async  (spaceId, body = {}) => {
+const createNewChat = async (spaceId, body = {}) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, body);
     return await request(`/chats/${spaceId}`);
 };
@@ -97,26 +97,6 @@ const sendMessage = async (spaceId, chatId, message) => {
     return await request(`/chats/message/${spaceId}/${chatId}`);
 };
 
-const sendQuery = async (spaceId, chatId,personalityId,context, prompt,responseContainerLocation) => {
-        const controller = new AbortController();
-        const requestData = {
-            prompt,context
-        }
-        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            signal: controller.signal,
-            body: JSON.stringify(requestData),
-        });
-        if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-            return;
-        }
-        await this.dataStreamContainer(response, responseContainerLocation, controller);
-};
 
 const resetChat = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
@@ -216,6 +196,17 @@ class BaseChatFrame {
             this.userHasScrolledManually = distanceFromBottom > threshold;
         });
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
+        this.maxHeight = 500;
+        const maxHeight = 500;
+        const form = this.form;
+        this.userInput.addEventListener('input', function (event) {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, maxHeight) + "px";
+            this.style.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
+            form.height = "auto";
+            form.height = Math.min(this.scrollHeight, maxHeight) + "px";
+            form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
+        });
         this.initObservers();
     }
 
@@ -233,6 +224,27 @@ class BaseChatFrame {
             }
         }
     }
+
+    async sendQuery(spaceId, chatId, personalityId, context, prompt, responseContainerLocation) {
+        const controller = new AbortController();
+        const requestData = {
+            prompt, context
+        }
+        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+            body: JSON.stringify(requestData),
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            alert(`Error: ${error.message}`);
+            return;
+        }
+        await this.dataStreamContainer(response, responseContainerLocation, controller);
+    };
 
     async sendMessage(_target) {
         let formInfo = await UI.extractFormInformation(_target);
@@ -252,11 +264,15 @@ class BaseChatFrame {
                 }
             }
         )
+        this.userInput.style.height = "auto"
+        this.form.style.height = "auto"
+
         await this.displayMessage("own", this.chatMessages.length - 1);
         let messageId;
+
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
-            messageId = await sendQuery(this.spaceId, this.chatId,this.personalityId,this.localContext,userRequestMessage,streamLocationElement)
+            messageId = this.sendQuery(this.spaceId, this.chatId, this.personalityId, this.localContext, userRequestMessage, streamLocationElement)
         } else {
             messageId = await sendMessage(this.spaceId, this.chatId, userRequestMessage)
         }
@@ -392,7 +408,7 @@ class BaseChatFrame {
         return await waitForElement(this.conversation.lastElementChild, '.message');
     }
 
-    async processUserQuery(spaceId,chatId,personalityId,query,context,streamLocationElement) {
+    async processUserQuery(spaceId, chatId, personalityId, query, context, streamLocationElement) {
         /*
         const decision = await this.analyzeRequest(userRequest, context);
          const promises = [];
@@ -517,6 +533,7 @@ if (IFrameContext) {
                 this.toggleAgentButton.classList.remove("agent-on");
                 this.toggleAgentButton.classList.add("agent-off");
                 this.toggleAgentButton.innerHTML = "Agent:OFF";
+            } else {
                 this.toggleAgentButton.classList.remove("agent-off");
                 this.toggleAgentButton.classList.add("agent-on");
                 this.toggleAgentButton.innerHTML = "Agent:ON";

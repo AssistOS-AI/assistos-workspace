@@ -1,8 +1,8 @@
 view-context-modal {
     display: flex;
     flex-direction: column;
-    width: 40vw;
-    height: 60vh;
+    width: 100%;
+    height: 100%;
     overflow-y: auto;
     padding: 20px;
     background: white;

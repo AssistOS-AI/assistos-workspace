@@ -26,6 +26,10 @@
             </select>
         </div>
         <div class="form-item">
+            <label class="form-label" for="contextSize">Context Messages Size (number of messages)</label>
+            <input type="number" name="contextSize" id="contextSize" value="$$contextSize" min="0" max="20">
+        </div>
+        <div class="form-item">
             <label class="form-label" for="photo">Photo</label>
             <div class="input-file-container" data-id="photo" data-local-action="triggerInputFileOpen photo">
                 <div class="shadow">
@@ -54,11 +58,13 @@
             </audio>
         </div>
         $$llmSelectionSection
+
         <div class="form-footer">
             <button type="button" class="general-button right-margin" data-local-action="saveChanges">Save</button>
             <button type="button" class="general-button cancel-btn" data-local-action="openPersonalitiesPage">Cancel</button>
             $$deletePersonalityButton
         </div>
+
     </form>
     <div class="right-side">
         <div class="form-item">

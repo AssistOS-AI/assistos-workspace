@@ -2,7 +2,7 @@ export class ViewContextModal {
     constructor(element,invalidate){
         this.invalidate=invalidate;
         this.invalidate();
-        this.agentPagePresenter = document.querySelector('agent-page').webSkelPresenter
+        this.agentPagePresenter = document.querySelector('chat-page').webSkelPresenter
     }
 
     closeModal(_target) {
