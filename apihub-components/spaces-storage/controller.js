@@ -1071,11 +1071,12 @@ async function getUploadURL(request, response) {
     const type = request.headers["content-type"];
     try {
         const fileId = crypto.generateId();
-        const uploadURL = await Storage.getUploadURL(type, fileId);
+        const {uploadURL, externalRequest} = await Storage.getUploadURL(type, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             data: {
                 uploadURL: uploadURL,
-                fileId: fileId
+                fileId: fileId,
+                externalRequest
             },
             message: `Upload URL retrieved successfully`
         });
@@ -1090,10 +1091,11 @@ async function getDownloadURL(request, response) {
     const type = request.headers["content-type"];
     const fileId = request.params.fileId;
     try {
-        const downloadURL = await Storage.getDownloadURL(type, fileId);
+        const {downloadURL, externalRequest} = await Storage.getDownloadURL(type, fileId);
         return utils.sendResponse(response, 200, "application/json", {
             data: {
-                downloadURL: downloadURL
+                downloadURL: downloadURL,
+                externalRequest: externalRequest
             },
             message: `Download URL retrieved successfully`
         });

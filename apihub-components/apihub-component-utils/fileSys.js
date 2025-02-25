@@ -95,11 +95,17 @@ async function headFile(type, fileId) {
 }
 
 async function getUploadURL(type, fileId) {
-    return `/spaces/files/${fileId}`;
+    return {
+        uploadURL: `/spaces/files/${fileId}`,
+        externalRequest: false
+    }
 }
 
 async function getDownloadURL(type, fileId) {
-    return `/spaces/files/${fileId}`;
+    return {
+        downloadURL: `/spaces/files/${fileId}`,
+        externalRequest: true
+    }
 }
 
 module.exports = {
