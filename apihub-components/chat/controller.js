@@ -2,7 +2,7 @@ const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
 
 
-const getChat = async function (request, response) {
+const getChatMessages = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
     if (!chatId) {
@@ -16,7 +16,7 @@ const getChat = async function (request, response) {
         })
     }
     try {
-        const chat = await Handler.getChat(spaceId, chatId);
+        const chat = await Handler.getChatMessages(spaceId, chatId);
         return Request.sendResponse(response, 200, "application/json", {
             message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
             data: chat
@@ -156,6 +156,88 @@ const resetChat = async function (request, response) {
     }
 }
 
+const resetChatContext = async function (request, response) {
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!spaceId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    try {
+        await Handler.resetChatContext(spaceId, chatId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
+            data: {chatId}
+        })
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`
+        })
+    }
+}
+
+const getChatContext = async function(request,response){
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!spaceId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    try {
+        const chatContext = await Handler.getChatContext(spaceId, chatId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
+            data: chatContext
+        })
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`
+        })
+    }
+}
+
+const addMessageToContext = async function(request,response){
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    const messageId = request.params.messageId;
+    if (!chatId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if (!spaceId) {
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    if(!messageId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid messageId received ${messageId}`
+        })
+    }
+    try {
+        await Handler.addMessageToContext(spaceId, chatId,messageId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: ``
+        })
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: ``
+        })
+    }
+}
 
 const getPublicChat = async function (request, response) {
 
@@ -174,6 +256,6 @@ const sendPublicQuery = async function (request, response) {
 }
 
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat,
+    getChatMessages, createChat, watchChat, sendMessage, sendQuery, resetChat,getChatContext,resetChatContext,addMessageToContext,
     getPublicChat, createPublicChat, sendPublicMessage, sendPublicQuery
 }

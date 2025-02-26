@@ -4,8 +4,14 @@ const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
 
 const {getTextStreamingResponse} = require('../llms/controller.js');
-const getChat = async function (spaceId, chatId) {
-    return await Document.getDocument(spaceId, chatId)
+
+const getChatMessages = async function (spaceId, chatId) {
+    const chat = await Document.getDocument(spaceId, chatId);
+    return chat.chapters[0].paragraphs;
+}
+const getChatContext = async function (spaceId, chatId) {
+    const chat = await Document.getDocument(spaceId, chatId);
+    return chat.chapters[1].paragraphs;
 }
 
 const createChat = async function (spaceId, personalityId) {
@@ -161,11 +167,32 @@ const resetChat = async function (spaceId, chatId) {
     );
     return chatId;
 }
+const resetChatContext = async function (spaceId, chatId) {
+    const chat = await Document.getDocument(spaceId, chatId);
+    const contextChapter = chat.chapters[1];
+    await Promise.all(
+        contextChapter.paragraphs.map(paragraph => {
+            return Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
+        })
+    );
+    return chatId;
+}
 
 const updateMessage = async function (spaceId, chatId, messageId, message) {
     await Paragraph.updateParagraph(spaceId, chatId, messageId, message, {fields: "text"});
 }
 
+const addMessageToContext = async function(spaceId,chatId,messageId){
+    const chat = await Document.getDocument(spaceId, chatId);
+    let contextChapterId= chat.chapters[1].id;
+    const paragraphData= {
+        text:messageId,
+        commands:{}
+    }
+    return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;
+}
+
 module.exports = {
-    getChat, createChat, watchChat, sendMessage, sendQuery, resetChat, updateMessage
+    getChatMessages, createChat, watchChat, sendMessage, sendQuery, resetChat, updateMessage, resetChatContext,addMessageToContext,
+    getChatContext
 }

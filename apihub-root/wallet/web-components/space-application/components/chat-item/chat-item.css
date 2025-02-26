@@ -14,7 +14,7 @@ chat-item{
     display:none;
     margin-block-start:10px;
     width:fit-content;
-    bottom:-40px;
+    bottom:-34px;
     gap:4px;
 }
 
@@ -51,8 +51,8 @@ chat-item{
 .chat-option-button {
     align-items: center;
     justify-content: center;
-    min-width: 60px;
-    min-height: 30px;
+    min-width: 30px;
+    height:32px;
     padding: 4px 8px;
     background: linear-gradient(to right, #3478C6, #5a9fe3);
     color: #ffffff;

@@ -29,46 +29,15 @@ export class AgentPage{
         this.spaceNameTooltip = assistOS.space.name;
         this.personalityLLMTooltip = llmName;
     }
-    async afterRender(){
 
-    }
+    async afterRender(){}
 
-    async newConversation(target) {
-        assistOS.agent.agentData.selectedChat = await personalityModule.createNewConversation(assistOS.space.id, assistOS.agent.agentData.id)
-        this.invalidate();
-    }
-    async resetConversation() {
-        await spaceModule.resetSpaceChat(assistOS.space.id, assistOS.agent.agentData.id);
-        this.localContext = [];
-        this.invalidate();
-    }
-    async resetLocalContext(target) {
-        this.localContext = [];
-    }
-    async viewAgentContext(_target) {
-        await assistOS.UI.showModal('view-context-modal', {presenter: `view-context-modal`});
-    }
-
-    hideSettings(controller, container, event) {
-        container.setAttribute("data-local-action", "showSettings off");
-        let target = this.element.querySelector(".settings-list-container");
-        target.style.display = "none";
-        controller.abort();
-    }
-    showSettings(_target, mode) {
-        if (mode === "off") {
-            let target = this.element.querySelector(".settings-list-container");
-            target.style.display = "flex";
-            let controller = new AbortController();
-            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showSettings on");
-        }
-    }
     async swapPersonality(_target, id) {
         await assistOS.changeAgent(id);
         this.invalidate();
         this.localContext = [];
     }
+
    async hidePersonalities(controller, arrow, event) {
         arrow.setAttribute("data-local-action", "showPersonalities off");
         let target = this.element.querySelector(".personalities-list");
