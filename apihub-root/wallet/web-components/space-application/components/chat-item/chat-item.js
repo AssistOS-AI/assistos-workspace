@@ -54,9 +54,9 @@ export class ChatItem {
     }
 
     async beforeRender() {
-
         let messageIndex = this.element.getAttribute("messageIndex");
         this.message = this.chatPagePresenter.getMessage(messageIndex);
+        this.chatMessage = this.message.text;
         this.ownMessage = this.element.getAttribute("ownMessage");
         this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");
@@ -73,7 +73,7 @@ export class ChatItem {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
             } else if (this.role === "assistant") {
-                this.message = marked.parse(decodeHTML(this.message));
+                this.chatMessage = marked.parse(decodeHTML(this.chatMessage));
                 try {
                     imageSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
                 } catch (e) {
@@ -89,7 +89,6 @@ export class ChatItem {
                 ${addToLocalContextButton}
             </div>`
         } else {
-            /* message sent by myself */
             this.messageType = "robot";
             this.messageTypeBox = "robot-box";
             this.imageContainer = ``;

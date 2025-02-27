@@ -66,7 +66,7 @@ const sendMessage = async function (request, response) {
         })
     }
     try {
-        const messageId = Handler.sendMessage(spaceId, chatId, userId, message, "user");
+        const messageId = await Handler.sendMessage(spaceId, chatId, userId, message, "user");
         return Request.sendResponse(response, 200, "application/json", {
             message: `Successfully added message ${messageId}`,
             data: {messageId}
@@ -107,7 +107,7 @@ const sendQuery = async function (request, response) {
     const chatId = request.params.chatId;
     const personalityId = request.params.personalityId;
 
-    const {prompt,context} = request.body;
+    const {prompt} = request.body;
 
     if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
@@ -125,7 +125,7 @@ const sendQuery = async function (request, response) {
         })
     }
     try {
-        await Handler.sendQuery(request, response, spaceId, chatId, personalityId,userId,context, prompt)
+        await Handler.sendQuery(request, response, spaceId, chatId, personalityId,userId, prompt)
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to send query to chat ${chatId} from space ${spaceId}`
@@ -255,7 +255,70 @@ const sendPublicQuery = async function (request, response) {
 
 }
 
+const updateChatContextItem = async function (request,response){
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    const contextItemId = request.params.contextItemId;
+    const {context} = request.body;
+
+    if(!spaceId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    if(!chatId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if(!contextItemId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid contextItemId received ${contextItemId}`
+        })
+    }
+    try{
+        await Handler.updateChatContextItem(spaceId, chatId,contextItemId,context);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Updated Chat Context Item successfully`
+        })
+    }catch(error){
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to update chat context item ${contextItemId} from chat ${chatId} in space ${spaceId}`
+        })
+    }
+}
+const deleteChatContextItem = async function (request,response){
+    const chatId = request.params.chatId;
+    const spaceId = request.params.spaceId;
+    const contextItemId = request.params.contextItemId;
+
+    if(!spaceId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid spaceId received ${spaceId}`
+        })
+    }
+    if(!chatId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid chatId received ${chatId}`
+        })
+    }
+    if(!contextItemId){
+        return Request.sendResponse(response, 400, "application/json", {
+            message: `Invalid contextItemId received ${contextItemId}`
+        })
+    }
+    try{
+        await Handler.deleteChatContextItem(spaceId, chatId,contextItemId);
+        return Request.sendResponse(response, 200, "application/json", {
+            message: `Deleted Chat Context Item successfully`
+        })
+    }catch(error){
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to delete chat context item ${contextItemId} from chat ${chatId} in space ${spaceId}`
+        })
+    }
+}
 module.exports = {
-    getChatMessages, createChat, watchChat, sendMessage, sendQuery, resetChat,getChatContext,resetChatContext,addMessageToContext,
+    getChatMessages, createChat, watchChat, sendMessage, sendQuery, resetChat,getChatContext,resetChatContext,addMessageToContext,updateChatContextItem,deleteChatContextItem,
     getPublicChat, createPublicChat, sendPublicMessage, sendPublicQuery
 }
