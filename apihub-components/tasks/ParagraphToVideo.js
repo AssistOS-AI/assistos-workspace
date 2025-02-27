@@ -49,8 +49,8 @@ class ParagraphToVideo extends Task {
                     await fsPromises.access(finalVideoPath);
                 } catch (e){
                     this.ffmpegExecutor.logProgress(`Downloading compiled video`);
-                    let url = await Storage.getDownloadURL(Storage.fileTypes.videos, paragraph.commands.compileVideo.id);
-                    await fileSys.downloadData(url, finalVideoPath);
+                    let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.videos, paragraph.commands.compileVideo.id);
+                    await fileSys.downloadData(downloadURL, finalVideoPath);
                     this.ffmpegExecutor.logProgress(`Verifying video integrity`);
                     await ffmpegUtils.verifyMediaFileIntegrity(finalVideoPath, this.ffmpegExecutor);
                     this.ffmpegExecutor.logProgress(`Verifying video settings`);
@@ -65,8 +65,8 @@ class ParagraphToVideo extends Task {
             this.ffmpegExecutor.logProgress(`Video found`);
             const videoPath = path.join(pathPrefix, `video.mp4`);
             this.ffmpegExecutor.logProgress(`Downloading video`);
-            let videoURL = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
-            await fileSys.downloadData(videoURL, videoPath);
+            let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.videos, commands.video.id);
+            await fileSys.downloadData(downloadURL, videoPath);
             this.ffmpegExecutor.logProgress(`Verifying video integrity`);
             await ffmpegUtils.verifyMediaFileIntegrity(videoPath, this.ffmpegExecutor);
             this.ffmpegExecutor.logProgress(`Verifying video settings`);
@@ -98,9 +98,9 @@ class ParagraphToVideo extends Task {
 
             this.ffmpegExecutor.logProgress(`Image found`);
             this.ffmpegExecutor.logProgress(`Downloading image`);
-            let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
+            let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = path.join(pathPrefix, `image.png`);
-            await fileSys.downloadData(imageURL, imagePath);
+            await fileSys.downloadData(downloadURL, imagePath);
 
             this.ffmpegExecutor.logProgress(`Creating video from audio and image`);
             await ffmpegUtils.createVideoFromAudioAndImage(finalVideoPath, audioPath, imagePath, this.ffmpegExecutor);
@@ -114,9 +114,9 @@ class ParagraphToVideo extends Task {
             }
             this.ffmpegExecutor.logProgress(`Image found`);
             this.ffmpegExecutor.logProgress(`Downloading image`);
-            let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
+            let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
             let imagePath = path.join(pathPrefix, `image.png`);
-            await fileSys.downloadData(imageURL, imagePath);
+            await fileSys.downloadData(downloadURL, imagePath);
 
             this.ffmpegExecutor.logProgress(`Creating video from silence and image`);
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, commands.silence.duration, this.ffmpegExecutor);
@@ -126,8 +126,8 @@ class ParagraphToVideo extends Task {
             this.ffmpegExecutor.logProgress(`Downloading image`);
 
             let imagePath = path.join(pathPrefix, `image.png`);
-            let imageURL = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
-            await fileSys.downloadData(imageURL, imagePath);
+            let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.images, commands.image.id);
+            await fileSys.downloadData(downloadURL, imagePath);
 
             this.ffmpegExecutor.logProgress(`Creating video from image`);
             await ffmpegUtils.createVideoFromImage(finalVideoPath, imagePath, 1, this.ffmpegExecutor);
@@ -177,8 +177,8 @@ class ParagraphToVideo extends Task {
         for(let effect of effects){
             let effectPath = path.join(pathPrefix, `effect_${effect.id}.mp3`);
             this.ffmpegExecutor.logProgress(`Downloading effect ${effects.indexOf(effect)}`);
-            let effectURL = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
-            await fileSys.downloadData(effectURL, effectPath);
+            let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.audios, effect.id);
+            await fileSys.downloadData(downloadURL, effectPath);
             this.ffmpegExecutor.logProgress(`Verifying effect ${effects.indexOf(effect)} integrity`);
             await ffmpegUtils.verifyMediaFileIntegrity(effectPath, this.ffmpegExecutor);
             this.ffmpegExecutor.logProgress(`Verifying effect ${effects.indexOf(effect)} settings`);
@@ -197,8 +197,8 @@ class ParagraphToVideo extends Task {
 
     async downloadAndPrepareAudio(audioId, volume, path){
         this.ffmpegExecutor.logProgress(`Downloading audio file`);
-        let audioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, audioId);
-        await fileSys.downloadData(audioURL, path);
+        let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.audios, audioId);
+        await fileSys.downloadData(downloadURL, path);
         this.ffmpegExecutor.logProgress(`Verifying audio file integrity`);
         await ffmpegUtils.verifyMediaFileIntegrity(path, this.ffmpegExecutor);
         this.ffmpegExecutor.logProgress(`Verifying audio settings`);
