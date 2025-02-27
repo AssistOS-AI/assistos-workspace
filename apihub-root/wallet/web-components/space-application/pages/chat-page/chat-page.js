@@ -76,16 +76,26 @@ const generateRequest = function (method, headers = {}, body = null) {
     };
 };
 
-const createNewChat = async (spaceId, body = {}) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"}, body);
-    return await request(`/chats/${spaceId}`);
+const addToLocalContext = async (spaceId, chatId, messageId) => {
+    const request = generateRequest("POST", {"Content-Type": "application/json"});
+    const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
+}
+const createNewChat = async (spaceId, personalityId) => {
+    const request = generateRequest("POST", {"Content-Type": "application/json"});
+    const response = await request(`/chats/${spaceId}/${personalityId}`);
+    return response.data.chatId;
 };
 
-const getChat = async (spaceId, chatId) => {
+const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
     return response.data;
 };
+const getChatContext = async (spaceId, chatId) => {
+    const request = generateRequest("GET");
+    const response = await request(`/chats/context/${spaceId}/${chatId}`);
+    return response.data;
+}
 
 const watchChat = async (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"});
@@ -97,10 +107,46 @@ const sendMessage = async (spaceId, chatId, message) => {
     return await request(`/chats/message/${spaceId}/${chatId}`);
 };
 
+const getPersonality = async (spaceId, personalityId) => {
+    const request = generateRequest("GET", {"Content-Type": "application/json"});
+    const response = await request(`/personalities/${spaceId}/${personalityId}`)
+    return response.data;
+}
 
 const resetChat = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
     return request(`/chats/reset/${spaceId}/${chatId}`)
+}
+
+const resetChatContext = (spaceId, chatId) => {
+    const request = generateRequest("POST", {"Content-Type": "application/json"})
+    return request(`/chats/reset/context/${spaceId}/${chatId}`)
+}
+
+function unsanitize(value) {
+    if (value != null && typeof value === "string") {
+        return value.replace(/&nbsp;/g, ' ')
+            .replace(/&#13;/g, '\n')
+            .replace(/&amp;/g, '&')
+            .replace(/&#39;/g, "'")
+            .replace(/&quot;/g, '"')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>');
+    }
+    return '';
+}
+
+function sanitize(value) {
+    if (value != null && typeof value === "string") {
+        return value.replace(/&/g, '&amp;')
+            .replace(/'/g, '&#39;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\r\n/g, '&#13;')
+            .replace(/[\r\n]/g, '&#13;').replace(/\s/g, '&nbsp;');
+    }
+    return value;
 }
 
 const sendMessageActionButtonHTML = `  
@@ -117,12 +163,19 @@ const stopStreamActionButtonHTML = `
 </button>
 `
 
-const getChatMessages = function (chat) {
-    return chat?.chapters?.[0]?.paragraphs || []
-}
-const getChatContext = function (chat) {
-    return chat?.chapters?.[1]?.paragraphs || []
-}
+const chatOptions = `
+    <list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
+                        <list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
+                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
+                        <list-item data-local-action="viewAgentContext" data-name="View Agent Context" data-highlight="light-highlight"></list-item>
+                        <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
+                        <input type="file" class="file-input hidden">
+`
+const IFrameChatOptions = `
+                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
+                        <list-item data-local-action="viewAgentContext" data-name="View Agent Context" data-highlight="light-highlight"></list-item>
+`
+
 const getChatItemRole = function (chatItem) {
     return chatItem.commands?.replay?.role || null;
 }
@@ -137,10 +190,6 @@ class BaseChatFrame {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.chatId = this.element.getAttribute('data-chatId');
-        this.personalityId = this.element.getAttribute('data-personalityId');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
         this.agentOn = true;
         this.ongoingStreams = new Map();
         this.observedElement = null;
@@ -152,12 +201,21 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.chat = await getChat(this.spaceId, this.chatId)
-        this.chatMessages = getChatMessages(this.chat);
-        this.localContext = getChatContext(this.chat);
-        this.chatActionButton = sendMessageActionButtonHTML
-        this.stringHTML = "";
+        this.chatOptions = IFrameChatOptions;
 
+        this.chatId = this.element.getAttribute('data-chatId');
+        this.personalityId = this.element.getAttribute('data-personalityId');
+        this.spaceId = this.element.getAttribute('data-spaceId');
+        this.userId = this.element.getAttribute('data-userId');
+
+        this.personality = await getPersonality(this.spaceId, this.personalityId);
+        this.localContextLength = parseInt(this.personality.contextSize);
+
+        this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
+        this.localContext = await getChatContext(this.spaceId, this.chatId);
+        this.chatActionButton = sendMessageActionButtonHTML
+
+        this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
             const chatMessage = this.chatMessages[messageIndex]
             let role = getChatItemRole(chatMessage)
@@ -165,18 +223,18 @@ class BaseChatFrame {
             if (!role) {
                 continue;
             }
+
             const user = getChatItemUser(chatMessage);
+            let ownMessage = false;
 
             if (user === this.userId) {
-                role = "own"
+                ownMessage = true;
             }
-
             if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
             } else {
-                this.stringHTML += `<chat-item role="${role}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
-
         }
         this.spaceConversation = this.stringHTML;
     }
@@ -253,21 +311,24 @@ class BaseChatFrame {
         if (!userRequestMessage.trim()) {
             return;
         }
+
         this.chatMessages.push(
             {
                 text: userRequestMessage,
                 commands: {
                     replay: {
-                        role: "own",
+                        role: "user",
                         name: this.userId
                     }
                 }
             }
         )
+
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
 
         await this.displayMessage("own", this.chatMessages.length - 1);
+
         let messageId;
 
         if (this.agentOn) {
@@ -279,7 +340,7 @@ class BaseChatFrame {
     }
 
     async displayMessage(role, messageIndex) {
-        const messageHTML = `<chat-item role="${role}" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
+        const messageHTML = `<chat-item role="${role}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
@@ -354,18 +415,6 @@ class BaseChatFrame {
         return this.chatMessages[messageIndex].text;
     }
 
-    async addToLocalContext(chatRef) {
-        this.localContext.push(
-            {
-                role: chatRef.role,
-                message: assistOS.UI.unsanitize(chatRef.message)
-            }
-        )
-    }
-
-    async addToGlobalContext(chatRef) {
-    }
-
     async createChatUnitResponse() {
         this.chatMessages.push(
             {
@@ -378,7 +427,7 @@ class BaseChatFrame {
                 }
             }
         )
-        const streamContainerHTML = `<chat-item role="assistant" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
+        const streamContainerHTML = `<chat-item role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
         const waitForElement = (container, selector) => {
             return new Promise((resolve, reject) => {
@@ -492,11 +541,52 @@ class BaseChatFrame {
                 }
             }
         }
-
         if (buffer.trim()) {
             handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
         }
     }
+
+    async newConversation(target) {
+        const chatId = await createNewChat(this.spaceId, this.personalityId);
+        this.element.setAttribute('data-chatId', chatId);
+        this.invalidate();
+    }
+
+    async resetConversation() {
+        await resetChat(this.spaceId, this.chatId);
+        this.invalidate();
+    }
+
+    async resetLocalContext(target) {
+        await resetChatContext(this.spaceId, this.chatId);
+        this.invalidate();
+    }
+
+    async viewAgentContext(_target) {
+        await assistOS.UI.showModal('view-context-modal', {presenter: `view-context-modal`});
+    }
+
+    hideSettings(controller, container, event) {
+        container.setAttribute("data-local-action", "showSettings off");
+        let target = this.element.querySelector(".settings-list-container");
+        target.style.display = "none";
+        controller.abort();
+    }
+
+    showSettings(_target, mode) {
+        if (mode === "off") {
+            let target = this.element.querySelector(".settings-list-container");
+            target.style.display = "flex";
+            let controller = new AbortController();
+            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
+            _target.setAttribute("data-local-action", "showSettings on");
+        }
+    }
+
+    async addToLocalContext(chatMessageId) {
+        await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
+    }
+
 }
 
 let ChatPage;
@@ -519,6 +609,7 @@ if (IFrameContext) {
 
         async beforeRender() {
             await super.beforeRender();
+            this.chatOptions = chatOptions;
             this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
             this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
         }

@@ -94,11 +94,23 @@ async function getConversationIds(request,response){
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching conversation Ids`});
     }
 }
+async function getPersonality(request,response){
+    const spaceId=request.params.spaceId;
+    const personalityId=request.params.personalityId;
+    try{
+        const personality = await PersonalitiesHandler.getPersonality(spaceId,personalityId);
+        return Request.sendResponse(response,200,"application/json",{data:personality})
+    }   catch(error){
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching personality`});
+    }
+}
+
 module.exports = {
     ensurePersonalitiesDefaultLllms,
     getDefaultPersonality,
     addPersonality,
     createConversation,
     getConversationIds,
-    ensurePersonalityChats
+    ensurePersonalityChats,
+    getPersonality
 };

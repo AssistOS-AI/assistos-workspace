@@ -192,7 +192,7 @@ chat-page {
     display:flex;
     padding-inline-start:4px;
     padding-inline-end:4px;
-    gap: 12px;
+    gap: 8px;
     flex-direction:column;
     overflow-y: scroll;
     height: 100%;
@@ -300,8 +300,8 @@ chat-page {
     display: none;
     position: absolute;
     z-index: 1;
-    right: 0;
-    inset-block-start: 55px;
+    left:0;
+    bottom:0px;
     flex-direction: column;
     background-color: var(--white);
 }

@@ -3,7 +3,7 @@ const userModule = require("assistos").loadModule("user", {});
 
 const stopStreamButton = `<button class="stop-stream-button chat-option-button" data-local-action="stopResponseStream" data-tooltip="Stop Generating">STOP</button>`
 const copyReplyButton = ` <button class="copy-button chat-option-button" data-local-action="copyMessage" data-tooltip="Copy Text"> 
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="currentColor"></path></svg>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="#000000" xmlns="http://www.w3.org/2000/svg" class="icon-md-heavy"><path fill-rule="evenodd" clip-rule="evenodd" d="M7 5C7 3.34315 8.34315 2 10 2H19C20.6569 2 22 3.34315 22 5V14C22 15.6569 20.6569 17 19 17H17V19C17 20.6569 15.6569 22 14 22H5C3.34315 22 2 20.6569 2 19V10C2 8.34315 3.34315 7 5 7H7V5ZM9 7H14C15.6569 7 17 8.34315 17 10V15H19C19.5523 15 20 14.5523 20 14V5C20 4.44772 19.5523 4 19 4H10C9.44772 4 9 4.44772 9 5V7ZM5 9C4.44772 9 4 9.44772 4 10V19C4 19.5523 4.44772 20 5 20H14C14.5523 20 15 19.5523 15 19V10C15 9.44772 14.5523 9 14 9H5Z" fill="#000000"></path></svg>
                 </button>`
 const addToLocalContextButton = `<button class="chat-option-button" data-local-action="addToLocalContext" data-tooltip="Add to Agent's Context">
                 <svg height="22px" width="22px" version="1.2" baseProfile="tiny" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -49,27 +49,30 @@ export class ChatItem {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.chatPagePresenter = this.element.closest('chat-page').webSkelPresenter
         this.invalidate();
     }
 
     async beforeRender() {
-        this.chatPagePresenter = this.element.closest('chat-page').webSkelPresenter
+
         let messageIndex = this.element.getAttribute("messageIndex");
-        this.message=this.chatPagePresenter.getMessage(messageIndex);
+        this.message = this.chatPagePresenter.getMessage(messageIndex);
+        this.ownMessage = this.element.getAttribute("ownMessage");
+        this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");
-        // own = message sent by "myself"
-        if (this.role !== "own") {
+        this.id = this.element.getAttribute("id");
+
+        if (this.ownMessage === "false") {
             this.messageType = "user";
             this.messageTypeBox = "user-box";
-            this.user = this.element.getAttribute("user");
             let imageSrc = "";
-            if(this.role === "user"){
+            if (this.role === "user") {
                 try {
                     imageSrc = await userModule.getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
-            } else if(this.role === "assistant"){
+            } else if (this.role === "assistant") {
                 this.message = marked.parse(decodeHTML(this.message));
                 try {
                     imageSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
@@ -98,42 +101,42 @@ export class ChatItem {
         }
     }
 
-    async addToLocalContext(_target){
-        await this.chatContainerPresenter.addToLocalContext(this)
+    async addToLocalContext(_target) {
+        await this.chatPagePresenter.addToLocalContext(this.id)
     }
 
-    async addToGlobalContext(_target){
-        await this.chatContainerPresenter.addToGlobalContext(this)
+    async addToGlobalContext(_target) {
+        await this.chatPagePresenter.addToGlobalContext(this)
     }
 
-    async copyMessage(eventTarget){
+    async copyMessage(eventTarget) {
         let message = this.element.querySelector(".message").innerText;
         await navigator.clipboard.writeText(message);
     }
 
-    async handleStartStream(endController){
+    async handleStartStream(endController) {
         this.endStreamController = endController;
         this.stopStreamButton.style.display = "flex";
-        await this.chatContainerPresenter.handleNewChatStreamedItem(this.messageElement);
+        await this.chatPagePresenter.handleNewChatStreamedItem(this.messageElement);
     }
 
-    async handleEndStream(){
+    async handleEndStream() {
         this.stopStreamButton.style.display = "none";
-        await this.chatContainerPresenter.addressEndStream(this.element);
+        await this.chatPagePresenter.addressEndStream(this.element);
     }
 
-    async stopResponseStream(){
+    async stopResponseStream() {
         this.endStreamController.abort();
         delete this.endStreamController;
         this.stopStreamButton.style.display = "none";
-        await this.chatContainerPresenter.addressEndStream(this.element);
+        await this.chatPagePresenter.addressEndStream(this.element);
     }
 
     async afterRender() {
         if (this.element.getAttribute('data-last-item') === "true") {
             setTimeout(() => {
                 const container = this.element.parentElement;
-                container.scrollTo({ top: container.scrollHeight, behavior: "instant" });
+                container.scrollTo({top: container.scrollHeight, behavior: "instant"});
             }, 100);
 
         }
@@ -150,15 +153,15 @@ export class ChatItem {
             this.chatBoxOptionsElement.style.display = "none";
         });
 
-        this.chatContainerPresenter= this.element.closest('chat-page').webSkelPresenter;
 
         let image = this.element.querySelector(".user-profile-image");
         image?.addEventListener("error", (e) => {
             e.target.src = "./wallet/assets/images/default-personality.png";
         });
     }
-    async afterUnload(){
-        if(this.endStreamController){
+
+    async afterUnload() {
+        if (this.endStreamController) {
             this.endStreamController.abort();
         }
     }

@@ -46,10 +46,14 @@ async function ensurePersonalityChats(spaceId){
     const spacePersonalities = await getSpacePersonalities(spaceId);
     return await Promise.all(spacePersonalities.map(personality=>ensurePersonalityChat(spaceId,personality.id)))
 }
+async function getPersonality(spaceId,personalityId){
+    return await getPersonalityData(spaceId,personalityId);
+}
 
 module.exports = {
     addPersonality,
     addConversation,
     getConversationIds,
-    ensurePersonalityChats
+    ensurePersonalityChats,
+    getPersonality
 }
