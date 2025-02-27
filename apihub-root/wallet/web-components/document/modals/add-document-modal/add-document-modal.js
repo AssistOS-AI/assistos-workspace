@@ -65,7 +65,7 @@ export class AddDocumentModal {
         const files = fileInput.files;
         
         if (files.length === 0) {
-            assistOS.showToast('Please select at least one file', 3000, "error");
+            assistOS.showToast('Please select at least one file', "error", 3000);
             return;
         }
 
@@ -76,7 +76,7 @@ export class AddDocumentModal {
         uploadButton.disabled = true;
         
         // Show processing toast
-        assistOS.showToast('Uploading document, please wait...', 60000, "info");
+        assistOS.showToast('Uploading document, please wait...', "info", 60000);
 
         let lastCreatedDocId = null;
         try {
@@ -136,7 +136,7 @@ export class AddDocumentModal {
                     document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
                     
                     // Show success toast
-                    assistOS.showToast('Document uploaded successfully!', 3000, "success");
+                    assistOS.showToast('Document uploaded successfully!',"success", 3000);
                 } catch (error) {
                     console.error('Error processing file:', error);
                     // Remove any existing info toasts
@@ -148,7 +148,7 @@ export class AddDocumentModal {
                     uploadButton.innerHTML = originalButtonText;
                     uploadButton.disabled = false;
                     // Show toast error message
-                    assistOS.showToast('Error processing file: ' + error.message, 5000, "error");
+                    assistOS.showToast('Error processing file: ' + error.message,"error",5000);
                     return;
                 }
             }
@@ -176,7 +176,7 @@ export class AddDocumentModal {
             uploadButton.innerHTML = originalButtonText;
             uploadButton.disabled = false;
             // Show toast error message
-            assistOS.showToast('An unexpected error occurred: ' + error.message, 5000, "error");
+            assistOS.showToast('An unexpected error occurred: ' + error.message, "error", 5000);
         }
     }
 }
