@@ -65,7 +65,7 @@ export class AddDocumentModal {
         const files = fileInput.files;
         
         if (files.length === 0) {
-            assistOS.UI.showError('Please select at least one file');
+            assistOS.showToast('Please select at least one file', 3000, "error");
             return;
         }
 
@@ -74,6 +74,9 @@ export class AddDocumentModal {
         const originalButtonText = uploadButton.textContent;
         uploadButton.innerHTML = '<div class="loading-icon small"></div>';
         uploadButton.disabled = true;
+        
+        // Show processing toast
+        assistOS.showToast('Uploading document, please wait...', 60000, "info");
 
         let lastCreatedDocId = null;
         try {
@@ -128,10 +131,25 @@ export class AddDocumentModal {
                     }
                     console.log(`All chapters and paragraphs added in ${((performance.now() - startChapters)/1000).toFixed(2)}s`);
                     console.log(`Total processing time: ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
+                    
+                    // Remove any existing info toasts
+                    document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
+                    
+                    // Show success toast
+                    assistOS.showToast('Document uploaded successfully!', 3000, "success");
                 } catch (error) {
                     console.error('Error processing file:', error);
-                    assistOS.UI.showError('Error processing file: ' + error.message);
-                    continue;
+                    // Remove any existing info toasts
+                    document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
+                    
+                    // Close the modal first
+                    assistOS.UI.closeModal(_target);
+                    // Reset button state
+                    uploadButton.innerHTML = originalButtonText;
+                    uploadButton.disabled = false;
+                    // Show toast error message
+                    assistOS.showToast('Error processing file: ' + error.message, 5000, "error");
+                    return;
                 }
             }
 
@@ -149,11 +167,16 @@ export class AddDocumentModal {
             }
         } catch (error) {
             console.error('Unexpected error:', error);
-            assistOS.UI.showError('An unexpected error occurred: ' + error.message);
+            // Remove any existing info toasts
+            document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
             
-            // Reset button state in case of error
+            // Close the modal first
+            assistOS.UI.closeModal(_target);
+            // Reset button state
             uploadButton.innerHTML = originalButtonText;
             uploadButton.disabled = false;
+            // Show toast error message
+            assistOS.showToast('An unexpected error occurred: ' + error.message, 5000, "error");
         }
     }
 }
