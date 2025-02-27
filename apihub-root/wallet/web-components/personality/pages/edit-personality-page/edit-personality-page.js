@@ -44,7 +44,28 @@ export class EditPersonalityPage {
         currentTab.classList.add("selected");
         this.checkSaveButtonState();
     }
-
+    constructLlmOptions(llmModels, llmType) {
+        let options = [];
+        if (this.personality.llms[llmType]) {
+            options.push(`<option value="${this.personality.llms[llmType]}" selected>${this.personality.llms[llmType]}</option>`);
+        } else {
+            options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
+        }
+        llmModels.forEach(llm => {
+            if(this.personality.llms[llmType] !== llm) {
+                options.push(`<option value="${llm}">${llm}</option>`);
+            }
+        });
+        return options.join('');
+    };
+    generateLlmSelectHtml(llmModels, llmType) {
+        return `<div class="form-item">
+            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
+            <select class="form-input" name="${llmType}LLM" id="${llmType}LLM">
+                ${this.constructLlmOptions(llmModels, llmType)}
+            </select>
+        </div>`
+    }
     async deletePersonality() {
         let message = "Are you sure you want to delete this personality?";
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);

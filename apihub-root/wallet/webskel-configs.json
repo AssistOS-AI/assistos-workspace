@@ -4,16 +4,34 @@
     "services": [],
     "components": [
         {
+            "name": "personality-video",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityVideo"
+        },
+        {
+            "name": "personality-image",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityImage"
+        },
+        {
+            "name": "personality-text",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityText"
+        },
+        {
             "name": "personality-description",
             "directory": "personality",
             "type": "pages",
             "presenterClassName": "PersonalityDescription"
         },
         {
-            "name": "personality-voice",
+            "name": "personality-audio",
             "directory": "personality",
             "type": "pages",
-            "presenterClassName": "PersonalityVoice"
+            "presenterClassName": "PersonalityAudio"
         },
         {
             "name": "personality-chat",

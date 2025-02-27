@@ -11,38 +11,8 @@ export class PersonalityDescription{
         this.personality = this.personalityPagePresenter.personality;
         this.invalidate();
     }
-    constructLlmOptions(llmModels, llmType) {
-        let options = [];
-        if (this.personality.llms[llmType]) {
-            options.push(`<option value="${this.personality.llms[llmType]}" selected>${this.personality.llms[llmType]}</option>`);
-        } else {
-            options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
-        }
-        llmModels.forEach(llm => {
-            if(this.personality.llms[llmType] !== llm) {
-                options.push(`<option value="${llm}">${llm}</option>`);
-            }
-        });
-        return options.join('');
-    };
-    generateLlmSelectHtml(llmModels, llmType) {
-        return `<div class="form-item">
-            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
-            <select class="form-input" name="${llmType}LLM" id="${llmType}LLM">
-                ${this.constructLlmOptions(llmModels, llmType)}
-            </select>
-        </div>`
-    }
-    generateLlmSection(availableLlms)  {
-        let HTML = "";
-        Object.keys(availableLlms).forEach(llmType => {
-            HTML += this.generateLlmSelectHtml(availableLlms[llmType], llmType);
-        })
-        return HTML;
-    }
+
     async beforeRender(){
-        this.availableLlms = await llmModule.listLlms(assistOS.space.id);
-        this.llmSelectionSection = this.generateLlmSection(this.availableLlms);
         if (this.personality.imageId) {
             try {
                 this.photo = await spaceModule.getImageURL(this.personality.imageId);
@@ -69,15 +39,6 @@ export class PersonalityDescription{
         let photoInput = this.element.querySelector("#photo");
         this.boundShowPhoto = this.showPhoto.bind(this, photoInput)
         photoInput.addEventListener("input", this.boundShowPhoto);
-
-
-        Object.keys(this.availableLlms).forEach(type => {
-            let element = this.element.querySelector(`#${type}LLM`);
-            element.addEventListener("change", async (e) => {
-                this.personality.llms[type] = e.target.value;
-                this.personalityPagePresenter.checkSaveButtonState();
-            });
-        });
         let nameInput = this.element.querySelector("#name");
         nameInput.addEventListener("input", (e) => {
             this.personality.name = assistOS.UI.sanitize(e.target.value);
@@ -103,7 +64,7 @@ export class PersonalityDescription{
     };
     async showPhoto(photoInput, event) {
         if (!this.verifyPhotoSize(photoInput)) {
-            assistOS.showToast("The file size should not exceed 5MB");
+            assistOS.showToast("The file size should not exceed 5MB", "error", 5000);
             return;
         }
         let photoContainer = this.element.querySelector(".personality-photo");
