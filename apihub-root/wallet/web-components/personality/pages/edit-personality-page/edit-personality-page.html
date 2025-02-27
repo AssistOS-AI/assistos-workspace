@@ -1,83 +1,24 @@
 <div class="header">
-    <div class="personality-name">
-        $$personalityName
+    <div class="left-header-section">
+        <img class="black-icon pointer" src="./wallet/assets/icons/back.svg" alt="back" data-local-action="openPersonalitiesPage">
+        <div class="personality-name">
+            $$personalityName
+        </div>
     </div>
-        <button class="general-button" id="export-personality-btn" data-local-action="exportPersonality">Export Personality</button>
+    <div class="right-header-section">
+        <button type="button" class="general-button right-margin save-button" data-local-action="saveChanges">Save Changes</button>
+        <button class="general-button" data-local-action="exportPersonality">Export Personality</button>
+        $$deletePersonalityButton
+    </div>
 </div>
-<hr>
+<div class="separator"></div>
+<div class="personality-tabs">
+    <div class="tab-header" data-local-action="openTab personality-description">Description</div>
+    <div class="tab-header" data-local-action="openTab personality-voice">Voice</div>
+    <div class="tab-header" data-local-action="openTab personality-chat">Chat</div>
+    <div class="tab-header" data-local-action="openTab telegram-bot">Telegram Bot</div>
+</div>
+<div class="separator"></div>
 <div class="page-body">
-    <form class="edit-personality-form">
-        <div class="form-item">
-            <label class="form-label" for="name">Name</label>
-            <input class="form-input" $$disabled name="name" data-id="name" type="text" id="name" value="$$personalityName">
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="description">Description</label>
-            <textarea class="form-input" name="description" data-id="description" id="description"></textarea>
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="chatPrompt">Chat Prompt</label>
-            <textarea class="form-input" name="chatPrompt" data-id="chatPrompt" id="chatPrompt">$$chatPrompt</textarea>
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="chatId">Conversation</label>
-            <select class="form-input" id="chatId" name="chatId" data-id="chatId">
-                $$chatOptions
-            </select>
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="contextSize">Context Messages Size (number of messages)</label>
-            <input type="number" name="contextSize" id="contextSize" value="$$contextSize" min="0" max="20">
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="photo">Photo</label>
-            <div class="input-file-container" data-id="photo" data-local-action="triggerInputFileOpen photo">
-                <div class="shadow">
-                    <svg class="upload-arrow" width="30" height="30" viewBox="0 0 52 52" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M45.5 35.75V45.5H6.5V35.75H0V45.5C0 49.075 2.925 52 6.5 52H45.5C49.075 52 52 49.075 52 45.5V35.75H45.5ZM9.75 16.25L14.3325 20.8325L22.75 12.4475V39H29.25V12.4475L37.6675 20.8325L42.25 16.25L26 0L9.75 16.25Z" fill="#3C76E8"/>
-                    </svg>
-                    <div class="upload-photo">Upload Photo</div>
-                </div>
-                <input type="file" accept="image/png, image/jpeg" name="photo" id="photo" data-condition="verifyPhotoSize">
-                <div class="photo-container">
-                    <img class="personality-photo" src="$$photo" alt="">
-                </div>
-            </div>
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="voiceId">Select voice</label>
-            <select class="form-input" id="voiceId" name="voiceId" data-id="voiceId">
-                <option disabled selected value="">Select voice</option>
-                $$voicesOptions
-            </select>
-        </div>
-        <div class="audio-section hidden">
-            <div>Voice Sample</div>
-            <audio class="audio-source" controls controlsList="nodownload">
-                <source class="audio-source" src="" type="audio/mpeg">
-            </audio>
-        </div>
-        $$llmSelectionSection
-
-        <div class="form-footer">
-            <button type="button" class="general-button right-margin" data-local-action="saveChanges">Save</button>
-            <button type="button" class="general-button cancel-btn" data-local-action="openPersonalitiesPage">Cancel</button>
-            $$deletePersonalityButton
-        </div>
-
-    </form>
-    <div class="right-side">
-        <div class="form-item">
-            <label class="form-label" for="chatIframe">Embed Personality Chat</label>
-            <textarea class="form-input" name="chatIframe" id="chatIframe" readonly aria-readonly="true">$$chatIframe</textarea>
-        </div>
-        <div class="telegram-bot">
-            <div class="section-title">Telegram Bot</div>
-            <div class="form-item">
-                <label class="form-label" for="botId">Bot ID</label>
-                <input type="text" class="form-input" name="botId" id="botId">
-            </div>
-            <button class="general-button" data-local-action="startTelegramBot">Start Bot</button>
-        </div>
-    </div>
+    <$$currentTab data-presenter="$$currentTab" class="current-tab"></$$currentTab>
 </div>

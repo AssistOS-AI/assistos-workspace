@@ -387,7 +387,7 @@ class AssistOS {
                 throw new Error("Module doesn't exist");
         }
     }
-    showToast(message, timeout, type = "info") {
+    showToast(message, type, timeout = 1500) {
         let toastContainer = document.querySelector(".toast-container");
         let toast = document.createElement("div");
         toast.classList.add("timeout-toast");

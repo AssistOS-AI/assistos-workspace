@@ -1,40 +1,28 @@
-const constants = require("assistos").constants;
-const llmModule = require("assistos").loadModule("llm", {});
-const spaceModule = require("assistos").loadModule("space", {});
 const personalityModule = require("assistos").loadModule("personality", {});
+const spaceModule = require("assistos").loadModule("space", {});
+const constants = require("assistos").constants;
 
 export class EditPersonalityPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        let urlParts = window.location.hash.split("/");
         this.refreshPersonality = async () => {
-            this.personality = await personalityModule.getPersonality(assistOS.space.id, window.location.hash.split("/")[3]);
+            this.personality = await personalityModule.getPersonality(assistOS.space.id, urlParts[3]);
+        }
+        this.currentTab = urlParts[4];
+        if(!this.currentTab){
+            this.currentTab = "personality-description";
         }
         this.invalidate(async () => {
             await this.refreshPersonality();
+            this.initialPersonality = JSON.parse(JSON.stringify(this.personality));
+            this.personalityName = this.personality.name;
             this.boundOnPersonalityUpdate = this.onPersonalityUpdate.bind(this);
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.personality.id, this.boundOnPersonalityUpdate);
-            await this.loadVoices(this.personality.llms["audio"]);
         });
     }
-    async loadVoices(modelName){
-        this.voicesErrorMessage = "";
-        try {
-            this.voices = await llmModule.listVoices(assistOS.space.id, modelName);
-            this.voices.sort((a, b) => {
-                if (a.name < b.name) {
-                    return -1;
-                }
-                if (a.name > b.name) {
-                    return 1;
-                }
-                return 0;
-            });
-        } catch (error) {
-            this.voices = [];
-            this.voicesErrorMessage = error.message;
-        }
-    }
+
     async onPersonalityUpdate(type) {
         if (type === "delete") {
             await this.openPersonalitiesPage();
@@ -45,224 +33,25 @@ export class EditPersonalityPage {
     }
 
     async beforeRender() {
-        this.contextSize = this.personality.contextSize||3;
-        const iFrameURL = `${window.location.origin}/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
-        this.chatIframe = `
-<iframe 
-    id="chatFrame"
-    src="${iFrameURL}" 
-    allowfullscreen
-    loading="lazy">
-</iframe>
-        `
-        const constructLlmOptions = (llmModels, llmType) => {
-            let options = [];
-
-            if (this.personality.llms[llmType]) {
-                options.push(`<option value="${this.personality.llms[llmType]}" selected>${this.personality.llms[llmType]}</option>`);
-            } else {
-                options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
-            }
-
-            llmModels.forEach(llm => {
-                if(this.personality.llms[llmType] !== llm) {
-                    options.push(`<option value="${llm}">${llm}</option>`);
-                }
-            });
-            return options.join('');
-        };
-        const generateLlmSelectHtml = (llmModels, llmType) => {
-            return `<div class="form-item">
-            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
-            <select name="${llmType}LLM" id="${llmType}LLM">
-                ${constructLlmOptions(llmModels, llmType)}
-            </select>
-        </div>`
-        }
-        const generateLlmSection = (availableLlms) => {
-            let HTML = "";
-            Object.keys(availableLlms).forEach(llmType => {
-                HTML += generateLlmSelectHtml(availableLlms[llmType], llmType);
-            })
-            return HTML;
-        }
-
-        this.availableLlms = await llmModule.listLlms(assistOS.space.id);
-        this.chatPrompt=this.personality.chatPrompt;
-        this.llmSelectionSection = generateLlmSection(this.availableLlms);
-
-
-        let personalityChats = await personalityModule.getPersonalitiesConversations(assistOS.space.id,assistOS.agent.agentData.id)
-
-        this.chatOptions = personalityChats.map((chatId, index) => {
-            return `<option value="${chatId}" ${assistOS.agent.agentData.selectedChat === chatId ? "selected" : ""}>${chatId}</option>`;
-        });
-
-
-        let voicesHTML = "";
-
-        for (let voice of this.voices) {
-            let accent = voice.accent ? `, accent: ${voice.accent}` : "";
-            let age = voice.age ? `, age: ${voice.age}` : "";
-            let gender = voice.gender ? `, gender: ${voice.gender}` : "";
-            let loudness = voice.loudness ? `, loudness: ${voice.loudness}` : "";
-            let tempo = voice.tempo ? `, tempo: ${voice.tempo}` : "";
-            voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
-        }
-
-        this.voicesOptions = voicesHTML;
-
         this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>`;
-
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
-            this.disabled = "disabled";
             this.deletePersonalityButton="";
         }
-
-        if (this.personality.imageId) {
-            try {
-                this.photo = await spaceModule.getImageURL(this.personality.imageId);
-            } catch (e) {
-                this.photo = "./wallet/assets/images/default-personality.png";
-            }
-        } else {
-            this.photo = "./wallet/assets/images/default-personality.png";
-        }
-        this.personalityName = this.personality.name;
     }
 
     async afterRender() {
-        let image = this.element.querySelector(".personality-photo");
-        image.addEventListener("error", (e) => {
-            e.target.src = "./wallet/assets/images/default-personality.png";
-        });
-
-        let description = this.element.querySelector("textarea");
-        description.innerHTML = this.personality.description;
-
-        let photoInput = this.element.querySelector("#photo");
-        if (this.boundShowPhoto) {
-            photoInput.removeEventListener("input", this.boundShowPhoto);
-        }
-        this.boundShowPhoto = this.showPhoto.bind(this, photoInput)
-        photoInput.addEventListener("input", this.boundShowPhoto);
-        let voiceSelect = this.element.querySelector("#voiceId");
-        if (this.personality.voiceId && !this.voicesErrorMessage) {
-            let audioSource = this.element.querySelector('.audio-source');
-            let audioSection = this.element.querySelector(".audio-section");
-            let voice = this.voices.find(voice => voice.id === this.personality.voiceId);
-            if(voice){
-                audioSection.classList.remove("hidden");
-                voiceSelect.value = this.personality.voiceId;
-                audioSource.src = voice.sample;
-                audioSource.load();
-            }
-        }
-        if (this.voicesErrorMessage) {
-            voiceSelect.innerHTML = `<option value="" disabled selected hidden>${this.voicesErrorMessage}</option>`;
-        }
-
-        this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
-        voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
-
-        let audioSelect = this.element.querySelector("#audioLLM");
-        audioSelect.addEventListener("change", async ()=>{
-            this.invalidate(async () => {
-                this.personality.llms["audio"] = audioSelect.value;
-                await this.loadVoices(audioSelect.value);
-            });
-        });
-        if(this.personality.telegramBot){
-            let telegramBotInput = this.element.querySelector("#botId");
-            telegramBotInput.value = this.personality.telegramBot.botId;
-        }
-    }
-
-    preventRefreshOnEnter(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            this.element.querySelector(".magnifier-container").click();
-        }
-    }
-
-    selectVoiceHandler(voiceSelect, event) {
-        let audioSection = this.element.querySelector(".audio-section");
-        if (voiceSelect.value) {
-            let audioSource = this.element.querySelector('.audio-source');
-            let voice = this.voices.find(voice => voice.id === voiceSelect.value);
-            audioSection.classList.remove("hidden");
-            audioSource.src = voice.sample;
-            audioSource.load();
-        } else {
-            audioSection.classList.add("hidden");
-        }
-    }
-
-    async showPhoto(photoInput, event) {
-        let photoContainer = this.element.querySelector(".personality-photo");
-        this.photoAsFile = photoInput.files[0];
-        photoContainer.src = await assistOS.UI.imageUpload(photoInput.files[0]);
-    }
-
-
-    triggerInputFileOpen(_target, id) {
-        _target.removeAttribute("data-local-action");
-        let input = this.element.querySelector(`#${id}`);
-        input.click();
-        _target.setAttribute("data-local-action", `triggerInputFileOpen ${id}`);
-    }
-
-    async saveChanges(_target) {
-        const verifyPhotoSize = (element) => {
-            if (element.files.length > 0) {
-                return element.files[0].size <= 1048576 * 20; // 20MB
-            }
-            return true;
-        };
-        const conditions = {
-            "verifyPhotoSize": {
-                fn: verifyPhotoSize,
-                errorMessage: "Image too large! Image max size: 1MB"
-            }
-        };
-        let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
-        if (formInfo.isValid) {
-            this.personality.name = formInfo.data.name || this.personality.name;
-            this.personality.description = formInfo.data.description;
-            this.personality.voiceId = formInfo.data.voiceId;
-            this.personality.chatPrompt= formInfo.data.chatPrompt;
-            this.personality.selectedChat = formInfo.data.chatId
-            this.personality.contextSize = formInfo.data.contextSize;
-            assistOS.agent.agentData.selectedChat= this.personality.selectedChat
-            Object.keys(this.availableLlms).forEach(llmType => {
-                this.personality.llms[llmType] = formInfo.data[`${llmType}LLM`];
-            });
-            //hardcoded dependency due to no state binding
-            if (this.photoAsFile) {
-                let reader = new FileReader();
-                reader.onload = async (e) => {
-                    const uint8Array = new Uint8Array(e.target.result);
-                    this.personality.imageId = await spaceModule.putImage(uint8Array);
-                    await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
-                    await this.openPersonalitiesPage();
-                };
-                reader.readAsArrayBuffer(this.photoAsFile);
-            } else {
-                await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
-                if(this.personalityName === assistOS.agent.agentData.name){
-                    await assistOS.changeAgent(this.personality.id);
-                    document.querySelector('chat-page').webSkelPresenter.invalidate();
-                }
-                await this.openPersonalitiesPage();
-            }
-        }
+        let currentTab = this.element.querySelector(`[data-local-action="openTab ${this.currentTab}"]`);
+        currentTab.classList.add("selected");
+        this.checkSaveButtonState();
     }
 
     async deletePersonality() {
-        await assistOS.callFlow("DeletePersonality", {
-            spaceId: assistOS.space.id,
-            personalityId: this.personality.id
-        });
+        let message = "Are you sure you want to delete this personality?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if (!confirmation) {
+            return;
+        }
+        await personalityModule.deletePersonality(assistOS.space.id, this.personality.id);
         if(this.personality.id === assistOS.agent.agentData.id){
             if(localStorage.getItem("agent") === this.personality.id) {
                 localStorage.removeItem("agent");
@@ -300,13 +89,50 @@ export class EditPersonalityPage {
             alert("Exporting personality failed");
         }
     }
-    async startTelegramBot(targetElement){
-        let botIdInput = this.element.querySelector("#botId");
-        let botId = botIdInput.value;
-        if(!botId){
-            alert("Please provide a bot id");
-            return;
+    async openTab(targetElement, tabName) {
+        this.currentTab = tabName;
+        this.invalidate();
+    }
+    uploadImage(){
+        return new Promise((resolve, reject) => {
+            let reader = new FileReader();
+            reader.onload = async (e) => {
+                const uint8Array = new Uint8Array(e.target.result);
+                try {
+                    this.personality.imageId = await spaceModule.putImage(uint8Array);
+                } catch (e) {
+                    reject(e.message);
+                }
+                resolve();
+            };
+            reader.onerror = (e) => {
+                reject(e.message);
+            };
+            reader.readAsArrayBuffer(this.photoAsFile);
+        });
+    }
+    async saveChanges(_target) {
+        assistOS.agent.agentData.selectedChat = this.personality.selectedChat
+        //hardcoded dependency due to no state binding
+        if (this.photoAsFile) {
+            await this.uploadImage();
         }
-        await spaceModule.startTelegramBot(assistOS.space.id, this.personality.id, botId);
+        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+        this.initialPersonality = JSON.parse(JSON.stringify(this.personality));
+        this.checkSaveButtonState();
+        if(this.personality.name === assistOS.agent.agentData.name){
+            await assistOS.changeAgent(this.personality.id);
+            document.querySelector('chat-page').webSkelPresenter.invalidate();
+        }
+        await assistOS.showToast("Personality updated","success");
+    }
+
+    checkSaveButtonState(){
+        let saveButton = this.element.querySelector(".save-button");
+        if(JSON.stringify(this.initialPersonality) === JSON.stringify(this.personality) && !this.photoAsFile){
+            saveButton.classList.add("disabled");
+        } else {
+            saveButton.classList.remove("disabled");
+        }
     }
 }
