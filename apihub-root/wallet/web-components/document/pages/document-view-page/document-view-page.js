@@ -620,9 +620,9 @@ export class DocumentViewPage {
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
         if(success){
-            assistOS.showToast("Undo successful.", 1500, "success");
+            assistOS.showToast("Undo successful.", "success");
         } else {
-            assistOS.showToast("Nothing to undo.", 1500);
+            assistOS.showToast("Nothing to undo.", "info");
             this.toggleEditingState(true);
         }
     }
@@ -630,9 +630,9 @@ export class DocumentViewPage {
         this.toggleEditingState(false);
         let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
         if(success){
-            assistOS.showToast("Redo successful.", 1500, "success");
+            assistOS.showToast("Redo successful.", "success");
         } else {
-            assistOS.showToast("Nothing to redo.", 1500);
+            assistOS.showToast("Nothing to redo.", "info");
             this.toggleEditingState(true);
         }
     }

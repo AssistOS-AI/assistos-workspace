@@ -53,8 +53,8 @@ class ChapterToVideo extends Task {
                     await fsPromises.access(outputVideoPath);
                 } catch (e){
                     this.logProgress(`Downloading compiled video for chapter ${chapterIndex}`);
-                    let url = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
-                    await fileSys.downloadData(url, outputVideoPath);
+                    let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.videos, chapter.commands.compileVideo.id);
+                    await fileSys.downloadData(downloadURL, outputVideoPath);
                     this.logProgress(`Verifying compiled video file integrity for chapter ${chapterIndex}`);
                     await ffmpegUtils.verifyMediaFileIntegrity(outputVideoPath, this);
                     this.logProgress(`Verifying compiled video settings for chapter ${chapterIndex}`);
@@ -112,8 +112,8 @@ class ChapterToVideo extends Task {
             try {
                 this.logProgress(`Downloading background sound for chapter ${chapterIndex}`);
                 let chapterAudioPath = path.join(pathPrefix, `background_sound.mp3`);
-                let chapterAudioURL = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
-                await fileSys.downloadData(chapterAudioURL, chapterAudioPath);
+                let {downloadURL} = await Storage.getDownloadURL(Storage.fileTypes.audios, chapter.backgroundSound.id);
+                await fileSys.downloadData(downloadURL, chapterAudioPath);
                 this.logProgress(`Verifying background sound file integrity for chapter ${chapterIndex}`);
                 await ffmpegUtils.verifyMediaFileIntegrity(chapterAudioPath, this);
                 this.logProgress(`Verifying background sound settings for chapter ${chapterIndex}`);

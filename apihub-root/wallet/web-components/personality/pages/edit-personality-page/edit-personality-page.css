@@ -1,147 +1,18 @@
-dialog{
-    padding: 0;
-    border: none;
-    width: 50%;
-    overflow: hidden;
-}
 edit-personality-page{
     overflow-y: auto;
 }
-* {
-    font-family: Poppins;
-}
 .personality-name{
-    margin: 15px;
+    margin-left: 10px;
     font-weight: 700;
     font-size: 28px;
-    color: var(--left-sidebar);
 }
 .page-body{
     display: flex;
-}
-hr{
-    border: 1px solid var(--gray-border);
-}
-.modal-body{
-    padding: 0 30px;
-}
-.modal-header{
-    padding: 5px 20px 5px 20px;
-    margin-bottom: 5px;
-    background: var(--medium-blue);
-    display: flex;
-    justify-content: space-between;
-}
-.modal-title {
-    color: var(--white-text);
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.modal-footer {
-    display: flex;
-    justify-content: center;
-}
-
-.close {
-    padding: 0;
-    font-weight: 300;
-    color: var(--white-text);
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    font-size: 30px;
-}
-
-.form-label {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 600;
-}
-
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid var(--lighter-black);
     width: 100%;
-    margin: 4px 0 8px;
-    padding: 8px;
-}
-#photo{
-    position: absolute;
-    opacity: 0;
-}
-.input-file-container{
-    position: relative;
-    border-radius: 8px;
-    border: 0.5px dashed var(--lighter-black);
-    width: 130px;
-    margin: 4px 0 8px;
-    background: var(--white);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 130px;
-    cursor: pointer;
-}
-.input-file-container:hover .shadow {
-    opacity: 1;
-}
-.shadow {
-    opacity: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    border-radius: 8px;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 1;
-    pointer-events: none;
-}
-.photo-container{
-    height: 100%;
-}
-.personality-photo{
-    border-radius: 8px;
-    object-fit: cover;
-    height: 127px;
-    width: 127px;
-    margin-top: 1px;
-}
-.upload-arrow{
-    position: absolute;
-    top: 30px;
-    left: 50px;
-}
-textarea#description, textarea#chatPrompt{
-    resize: none;
-    height: 150px;
-}
-textarea#chatIframe{
-    resize: none;
-    height: 180px;
-    width: 450px;
-}
-.edit-personality-form{
     margin-left: 15px;
-    width: 50%;
+    margin-top: 15px;
 }
-.upload-photo {
-    top: 80px;
-    left: 10px;
-    position: absolute;
-    border: none;
-    background: none;
-    color: var(--input-file-selector);
-    text-decoration: underline;
-    font-size: 16px;
-    font-weight: 500;
-}
-input[type="file"]{
-    pointer-events: none;
-}
+
 .item-has-focus {
     --full-highlight-height: none;
     --inset-highlight-height: none;
@@ -151,6 +22,7 @@ input[type="file"]{
 }
 .delete-personality{
     margin-left: 8px;
+    margin-right: 40px;
     display: inline-block;
     font-size: 14px;
     font-weight: 600;
@@ -174,62 +46,15 @@ input[type="file"]{
 .right-margin{
     margin-right: 8px;
 }
-.knowledge-section{
-    width: 50%;
-}
-.search{
-    padding-left: 15px;
-    margin-bottom: 20px;
-}
 .form-item{
     display: flex;
     flex-direction: column;
-}
-#search{
-    padding: 8px;
-    width: 50%;
 }
 .input-container{
     display: flex;
     align-items: center;
 }
-.magnifier-container{
-    display: flex;
-}
-.magnifier{
-    cursor: pointer;
-    margin-left: 10px;
-}
-.search-separator{
-    margin-left: 15px;
-    margin-right: 15px;
-    border: 1px solid  var(--gray-border);
-}
-.fact{
-    padding: 8px 15px;
-    display: inline-block;
-    font-size: 16px;
-    font-weight: 500;
-    border-right: 2px solid var(--very-light-gray);
-}
-.upload-arrow-files{
-    margin-top: 20px;
-}
-#files{
-    margin-top: 10px;
-    width: 210px;
-}
-#files::file-selector-button {
-    border: none;
-    background: none;
-    color: var(--input-file-selector);
-    text-decoration: underline;
-    font-size: 16px;
-    font-weight: 500;
-}
-.add-knowledge-form{
-    margin-left: 15px;
-}
+
 .wide{
     width: 220px;
 }
@@ -238,10 +63,34 @@ input[type="file"]{
     justify-content: space-between;
     align-items: center;
 }
-#export-personality-btn{
-    margin-right: 40px;
-}
 
-.right-side{
-    height: 100%;
+.tab-header{
+    padding: 15px;
+    cursor: pointer;
+}
+.tab-header:hover{
+    background-color: var(--very-light-gray);
+}
+.personality-tabs{
+    display: flex;
+}
+.current-tab{
+    width: 100%;
+}
+.left-header-section{
+    display: flex;
+    align-items: center;
+    margin: 15px;
+}
+.right-header-section{
+    display: flex;
+    align-items: center;
+}
+.selected{
+    background-color: var(--very-light-gray);
+}
+.separator{
+    width: 100%;
+    height: 1px;
+    background-color: var(--very-light-gray);
 }

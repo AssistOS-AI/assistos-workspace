@@ -43,6 +43,7 @@ async function getUpdates(spaceId, personality, botId, llmModule) {
         throw new Error(e.message);
     }
 }
+
 async function loadAssistOSModule(moduleName) {
     let authSecret = await secrets.getApiHubAuthSecret();
     let securityContextConfig = {
@@ -71,19 +72,29 @@ async function startBot(req, res){
     let personalityId = req.params.personalityId;
     let spaceId = req.params.spaceId;
     try {
+        let result = await fetch(`https://api.telegram.org/bot${botId}/getMe`);
+        if(!result.ok){
+            return utils.sendResponse(res, 400, "application/json", {
+                message: "Invalid bot id"
+            });
+        }
+        let botData = await result.json();
         let SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(req);
         let personalityModule = require("assistos").loadModule("personality", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot = {
-            botId: botId,
+            username: botData.result.username,
+            name: botData.result.first_name,
+            id: botId,
             chats: []
         }
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
-        let baseURL = process.env.BASE_URL;
-        let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
+        //let baseURL = process.env.BASE_URL;
+        //let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
+        //await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
+        let webhookURL = `https://assistos-telegram.ultrahook.com/telegram/${spaceId}/${personalityId}`;
         await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
-
         utils.sendResponse(res, 200, "application/json", {
             data: `Registered bot with id ${botId}, webhook URL: ${webhookURL}`
         });
@@ -114,12 +125,18 @@ async function receiveMessage(req, res){
         await personalityModule.updatePersonality(spaceId, personality.id, personality);
     }
     let llmModule = await loadAssistOSModule("llm");
+    if(message.sticker){
+        await sendMessage(personality.telegramBot.id, chatId, "Im sorry I cannot process stickers");
+        return utils.sendResponse(res, 200, "application/json", {});
+    }
     try {
         let llmResponse = await llmModule.generateText(spaceId, message.text, personality.id);
-        await sendMessage(personality.telegramBot.botId, chatId, llmResponse.message);
+        await sendMessage(personality.telegramBot.id, chatId, llmResponse.message);
     } catch (e) {
-        await sendMessage(personality.telegramBot.botId, chatId, "Something went wrong. Please try again");
+        await sendMessage(personality.telegramBot.id, chatId, "Something went wrong. Please try again");
         throw new Error(e.message);
+    } finally {
+        utils.sendResponse(res, 200, "application/json", {});
     }
 }
 module.exports = {

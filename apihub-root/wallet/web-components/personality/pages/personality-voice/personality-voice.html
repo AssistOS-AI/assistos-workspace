@@ -1,0 +1,13 @@
+<div class="form-item">
+    <label class="form-label" for="voiceId">Select voice</label>
+    <select class="form-input" id="voiceId" name="voiceId" data-id="voiceId">
+        <option disabled selected value="">Select voice</option>
+        $$voicesOptions
+    </select>
+</div>
+<div class="audio-section hidden">
+    <div>Voice Sample</div>
+    <audio class="audio-source" controls controlsList="nodownload">
+        <source class="audio-source" src="" type="audio/mpeg">
+    </audio>
+</div>

@@ -4,6 +4,30 @@
     "services": [],
     "components": [
         {
+            "name": "personality-description",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityDescription"
+        },
+        {
+            "name": "personality-voice",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityVoice"
+        },
+        {
+            "name": "personality-chat",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "PersonalityChat"
+        },
+        {
+            "name": "telegram-bot",
+            "directory": "personality",
+            "type": "pages",
+            "presenterClassName": "TelegramBot"
+        },
+        {
             "name": "action-box-snapshot",
             "directory": "document",
             "type": "components"
