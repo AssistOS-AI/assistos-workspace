@@ -162,7 +162,6 @@ class BaseChatFrame {
 
     async beforeRender() {
         this.chatOptions = IFrameChatOptions;
-
         this.chatId = this.element.getAttribute('data-chatId');
         this.personalityId = this.element.getAttribute('data-personalityId');
         this.spaceId = this.element.getAttribute('data-spaceId');
@@ -179,7 +178,6 @@ class BaseChatFrame {
             if (!role) {
                 continue;
             }
-
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
@@ -239,9 +237,7 @@ class BaseChatFrame {
 
     async sendQuery(spaceId, chatId, personalityId, prompt, responseContainerLocation) {
         const controller = new AbortController();
-        const requestData = {
-            prompt
-        }
+        const requestData = {prompt}
         const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
             method: 'POST',
             headers: {
@@ -293,7 +289,10 @@ class BaseChatFrame {
 
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
-            const {userMessageId, responseMessageId} = await this.sendQuery(this.spaceId, this.chatId, this.personalityId, userRequestMessage, streamLocationElement)
+            const {
+                userMessageId,
+                responseMessageId
+            } = await this.sendQuery(this.spaceId, this.chatId, this.personalityId, userRequestMessage, streamLocationElement)
             element.setAttribute(`id`, userMessageId);
             element.webSkelPresenter.invalidate();
             const responseElement = streamLocationElement.closest('chat-item');
@@ -508,7 +507,7 @@ class BaseChatFrame {
         }
     }
 
-    async addToLocalContext(chatMessageId) {
+    async addToLocalContext(chatMessageId, chatItemElement) {
         await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
     }
 

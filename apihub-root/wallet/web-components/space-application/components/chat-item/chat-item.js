@@ -101,7 +101,7 @@ export class ChatItem {
     }
 
     async addToLocalContext(_target) {
-        await this.chatPagePresenter.addToLocalContext(this.id)
+        await this.chatPagePresenter.addToLocalContext(this.id,this.element)
     }
 
     async addToGlobalContext(_target) {

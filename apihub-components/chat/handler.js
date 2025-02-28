@@ -157,8 +157,10 @@ const checkApplyContextInstructions = async function (request,response,spaceId,c
 
 const sendQuery = async function (request, response, spaceId, chatId, personalityId, userId, prompt) {
 
-    const applyChatPrompt = (chatPrompt,userPrompt,context) =>
+    const applyChatPrompt = (chatPrompt,userPrompt,context,personalityDescription) =>
     `${chatPrompt}
+    **Your Identity**
+    ${personalityDescription}
     **Previous Conversation**
     ${context.messages.map(message => `${message.commands?.replay?.role||"Unknown"} : ${message.text}`).join('\n')}
     **Conversation Context**
@@ -174,7 +176,7 @@ const sendQuery = async function (request, response, spaceId, chatId, personalit
 
     const context = await buildContext(spaceId,chatId,personalityId);
 
-    request.body.prompt = applyChatPrompt(chatPrompt, unsPrompt,context);
+    request.body.prompt = applyChatPrompt(chatPrompt, unsPrompt,context,unsanitize(personalityData.description));
     request.body.modelName = personalityData.llms.text;
 
     const userMessageId = await sendMessage(spaceId, chatId, userId, prompt, "user");
