@@ -3,7 +3,7 @@ const Document = require('../document/services/document.js')
 const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
 
-const {getTextStreamingResponse} = require('../llms/controller.js');
+const {getTextStreamingResponse,getTextResponse} = require('../llms/controller.js');
 
 const getChat = async function (spaceId, chatId) {
     return await Document.getDocument(spaceId, chatId);
@@ -115,6 +115,46 @@ const buildContext = async function (spaceId,chatId,configurationId){
     return context;
 }
 
+const checkApplyContextInstructions = async function (request,response,spaceId,chatId,personalityId,prompt){
+    const generateMemoizationPrompt = (prompt) =>
+        `
+        **Role**: You have received a query from the user and you need to check if the user's query contains general instructions, preferences of any kind that should be remembered and applied to future queries.
+        **Current Query to Address (Begins with "<" and ends with ">"**: <"${prompt}">
+        **Instructions**: 
+        - Check the user's query for any general instructions, preferences, or any other information that should be remembered and applied to future queries and make a concise list item for each instruction.
+        - Each item to remember will be as concise as possible and will be a single sentence.
+        - You will only consider instructions or preferences that you consider important and relevant to the user's future queries, with an aim to avoid false positives and overfilling the context with irrelevant information.
+        **Output Format**:
+        - Should always return a VALID JSON string with the following format:
+        {"detectedPreferences": true/false, "preferences": ["preference1", "preference2", ...]}
+        - In no circumstance should the output be null, undefined,contain any metadata, meta-information or meta-commentary
+        **Output Examples**:
+        Example1:
+        "{ "detectedPreferences": true,
+            "preferences": [
+            "User wants to be called by their first name",
+            "User prefers to receive emails instead of calls"
+            ]
+        }"
+        Example2:
+        "{"detectedPreferences": false,"preferences":[]"}"
+        `
+    request.body.prompt =  generateMemoizationPrompt(unsanitize(prompt));
+    const llmAnswer = await getTextResponse(request,response,false);
+    try{
+        const parsedLLMAnswer = JSON.parse(llmAnswer.data.message);
+        if(parsedLLMAnswer.detectedPreferences){
+            if(Array.isArray(parsedLLMAnswer.preferences)){
+                for(let preference of parsedLLMAnswer.preferences){
+                    await addPreferenceToContext(spaceId,chatId,preference)
+                }
+            }
+        }
+    }catch(error){
+
+    }
+}
+
 const sendQuery = async function (request, response, spaceId, chatId, personalityId, userId, prompt) {
 
     const applyChatPrompt = (chatPrompt,userPrompt,context) =>
@@ -178,7 +218,7 @@ const sendQuery = async function (request, response, spaceId, chatId, personalit
                 if (isFirstChunk) {
                     isFirstChunk = false;
                     responseMessageId = await sendMessage(spaceId, chatId, personalityId, chunk, "assistant");
-                    /* send the user message id and the responsemessageId to client */
+                    /* send the user message id and the responseMessageId to client to attach the ids to the client chat-items in order to make them addable to the context*/
                     response.write(`event: beginSession\ndata: ${JSON.stringify({userMessageId, responseMessageId})}\n\n`);
                 } else {
                     if (!responseMessageId) return;
@@ -186,11 +226,11 @@ const sendQuery = async function (request, response, spaceId, chatId, personalit
                     await processQueue();
                 }
             } catch (error) {
-
             }
         }
     );
-    await streamContext.streamPromise;
+    const queryData = await streamContext.streamPromise;
+    await checkApplyContextInstructions(request,response,spaceId,chatId,personalityId,prompt)
 }
 
 const resetChat = async function (spaceId, chatId) {
@@ -242,6 +282,20 @@ const addMessageToContext = async function (spaceId, chatId, messageId) {
         text: message.text,
         commands: {
             replay: message.commands.replay
+        }
+    }
+    return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;
+}
+
+const addPreferenceToContext = async function (spaceId,chatId,preferenceString){
+    const chat = await getChat(spaceId, chatId);
+    const contextChapterId = chat.chapters[1].id;
+    const paragraphData = {
+        text: preferenceString,
+        commands: {
+            replay:{
+                role:"assistant",
+            }
         }
     }
     return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;

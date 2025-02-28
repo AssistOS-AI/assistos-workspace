@@ -109,20 +109,24 @@ async function sendRequest(url, method, request, response) {
     return llmResponse.data;
 }
 
-async function getTextResponse(request, response) {
+async function getTextResponse(request, response, callResponse) {
     try {
         const {prompt} = request.body;
         const spaceId = request.params.spaceId;
         Logger.createLog(spaceId, {message: prompt, type: "INFO"});
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
-        });
+        if (callResponse) {
+            utils.sendResponse(response, 200, "application/json", {
+                data: modelResponse
+            });
+        }
         return {success: true, data: modelResponse};
     } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            message: error.message
-        });
+        if (callResponse) {
+            utils.sendResponse(response, error.statusCode || 500, "application/json", {
+                message: error.message
+            });
+        }
         return {success: false, message: error.message};
     }
 }
@@ -532,6 +536,7 @@ async function getDefaultModels(request, response) {
         })
     }
 }
+
 async function getModelLanguages(request, response) {
     try {
         let result = await sendRequest(`/apis/v1/llms/languages`, "POST", request, response);
@@ -544,6 +549,7 @@ async function getModelLanguages(request, response) {
         })
     }
 }
+
 module.exports = {
     getTextResponse,
     getTextResponseAdvanced,
