@@ -33,6 +33,20 @@ export class SpaceApplicationPage {
         });
     }
 
+    async toggleFullScreen(_target) {
+        if(assistOS.UI.chatState === "fullscreen") {
+            await this.toggleChat(undefined,"open",assistOS.UI.chatWidth);
+        }else{
+            const arrow = this.element.querySelector("#point-arrow-chat");
+            const agentPage = this.element.querySelector("agent-page");
+            arrow.classList.add("arrow-rotated");
+            assistOS.UI.chatState = "fullscreen";
+            agentPage.style.display = "flex";
+            agentPage.style.width = "calc(100vw - 70px - 42px - 36px)";
+            agentPage.style.minWidth = "calc(100vw - 70px - 42px - 36px)";
+        }
+    }
+
     async toggleChat(_target, mode, width) {
         const maximizeChat = () => {
             arrow.classList.add("arrow-rotated");
@@ -43,7 +57,9 @@ export class SpaceApplicationPage {
             agentPage.style.minWidth = minimumChatWidth + 'px';
             agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
             assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
-            addDragListener();
+            if(!this.boundStartDrag){
+                addDragListener();
+            }
         }
 
         const minimizeChat = () => {
@@ -110,8 +126,8 @@ export class SpaceApplicationPage {
             }
         }
 
-        const arrow = document.querySelector("#point-arrow-chat");
-        const agentPage = document.querySelector("agent-page");
+        const arrow = this.element.querySelector("#point-arrow-chat");
+        const agentPage = this.element.querySelector("agent-page");
 
         if (mode === "open") {
             maximizeChat();

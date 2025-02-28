@@ -86,17 +86,29 @@ space-application-page {
 .drag-separator {
     cursor: grab;
     width: 30px;
+    gap:10px;
     height:100%;
     padding-top:26px;
     padding-bottom:40px;
     position: relative;
     display:flex;
+    flex-direction: column;
     box-shadow:0 0 1px rgba(0, 0, 0, 0.5);
     align-items: flex-start;
-    justify-content: center;
     background: linear-gradient(111.65deg, rgba(239, 239, 239, 0.6) 8.14%, rgba(239, 239, 239, 0.08) 95.69%);
 }
-
+#toggleFullscreen{
+    cursor:pointer;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    border:2px solid var(--medium-gray);
+    background-color:white;
+    margin-bottom:10px;
+}
 .drag-line {
     height: 100%;
     width: 1px;
