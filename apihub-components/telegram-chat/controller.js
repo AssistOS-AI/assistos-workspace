@@ -52,10 +52,9 @@ async function startBot(req, res){
             users: []
         }
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
-        //let baseURL = process.env.BASE_URL;
-        //let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
-        //await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
-        let webhookURL = `https://assistos-telegram.ultrahook.com/telegram/${spaceId}/${personalityId}`;
+        let baseURL = process.env.BASE_URL;
+        let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
+        //let webhookURL = `https://assistos-telegram.ultrahook.com/telegram/${spaceId}/${personalityId}`;
         await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
         utils.sendResponse(res, 200, "application/json", {
             data: `Registered bot with id ${botId}, webhook URL: ${webhookURL}`
@@ -114,6 +113,7 @@ async function sendVerificationMail(spaceId, personality, message, chatId){
         const url = `${baseURL}/${endpoint}`;
         try {
             await fetch(url);
+            await sendMessage(personality.telegramBot.id, chatId, `Email verified successfully.`);
         } catch (e) {
             await sendMessage(personality.telegramBot.id, chatId, `Something went wrong while verifying your mail locally. ${e.message}`);
         }
@@ -167,6 +167,7 @@ async function sendErrorResponse(res, message, statusCode = 500){
         });
     }
 }
+let pendingTimeout = 1000 * 60 * 60 * 24; // 24 hours
 async function authenticateUser(req, res){
     let spaceId = req.params.spaceId;
     let personalityId = req.params.personalityId;
@@ -174,6 +175,11 @@ async function authenticateUser(req, res){
     let pendingUser = pendingUsers.find(user => user.id === telegramUserId);
     if(!pendingUser){
         await sendErrorResponse(res, "Pending User not found", 422);
+    }
+    let currentTime = Date.now();
+    if(currentTime - pendingUser.timestamp > pendingTimeout){
+        pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
+        await sendErrorResponse(res, "Verification link expired", 401);
     }
     try{
         let personalityModule = await loadAssistOSModule("personality");
@@ -206,7 +212,9 @@ async function removeUser(req, res){
     let personalityId = req.params.personalityId;
     let telegramUserId = parseInt(req.body);
     try {
-        let personalityModule = await loadAssistOSModule("personality");
+        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(req);
+        let personalityModule = require("assistos").loadModule("personality", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot.users = personality.telegramBot.users.filter(user => user.id !== telegramUserId);
         await personalityModule.updatePersonality(spaceId, personalityId, personality);

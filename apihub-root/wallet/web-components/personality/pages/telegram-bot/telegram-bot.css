@@ -1,3 +1,12 @@
+#botId{
+    max-width: 500px;
+}
+.telegram-bot-status{
+    margin-bottom: 20px;
+}
+.users-table{
+    margin-top: 20px;
+}
 .user{
     display: flex;
 }
@@ -9,4 +18,12 @@
 }
 .delete-user{
     margin-left: 20px;
+}
+.bot-name,
+.bot-username{
+    display: flex;
+}
+.label{
+    font-weight: bold;
+    margin-right: 10px;
 }
