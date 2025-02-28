@@ -88,8 +88,8 @@ export class ViewContextModal {
     }
 
     async deleteItem(_target) {
-        const targetIndex = _target.closest('li').getAttribute('data-key');
-        await deleteChatContextMessage(this.spaceId, this.chatId, targetIndex);
+        const targetIndexId = _target.closest('li').getAttribute('data-key');
+        await deleteChatContextMessage(this.spaceId, this.chatId, targetIndexId);
         this.invalidate();
     }
 
