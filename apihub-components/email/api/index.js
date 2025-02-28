@@ -4,7 +4,7 @@ const path = require('path');
 class Email {
     constructor() {
         const nodemailer = require('nodemailer');
-        this.emailConfig=require('../data-volume/config/emailConfig.json');
+        this.emailConfig = require('../data-volume/config/emailConfig.json');
         if (Email.instance) {
             return Email.instance;
         }
@@ -53,10 +53,35 @@ class Email {
             zipCode: this.emailConfig.zipCode,
             supportEmail: this.emailConfig.supportEmail,
             phoneNumber: this.emailConfig.phoneNumber,
+            title: "Welcome to AssistOS!",
+            buttonDescription: "You're almost ready to start exploring the limitless possibilities with AssistOS. Click the button below to activate your account:",
+            buttonText: "Activate Account",
         });
         await this.sendEmail(this.emailConfig.email, emailAddress, 'Account Activation', emailHtml);
     }
+    async sendAssistOSMail(email, subject, title, buttonDescription, buttonText, endpoint) {
+        const data = require('../../apihub-component-utils/data.js')
+        const activationEmailTemplatePath = path.join(__dirname, '..', 'templates', 'activationEmailTemplate.html');
+        const activationEmailTemplate = await fsPromises.readFile(activationEmailTemplatePath, 'utf8')
+        const baseURL= process.env.BASE_URL;
 
+        const activationLink = `${baseURL}/${endpoint}`;
+        const emailHtml = data.fillTemplate(activationEmailTemplate, {
+            companyLogoURL: this.emailConfig.companyLogoURL,
+            activationLink: activationLink,
+            companyName: this.emailConfig.companyName,
+            streetAddress: this.emailConfig.streetAddress,
+            city: this.emailConfig.city,
+            country: this.emailConfig.country,
+            zipCode: this.emailConfig.zipCode,
+            supportEmail: this.emailConfig.supportEmail,
+            phoneNumber: this.emailConfig.phoneNumber,
+            title: title,
+            buttonDescription: buttonDescription,
+            buttonText: buttonText,
+        });
+        await this.sendEmail(this.emailConfig.email, email, subject, emailHtml);
+    }
     async sendUserAddedToSpaceEmail(email, spaceName, invitationToken) {
         const data = require('../../apihub-component-utils/data.js')
         const spaceInvitationTemplatePath = path.join(__dirname, '..', 'templates', 'spaceInvitationTemplate.html');

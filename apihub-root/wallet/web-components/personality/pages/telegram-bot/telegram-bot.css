@@ -1,0 +1,12 @@
+.user{
+    display: flex;
+}
+.user-first-name{
+    margin-right: 10px;
+}
+.table-header{
+    font-weight: bold;
+}
+.delete-user{
+    margin-left: 20px;
+}
