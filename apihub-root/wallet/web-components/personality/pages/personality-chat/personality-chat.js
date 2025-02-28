@@ -1,4 +1,5 @@
 const personalityModule = require("assistos").loadModule("personality", {});
+const llmModule = require("assistos").loadModule("llm", {});
 
 export class PersonalityChat{
     constructor(element, invalidate) {
@@ -9,6 +10,9 @@ export class PersonalityChat{
         this.invalidate();
     }
     async beforeRender(){
+        let availableLlms = await llmModule.listLlms(assistOS.space.id);
+        this.chatLLMSection = this.personalityPagePresenter.generateLlmSelectHtml(availableLlms["chat"], "chat");
+
         this.contextSize = this.personality.contextSize||3;
         const iFrameURL = `${window.location.origin}/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
         this.chatIframe = `
@@ -41,5 +45,10 @@ export class PersonalityChat{
                 this.personalityPagePresenter.checkSaveButtonState();
             });
         }
+        let chatSelect = this.element.querySelector(`#chatLLM`);
+        chatSelect.addEventListener("change", async (e) => {
+            this.personality.llms.chat = e.target.value;
+            this.personalityPagePresenter.checkSaveButtonState();
+        });
     }
 }

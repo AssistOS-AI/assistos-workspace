@@ -1,6 +1,6 @@
 const llmModule = require("assistos").loadModule("llm", {});
 
-export class PersonalityVoice{
+export class PersonalityAudio {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -28,9 +28,10 @@ export class PersonalityVoice{
             this.voicesErrorMessage = error.message;
         }
     }
-    beforeRender(){
+    async beforeRender(){
+        let availableLlms = await llmModule.listLlms(assistOS.space.id);
+        this.audioLLMSection = this.personalityPagePresenter.generateLlmSelectHtml(availableLlms["audio"], "audio");
         let voicesHTML = "";
-
         for (let voice of this.voices) {
             let accent = voice.accent ? `, accent: ${voice.accent}` : "";
             let age = voice.age ? `, age: ${voice.age}` : "";
@@ -39,7 +40,6 @@ export class PersonalityVoice{
             let tempo = voice.tempo ? `, tempo: ${voice.tempo}` : "";
             voicesHTML += `<option value="${voice.id}">${voice.name}${accent}${age}${gender}${loudness}${tempo}</option>`;
         }
-
         this.voicesOptions = voicesHTML;
     }
     afterRender(){
@@ -61,14 +61,17 @@ export class PersonalityVoice{
 
         this.boundSelectVoiceHndler = this.selectVoiceHandler.bind(this, voiceSelect);
         voiceSelect.addEventListener("change", this.boundSelectVoiceHndler);
-
-        // let audioSelect = this.element.querySelector("#audioLLM");
-        // audioSelect.addEventListener("change", async ()=>{
-        //     this.invalidate(async () => {
-        //         this.personality.llms["audio"] = audioSelect.value;
-        //         await this.loadVoices(audioSelect.value);
-        //     });
-        // });
+        let audioSelect = this.element.querySelector(`#audioLLM`);
+        audioSelect.addEventListener("change", async (e) => {
+            this.personality.llms.audio = e.target.value;
+            this.personalityPagePresenter.checkSaveButtonState();
+        });
+        audioSelect.addEventListener("change", async ()=>{
+            this.invalidate(async () => {
+                this.personality.llms["audio"] = audioSelect.value;
+                await this.loadVoices(audioSelect.value);
+            });
+        });
     }
 
     selectVoiceHandler(voiceSelect, event) {
