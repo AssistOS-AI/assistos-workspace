@@ -10,20 +10,27 @@ export class TelegramBot{
         this.invalidate();
     }
     async beforeRender(){
+        let usersHTML = "no users added";
         if(this.personality.telegramBot.id){
             this.telegramBotStatus = `<div class="telegram-bot-status">
-            <div class="bot-name">name: ${this.personality.telegramBot.name}</div>
-            <div class="bot-username">username: @${this.personality.telegramBot.username}</div>
-            </div>`
-        }
-        let usersHTML = "";
-        for(let user of this.personality.telegramBot.users){
-            usersHTML += `
+            <div class="bot-name">
+                <div class="label">name:</div>
+                <div>${this.personality.telegramBot.name}</div>
+            </div>
+            <div class="bot-username">
+                <div class="label">username:</div>
+                <div>@${this.personality.telegramBot.username}</div>
+            </div>
+            </div>`;
+            usersHTML = "";
+            for(let user of this.personality.telegramBot.users){
+                usersHTML += `
             <div class="user">
                 <div class="user-first-name">${user.firstName}</div>
                 <div class="user-last-name">${user.lastName}</div>
                 <img src="/wallet/assets/icons/trash-can.svg" class="delete-user black-icon pointer" data-local-action="removeUser ${user.id}" alt="trash">
             </div>`
+            }
         }
         this.usersHTML = usersHTML;
     }
@@ -70,5 +77,6 @@ export class TelegramBot{
         let personality = await personalityModule.getPersonality(assistOS.space.id, this.personality.id);
         this.personalityPagePresenter.initialPersonality.telegramBot = personality.telegramBot;
         this.personality.telegramBot = personality.telegramBot;
+        this.invalidate();
     }
 }
