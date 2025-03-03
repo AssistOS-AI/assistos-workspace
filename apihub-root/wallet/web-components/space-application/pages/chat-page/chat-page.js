@@ -18,7 +18,6 @@ const createNewChat = async (spaceId, personalityId) => {
     const response = await request(`/chats/${spaceId}/${personalityId}`);
     return response.data.chatId;
 };
-
 const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
@@ -29,12 +28,10 @@ const getChatContext = async (spaceId, chatId) => {
     const response = await request(`/chats/context/${spaceId}/${chatId}`);
     return response.data;
 }
-
 const watchChat = async (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"});
     return await request(`/chats/watch/${spaceId}/${chatId}`);
 };
-
 const sendMessage = async (spaceId, chatId, message) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
     const response = await request(`/chats/message/${spaceId}/${chatId}`);
@@ -130,7 +127,6 @@ const waitForElement = (container, selector) => {
                     resolve(element);
                 }
             });
-
             observer.observe(container, {
                 childList: true,
                 subtree: true
@@ -178,16 +174,19 @@ class BaseChatFrame {
             if (!role) {
                 continue;
             }
+
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
             if (user === this.userId) {
                 ownMessage = true;
             }
+            let isContext = chatMessage.commands?.replay?.isContext || "false";
+
             if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
             } else {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
         }
         this.spaceConversation = this.stringHTML;
@@ -509,8 +508,8 @@ class BaseChatFrame {
 
     async addToLocalContext(chatMessageId, chatItemElement) {
         await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
+        chatItemElement.classList.add('context-message');
     }
-
 }
 
 let ChatPage;

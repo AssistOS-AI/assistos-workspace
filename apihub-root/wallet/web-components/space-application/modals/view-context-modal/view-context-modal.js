@@ -64,13 +64,14 @@ export class ViewContextModal {
         this.context = await getChatContext(this.spaceId, this.chatId);
 
         this.viewContextItems = this.context.map((contextItem, index) => {
+            const isContextFor = contextItem.commands.replay.isContextFor;
             return `<li class="view-item" data-key="${contextItem.id}"> 
                 <span class="role">${contextItem.commands.replay.role}</span>
             <textarea 
             class="editContextItem" 
             data-key="${contextItem.id}">${contextItem.text}
             </textarea>
-                        <button data-local-action="deleteItem">Delete</button>
+                        <button data-local-action="deleteItem ${isContextFor}">Delete</button>
             </li>`;
         }).join('') || `<span>No context Added</span>`;
     }
@@ -87,9 +88,11 @@ export class ViewContextModal {
         })
     }
 
-    async deleteItem(_target) {
+    async deleteItem(_target,isContextFor) {
         const targetIndexId = _target.closest('li').getAttribute('data-key');
         await deleteChatContextMessage(this.spaceId, this.chatId, targetIndexId);
+        const chatItem = this.chatPagePresenter.element.querySelector(`#${isContextFor}`);
+        chatItem.classList.remove('context-message');
         this.invalidate();
     }
 

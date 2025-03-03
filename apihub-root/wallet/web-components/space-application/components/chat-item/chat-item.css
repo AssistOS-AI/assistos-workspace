@@ -1,32 +1,34 @@
-chat-item{
-    width:100%;
+chat-item {
+    width: 100%;
 }
 
-.user-profile-image-container{
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    justify-content:flex-start;
-    flex-wrap:wrap;
-}
-.chat-options{
-    position:absolute;
-    display:none;
-    margin-block-start:10px;
-    width:fit-content;
-    bottom:-34px;
-    gap:4px;
-}
-
-.other-message{
+.user-profile-image-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     justify-content: flex-start;
-    left:0;
+    flex-wrap: wrap;
 }
 
-.myself-message{
-    justify-content: flex-end;
-    right:0;
+.chat-options {
+    position: absolute;
+    display: none;
+    margin-block-start: 10px;
+    width: fit-content;
+    bottom: -34px;
+    gap: 4px;
 }
+
+.other-message {
+    justify-content: flex-start;
+    left: 0;
+}
+
+.myself-message {
+    justify-content: flex-end;
+    right: 0;
+}
+
 .message {
     display: flex;
     flex-direction: column;
@@ -44,15 +46,15 @@ chat-item{
 }
 
 
-.stop-stream-button{
-    display:none;
+.stop-stream-button {
+    display: none;
 }
 
 .chat-option-button {
     align-items: center;
     justify-content: center;
     min-width: 30px;
-    height:32px;
+    height: 32px;
     padding: 4px 8px;
     background: linear-gradient(to right, #3478C6, #5a9fe3);
     color: #ffffff;
@@ -96,3 +98,10 @@ chat-item{
     opacity: 1;
     visibility: visible;
 }
+
+.context-message {
+    transition: background-color 0.2s ease;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-left: 3px solid #007bff;
+}
+

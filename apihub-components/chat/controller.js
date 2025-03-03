@@ -1,7 +1,6 @@
 const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
 
-
 const getChatMessages = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
