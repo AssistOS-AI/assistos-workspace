@@ -45,6 +45,7 @@ function decodeHTML(html) {
     return txt.value;
 }
 
+
 export class ChatItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -61,6 +62,7 @@ export class ChatItem {
         this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");
         this.id = this.element.getAttribute("id");
+        this.isContext= this.element.getAttribute("isContext");
 
         if (this.ownMessage === "false") {
             this.messageType = "user";
@@ -139,7 +141,9 @@ export class ChatItem {
             }, 100);
 
         }
-
+        if(this.isContext === "true"){
+            this.element.classList.add('context-message')
+        }
         if (this.role !== "own") {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");
         }

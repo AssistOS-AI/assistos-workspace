@@ -18,7 +18,6 @@ const createNewChat = async (spaceId, personalityId) => {
     const response = await request(`/chats/${spaceId}/${personalityId}`);
     return response.data.chatId;
 };
-
 const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
@@ -30,9 +29,11 @@ const getChatContext = async (spaceId, chatId) => {
     return response.data;
 }
 
-const watchChat = async (spaceId, chatId) => {
+const watchChat = async function (spaceId, chatId, chatPresenter) {
+    /*
     const request = generateRequest("POST", {"Content-Type": "application/json"});
     return await request(`/chats/watch/${spaceId}/${chatId}`);
+     */
 };
 
 const sendMessage = async (spaceId, chatId, message) => {
@@ -130,7 +131,6 @@ const waitForElement = (container, selector) => {
                     resolve(element);
                 }
             });
-
             observer.observe(container, {
                 childList: true,
                 subtree: true
@@ -160,6 +160,47 @@ class BaseChatFrame {
         }
     }
 
+    async handleChatEvent(eventData) {
+        const handleMessageEvent = async (eventData) => {
+            const action = eventData.action;
+            switch (action) {
+                case 'add':
+                    this.invalidate();
+                    break;
+                case 'reset':
+                    this.invalidate();
+                    break;
+                default:
+            }
+        }
+        const handleContextEvent = async (eventData) => {
+            const action = eventData.action;
+            switch (action) {
+                case 'add':
+                    this.invalidate();
+                    break;
+                case 'delete':
+                    this.invalidate();
+                    break;
+                case 'update':
+                    break;
+                case 'reset':
+                    this.invalidate();
+                default:
+            }
+        }
+        switch (eventData.type) {
+            case "messages":
+                await handleMessageEvent(eventData);
+                break;
+            case "context":
+                await handleContextEvent(eventData);
+                break;
+            default:
+                console.warn("Unknown event type", eventData.type);
+        }
+    }
+
     async beforeRender() {
         this.chatOptions = IFrameChatOptions;
         this.chatId = this.element.getAttribute('data-chatId');
@@ -170,6 +211,11 @@ class BaseChatFrame {
         this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
         this.chatActionButton = sendMessageActionButtonHTML
 
+        if (this.isSubscribed === undefined) {
+            this.isSubscribed = true;
+            await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
+        }
+
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
             const chatMessage = this.chatMessages[messageIndex]
@@ -178,16 +224,19 @@ class BaseChatFrame {
             if (!role) {
                 continue;
             }
+
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
             if (user === this.userId) {
                 ownMessage = true;
             }
+            let isContext = chatMessage.commands?.replay?.isContext || "false";
+
             if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
             } else {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
         }
         this.spaceConversation = this.stringHTML;
@@ -509,8 +558,8 @@ class BaseChatFrame {
 
     async addToLocalContext(chatMessageId, chatItemElement) {
         await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
+        chatItemElement.classList.add('context-message');
     }
-
 }
 
 let ChatPage;

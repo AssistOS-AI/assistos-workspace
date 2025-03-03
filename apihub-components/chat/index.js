@@ -18,7 +18,8 @@ function ChatComponent(server) {
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)
     server.post("/chats/watch/:spaceId/:chatId", Chat.watchChat)
     server.post("/chats/message/:spaceId/:chatId", Chat.sendMessage)
-    server.post("/chats/query/:spaceId/:personalityId/:chatId", Chat.sendQuery)
+    server.post("/chats/query/:spaceId/:personalityId/:chatId", Chat.sendQueryStreaming)
+    server.post("/chats/send/:spaceId/:personalityId/:chatId", Chat.sendQuery)
     server.post("/chats/reset/:spaceId/:chatId", Chat.resetChat)
 
     server.get("/chats/context/:spaceId/:chatId", Chat.getChatContext)

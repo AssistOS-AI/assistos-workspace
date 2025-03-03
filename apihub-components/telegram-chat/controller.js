@@ -5,11 +5,12 @@ const {promises: fsPromises} = require("fs");
 const User = require("../users-storage/user");
 const configs = require("../../data-volume/config/config.json");
 const Email = require("../email/index.js").instance;
-async function loadAssistOSModule(moduleName) {
+const chatHandler = require("../chat/handler");
+async function loadAssistOSModule(moduleName, spaceId, userId){
     let authSecret = await secrets.getApiHubAuthSecret();
     let securityContextConfig = {
         headers: {
-            cookie: cookie.createApiHubAuthCookies(authSecret, this.userId, this.spaceId)
+            cookie: cookie.createApiHubAuthCookies(authSecret, userId, spaceId)
         }
     }
     const SecurityContext = require('assistos').ServerSideSecurityContext;
@@ -48,13 +49,11 @@ async function startBot(req, res){
             username: botData.result.username,
             name: botData.result.first_name,
             id: botId,
-            chats: [],
             users: []
         }
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
-        //let baseURL = process.env.BASE_URL;
+        let baseURL = process.env.BASE_URL;
         //let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
-        //await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
         let webhookURL = `https://assistos-telegram.ultrahook.com/telegram/${spaceId}/${personalityId}`;
         await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
         utils.sendResponse(res, 200, "application/json", {
@@ -71,10 +70,10 @@ function isValidEmail(string) {
     return emailRegex.test(string);
 }
 async function checkUserExists(res, spaceId, personality, message){
-    let userId = message.from.id;
+    let telegramUserId = message.from.id;
     let chatId = message.chat.id;
-    let authenticatedUser = personality.telegramBot.users.find(user => user.id === userId);
-    let pendingUser = pendingUsers.find(user => user.id === userId);
+    let authenticatedUser = personality.telegramBot.users.find(user => user.telegramUserId === telegramUserId);
+    let pendingUser = pendingUsers.find(user => user.id === telegramUserId);
     if(!authenticatedUser && !pendingUser){
         await sendMessage(personality.telegramBot.id, chatId, `Hello user. To use this bot please enter your email address linked to your assistOS account.`);
         pendingUsers.push({
@@ -87,7 +86,7 @@ async function checkUserExists(res, spaceId, personality, message){
     }
     if(pendingUser){
         if(isValidEmail(message.text)){
-            await sendVerificationMail(spaceId, personality, message, chatId);
+            await sendVerificationMail(spaceId, personality, message.text, telegramUserId, chatId);
         } else {
             await sendMessage(personality.telegramBot.id, chatId, `Invalid email address. Please enter a valid email address`);
         }
@@ -95,11 +94,13 @@ async function checkUserExists(res, spaceId, personality, message){
     }
     return true;
 }
-async function sendVerificationMail(spaceId, personality, message, chatId){
-    let endpoint = `telegram/auth/${spaceId}/${personality.id}/${message.from.id}`;
+async function sendVerificationMail(spaceId, personality, email, telegramUserId, chatId){
+    let users = await User.getUserMap();
+    let userId = users[email];
+    let endpoint = `telegram/auth/${spaceId}/${personality.id}/${telegramUserId}/${userId}`;
     if(configs.ENABLE_EMAIL_SERVICE){
         try {
-            await Email.sendAssistOSMail(message.text,
+            await Email.sendAssistOSMail(email,
                 "AssistOS telegram bot authentication",
                 "AssistOS telegram bot authentication",
                 "Please click on the button below to verify your email address",
@@ -108,12 +109,13 @@ async function sendVerificationMail(spaceId, personality, message, chatId){
         }catch (e) {
             await sendMessage(personality.telegramBot.id, chatId, `Something went wrong while verifying your mail. ${e.message}`);
         }
-        await sendMessage(personality.telegramBot.id, chatId, `I have sent a verification email to ${message.text}. Please click on the button in the email to authenticate yourself.`);
+        await sendMessage(personality.telegramBot.id, chatId, `I have sent a verification email to ${email}. Please click on the button in the email to authenticate yourself.`);
     }else{
         const baseURL= process.env.BASE_URL;
         const url = `${baseURL}/${endpoint}`;
         try {
             await fetch(url);
+            await sendMessage(personality.telegramBot.id, chatId, `Email verified successfully.`);
         } catch (e) {
             await sendMessage(personality.telegramBot.id, chatId, `Something went wrong while verifying your mail locally. ${e.message}`);
         }
@@ -129,20 +131,20 @@ async function receiveMessage(req, res){
     }
 
     let chatId = message.chat.id;
-    let personalityModule = await loadAssistOSModule("personality");
+    let personalityModule = await loadAssistOSModule("personality", spaceId);
     let personality = await personalityModule.getPersonality(spaceId, personalityId);
     let userExists = await checkUserExists(res, spaceId, personality, message);
     if(!userExists){
         return utils.sendResponse(res, 200, "application/json", {});
     }
-    let llmModule = await loadAssistOSModule("llm");
+    let user = personality.telegramBot.users.find(user => user.telegramUserId === message.from.id);
     if(message.sticker){
         await sendMessage(personality.telegramBot.id, chatId, "Im sorry I cannot process stickers");
         return utils.sendResponse(res, 200, "application/json", {});
     }
     try {
-        let llmResponse = await llmModule.generateText(spaceId, message.text, personality.id);
-        await sendMessage(personality.telegramBot.id, chatId, llmResponse.message);
+        let llmResponse = await chatHandler.sendQuery(spaceId, user.chatId, personalityId, user.id, message.text);
+        await sendMessage(personality.telegramBot.id, chatId, llmResponse);
     } catch (e) {
         try {
             let errorMessage = JSON.parse(e.message);
@@ -167,26 +169,40 @@ async function sendErrorResponse(res, message, statusCode = 500){
         });
     }
 }
+let pendingTimeout = 1000 * 60 * 60 * 24; // 24 hours
 async function authenticateUser(req, res){
     let spaceId = req.params.spaceId;
     let personalityId = req.params.personalityId;
-    let telegramUserId = parseInt(req.params.userId);
+    let telegramUserId = parseInt(req.params.telegramUserId);
+    let userId = req.params.userId;
     let pendingUser = pendingUsers.find(user => user.id === telegramUserId);
     if(!pendingUser){
         await sendErrorResponse(res, "Pending User not found", 422);
     }
+    let currentTime = Date.now();
+    if(currentTime - pendingUser.timestamp > pendingTimeout){
+        pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
+        await sendErrorResponse(res, "Verification link expired", 401);
+    }
     try{
-        let personalityModule = await loadAssistOSModule("personality");
+        let personalityModule = await loadAssistOSModule("personality", spaceId);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         if(!personality){
             await sendErrorResponse(res, "Personality not found", 422);
         }
+
+        let {chatId} = await personalityModule.createChat(spaceId, personalityId);
+
         personality.telegramBot.users.push({
-            id: pendingUser.id,
+            id: userId,
+            telegramUserId: pendingUser.id,
             firstName: pendingUser.firstName,
-            lastName: pendingUser.lastName
+            lastName: pendingUser.lastName,
+            chatId: chatId
         })
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
+
+
         pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
         if(configs.ENABLE_EMAIL_SERVICE){
             await sendMessage(personality.telegramBot.id, telegramUserId, "Email verified successfully.");
@@ -206,7 +222,9 @@ async function removeUser(req, res){
     let personalityId = req.params.personalityId;
     let telegramUserId = parseInt(req.body);
     try {
-        let personalityModule = await loadAssistOSModule("personality");
+        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(req);
+        let personalityModule = require("assistos").loadModule("personality", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot.users = personality.telegramBot.users.filter(user => user.id !== telegramUserId);
         await personalityModule.updatePersonality(spaceId, personalityId, personality);

@@ -4,6 +4,8 @@ const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
 
 const {getTextStreamingResponse,getTextResponse} = require('../llms/controller.js');
+const secrets = require("../apihub-component-utils/secrets");
+const cookie = require("../apihub-component-utils/cookie");
 
 const getChat = async function (spaceId, chatId) {
     return await Document.getDocument(spaceId, chatId);
@@ -74,9 +76,9 @@ const sendMessage = async function (spaceId, chatId, userId, message, role) {
     return (await Paragraph.createParagraph(spaceId, chatId, chapterId, paragraphData)).id;
 }
 
-const getConfiguration = async function(spaceId,configurationId){
+const getConfiguration = async function (spaceId, configurationId) {
     const personalityData = await getPersonalityData(spaceId, configurationId);
-    const {chatPrompt,contextSize} = personalityData;
+    const {chatPrompt, contextSize} = personalityData;
     return {
         chatPrompt,
         contextSize
@@ -94,18 +96,18 @@ const unsanitize = function (value) {
     }
     return '';
 }
-const buildContext = async function (spaceId,chatId,configurationId){
+const buildContext = async function (spaceId, chatId, configurationId) {
     const chat = await getChat(spaceId, chatId);
 
     const messagesChapter = chat.chapters[0];
     const contextChapter = chat.chapters[1];
 
     const context = {
-        messages:[],
-        context:contextChapter.paragraphs
+        messages: [],
+        context: contextChapter.paragraphs
     }
 
-    const configuration = await getConfiguration(spaceId,configurationId)
+    const configuration = await getConfiguration(spaceId, configurationId)
     context.messages = messagesChapter.paragraphs.slice(-configuration.contextSize, messagesChapter.paragraphs.length).map(message => {
         return {
             text: unsanitize(message.text),
@@ -115,7 +117,7 @@ const buildContext = async function (spaceId,chatId,configurationId){
     return context;
 }
 
-const checkApplyContextInstructions = async function (request,response,spaceId,chatId,personalityId,prompt){
+const checkApplyContextInstructions = async function (spaceId, chatId, personalityId, prompt, userId){
     const generateMemoizationPrompt = (prompt) =>
         `
         **Role**: You have received a query from the user and you need to check if the user's query contains general instructions, preferences of any kind that should be remembered and applied to future queries.
@@ -138,11 +140,19 @@ const checkApplyContextInstructions = async function (request,response,spaceId,c
         }"
         Example2:
         "{"detectedPreferences": false,"preferences":[]"}"
-        `
-    request.body.prompt =  generateMemoizationPrompt(unsanitize(prompt));
-    const llmAnswer = await getTextResponse(request,response,false);
+        `;
+    let authSecret = await secrets.getApiHubAuthSecret();
+    let securityContextConfig = {
+        headers: {
+            cookie: cookie.createApiHubAuthCookies(authSecret, userId, spaceId)
+        }
+    }
+    const SecurityContext = require('assistos').ServerSideSecurityContext;
+    let securityContext = new SecurityContext(securityContextConfig);
+    let llmModule = require('assistos').loadModule("llm", securityContext);
+    let llmAnswer = await llmModule.generateText(spaceId, generateMemoizationPrompt(unsanitize(prompt)), personalityId);
     try{
-        const parsedLLMAnswer = JSON.parse(llmAnswer.data.message);
+        const parsedLLMAnswer = JSON.parse(llmAnswer.message);
         if(parsedLLMAnswer.detectedPreferences){
             if(Array.isArray(parsedLLMAnswer.preferences)){
                 for(let preference of parsedLLMAnswer.preferences){
@@ -150,33 +160,31 @@ const checkApplyContextInstructions = async function (request,response,spaceId,c
                 }
             }
         }
-    }catch(error){
+    } catch (error) {
 
     }
 }
-
-const sendQuery = async function (request, response, spaceId, chatId, personalityId, userId, prompt) {
-
-    const applyChatPrompt = (chatPrompt,userPrompt,context,personalityDescription) =>
-    `${chatPrompt}
+function applyChatPrompt(chatPrompt, userPrompt, context, personalityDescription){
+    return `${chatPrompt}
     **Your Identity**
     ${personalityDescription}
     **Previous Conversation**
-    ${context.messages.map(message => `${message.commands?.replay?.role||"Unknown"} : ${message.text}`).join('\n')}
+    ${context.messages.map(message => `${message.commands?.replay?.role || "Unknown"} : ${message.text}`).join('\n')}
     **Conversation Context**
     ${context.context.map(contextItem => contextItem.text).join('\n')}
     **Current Query to Address**:
     ${userPrompt}
     `;
-
+}
+const sendQueryStreaming = async function (request, response, spaceId, chatId, personalityId, userId, prompt) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
     let {chatPrompt} = personalityData;
     chatPrompt = unsanitize(chatPrompt);
     let unsPrompt = unsanitize(prompt);
 
-    const context = await buildContext(spaceId,chatId,personalityId);
+    const context = await buildContext(spaceId, chatId, personalityId);
 
-    request.body.prompt = applyChatPrompt(chatPrompt, unsPrompt,context,unsanitize(personalityData.description));
+    request.body.prompt = applyChatPrompt(chatPrompt, unsPrompt, context, unsanitize(personalityData.description));
     request.body.modelName = personalityData.llms.text;
 
     const userMessageId = await sendMessage(spaceId, chatId, userId, prompt, "user");
@@ -221,7 +229,10 @@ const sendQuery = async function (request, response, spaceId, chatId, personalit
                     isFirstChunk = false;
                     responseMessageId = await sendMessage(spaceId, chatId, personalityId, chunk, "assistant");
                     /* send the user message id and the responseMessageId to client to attach the ids to the client chat-items in order to make them addable to the context*/
-                    response.write(`event: beginSession\ndata: ${JSON.stringify({userMessageId, responseMessageId})}\n\n`);
+                    response.write(`event: beginSession\ndata: ${JSON.stringify({
+                        userMessageId,
+                        responseMessageId
+                    })}\n\n`);
                 } else {
                     if (!responseMessageId) return;
                     updateQueue.push(chunk);
@@ -232,21 +243,44 @@ const sendQuery = async function (request, response, spaceId, chatId, personalit
         }
     );
     const queryData = await streamContext.streamPromise;
-    await checkApplyContextInstructions(request,response,spaceId,chatId,personalityId,prompt)
+    await checkApplyContextInstructions(spaceId, chatId, personalityId, prompt, userId)
 }
+async function sendQuery(spaceId, chatId, personalityId, userId, prompt){
+    const personalityData = await getPersonalityData(spaceId, personalityId);
+    let {chatPrompt} = personalityData;
+    chatPrompt = unsanitize(chatPrompt);
+    let unsPrompt = unsanitize(prompt);
+    const context = await buildContext(spaceId, chatId, personalityId);
+    prompt = applyChatPrompt(chatPrompt, unsPrompt, context, unsanitize(personalityData.description));
+    const userMessageId = await sendMessage(spaceId, chatId, userId, prompt, "user");
 
+    let authSecret = await secrets.getApiHubAuthSecret();
+    let securityContextConfig = {
+        headers: {
+            cookie: cookie.createApiHubAuthCookies(authSecret, userId, spaceId)
+        }
+    }
+    const SecurityContext = require('assistos').ServerSideSecurityContext;
+    let securityContext = new SecurityContext(securityContextConfig);
+    let llmModule = require('assistos').loadModule("llm", securityContext);
+    let llmResponse = await llmModule.generateText(spaceId, prompt, personalityId);
+
+    let responseMessageId = await sendMessage(spaceId, chatId, personalityId, llmResponse.message, "assistant");
+    await checkApplyContextInstructions(spaceId, chatId, personalityId, prompt, userId);
+    return llmResponse.message
+}
 const resetChat = async function (spaceId, chatId) {
     const chat = await getChat(spaceId, chatId);
     const messagesChapter = chat.chapters[0];
     const contextChapter = chat.chapters[1];
-   /* await Promise.all(
-        [...messagesChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, messagesChapter.id, paragraph.id)),
-            ...contextChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id))]);
-   */
-    for(let paragraph of messagesChapter.paragraphs){
+    /* await Promise.all(
+         [...messagesChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, messagesChapter.id, paragraph.id)),
+             ...contextChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id))]);
+    */
+    for (let paragraph of messagesChapter.paragraphs) {
         await Paragraph.deleteParagraph(spaceId, chatId, messagesChapter.id, paragraph.id)
     }
-    for(let paragraph of contextChapter.paragraphs){
+    for (let paragraph of contextChapter.paragraphs) {
         await Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
     }
     return chatId;
@@ -259,7 +293,7 @@ const resetChatContext = async function (spaceId, chatId) {
             return Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
         })
     );*/
-    for(let paragraph of contextChapter.paragraphs) {
+    for (let paragraph of contextChapter.paragraphs) {
         await Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
     }
     return chatId;
@@ -283,20 +317,23 @@ const addMessageToContext = async function (spaceId, chatId, messageId) {
     const paragraphData = {
         text: message.text,
         commands: {
-            replay: message.commands.replay
+            replay: {...message.commands.replay, isContextFor: messageId}
         }
     }
+
+    message.commands.replay.isContext = true;
+    await Paragraph.updateParagraph(spaceId, chatId, messageId, message.commands, {fields: "commands"});
     return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;
 }
 
-const addPreferenceToContext = async function (spaceId,chatId,preferenceString){
+const addPreferenceToContext = async function (spaceId, chatId, preferenceString) {
     const chat = await getChat(spaceId, chatId);
     const contextChapterId = chat.chapters[1].id;
     const paragraphData = {
         text: preferenceString,
         commands: {
-            replay:{
-                role:"assistant",
+            replay: {
+                role: "assistant",
             }
         }
     }
@@ -308,6 +345,16 @@ const updateChatContextItem = async function (spaceId, chatId, contextItemId, co
 const deleteChatContextItem = async function (spaceId, chatId, contextItemId) {
     const chat = await getChat(spaceId, chatId);
     const contextChapterId = chat.chapters[1].id;
+
+    const contextParagraph= chat.chapters[1].paragraphs.find(paragraph => paragraph.id === contextItemId);
+    if(contextParagraph?.commands?.replay?.isContextFor){
+        const message = chat.chapters[0].paragraphs.find(paragraph => paragraph.id === contextParagraph.commands.replay.isContextFor);
+        if(message){
+            message.commands.replay.isContext = false;
+            await Paragraph.updateParagraph(spaceId, chatId, message.id, message.commands, {fields: "commands"});
+        }
+    }
+
     return await Paragraph.deleteParagraph(spaceId, chatId, contextChapterId, contextItemId);
 }
 
@@ -469,6 +516,7 @@ async function analyzeRequest(userRequest, context) {
 
     return decisionObject;
 }
+
 async function processUserQuery(spaceId, chatId, personalityId, query, context, streamLocationElement) {
     /*
     const decision = await this.analyzeRequest(userRequest, context);
@@ -503,6 +551,7 @@ async function processUserQuery(spaceId, chatId, personalityId, query, context, 
      }
      await Promise.all(promises);*/
 }
+
 async function callLLM(chatPrompt) {
     // return await LLM.getChatCompletion(assistOS.space.id,chatPrompt);
 }
@@ -520,5 +569,6 @@ module.exports = {
     addMessageToContext,
     updateChatContextItem,
     deleteChatContextItem,
-    getChatContext
+    getChatContext,
+    sendQueryStreaming
 }
