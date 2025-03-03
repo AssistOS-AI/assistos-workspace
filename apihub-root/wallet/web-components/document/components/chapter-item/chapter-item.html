@@ -1,28 +1,57 @@
 <div class="chapter-item container-element" tabindex="0" data-chapter-id="$$data-chapter-id"
      data-metadata="$$data-metadata">
     <div class="chapter-text">
-        <div class="chapter-title-container">
-            <img class="chapter-visibility-arrow unfocusable black-icon" data-local-action="changeChapterDisplay $$chapter-id" src="./wallet/assets/icons/arrow-down.svg" alt="chapter">
-            <div class="data-chapter-number $$chapterFontSize $$chapterFontFamily font-color">$$data-chapter-number.</div>
-            <input type="text" data-local-action="editItem chapterTitle" class="chapter-title focusable $$chapterFontSize $$chapterFontFamily font-color"
-                   data-metadata="$$titleMetadata"/>
-            <div class="chapter-actions">
-                <div class="chapter-comment pointer" data-local-action="openChapterComment">
-                    <img class="chapter-comment-icon black-icon" src="./wallet/assets/icons/comment.svg" alt="comment">
+        <div class="chapter-header-container">
+
+            <div class="chapter-title-container">
+
+                <img class="chapter-visibility-arrow unfocusable black-icon" data-local-action="changeChapterDisplay $$chapter-id" src="./wallet/assets/icons/arrow-down.svg" alt="chapter">
+                <div class="data-chapter-number $$chapterFontSize $$chapterFontFamily font-color">$$data-chapter-number.</div>
+                <input type="text" data-local-action="editItem chapterTitle" class="chapter-title focusable $$chapterFontSize $$chapterFontFamily font-color"
+                       data-metadata="$$titleMetadata"/>
+                <div class="chapter-toolbar">
+                    <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  data-local-action="moveChapter up" loading="lazy" class="toolbar-margin1 pointer black-icon">
+                    <img src="./wallet/assets/icons/arrow-up.svg" alt="icon" data-local-action="moveChapter down" loading="lazy" class="toolbar-margin1 rotate-down pointer black-icon">
+
+                    <div data-local-action="openMenu insert-document-element" class="toolbar-margin1 pointer insert-document-element">
+                        <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
+                    </div>
+<!--                    <img src="./wallet/assets/icons/square-plus.svg" alt="icon" data-local-action="addChapter above" class="toolbar-margin1 pointer black-icon" loading="lazy">-->
+<!--                    <img src="./wallet/assets/icons/below.svg" alt="icon" data-local-action="addChapter below" class="toolbar-margin1 pointer black-icon" loading="lazy">-->
+                    <img src="./wallet/assets/icons/downloadAudio.svg" alt="icon" data-local-action="downloadAllAudio" class="toolbar-margin1 pointer black-icon" loading="lazy">
+                    <img src="./wallet/assets/icons/downloadVideo.svg" alt="icon" data-local-action="downloadCompiledVideo" class="toolbar-margin1 pointer black-icon $$data-download-video" loading="lazy">
+                    <img src="./wallet/assets/icons/compile.svg" alt="icon" data-local-action="compileChapterVideo"  class="toolbar-margin1 pointer black-icon $$data-compile-video" loading="lazy">
+                    <img src="./wallet/assets/icons/deleteVideo.svg" alt="icon" data-local-action="deleteCompiledVideo" class="toolbar-margin1 pointer black-icon $$data-delete-video" loading="lazy">
+                    <img src="./wallet/assets/icons/delete.svg" alt="icon" data-local-action="deleteChapter" class="toolbar-margin1 pointer black-icon" loading="lazy">
+
+                    <!--                    <div data-local-action="openMenu download-menu" class="toolbar-margin pointer download-menu">-->
+<!--                        <img class ="black-icon" loading="lazy" src="./wallet/assets/icons/download.svg" alt="icon">-->
+<!--                    </div>-->
+
+                    <div class="plugins-separator"></div>
+                    <div class="chapter-plugins-icons"></div>
                 </div>
-                <div class="chapter-icons">
-                    <img class="chapter-audio-icon pointer black-icon" data-local-action="showBackgroundAudio" src="./wallet/assets/icons/chapter-audio.svg" alt="audio">
-                    <div class="action-cell action-box-chapter" data-local-action="showChapterOptions">
-                        <div class="circle-button">
-                            <svg class="action-icon" width="4" height="16" viewBox="0 0 4 16" fill="none"
-                                 xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 12C2.53043 12 3.03914 12.2107 3.41421 12.5858C3.78929 12.9609 4 13.4696 4 14C4 14.5304 3.78929 15.0391 3.41421 15.4142C3.03914 15.7893 2.53043 16 2 16C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210713 15.0391 -6.35145e-07 14.5304 -6.11959e-07 14C-5.88773e-07 13.4696 0.210714 12.9609 0.585786 12.5858C0.960859 12.2107 1.46957 12 2 12ZM2 6C2.53043 6 3.03914 6.21071 3.41421 6.58579C3.78929 6.96086 4 7.46957 4 8C4 8.53043 3.78929 9.03914 3.41421 9.41421C3.03914 9.78929 2.53043 10 2 10C1.46957 10 0.960859 9.78929 0.585786 9.41421C0.210714 9.03914 -3.72877e-07 8.53043 -3.49691e-07 8C-3.26505e-07 7.46957 0.210714 6.96086 0.585787 6.58579C0.960859 6.21071 1.46957 6 2 6ZM2 -8.74228e-08C2.53043 -6.42368e-08 3.03914 0.210714 3.41421 0.585786C3.78929 0.960859 4 1.46957 4 2C4 2.53043 3.78929 3.03914 3.41421 3.41421C3.03914 3.78929 2.53043 4 2 4C1.46957 4 0.960859 3.78929 0.585787 3.41421C0.210714 3.03914 -1.10609e-07 2.53043 -8.74228e-08 2C-6.42368e-08 1.46957 0.210714 0.960859 0.585787 0.585786C0.96086 0.210713 1.46957 -1.10609e-07 2 -8.74228e-08Z"
-                                      fill="#494949"/>
-                            </svg>
-                        </div>
+<!--                <div class="plugins-separator"></div>-->
+<!--                <div class="chapter-plugins-icons"></div>-->
+                <div class="chapter-actions">
+<!--                    <div class="chapter-comment pointer" data-local-action="openChapterComment">-->
+<!--                        <img class="chapter-comment-icon black-icon" src="./wallet/assets/icons/comment.svg" alt="comment">-->
+<!--                    </div>-->
+                    <div class="chapter-icons">
+<!--                        <img class="chapter-audio-icon pointer black-icon" data-local-action="showBackgroundAudio" src="./wallet/assets/icons/chapter-audio.svg" alt="audio">-->
+<!--                        <div class="action-cell action-box-chapter" data-local-action="showChapterOptions">-->
+<!--                            <div class="circle-button">-->
+<!--                                <svg class="action-icon" width="4" height="16" viewBox="0 0 4 16" fill="none"-->
+<!--                                     xmlns="http://www.w3.org/2000/svg">-->
+<!--                                    <path d="M2 12C2.53043 12 3.03914 12.2107 3.41421 12.5858C3.78929 12.9609 4 13.4696 4 14C4 14.5304 3.78929 15.0391 3.41421 15.4142C3.03914 15.7893 2.53043 16 2 16C1.46957 16 0.960859 15.7893 0.585786 15.4142C0.210713 15.0391 -6.35145e-07 14.5304 -6.11959e-07 14C-5.88773e-07 13.4696 0.210714 12.9609 0.585786 12.5858C0.960859 12.2107 1.46957 12 2 12ZM2 6C2.53043 6 3.03914 6.21071 3.41421 6.58579C3.78929 6.96086 4 7.46957 4 8C4 8.53043 3.78929 9.03914 3.41421 9.41421C3.03914 9.78929 2.53043 10 2 10C1.46957 10 0.960859 9.78929 0.585786 9.41421C0.210714 9.03914 -3.72877e-07 8.53043 -3.49691e-07 8C-3.26505e-07 7.46957 0.210714 6.96086 0.585787 6.58579C0.960859 6.21071 1.46957 6 2 6ZM2 -8.74228e-08C2.53043 -6.42368e-08 3.03914 0.210714 3.41421 0.585786C3.78929 0.960859 4 1.46957 4 2C4 2.53043 3.78929 3.03914 3.41421 3.41421C3.03914 3.78929 2.53043 4 2 4C1.46957 4 0.960859 3.78929 0.585787 3.41421C0.210714 3.03914 -1.10609e-07 2.53043 -8.74228e-08 2C-6.42368e-08 1.46957 0.210714 0.960859 0.585787 0.585786C0.96086 0.210713 1.46957 -1.10609e-07 2 -8.74228e-08Z"-->
+<!--                                          fill="#494949"/>-->
+<!--                                </svg>-->
+<!--                            </div>-->
+<!--                        </div>-->
                     </div>
                 </div>
             </div>
+
         </div>
         <div class="chapter-content">
             <div class="chapter-paragraphs">$$chapterContent</div>
