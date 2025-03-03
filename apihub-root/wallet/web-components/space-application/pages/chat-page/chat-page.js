@@ -28,10 +28,14 @@ const getChatContext = async (spaceId, chatId) => {
     const response = await request(`/chats/context/${spaceId}/${chatId}`);
     return response.data;
 }
-const watchChat = async (spaceId, chatId) => {
+
+const watchChat = async function (spaceId, chatId, chatPresenter) {
+    /*
     const request = generateRequest("POST", {"Content-Type": "application/json"});
     return await request(`/chats/watch/${spaceId}/${chatId}`);
+     */
 };
+
 const sendMessage = async (spaceId, chatId, message) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
     const response = await request(`/chats/message/${spaceId}/${chatId}`);
@@ -156,6 +160,47 @@ class BaseChatFrame {
         }
     }
 
+    async handleChatEvent(eventData) {
+        const handleMessageEvent = async (eventData) => {
+            const action = eventData.action;
+            switch (action) {
+                case 'add':
+                    this.invalidate();
+                    break;
+                case 'reset':
+                    this.invalidate();
+                    break;
+                default:
+            }
+        }
+        const handleContextEvent = async (eventData) => {
+            const action = eventData.action;
+            switch (action) {
+                case 'add':
+                    this.invalidate();
+                    break;
+                case 'delete':
+                    this.invalidate();
+                    break;
+                case 'update':
+                    break;
+                case 'reset':
+                    this.invalidate();
+                default:
+            }
+        }
+        switch (eventData.type) {
+            case "messages":
+                await handleMessageEvent(eventData);
+                break;
+            case "context":
+                await handleContextEvent(eventData);
+                break;
+            default:
+                console.warn("Unknown event type", eventData.type);
+        }
+    }
+
     async beforeRender() {
         this.chatOptions = IFrameChatOptions;
         this.chatId = this.element.getAttribute('data-chatId');
@@ -165,6 +210,11 @@ class BaseChatFrame {
 
         this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
         this.chatActionButton = sendMessageActionButtonHTML
+
+        if (this.isSubscribed === undefined) {
+            this.isSubscribed = true;
+            await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
+        }
 
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {

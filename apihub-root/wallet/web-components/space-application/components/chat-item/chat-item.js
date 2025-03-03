@@ -45,6 +45,7 @@ function decodeHTML(html) {
     return txt.value;
 }
 
+
 export class ChatItem {
     constructor(element, invalidate) {
         this.element = element;

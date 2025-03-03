@@ -1,6 +1,6 @@
 const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
-
+const SubscriptionManager = require('../subscribers/SubscriptionManager.js')
 const getChatMessages = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
@@ -66,6 +66,11 @@ const sendMessage = async function (request, response) {
     }
     try {
         const messageId = await Handler.sendMessage(spaceId, chatId, userId, message, "user");
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "messages",
+            action: "add",
+            item: messageId
+        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Successfully added message ${messageId}`,
             data: {messageId}
@@ -124,7 +129,11 @@ const sendQuery = async function (request, response) {
         })
     }
     try {
-        await Handler.sendQuery(request, response, spaceId, chatId, personalityId,userId, prompt)
+        await Handler.sendQuery(request, response, spaceId, chatId, personalityId, userId, prompt)
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "messages",
+            action: "add",
+        });
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to send query to chat ${chatId} from space ${spaceId}`
@@ -147,6 +156,10 @@ const resetChat = async function (request, response) {
     }
     try {
         await Handler.resetChat(spaceId, chatId);
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "messages",
+            action: "reset",
+        });
         return Request.sendResponse(response, 200, "application/json", {message: `Chat ${chatId} reset successfully`})
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -170,6 +183,10 @@ const resetChatContext = async function (request, response) {
     }
     try {
         await Handler.resetChatContext(spaceId, chatId);
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "context",
+            action: "reset",
+        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
             data: {chatId}
@@ -181,7 +198,7 @@ const resetChatContext = async function (request, response) {
     }
 }
 
-const getChatContext = async function(request,response){
+const getChatContext = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
     if (!chatId) {
@@ -207,7 +224,7 @@ const getChatContext = async function(request,response){
     }
 }
 
-const addMessageToContext = async function(request,response){
+const addMessageToContext = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
     const messageId = request.params.messageId;
@@ -221,13 +238,18 @@ const addMessageToContext = async function(request,response){
             message: `Invalid spaceId received ${spaceId}`
         })
     }
-    if(!messageId){
+    if (!messageId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid messageId received ${messageId}`
         })
     }
     try {
-        await Handler.addMessageToContext(spaceId, chatId,messageId);
+        const id = await Handler.addMessageToContext(spaceId, chatId, messageId);
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "context",
+            action: "add",
+            item: id
+        });
         return Request.sendResponse(response, 200, "application/json", {
             message: ``
         })
@@ -254,70 +276,94 @@ const sendPublicQuery = async function (request, response) {
 
 }
 
-const updateChatContextItem = async function (request,response){
+const updateChatContextItem = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
     const contextItemId = request.params.contextItemId;
     const {context} = request.body;
 
-    if(!spaceId){
+    if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
-    if(!chatId){
+    if (!chatId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid chatId received ${chatId}`
         })
     }
-    if(!contextItemId){
+    if (!contextItemId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid contextItemId received ${contextItemId}`
         })
     }
-    try{
-        await Handler.updateChatContextItem(spaceId, chatId,contextItemId,context);
+    try {
+        await Handler.updateChatContextItem(spaceId, chatId, contextItemId, context);
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "context",
+            action: "update",
+            item: contextItemId
+        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Updated Chat Context Item successfully`
         })
-    }catch(error){
+    } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to update chat context item ${contextItemId} from chat ${chatId} in space ${spaceId}`
         })
     }
 }
-const deleteChatContextItem = async function (request,response){
+const deleteChatContextItem = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
     const contextItemId = request.params.contextItemId;
 
-    if(!spaceId){
+    if (!spaceId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid spaceId received ${spaceId}`
         })
     }
-    if(!chatId){
+    if (!chatId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid chatId received ${chatId}`
         })
     }
-    if(!contextItemId){
+    if (!contextItemId) {
         return Request.sendResponse(response, 400, "application/json", {
             message: `Invalid contextItemId received ${contextItemId}`
         })
     }
-    try{
-        await Handler.deleteChatContextItem(spaceId, chatId,contextItemId);
+    try {
+        await Handler.deleteChatContextItem(spaceId, chatId, contextItemId);
+        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
+            type: "context",
+            action: "delete",
+            item: contextItemId
+        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Deleted Chat Context Item successfully`
         })
-    }catch(error){
+
+    } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to delete chat context item ${contextItemId} from chat ${chatId} in space ${spaceId}`
         })
     }
 }
 module.exports = {
-    getChatMessages, createChat, watchChat, sendMessage, sendQuery, resetChat,getChatContext,resetChatContext,addMessageToContext,updateChatContextItem,deleteChatContextItem,
-    getPublicChat, createPublicChat, sendPublicMessage, sendPublicQuery
+    getChatMessages,
+    createChat,
+    watchChat,
+    sendMessage,
+    sendQuery,
+    resetChat,
+    getChatContext,
+    resetChatContext,
+    addMessageToContext,
+    updateChatContextItem,
+    deleteChatContextItem,
+    getPublicChat,
+    createPublicChat,
+    sendPublicMessage,
+    sendPublicQuery
 }
