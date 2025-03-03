@@ -28,6 +28,7 @@ export class TelegramBot{
             <div class="user">
                 <div class="user-first-name">${user.firstName}</div>
                 <div class="user-last-name">${user.lastName}</div>
+                <div class="document-link" data-local-action="openDocument ${user.chatId}">View chat history</div>
                 <img src="/wallet/assets/icons/trash-can.svg" class="delete-user black-icon pointer" data-local-action="removeUser ${user.id}" alt="trash">
             </div>`
             }
@@ -78,5 +79,8 @@ export class TelegramBot{
         this.personalityPagePresenter.initialPersonality.telegramBot = personality.telegramBot;
         this.personality.telegramBot = personality.telegramBot;
         this.invalidate();
+    }
+    async openDocument(targetElement, documentId){
+        await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
 }

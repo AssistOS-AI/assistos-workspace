@@ -10,7 +10,8 @@
 .user{
     display: flex;
 }
-.user-first-name{
+.user-first-name,
+.user-last-name{
     margin-right: 10px;
 }
 .table-header{
@@ -26,4 +27,12 @@
 .label{
     font-weight: bold;
     margin-right: 10px;
+}
+.document-link{
+    cursor: pointer;
+    color: var(--medium-blue);
+    text-decoration: underline;
+}
+.document-link:hover{
+    color: var(--blue-black);
 }
