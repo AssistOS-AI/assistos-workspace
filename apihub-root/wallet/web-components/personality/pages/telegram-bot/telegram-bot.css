@@ -36,3 +36,11 @@
 .document-link:hover{
     color: var(--blue-black);
 }
+.bot-public{
+    display: flex;
+    align-items: center;
+}
+.public-checkbox{
+    width: 20px;
+    height: 20px;
+}

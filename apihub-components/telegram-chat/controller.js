@@ -49,7 +49,8 @@ async function startBot(req, res){
             username: botData.result.username,
             name: botData.result.first_name,
             id: botId,
-            users: []
+            users: [],
+            public: false
         }
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
         let baseURL = process.env.BASE_URL;
@@ -133,6 +134,10 @@ async function receiveMessage(req, res){
     let chatId = message.chat.id;
     let personalityModule = await loadAssistOSModule("personality", spaceId);
     let personality = await personalityModule.getPersonality(spaceId, personalityId);
+    if(personality.telegramBot.public){
+        //???
+        return;
+    }
     let userExists = await checkUserExists(res, spaceId, personality, message);
     if(!userExists){
         return utils.sendResponse(res, 200, "application/json", {});
