@@ -105,7 +105,7 @@ const watchChat = async function (request, response) {
     }
 }
 
-const sendQuery = async function (request, response) {
+const sendQueryStreaming = async function (request, response) {
     const userId = request.userId;
     const spaceId = request.params.spaceId;
     const chatId = request.params.chatId;
@@ -129,7 +129,7 @@ const sendQuery = async function (request, response) {
         })
     }
     try {
-        await Handler.sendQuery(request, response, spaceId, chatId, personalityId, userId, prompt)
+        await Handler.sendQueryStreaming(request, response, spaceId, chatId, personalityId,userId, prompt);
         SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
             type: "messages",
             action: "add",
@@ -350,6 +350,20 @@ const deleteChatContextItem = async function (request, response) {
         })
     }
 }
+async function sendQuery(request, response) {
+    const userId = request.userId;
+    const spaceId = request.params.spaceId;
+    const chatId = request.params.chatId;
+    const personalityId = request.params.personalityId;
+    const prompt = request.body;
+    try {
+        await Handler.sendQuery(spaceId, chatId, personalityId, userId, prompt);
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered an error : ${error.message} while trying to send query to chat ${chatId} from space ${spaceId}`
+        })
+    }
+}
 module.exports = {
     getChatMessages,
     createChat,
@@ -365,5 +379,6 @@ module.exports = {
     getPublicChat,
     createPublicChat,
     sendPublicMessage,
-    sendPublicQuery
+    sendPublicQuery,
+    sendQueryStreaming
 }

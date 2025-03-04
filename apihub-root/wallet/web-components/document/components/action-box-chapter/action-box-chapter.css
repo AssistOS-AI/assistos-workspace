@@ -1,20 +1,107 @@
-action-box-chapter{
+/*action-box-chapter{*/
+/*    position: absolute;*/
+/*    z-index: 5;*/
+/*    right: 15px;*/
+/*    top: 10px;*/
+/*    box-shadow: 0px 1px 7.3px 0px #00000040;*/
+/*    font-size: 14px;*/
+/*}*/
+
+/*action-box-chapter .action-box{*/
+/*    background-color: var(--white);*/
+/*    padding: 5px 0;*/
+/*}*/
+/*action-box-chapter .hide{*/
+/*    display: none;*/
+/*}*/
+/*action-box-chapter .disabled{*/
+/*    pointer-events: none;*/
+/*    background-color: var(--very-light-gray);*/
+/*}*/
+
+
+
+action-box-chapter {
     position: absolute;
     z-index: 5;
     right: 15px;
     top: 10px;
-    box-shadow: 0px 1px 7.3px 0px #00000040;
     font-size: 14px;
 }
 
-action-box-chapter .action-box{
-    background-color: var(--white);
-    padding: 5px 0;
+/* ---- 2. Bara de acțiuni ---- */
+action-box-chapter .action-box {
+    display: flex;               /* afișează elementele pe un singur rând */
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    background-color: #fff;
+    padding: 5px 10px;
+    gap: 10px;                   /* spațiu între butoane */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-shadow: 0px 1px 7.3px 0px #00000040;
 }
-action-box-chapter .hide{
+
+/* ---- 3. Butoanele ---- */
+action-box-chapter .action-box button {
+    position: relative;          /* necesar pentru tooltip */
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+}
+
+/* Iconițele din interiorul butoanelor (poți ajusta dimensiunile) */
+action-box-chapter .action-box button img {
+    width: 24px;
+    height: 24px;
+}
+
+/* ---- 4. Tooltip (preview la hover) ---- */
+action-box-chapter .action-box button::after {
+    content: attr(data-name);    /* textul din atributul data-name */
+    position: absolute;
+    bottom: 120%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    padding: 3px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;                  /* invizibil implicit */
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 9999;
+}
+
+/* Afișăm tooltip-ul când mouse-ul e peste buton */
+action-box-chapter .action-box button:hover::after {
+    opacity: 1;
+}
+
+/* ---- 5. Highlight la click/focus ---- */
+action-box-chapter .action-box button:focus,
+action-box-chapter .action-box button:active {
+    outline: 2px solid blue;     /* contur albastru */
+    outline-offset: 2px;         /* spațiu între contur și buton */
+}
+
+/* ---- 6. Stări speciale (opționale) ---- */
+
+/* Ascunde bara complet dacă este necesar */
+action-box-chapter .hide {
     display: none;
 }
-action-box-chapter .disabled{
+
+/* Dezactivează interacțiunea (nu se poate da click) și schimbă fundalul */
+action-box-chapter .disabled {
     pointer-events: none;
-    background-color: var(--very-light-gray);
+    background-color: #f5f5f5;
 }
+

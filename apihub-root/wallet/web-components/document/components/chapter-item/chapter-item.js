@@ -1,7 +1,9 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
+import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
+
 
 export class ChapterItem {
     constructor(element, invalidate) {
@@ -206,6 +208,13 @@ export class ChapterItem {
     }
 
     async afterRender() {
+        let chapterPluginsIcons = this.element.querySelector(".chapter-plugins-icons");
+        await pluginUtils.renderPluginIcons(chapterPluginsIcons,"chapter");
+
+        if(this.currentPlugin){
+            this.openPlugin("", "chapter", this.currentPlugin);
+        }
+
         this.element.setAttribute("data-local-action", "highlightChapter");
         this.renderChapterTitle();
         this.chapterItem = this.element.querySelector(".chapter-item");
@@ -215,6 +224,15 @@ export class ChapterItem {
         if (this.chapter.visibility === "hide") {
             this.changeChapterVisibility("hide");
         }
+
+        // let chapterContainer = this.element.querySelector('.chapter-title-container')
+        // chapterContainer.addEventListener('click', function() {
+        //     if (chapterContainer.classList.contains('highlighted-chapter') === false) {
+        //         chapterContainer.classList.add('highlighted-chapter');
+        //     } else {
+        //         chapterContainer.classList.remove('highlighted-chapter');
+        //     }
+        // });
     }
 
     async addParagraphOrChapterOnKeyPress(event) {
@@ -254,6 +272,24 @@ export class ChapterItem {
     async highlightChapter() {
         assistOS.space.currentChapterId = this.chapter.id;
         this.switchButtonsDisplay(this.chapterItem, "on");
+        let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
+        chapterHeaderContainer.classList.add("highlighted-chapter");
+        this.switchChapterToolbar("on");
+        // let paragraphText = this.element.querySelector('.paragraph-text');
+        // paragraphText.classList.add("focused");
+        // let paragraphContainer = this.element.querySelector('.paragraph-container');
+        // paragraphContainer.classList.add("highlighted-paragraph");
+        // this.showUnfinishedTasks();
+        // this.checkVideoAndAudioDuration();
+    }
+
+    async openPlugin(targetElement, type, pluginName) {
+        let selectionItemId = `${this.chapter.id}_${pluginName}`;
+        this.currentPlugin = pluginName;
+        let context = {
+            chapterId: this.chapter.id,
+        }
+        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
 
     async focusOutHandlerTitle(chapterTitle){
@@ -262,9 +298,70 @@ export class ChapterItem {
         await selectionUtils.deselectItem(this.titleId, this);
     }
 
+    openMenu(targetElement, menuName) {
+        let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);
+        if (menuOpen) {
+            return;
+        }
+
+        let menuContent = this.menus[menuName];
+        let menu = `<div class="toolbar-menu ${menuName}">${menuContent}</div>`
+        targetElement.insertAdjacentHTML('beforeend', menu);
+        let controller = new AbortController();
+        let boundCloseMenu = this.closeMenu.bind(this, controller, targetElement, menuName);
+        document.addEventListener("click", boundCloseMenu, {signal: controller.signal});
+        let menuComponent = this.element.querySelector(`.${menuName}`);
+        menuComponent.boundCloseMenu = boundCloseMenu;
+    }
+
+    menus = {
+        "insert-document-element": `
+                <div>
+                    <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
+                </div>`,
+        "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
+        "delete-menu": `<div>
+                            <list-item data-local-action="downloadAllAudio" data-name="Download All Audio" data-highlight="light-highlight"></list-item>
+                            <list-item data-local-action="downloadCompiledVideo" data-name="Download Compiled Video" data-highlight="light-highlight"></list-item>
+                        </div>`
+    }
+
+    closeMenu(controller, targetElement, menuName, event) {
+        if (event.target.closest(`.toolbar-menu.${menuName}`) || event.target.closest(".insert-modal")) {
+            return;
+        }
+        let menu = this.element.querySelector(`.toolbar-menu.${menuName}`);
+        if (menu) {
+            menu.remove();
+        }
+        controller.abort();
+    }
+
+    changeMenuIcon(menuName, html) {
+        let menuContainer = this.element.querySelector(`.menu-container.${menuName}`);
+        menuContainer.innerHTML = html;
+    }
+
+    switchChapterToolbar(mode) {
+        let toolbar = this.element.querySelector('.chapter-toolbar');
+        if (mode === "on") {
+            toolbar.style.display = "flex";
+            if (window.cutParagraph) {
+                let pasteIcon = this.element.querySelector(".paste-icon");
+                pasteIcon.classList.remove("hidden");
+            }
+        } else {
+            toolbar.style.display = "none";
+        }
+    }
+
     focusOutHandler() {
         assistOS.space.currentChapterId = null;
         this.switchButtonsDisplay(this.chapterItem, "off");
+        this.switchChapterToolbar("off");
+        let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
+        chapterHeaderContainer.classList.remove("highlighted-chapter");
     }
 
     switchButtonsDisplay(targetElement, mode) {
@@ -328,26 +425,21 @@ export class ChapterItem {
         }
     }
     async downloadAudioBlob(audioId, filename) {
-        // Fetch the file URL using your existing function
         const fileUrl = await spaceModule.getAudioURL(audioId);
 
-        // Use fetch to download the file as a blob
         const response = await fetch(fileUrl);
         if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
 
         const blob = await response.blob();
 
-        // Create a temporary download link
         const link = document.createElement('a');
         const blobUrl = URL.createObjectURL(blob);
         link.href = blobUrl;
         link.download = filename;
 
-        // Trigger the download
         document.body.appendChild(link);
         link.click();
 
-        // Clean up
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
     }

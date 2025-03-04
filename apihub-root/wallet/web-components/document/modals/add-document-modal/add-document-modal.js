@@ -91,7 +91,64 @@ export class AddDocumentModal {
                     const startConversion = performance.now();
                     const jsonData = await documentModule.convertDocument(formData);
                     const textContent = jsonData.text_content;
+                    const images = jsonData.images || [];
+                    const imageInfo = jsonData.image_info || [];
                     console.log(`Conversion completed in ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
+                    console.log(`Found ${images.length} images in the document`);
+                    console.log('Image names from JSON:', images);
+                    console.log('Image info from JSON:', imageInfo);
+
+                    // Create a map to store uploaded image IDs
+                    const imageMap = new Map();
+                    
+                    // Upload images if any
+                    if (images.length > 0) {
+                        console.log('Uploading images...');
+                        const spaceModule = require("assistos").loadModule("space", {});
+                        
+                        // Get the docs converter URL from assistOS config
+                        let assistOSConfigs;
+                        try {
+                            const configResponse = await fetch("assistOS-configs.json");
+                            assistOSConfigs = await configResponse.json();
+                        } catch (configError) {
+                            console.warn('Could not load assistOS-configs.json:', configError);
+                            assistOSConfigs = {};
+                        }
+                        
+                        if (!assistOSConfigs.docsConverterUrl) {
+                            throw new Error('docsConverterUrl not found in assistOS-configs.json');
+                        }
+                        
+                        const docsConverterUrl = assistOSConfigs.docsConverterUrl;
+                        console.log('Using docs converter URL:', docsConverterUrl);
+                        
+                        for (const imageName of images) {
+                            try {
+                                // Fetch the image from the docs converter service
+                                const imageUrl = `${docsConverterUrl}/images/${imageName}`;
+                                console.log(`Fetching image from: ${imageUrl}`);
+                                
+                                const imageResponse = await fetch(imageUrl);
+                                if (!imageResponse.ok) {
+                                    console.error(`Failed to fetch image ${imageName}: ${imageResponse.status} ${imageResponse.statusText}`);
+                                    continue;
+                                }
+                                
+                                // Get the image as a blob
+                                const imageBlob = await imageResponse.blob();
+                                const imageArrayBuffer = await imageBlob.arrayBuffer();
+                                const imageBuffer = new Uint8Array(imageArrayBuffer);
+                                
+                                // Upload the image to AssistOS
+                                const imageId = await spaceModule.putImage(imageBuffer);
+                                imageMap.set(imageName, imageId);
+                                console.log(`Uploaded image ${imageName}, got ID: ${imageId}`);
+                            } catch (imageError) {
+                                console.error(`Error uploading image ${imageName}:`, imageError);
+                            }
+                        }
+                    }
 
                     // Create the main document
                     console.log('Creating AssistOS document...');
@@ -121,9 +178,53 @@ export class AddDocumentModal {
                         console.log(`Adding ${chapterContent.length} paragraphs to chapter "${chapterTitle}"...`);
                         for (const [pIndex, paragraph] of chapterContent.entries()) {
                             const paragraphText = Object.values(paragraph)[0];
-                            await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
-                                text: paragraphText
-                            });
+                            
+                            // Check if paragraph has image tags
+                            if (paragraphText.includes('[Image:')) {
+                                console.log('Found image tag in paragraph:', paragraphText);
+                                
+                                // Extract image name from tag
+                                const imageTagMatch = paragraphText.match(/\[Image:\s*([^\]]+)\]/);
+                                if (imageTagMatch && imageTagMatch[1]) {
+                                    const imageName = imageTagMatch[1].trim();
+                                    console.log(`Extracted image name: "${imageName}"`);
+                                    
+                                    // Check if we have this image in our map
+                                    if (imageMap.has(imageName)) {
+                                        const imageId = imageMap.get(imageName);
+                                        console.log(`Found matching image ID: ${imageId}`);
+                                        
+                                        // Add paragraph with image command
+                                        await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
+                                            text: paragraphText.replace(`[Image: ${imageName}] `, ''),
+                                            commands: {
+                                                image: {
+                                                    id: imageId
+                                                }
+                                            }
+                                        });
+                                        console.log(`Added paragraph with image: ${imageName}`);
+                                    } else {
+                                        console.log(`No matching image ID found for: ${imageName}`);
+                                        // Add regular paragraph without image
+                                        await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
+                                            text: paragraphText
+                                        });
+                                    }
+                                } else {
+                                    console.log('Failed to extract image name from tag:', imageTagMatch);
+                                    // Add regular paragraph without image
+                                    await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
+                                        text: paragraphText
+                                    });
+                                }
+                            } else {
+                                // Add regular paragraph without image
+                                await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
+                                    text: paragraphText
+                                });
+                            }
+                            
                             if ((pIndex + 1) % 5 === 0) {
                                 console.log(`Progress: ${pIndex + 1}/${chapterContent.length} paragraphs`);
                             }

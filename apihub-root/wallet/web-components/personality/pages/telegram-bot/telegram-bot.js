@@ -22,12 +22,17 @@ export class TelegramBot{
                 <div>@${this.personality.telegramBot.username}</div>
             </div>
             </div>`;
+            // <div class="bot-public">
+            //     <label class="label">public chat:</label>
+            //     <input type="checkbox" class="public-checkbox" ${this.personality.telegramBot.public ? "checked" : ""}>
+            // </div>
             usersHTML = "";
             for(let user of this.personality.telegramBot.users){
                 usersHTML += `
             <div class="user">
                 <div class="user-first-name">${user.firstName}</div>
                 <div class="user-last-name">${user.lastName}</div>
+                <div class="document-link" data-local-action="openDocument ${user.chatId}">View chat history</div>
                 <img src="/wallet/assets/icons/trash-can.svg" class="delete-user black-icon pointer" data-local-action="removeUser ${user.id}" alt="trash">
             </div>`
             }
@@ -40,6 +45,11 @@ export class TelegramBot{
             telegramBotInput.value = this.personality.telegramBot.id;
             let usersTable = this.element.querySelector(".users-table");
             usersTable.classList.remove("hidden");
+            // let checkbox = this.element.querySelector(".public-checkbox");
+            // checkbox.addEventListener("change", async (e) => {
+            //     this.personality.telegramBot.public = e.target.checked;
+            //     await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+            // });
         }
     }
     async startTelegramBot(targetElement){
@@ -78,5 +88,8 @@ export class TelegramBot{
         this.personalityPagePresenter.initialPersonality.telegramBot = personality.telegramBot;
         this.personality.telegramBot = personality.telegramBot;
         this.invalidate();
+    }
+    async openDocument(targetElement, documentId){
+        await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
 }
