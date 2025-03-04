@@ -208,7 +208,7 @@ class AssistOS {
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
         try {
             await fetch(`/personalities/${assistOS.space.id}/ensure-personality-chats`, {method: "GET"})
-        }catch(error){
+        } catch (error) {
             console.log(error);
         }
         defaultPlugins = await defaultPlugins.json();
@@ -387,6 +387,7 @@ class AssistOS {
                 throw new Error("Module doesn't exist");
         }
     }
+
     showToast(message, type, timeout = 1500) {
         let toastContainer = document.querySelector(".toast-container");
         let toast = document.createElement("div");
@@ -510,6 +511,11 @@ function closeDefaultLoader() {
 }
 
 (async () => {
+    function getCookie(name) {
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1];
+        return cookieValue || null;
+    }
+
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
@@ -537,7 +543,8 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
-    assistOS.UI.chatState = "open";
+    const chatState= getCookie("chatState");
+    assistOS.UI.chatState = chatState || "open";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();

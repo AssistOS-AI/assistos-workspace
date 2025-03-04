@@ -60,6 +60,7 @@ export class SpaceApplicationPage {
             if(!this.boundStartDrag){
                 addDragListener();
             }
+            document.cookie=`chatState=open;path=/;max-age=31536000;`;
         }
 
         const minimizeChat = () => {
@@ -69,6 +70,7 @@ export class SpaceApplicationPage {
             agentPage.style.width = "0px";
             agentPage.style.minWidth = "0px";
             removeDragListener();
+            document.cookie=`chatState=close;path=/;max-age=31536000;`;
         }
 
         function dragStartHandler(event) {
