@@ -52,7 +52,7 @@ const textFontFamilyMap = Object.freeze({
     "Times New Roman": "font-times-new-roman",
     "Verdana": "font-verdana"
 });
-
+const authPage = "authentication-page";
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -289,11 +289,11 @@ class AssistOS {
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
-        if (spaceId === "authentication-page" && skipAuth) {
+        if (spaceId === authPage && skipAuth) {
             spaceId = undefined;
         }
 
-        if (spaceId === "authentication-page") {
+        if (spaceId === authPage) {
             hidePlaceholders();
             if (applicationName === "inviteToken") {
                 return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
@@ -323,7 +323,7 @@ class AssistOS {
         } catch (error) {
             console.info(error);
             hidePlaceholders();
-            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            await assistOS.UI.changeToDynamicPage(authPage, authPage);
             throw error;
         }
     }
@@ -474,9 +474,6 @@ function defineActions() {
     assistOS.UI.registerAction("closeErrorModal", async (_target) => {
         assistOS.UI.closeModal(_target);
     });
-    assistOS.UI.registerAction("cleanState", async (_target) => {
-        await assistOS.refresh();
-    });
     assistOS.UI.registerAction("toggleSidebar", async (_target) => {
         const arrow = _target.querySelector("#point-arrow-sidebar");
         const sidebar = document.querySelector(".right-sidebar");
@@ -514,7 +511,7 @@ function closeDefaultLoader() {
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
     window.handleHistory = async (event) => {
-        if (window.location.hash.includes("#authentication-page")) {
+        if (window.location.hash.includes(`#${authPage}`)) {
             await assistOS.logout();
         }
         let modal = document.querySelector("dialog");
