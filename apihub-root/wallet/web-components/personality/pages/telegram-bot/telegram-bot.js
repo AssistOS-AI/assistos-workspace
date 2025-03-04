@@ -21,11 +21,11 @@ export class TelegramBot{
                 <div class="label">username:</div>
                 <div>@${this.personality.telegramBot.username}</div>
             </div>
-            <div class="bot-public">
-                <label class="label">public chat:</label>
-                <input type="checkbox" class="public-checkbox" ${this.personality.telegramBot.public ? "checked" : ""}>
-            </div>
             </div>`;
+            // <div class="bot-public">
+            //     <label class="label">public chat:</label>
+            //     <input type="checkbox" class="public-checkbox" ${this.personality.telegramBot.public ? "checked" : ""}>
+            // </div>
             usersHTML = "";
             for(let user of this.personality.telegramBot.users){
                 usersHTML += `
@@ -45,11 +45,11 @@ export class TelegramBot{
             telegramBotInput.value = this.personality.telegramBot.id;
             let usersTable = this.element.querySelector(".users-table");
             usersTable.classList.remove("hidden");
-            let checkbox = this.element.querySelector(".public-checkbox");
-            checkbox.addEventListener("change", async (e) => {
-                this.personality.telegramBot.public = e.target.checked;
-                await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
-            });
+            // let checkbox = this.element.querySelector(".public-checkbox");
+            // checkbox.addEventListener("change", async (e) => {
+            //     this.personality.telegramBot.public = e.target.checked;
+            //     await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+            // });
         }
     }
     async startTelegramBot(targetElement){
