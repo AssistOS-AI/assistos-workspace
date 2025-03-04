@@ -362,45 +362,6 @@ async function getActivationFailHTML(failReason) {
     })
 }
 
-
-function createContainerName(spaceId, userId) {
-    return `${spaceId}-${userId}`;
-}
-
-async function getSecret(spaceId, userId, secretName) {
-    let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
-    return secretsService.getSecretSync(containerName, secretName);
-}
-
-async function addSecret(spaceId, userId, body) {
-    let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
-    await secretsService.putSecretAsync(containerName, body.secretName, body.secret);
-}
-
-async function deleteSecret(spaceId, userId, secretName) {
-    let containerName = createContainerName(spaceId, userId);
-    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
-    await secretsService.deleteSecretAsync(containerName, secretName);
-}
-
-async function userSecretExists(spaceId, userId, secretName) {
-    let rootFolder = require("../../data-volume/config/securityConfig.json").SERVER_ROOT_FOLDER;
-    const secretsService = await require('apihub').getSecretsServiceInstanceAsync(rootFolder);
-    let containerName = createContainerName(spaceId, userId);
-    try {
-        secretsService.getSecretSync(containerName, secretName);
-        return true;
-    } catch (e) {
-        //secret for user doesn't exist
-        return false;
-    }
-}
-
 async function registerInvite(referrerId, spaceId, email) {
     const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
     const invitationToken = await crypto.generateVerificationToken();
@@ -495,10 +456,6 @@ module.exports = {
     unlinkSpaceFromUser,
     getDefaultSpaceId,
     updateUsersCurrentSpace,
-    getSecret,
-    userSecretExists,
-    addSecret,
-    deleteSecret,
     getUserFile,
     getUserPrivateChatAgentId,
     sendPasswordResetCode,

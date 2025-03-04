@@ -36,40 +36,6 @@ async function sendPasswordResetCode(request,response){
         });
     }
 }
-async function addSecret(request, response) {
-    try {
-        await User.addSecret(request.params.spaceId, request.userId, request.body);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function deleteSecret(request, response) {
-    try {
-        await User.deleteSecret(request.params.spaceId, request.userId, request.body);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function userSecretExists(request, response) {
-    try {
-        const booleanResult = await User.userSecretExists(request.params.spaceId, request.userId, request.body);
-        utils.sendResponse(response, 200, "application/json", {
-            data: booleanResult,
-        });
-    } catch (e) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: JSON.stringify(e)
-        });
-    }
-}
 
 async function registerUser(request, response) {
     const userData = request.body;
@@ -204,9 +170,6 @@ async function updateUserImage(request, response) {
     }
 }
 module.exports = {
-    addSecret,
-    deleteSecret,
-    userSecretExists,
     registerUser,
     activateUser,
     loginUser,
