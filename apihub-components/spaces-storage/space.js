@@ -834,6 +834,32 @@ async function addChatToPersonality(spaceId,personalityId,chatId){
     await updatePersonalityData(spaceId, personalityId, personalityData)
 }
 
+let serverInstance;
+function saveServerInstance(server){
+    serverInstance = server;
+}
+
+const coreConfigs = {};
+coreConfigs["default.git"] = {
+    corePath : "./apihub-components/serverless/cores/Git/index.js",
+    coreConfig : {}
+};
+
+let serverlessURL;
+async function getServerlessUrl(spaceId){
+    if(!serverlessURL){
+        const serverlessAPI = serverInstance.createServerlessAPI({spaceId, coreConfigs});
+        serverlessURL = serverlessAPI.getUrl();
+    }
+    return serverlessURL;
+}
+
+async function getServerlessClient(spaceId, namespace, interfaceDefinition){
+    let serverUrl = await getServerlessUrl(spaceId);
+    let client = require("opendsu").loadAPI("serverless").createServerlessAPIClient("admin", serverUrl, namespace, interfaceDefinition);
+    return client;
+}
+
 module.exports = {
     APIs: {
         addChatToPersonality,
@@ -878,7 +904,10 @@ module.exports = {
         resetSpaceChat,
         storeSpaceChat,
         getPersonalityData,
-        getSpacePersonalities
+        getSpacePersonalities,
+        saveServerInstance,
+        getServerlessUrl,
+        getServerlessClient
     },
     templates: {
         defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),

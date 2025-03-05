@@ -50,6 +50,8 @@ const {
     chatCompleteParagraph
 } = require("./controller");
 
+const {saveServerInstance} = require("./space.js").APIs;
+
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 
@@ -120,10 +122,10 @@ function SpaceStorage(server) {
     server.delete("/spaces/:spaceId/secrets/keys/:keyType", deleteAPIKey);
 
     /*Announcements*/
-    server.post("/spaces/:spaceId/announcements", addSpaceAnnouncement)
-    server.get("/spaces/:spaceId/announcements/:announcementId", getSpaceAnnouncement)
-    server.get("/spaces/:spaceId/announcements", getSpaceAnnouncements)
-    server.put("/spaces/:spaceId/announcements/:announcementId", updateSpaceAnnouncement)
+    server.post("/spaces/:spaceId/announcements", addSpaceAnnouncement);
+    server.get("/spaces/:spaceId/announcements/:announcementId", getSpaceAnnouncement);
+    server.get("/spaces/:spaceId/announcements", getSpaceAnnouncements);
+    server.put("/spaces/:spaceId/announcements/:announcementId", updateSpaceAnnouncement);
     server.delete("/spaces/:spaceId/announcements/:announcementId", deleteSpaceAnnouncement);
 
     /*Chat*/
@@ -134,7 +136,9 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
 
-    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
+    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph);
+
+    saveServerInstance(server);
 }
 
 module.exports = SpaceStorage;

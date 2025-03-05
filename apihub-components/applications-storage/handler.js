@@ -6,6 +6,7 @@ const {paths: dataVolumePaths} = require("../volumeManager");
 const git = require("../apihub-component-utils/git.js");
 const Space = require("../spaces-storage/space.js");
 const TaskManager = require("../tasks/TaskManager");
+const secrets = require("../apihub-component-utils/secrets");
 
 function getApplicationPath(spaceId, applicationName) {
     return path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationName}`);
@@ -63,9 +64,12 @@ async function installApplication(spaceId, applicationId) {
         CustomError.throwNotFoundError("Application not Found");
     }
     const applicationFolderPath = getApplicationPath(spaceId, application.name);
+    let client = Space.APIs.getServerlessClient(spaceId, "default.git", ["clone", "getLastCommitDate"]);
 
     try {
-        await git.clone(application.repository, applicationFolderPath, spaceId);
+        const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+        const token = tokenObj.APIKey;
+        await client.clone(application.repository, applicationFolderPath, token);
     } catch (error) {
         if(error.message.includes("already exists and is not an empty directory")){
             try {
@@ -84,7 +88,7 @@ async function installApplication(spaceId, applicationId) {
     } catch (error) {
         CustomError.throwServerError("Failed to read or parse Application manifest", error);
     }
-    application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
+    application.lastUpdate = await client.getLastCommitDate(applicationFolderPath);
     await git.installDependencies(manifest.dependencies);
     await Space.APIs.addApplicationToSpaceObject(spaceId, application, manifest);
 }
