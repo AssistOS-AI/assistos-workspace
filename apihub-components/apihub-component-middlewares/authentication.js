@@ -1,16 +1,12 @@
 const cookie = require('../apihub-component-utils/cookie.js');
-const jwt = require('../apihub-component-utils/jwt.js');
 const utils = require('../apihub-component-utils/utils.js');
 const config = require('../../data-volume/config/config.json');
-const User = require('../users-storage/user.js');
 const secrets = require('../apihub-component-utils/secrets.js');
 const demoUser = require('../users-storage/demoUser.json')
 async function authentication(req, res, next) {
-
     const cookies = cookie.parseCookies(req);
     const sessionId = cookies['sessionId'];
     const apiHubToken = cookies['ApiHubAuth'];
-    let setCookies = [];
     if(sessionId) {
         req.sessionId = sessionId;
     }

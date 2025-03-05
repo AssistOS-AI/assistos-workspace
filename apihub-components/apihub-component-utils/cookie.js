@@ -1,5 +1,4 @@
 const jwt = require("./jwt");
-const secrets = require("./secrets");
 function createSessionCookie(sessionId) {
     return createCookieString('sessionId', sessionId, {
         httpOnly: true,

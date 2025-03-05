@@ -157,11 +157,11 @@ export class AuthenticationPage {
             if (signUpConfirmation) {
                 result = await userModule.generateAuthCode(email);
                 this.email = email;
+                this.createSpace = true;
             } else {
                 return;
             }
         }
-        console.log(result);
         this.authCode = result.code;
         this.invalidate(async () => {
             this.element.setAttribute("data-subpage", "register-confirmation")
@@ -169,7 +169,7 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        await userModule.login(this.email, authCode);
+        await userModule.login(this.email, authCode, this.createSpace);
         await assistOS.loadPage(true);
         if (!assistOS.user.imageId) {
             let uint8Array = await this.generateUserAvatar(email);

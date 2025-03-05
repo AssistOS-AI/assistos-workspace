@@ -202,17 +202,30 @@ async function getUserIdByEmail(email) {
         throw error;
     }
 }
-
-async function linkSpaceToUser(userId, spaceId) {
-    const userFile = await getUserFile(userId)
-    if (userFile.spaces[spaceId]) {
-        const error = new Error(`Space ${spaceId} is already linked to user ${userId}.`);
-        error.statusCode = 400;
-        throw error;
+async function sendAuthComponentRequest(endpoint, method = "GET", body, headers) {
+    let url = `${process.env.BASE_URL}/auth/${endpoint}`;
+    let init = {
+        method: method,
+        headers: headers
+    };
+    if(method === "POST" || method === "PUT"){
+        init.body = JSON.stringify(body);
     }
-    userFile.spaces[spaceId] = {};
-    userFile.currentSpaceId = spaceId;
-    await updateUserFile(userId, userFile);
+    let response = await fetch(url, init);
+    return await response.json();
+}
+async function linkSpaceToUser(email, spaceId) {
+    let user = await sendAuthComponentRequest(`account/${email}`);
+    user.currentSpaceId = spaceId;
+    if(!user.spaces){
+        user.spaces = [];
+    }
+    if(user.spaces.includes(spaceId)){
+        console.log(`User ${email} is already linked to space ${spaceId}`);
+        return;
+    }
+    user.spaces.push(spaceId);
+    await sendAuthComponentRequest(`account/${email}`, 'PUT', user);
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -327,9 +340,9 @@ async function updateUsersCurrentSpace(userId, spaceId) {
     await updateUserFile(userId, userFile);
 }
 
-async function getDefaultSpaceId(userId) {
-    const userFile = await getUserFile(userId)
-    return userFile.currentSpaceId;
+async function getDefaultSpaceId(email) {
+    let user = await sendAuthComponentRequest(`account/${email}`);
+    return user.currentSpaceId;
 }
 
 async function getUserPendingActivation() {

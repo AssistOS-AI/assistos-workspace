@@ -433,13 +433,13 @@ async function saveSpaceChat(request, response) {
 async function getSpace(request, response) {
     try {
         let spaceId;
-        const userId = request.userId;
+        const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (cookie.parseCookies(request).currentSpaceId) {
             spaceId = cookie.parseCookies(request).currentSpaceId;
         } else {
-            spaceId = user.getDefaultSpaceId(userId);
+            spaceId = user.getDefaultSpaceId(email);
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);

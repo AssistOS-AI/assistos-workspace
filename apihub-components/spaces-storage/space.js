@@ -178,7 +178,7 @@ async function createChat(spaceId, chatId) {
 
 }
 
-async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule) {
+async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId) {
     const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
     const personalitiesPath = path.join(spacePath, 'personalities');
 
@@ -188,9 +188,18 @@ async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId,
     let promises = [];
     const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
     const defaultLlms = (await defaultLlmsRes.json()).data;
+    let authSecret = await secrets.getApiHubAuthSecret();
+    let securityContextConfig = {
+        headers: {
+            cookie: cookie.createApiHubAuthCookies(authSecret, "", spaceId)
+        }
+    }
+    const SecurityContext = require('assistos').ServerSideSecurityContext;
+    let securityContext = new SecurityContext(securityContextConfig);
+    let spaceModule = require('assistos').loadModule('space', securityContext);
     for (const entry of files) {
         if (entry.isFile()) {
-            promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms));
+            promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, defaultLlms, spaceModule));
         }
     }
     const personalitiesData = await Promise.all(promises);
@@ -199,7 +208,7 @@ async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId,
     await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(personalitiesData), 'utf8');
 }
 
-async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, spaceModule, defaultLlms) {
+async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, defaultLlms, spaceModule) {
     const filePath = path.join(defaultPersonalitiesPath, entry.name);
     let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
     const constants = require("assistos").constants;
@@ -251,7 +260,7 @@ function createDefaultAnnouncement(spaceName) {
         })
 }
 
-async function createSpace(spaceName, userId, spaceModule) {
+async function createSpace(spaceName, email) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
     const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
@@ -273,7 +282,7 @@ async function createSpace(spaceName, userId, spaceModule) {
             spaceName: spaceName,
             spaceId: spaceId,
             admin: {
-                [userId]: {
+                [email]: {
                     roles: [spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.owner],
                     joinDate: date.getCurrentUnixTime()
                 }
@@ -308,10 +317,10 @@ async function createSpace(spaceName, userId, spaceModule) {
     await secrets.createSpaceSecretsContainer(spaceId);
 
     const filesPromises = [
-        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId, spaceModule),
+        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.linkSpaceToUser(userId, spaceId),
+        () => User.linkSpaceToUser(email, spaceId),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ];
 

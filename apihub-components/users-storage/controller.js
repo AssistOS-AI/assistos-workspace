@@ -2,41 +2,7 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
 const configs= require('../../data-volume/config/config.json')
-async function resetPassword(request,response){
-    const email = request.body.email;
-    const password = request.body.password;
-    const code = request.body.code;
-    if(!email || !password|| !code){
-        return utils.sendResponse(response, 400, "application/json", {
-            message: "Email, password and code are required"
-        });
-    }
-    try {
-        await User.resetPassword(email, password,code);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode||500, "application/json", {
-            message: error.message
-        });
-    }
-}
-async function sendPasswordResetCode(request,response){
-    const email = request.body.email;
-    if(!email){
-        return utils.sendResponse(response, 400, "application/json", {
-            message: "Email is required"
-        });
-    }
-    try {
-        await User.sendPasswordResetCode(email);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
-            message: error.message
-        });
-    }
-}
-
+const Space = require("../spaces-storage/space");
 async function registerUser(request, response) {
     const userData = request.body;
     if (!userData.password) {
@@ -91,18 +57,52 @@ async function activateUser(request, response) {
     }
 }
 
+function parseCookies(cookies) {
+    let parsedCookies = {};
+    let cookieSplit = cookies.split(',');
+    cookieSplit.forEach(function (cookie) {
+        const parts = cookie.split('=');
+        let name = parts.shift().trim();
+        parsedCookies[name] = {};
+        cookie.split(';').forEach(function (values) {
+            const parts = values.split('=');
+            let key = parts.shift().trim();
+            if(key === name){
+                parsedCookies[name].value = decodeURIComponent(parts.join('='));
+            } else {
+                parsedCookies[name][key] = decodeURIComponent(parts.join('='));
+            }
+        });
+    });
+    return parsedCookies;
+}
 async function loginUser(request, response) {
-    const requestData = request.body;
+    const {email, code, createSpace} = request.body;
     try {
-        const {userId} = await User.loginUser(requestData.email, requestData.password);
-        const userData = await User.getUserData(userId);
-
-        utils.sendResponse(response, 200, "application/json", {
-            data: userData,
-            message: `User ${userData.name} logged in successfully`
-        }, [await cookie.createAuthCookie(userData), await cookie.createRefreshAuthCookie(userData), cookie.createCurrentSpaceCookie(userData.currentSpaceId)]);
+        const BASE_URL= process.env.BASE_URL;
+        let internalResponse = await fetch(`${BASE_URL}/auth/walletLogin`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({email, code})
+        });
+        let responseData = await internalResponse.json();
+        if(responseData.operation !== "success"){
+            return utils.sendResponse(response, 400, "application/json", {
+                message: responseData.message
+            });
+        }
+        let cookies = internalResponse.headers.get('set-cookie');
+        if(createSpace){
+            let spaceName = email.split('@')[0];
+            const space = await Space.APIs.createSpace(spaceName, email);
+            cookies += cookie.createCurrentSpaceCookie(space.id);
+        }
+        response.setHeader('Set-Cookie', cookies);
+        utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+        utils.sendResponse(response, 500, "application/json", {
             message: error.message
         });
     }
@@ -176,7 +176,5 @@ module.exports = {
     loadUser,
     logoutUser,
     getUserAvatar,
-    sendPasswordResetCode,
-    resetPassword,
     updateUserImage
 };
