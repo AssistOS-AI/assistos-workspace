@@ -21,4 +21,4 @@ async function authorization(req, res, next){
         next(error);
     }
 }
-module.exports = authorization
+module.exports = authorization;

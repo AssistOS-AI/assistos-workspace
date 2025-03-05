@@ -2,6 +2,21 @@
     "workDir": ".",
     "dependencies": [
         {
+            "name": "Authentication-manager",
+            "src": "https://github.com/AssistOS-AI/Authentication-manager.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": ".",
+                    "collectLog": false
+                },
+                {
+                    "type": "execute",
+                    "cmd": "npm install @sendgrid/mail"
+                }
+            ]
+        },
+        {
             "name": "ffmpeg",
             "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
             "actions": [

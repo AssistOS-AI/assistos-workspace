@@ -27,6 +27,7 @@
         "logger",
         "flows",
         "telegram-chat",
+        "Authentication-manager",
         "lightDBEnclave",
         "staticServer"
     ],
@@ -80,6 +81,9 @@
         },
         "telegram-chat": {
             "module": "./../../apihub-components/telegram-chat"
+        },
+        "Authentication-manager": {
+            "module": "./../../Authentication-manager"
         }
     },
     "responseHeaders": {

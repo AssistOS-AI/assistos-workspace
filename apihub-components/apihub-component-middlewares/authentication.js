@@ -9,9 +9,7 @@ async function authentication(req, res, next) {
 
     const cookies = cookie.parseCookies(req);
     const sessionId = cookies['sessionId'];
-    const authToken = cookies['authToken'];
     const apiHubToken = cookies['ApiHubAuth'];
-    const refreshToken = cookies['refreshAuthToken'];
     let setCookies = [];
     if(sessionId) {
         req.sessionId = sessionId;
@@ -26,33 +24,6 @@ async function authentication(req, res, next) {
             return authenticationError(res, next);
         }
     }
-    if (authToken) {
-        try {
-            const {userId} = await jwt.validateUserAccessJWT(authToken, 'AccessToken');
-            req.userId = userId;
-            return next();
-        } catch (error) {
-            // invalid token, ignore error and attempt to generate a new authToken
-        }
-    }
-
-    if (refreshToken) {
-        try {
-            const {userId} = await jwt.validateUserRefreshAccessJWT(refreshToken, 'RefreshToken');
-            const userData = await User.getUserData(userId);
-            const newAuthCookie = await cookie.createAuthCookie(userData);
-            setCookies.push(newAuthCookie);
-            req.userId = userId;
-            res.setHeader('Set-Cookie', setCookies);
-            return next();
-        } catch (error) {
-            res.setHeader('Set-Cookie', setCookies);
-            return authenticationError(res, next);
-        }
-    } else {
-        res.setHeader('Set-Cookie', setCookies);
-        return authenticationError(res, next);
-    }
 }
 
 function authenticationError(res, next) {
@@ -62,11 +33,11 @@ function authenticationError(res, next) {
         const {email, password} = demoUser
         utils.sendResponse(res, 401, "application/json", {
             message: "Unauthorized"
-        }, [cookie.createDemoUserCookie(email, password), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+        }, [cookie.createDemoUserCookie(email, password), cookie.deleteCurrentSpaceCookie()]);
     } else {
         utils.sendResponse(res, 401, "application/json", {
             message: "Unauthorized"
-        }, [cookie.deleteDemoUserCookie(), cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+        }, [cookie.deleteDemoUserCookie(), cookie.deleteCurrentSpaceCookie()]);
     }
     next(error);
 }

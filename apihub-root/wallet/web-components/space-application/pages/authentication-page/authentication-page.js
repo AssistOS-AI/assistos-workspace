@@ -12,207 +12,34 @@ export class AuthenticationPage {
         this.invalidate();
     }
 
-    async activateAccount() {
-        const handleSuccessfulActivation = function(){
-            this.element.setAttribute('data-subpage',"successful-activation");
-            this.invalidate();
-        }
-
-        const handleUnsuccessfulActivation =function(){
-            alert('Invalid activation Token');
-        }
-
-        const handleServerError = function(){
-            alert('Server Error');
-        }
-
-        const verificationToken = this.element.querySelector('#verificationToken').value;
-        const activationResult = await fetch(`/users/verify?activationToken=${verificationToken}`)
-
-        switch(activationResult.status){
-            case 200:{
-                Reflect.apply(handleSuccessfulActivation,this,[]);
-                break;
-            }
-            case 400:{
-                Reflect.apply(handleUnsuccessfulActivation,this,[])
-                break;
-            }
-            case 500:
-            default:{
-                Reflect.apply(handleServerError,this,[]);
-            }
-        }
-
-    }
-
-
     async beforeRender() {
         this.inviteToken = window.location.hash.split("/")[2];
         this.dataSubpage = this.element.getAttribute("data-subpage");
-        if (this.inviteToken && this.dataSubpage !== "register-confirmation-with-invite") {
-            this.dataSubpage = "register-page";
-        }
-
         switch (this.dataSubpage) {
-            case "register-page": {
-                let hiddenClass = this.inviteToken ? "hidden" : "email";
-                this.subpage = ` <div>
-             <div class="form-title">
-             Registration
-             </div>
-             <form>
-                    <div class="form-item" id="${hiddenClass}">
-                        <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" placeholder="Add e-mail">
-                    </div>
-                    <div class="form-item">
-                        <label class="form-label" for="user-password">Password</label>
-                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password">
-                    </div>
-                     <div class="form-item">
-                        <label class="form-label" for="photo">Profile Picture</label>
-                        <input class="form-input"  accept="image/png, image/jpeg" data-condition="verifyPhotoSize" name="photo" type="file" data-id="photo" id="photo" placeholder="Select a Profile Image">
-                    </div>
-                    <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="registerUser">${this.inviteToken ? "Create Account" : "Get Secret Token"}</button>
-                    </div>
-                </form>
-           </div>`;
-                break;
-            }
-            case "login-new-device": {
-                this.subpage = `
-               <div>
-                  <div class="form-title">
-                   Log in
-                  </div>
-                  <form>
-                   <div class="form-item">
-                        <label class="form-label" for="user-token">Enter the secret token or just click the link we just sent you by email.</label>
-                        <input class="form-input" name="token" type="text" data-id="user-token" id="user-token" required placeholder="Add secret token">
-                    </div>
-                    <div class="form-footer">
-                        <button class="general-button" data-local-action="loginUser">Log in</button>
-                    </div>
-                    <div class="development-mode" data-local-action="loginUser">
-                        Log in development mode
-                    </div>        
-                </form>
-              </div>
-          `;
-                break;
-            }
             case "register-confirmation": {
                 this.subpage = `
               <div>
                    <div class="form-item">
-                        <label class="form-label" for="verificationToken">
-                            <p>To confirm registration enter the code that has been sent to your email</p>
-                            <input type="text" name="verificationToken" id="verificationToken" value="${this.verificationToken || ''}">
+                        <label class="form-label" for="authCode">
+                            <p>Enter the code that has been sent to your email</p>
+                            <input type="text" name="authCode" id="authCode" class="form-input" value="${this.authCode || ''}">
                         </label>
-                        <button type="button" data-local-action="activateAccount" id="activateButton">Activate Account</button>
+                        <button type="button" data-local-action="submitCode" class="general-button">Submit</button>
                     </div>
               </div>`;
-                break;
-            }
-            case "register-confirmation-with-invite": {
-                delete this.inviteToken;
-                this.subpage = `
-              <div>
-                   <div class="form-item">
-                        <label class="form-label">
-                            <p>Account Created Successfully. You're being redirected to log in</p>
-                        </label>
-                    </div>
-              </div>`;
-                break;
-            }
-            case "password-reset-successfully": {
-                this.subpage = `
-              <div>
-                   <div class="form-item">
-                        <label class="form-label">
-                            <p>Password Reset Successfully. You're being redirected to log in</p>
-                        </label>
-                    </div>
-              </div>`;
-                break;
-            }
-            case "password-recovery": {
-                this.subpage = `
-              <div>
-                  <div class="form-title">
-                   Password Reset
-                  </div>
-                  <div class="form-description">
-                  We will send you a verification code to reset your password. Make sure to also check your spam and trash folder.
-                  </div>
-                  <form>
-                   <div class="form-item" id="email">
-                        <label class="form-label" for="user-email">E-mail</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="E-mail Address">
-                    </div>
-                    <div class="form-item" id="password">
-                        <label class="form-label" for="user-password">New Password</label>
-                        <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="New password" autocomplete="new-password">
-                    </div>
-                    <div class="form-item" id="confirm-password">
-                        <label class="form-label" for="user-password-confirm">Confirm new Password</label>
-                        <input class="form-input" name="password-confirm" type="password" data-condition="checkPasswordConfirmation" data-id="user-password-confirm" id="user-password-confirm" required placeholder="Confirm password" autocomplete="new-password">
-                    </div>
-                       <div class="form-item" style="visibility:hidden">
-                        <label class="form-label" for="password-reset-code">Verification Code</label>
-                        <input class="form-input" name="password-reset-code" type="text" data-id="password-reset-code" id="password-reset-code" placeholder="Ex: 123456">
-                    </div>
-
-                    <div class="form-footer spaced-buttons">
-                        <button type="button" id="regenerate-verification-code" class="general-button" data-local-action="generateVerificationCode">Get Verification Code </button>
-                        <button type="button"  style="visibility:hidden" id="reset-password-button" class="general-button" data-local-action="resetPassword" disabled>Reset Password</button>
-                    </div>
-                </form>
-              </div>`;
-                break;
-            }
-            case "successful-activation":{
-                this.subpage=`
-                 <div id="successful-activation">
-              </div>
-                `
                 break;
             }
             default: {
-                this.subpage = `
-               <div>
-                  <div class="form-title">
-                      
-                  </div>
-                  <form>
-                      <div class="form-item">
-                          <label class="form-label" for="user-email">E-mail</label>
-                          <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" required placeholder="Add e-mail" value="${this.demoUserEmail}" autocomplete="email">
-                      </div>
-                      <div class="form-item">
-                          <label class="form-label" for="user-password">Password</label>
-                          <input class="form-input" name="password" type="password" data-id="user-password" id="user-password" required placeholder="Add password" value="${this.demoUserPassword}" autocomplete="current-password">
-                      </div>
-                      <div class="forgot-password" data-local-action="navigateToPasswordRecoveryPage">
-                          Forgot password?
-                      </div>
-                      <div class="form-footer">
-                          <button type="button" class="general-button" data-local-action="loginUser">Log in</button>
-                      </div>
-                      <div class="suggest-registration">
-                          <div>
-                              Don't have an account?
-                          </div>
-                          <div class="sign-up" data-local-action="navigateToRegisterPage">
-                              Sign Up
-                          </div>
-                      </div>
-                  </form>
-              </div>
-          `;
+                this.subpage = ` 
+                <form class="log-in-form">
+                    <div class="form-item">
+                        <label class="form-label" for="user-email">Enter your E-mail to begin using AssistOS</label>
+                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" placeholder="Add e-mail">
+                    </div>
+                    <div class="form-footer">
+                        <button type="button" class="general-button" data-local-action="generateCode">Submit</button>
+                    </div>
+                </form>`;
                 break;
             }
         }
@@ -238,23 +65,14 @@ export class AuthenticationPage {
             this.boundFn = this.sendFormOnEnter.bind(this);
             this.lastInput.addEventListener("keypress", this.boundFn);
         }
-        if (this.dataSubpage === "register-confirmation-with-invite") {
-            setTimeout(async () => {
-                await this.navigateToLoginPage();
-            }, 3000);
-        }
-        if (this.dataSubpage === "password-reset-successfully") {
-            setTimeout(async () => {
-                await this.navigateToLoginPage();
-            }, 3000);
-        }
         if(this.dataSubpage === "successful-activation"){
             const innerElement = this.element.querySelector('#successful-activation');
             let time =5;
             let intervalId = setInterval(async ()=>{
                 if(time === 0){
                     clearInterval(intervalId);
-                    return await this.navigateToLoginPage();
+                    this.dataSubpage = "login-page";
+                    this.invalidate();
                 }
                 innerElement.innerHTML =`Account Activated! Redirecting to log in page in ${time} seconds`
                 time--;
@@ -318,90 +136,47 @@ export class AuthenticationPage {
         }
     }
 
-    async navigateToRegisterPage() {
-        await this.navigateToPage("register-page");
-    }
 
-    async navigateToLoginPage() {
-        await this.navigateToPage("login-page");
-    }
-
-    uploadImage(file) {
-        return new Promise((resolve, reject) => {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                resolve(event.target.result);
-            };
-            reader.onerror = (error) => {
-                reject(error);
-            };
-            reader.readAsArrayBuffer(file);
-        });
-    }
-
-    async registerUser(_target) {
+    async generateCode(_target) {
         let email = this.element.querySelector("#user-email").value;
-        let password = this.element.querySelector("#user-password").value;
-        let photoFile = this.element.querySelector("#photo").files[0];
-        let uint8ArrayImage;
-        if (this.inviteToken) {
-            email = "";
-        } else if (!email) {
+        if (!email) {
             alert("Email is required");
             return;
         }
-        if (!password) {
-            alert("Password is required");
-            return;
-        }
-        // if(photoFile){
-        //     if(photoFile.size <= 1048576 * 5){
-        //         uint8ArrayImage = await this.uploadImage(photoFile);
-        //     } else {
-        //         alert("Image too large! Image max size: 5MB");
-        //         return;
-        //     }
-        // } else {
-        //     uint8ArrayImage = await this.generateUserAvatar(email);
-        // }
-        try {
-            this.loader = assistOS.UI.showLoading();
-            const registrationResult = await userModule.registerUser(email, password, "", this.inviteToken)
-            this.verificationToken = registrationResult .verificationToken || '';
-        } catch (error) {
-            let message = JSON.parse(error.message);
-            switch (message.status) {
-                case 409:
-                    alert("User Already Registered with this Email Address");
-                    break;
-                default:
-                    alert(message.message);
-            }
-            await assistOS.UI.hideLoading(this.loader);
-            delete this.loader;
-            return this.invalidate(async () => {
-                if (this.inviteToken) {
-                    this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
-                } else {
-                    this.element.setAttribute("data-subpage", "register-page")
-                }
-            });
-        } finally {
-            await assistOS.UI.hideLoading(this.loader);
-            delete this.loader;
-        }
-
-        if (this.inviteToken) {
-            this.invalidate(async () => {
-                this.element.setAttribute("data-subpage", "register-confirmation-with-invite")
-            })
+        let loader = assistOS.UI.showLoading();
+        let result = await userModule.accountExists(email);
+        await assistOS.UI.hideLoading(loader);
+        if(result.account_exists){
+            result = await userModule.generateAuthCode(email);
+            this.email = email;
         } else {
-            this.invalidate(async () => {
-                this.element.setAttribute("data-subpage", "register-confirmation")
-            })
+            let signUpMessage = `We couldn't find an account for ${email}. Do you want to create a new account with this email?`;
+            let signUpConfirmation = await assistOS.UI.showModal("confirm-action-modal", {
+                message: signUpMessage
+            }, true);
+            if (signUpConfirmation) {
+                result = await userModule.generateAuthCode(email);
+                this.email = email;
+            } else {
+                return;
+            }
+        }
+        console.log(result);
+        this.authCode = result.code;
+        this.invalidate(async () => {
+            this.element.setAttribute("data-subpage", "register-confirmation")
+        })
+    }
+    async submitCode(_target) {
+        let authCode = this.element.querySelector("#authCode").value;
+        await userModule.login(this.email, authCode);
+        await assistOS.loadPage(true);
+        if (!assistOS.user.imageId) {
+            let uint8Array = await this.generateUserAvatar(email);
+            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
+            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
         }
     }
-
     async generateUserAvatar(email, size = 100) {
         let firstLetter = email.charAt(0).toUpperCase();
         const canvas = document.createElement('canvas');
@@ -424,141 +199,5 @@ export class AuthenticationPage {
         canvas.remove();
         return uint8Array;
     }
-
-    async activateUser() {
-        const activationToken = this.element.querySelector("#user-token").value;
-        try {
-            await userModule.activateUser(activationToken);
-            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
-        } catch (error) {
-            alert(`Activation failed: Invalid Activation Token`)
-        }
-    }
-
-    async loginUser(_target) {
-        await assistOS.loadifyComponent(_target, async function (_target) {
-            _target.setAttribute("disabled", "true");
-            const formInfo = await assistOS.UI.extractFormInformation(_target);
-            if (formInfo.isValid) {
-                const {email, password} = formInfo.data;
-                try {
-                    await assistOS.login(email, password);
-                    try {
-                        await assistOS.loadPage(true);
-                        if (!assistOS.user.imageId) {
-                            let uint8Array = await this.generateUserAvatar(email);
-                            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-                            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
-                        }
-                    } catch (error) {
-                        console.error("Failed to load Landing Page", error);
-                        alert(error);
-                    }
-                } catch (error) {
-                    _target.removeAttribute("disabled");
-                    alert(error.message);
-                }
-            }
-        }.bind(this, _target));
-    }
-
-
-    async navigateToPasswordRecoveryPage() {
-        await this.navigateToPage("password-recovery");
-    }
-
-    async generateVerificationCode(_target) {
-        const regenerateCodeButton = _target
-        regenerateCodeButton.removeAttribute("data-local-action");
-        const checkPasswordConfirmation = (confirmPassword) => {
-            let password = document.querySelector("#user-password");
-            return password.value === confirmPassword.value;
-        }
-
-        const conditions = {
-            "checkPasswordConfirmation": {
-                fn: checkPasswordConfirmation,
-                errorMessage: "Passwords do not match!"
-            }
-        };
-
-        const formInfo = await assistOS.UI.extractFormInformation(regenerateCodeButton, conditions);
-        if (formInfo.isValid) {
-            const generateNewResetCode = async (email, password) => {
-                await assistOS.loadifyFunction(userModule.generateVerificationCode, email, password);
-                let timer = 60;
-                regenerateCodeButton.disabled = true;
-                regenerateCodeButton.innerHTML = `Regenerate Code (${timer}s)`;
-                let intervalId = setInterval(() => {
-                    timer--;
-                    if (timer === 0) {
-                        clearInterval(intervalId);
-                        regenerateCodeButton.innerHTML = "Get Verification Code";
-                        regenerateCodeButton.disabled = false;
-                    } else {
-                        regenerateCodeButton.innerHTML = `Regenerate Code (${timer}s)`;
-                        regenerateCodeButton.disabled = true;
-                    }
-                }, 1000);
-            }
-            const {email, password} = formInfo.data;
-            try {
-                await generateNewResetCode(email, password);
-
-                const resetPasswordButton = this.element.querySelector("#reset-password-button");
-                resetPasswordButton.style.visibility = "visible";
-                resetPasswordButton.addEventListener('click', async () => {
-                    try {
-                        const code = this.element.querySelector("#password-reset-code").value;
-                        await assistOS.loadifyFunction(userModule.resetPassword, email, password, code);
-                        this.invalidate(async () => {
-                            this.element.setAttribute("data-subpage", "password-reset-successfully")
-                        });
-                    } catch (error) {
-                        switch (error.statusCode) {
-                            case 401:
-                                alert("Invalid Verification Code");
-                                break;
-                            case 404:
-                                alert("No code has been generate for the user");
-                                break;
-                            case 410:
-                                alert("Verification code has expired");
-                                break;
-                            default:
-                                alert(error.message);
-                        }
-
-                    }
-                })
-                const resetCodeField = this.element.querySelector("#password-reset-code");
-                resetCodeField.style.visibility = "visible";
-                resetCodeField.required = true;
-                resetCodeField.addEventListener("input", (event) => {
-                    const regex = /^[0-9]{6}$/;
-                    if (regex.test(event.target.value)) {
-                        resetPasswordButton.removeAttribute("disabled");
-                    } else {
-                        resetPasswordButton.setAttribute("disabled", "true");
-                    }
-                });
-
-                const emailField = this.element.querySelector("#email");
-                emailField.remove();
-                const passwordField = this.element.querySelector("#password");
-                passwordField.remove();
-                const passwordConfirmField = this.element.querySelector("#confirm-password");
-                passwordConfirmField.remove();
-
-                regenerateCodeButton.addEventListener("click", async () => await generateNewResetCode(email, password));
-
-            } catch (error) {
-                alert(error.message);
-            }
-        } else {
-            console.log("Form invalid");
-        }
-    }
-
 
 }

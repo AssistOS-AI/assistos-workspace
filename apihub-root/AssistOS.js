@@ -295,9 +295,6 @@ class AssistOS {
 
         if (spaceId === authPage) {
             hidePlaceholders();
-            if (applicationName === "inviteToken") {
-                return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
-            }
             return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
         }
 
