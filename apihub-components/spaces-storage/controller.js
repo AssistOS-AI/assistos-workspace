@@ -442,7 +442,11 @@ async function getSpace(request, response) {
         } else {
             spaceId = user.getDefaultSpaceId(userId);
         }
-        await ensurePersonalityChats(spaceId);
+        try {
+            await ensurePersonalityChats(spaceId);
+        }catch(error){
+
+        }
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
         //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
         await user.updateUsersCurrentSpace(userId, spaceId);
