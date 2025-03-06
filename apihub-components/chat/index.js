@@ -5,7 +5,6 @@ const authentication = require("../apihub-component-middlewares/authentication.j
 
 
 function ChatComponent(server) {
-
     server.get("/public/chats/:chatId", Chat.getPublicChat)
     server.post("/public/chats", Chat.createPublicChat)
     server.post("/public/chats/:chatId", Chat.sendPublicMessage)

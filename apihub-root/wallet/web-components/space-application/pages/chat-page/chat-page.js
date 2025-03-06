@@ -22,6 +22,7 @@ const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
     return response.data;
+
 };
 const getChatContext = async (spaceId, chatId) => {
     const request = generateRequest("GET");
@@ -208,7 +209,14 @@ class BaseChatFrame {
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
-        this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
+        this.chatMessages = [];
+
+        try{
+            this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
+        }catch(error){
+
+        }
+
         this.chatActionButton = sendMessageActionButtonHTML
 
         if (this.isSubscribed === undefined) {
