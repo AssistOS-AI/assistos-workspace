@@ -824,13 +824,8 @@ async function proxyDocumentConversion(req, res) {
         }
         
         // Get config for docsConverterUrl
-        const config = require('../../../data-volume/config/config.json');
-        let docsConverterUrl = config.docsConverterUrl || 'http://docsconverter:3001';
-        
-        // Replace docsconverter with localhost for development
-        if (docsConverterUrl.includes('docsconverter') && process.env.NODE_ENV !== 'production') {
-            docsConverterUrl = docsConverterUrl.replace('docsconverter', 'localhost');
-        }
+        const config = require('../../../apihub-root/assistOS-configs.json');
+        let docsConverterUrl = config.docsConverterUrl;
         
         // Create a temporary directory for the uploaded file
         tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
