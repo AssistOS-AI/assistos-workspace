@@ -20,7 +20,7 @@ function PersonalitiesStorage(server){
     /* TODO Temporary Quick Fixes to handle model logic changes */
 
     server.post("/personalities/:spaceId/ensure-default-llms",ensurePersonalitiesDefaultLllms);
-    server.get("/personalities/:spaceId/ensure-personality-chats",ensurePersonalityChats)
+    server.get("/ensure-personality-chats/personalities/:spaceId",ensurePersonalityChats)
 }
 
 module.exports = PersonalitiesStorage;
