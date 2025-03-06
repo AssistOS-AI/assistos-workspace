@@ -169,10 +169,10 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        await userModule.login(this.email, authCode, this.createSpace);
+        await userModule.loginUser(this.email, authCode, this.createSpace);
         await assistOS.loadPage(true);
         if (!assistOS.user.imageId) {
-            let uint8Array = await this.generateUserAvatar(email);
+            let uint8Array = await this.generateUserAvatar(this.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
             await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
         }

@@ -1,61 +1,7 @@
 const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
-const configs= require('../../data-volume/config/config.json')
 const Space = require("../spaces-storage/space");
-async function registerUser(request, response) {
-    const userData = request.body;
-    if (!userData.password) {
-        return utils.sendResponse(response, 400, "application/json", {
-            message: "Password is required"
-        });
-    }
-    try {
-        const verificationToken = await User.registerUser(
-            userData.email,
-            userData.password,
-            userData.imageId,
-            userData.inviteToken);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `User ${userData.name} registered successfully. Please check your email for the verification code`,
-            data:{verificationToken}
-        });
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function activateUser(request, response) {
-    const activationToken = request.query['activationToken'];
-    if (!activationToken) {
-        return utils.sendResponse(response, 400, "application/json", {
-            message: "No activation token provided."
-        });
-    }
-    try {
-        await User.activateUser(activationToken);
-        if(configs.ENABLE_EMAIL_SERVICE){
-            const activationSuccessHTML = await User.getActivationSuccessHTML();
-            await utils.sendFileToClient(response, activationSuccessHTML, "html",200)
-        }else{
-            return utils.sendResponse(response, 200, "application/json", {
-                message: ""
-            });
-        }
-
-    } catch (error) {
-        if(configs.ENABLE_EMAIL_SERVICE){
-            const activationFailHTML = await User.getActivationFailHTML(error.message);
-            await utils.sendFileToClient(response, activationFailHTML, "html",400)
-        }else{
-            return utils.sendResponse(response, 400, "application/json", {
-                message: ""
-            });
-        }
-    }
-}
 
 async function loginUser(request, response) {
     const {email, code, createSpace} = request.body;
@@ -78,7 +24,8 @@ async function loginUser(request, response) {
         let cookieArray = cookies.split(',');
         if(createSpace){
             let spaceName = email.split('@')[0];
-            const space = await Space.APIs.createSpace(spaceName, email);
+            let parsedCookies = cookie.parseResponseCookies(internalResponse);
+            const space = await Space.APIs.createSpace(spaceName, email, parsedCookies['wallet_token'].value);
             cookieArray.push(cookie.createCurrentSpaceCookie(space.id));
         }
         response.setHeader('Set-Cookie', cookieArray);
@@ -92,8 +39,7 @@ async function loginUser(request, response) {
 
 async function loadUser(request, response) {
     try {
-        const userId = request.userId
-        const userData = await User.getUserData(userId);
+        const userData = await User.loadUser(request.email, request.wallet_token);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             message: `User ${userData.name} loaded successfully`
@@ -107,11 +53,9 @@ async function loadUser(request, response) {
 
 async function logoutUser(request, response) {
         try {
-        const userId = request.userId;
-        await User.logoutUser(userId);
         utils.sendResponse(response, 200, "application/json", {
             message: "User logged out successfully"
-        }, [cookie.deleteAuthCookie(), cookie.deleteRefreshAuthCookie(), cookie.deleteCurrentSpaceCookie()]);
+        }, [cookie.deleteCurrentSpaceCookie()]);
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message
@@ -119,7 +63,7 @@ async function logoutUser(request, response) {
     }
 }
 
-async function getUserAvatar(request, response) {
+async function getUserImage(request, response) {
     const userId = request.params.userId;
     const user = await User.getUserFile(userId);
     const SecurityContext = require("assistos").ServerSideSecurityContext;
@@ -152,11 +96,9 @@ async function updateUserImage(request, response) {
     }
 }
 module.exports = {
-    registerUser,
-    activateUser,
     loginUser,
     loadUser,
     logoutUser,
-    getUserAvatar,
+    getUserImage,
     updateUserImage
 };

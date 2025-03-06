@@ -159,9 +159,6 @@ async function loginUser(email, password) {
     }
 }
 
-async function logoutUser(userId) {
-}
-
 async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
     try {
@@ -178,18 +175,15 @@ async function createDemoUser() {
     await activateUser(activationToken);
 }
 
-async function getUserData(userId) {
-    const Space = require('../spaces-storage/space.js');
-    const userFile = await getUserFile(userId)
-    const spacesMap = await Space.APIs.getSpaceMap();
-    userFile.spaces = Object.keys(userFile.spaces).map(spaceId => {
-        return {
-            name: spacesMap[spaceId],
-            id: spaceId,
-            data: userFile.spaces[spaceId]
-        };
-    });
-    return userFile;
+async function loadUser(email, wallet_token) {
+    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+    return {
+        id: user.id,
+        email: email,
+        currentSpaceId: user.currentSpaceId,
+        spaces: user.spaces,
+        imageId: user.imageId
+    }
 }
 
 async function getUserIdByEmail(email) {
@@ -202,20 +196,26 @@ async function getUserIdByEmail(email) {
         throw error;
     }
 }
-async function sendAuthComponentRequest(endpoint, method = "GET", body, headers) {
+async function sendAuthComponentRequest(endpoint, method = "GET", body, wallet_token, email, headers) {
     let url = `${process.env.BASE_URL}/auth/${endpoint}`;
+    if(!headers){
+        headers = {}
+    }
     let init = {
         method: method,
         headers: headers
     };
+    if(wallet_token){
+        init.headers.Cookie = `wallet_token=${wallet_token}; email=${email}`;
+    }
     if(method === "POST" || method === "PUT"){
         init.body = JSON.stringify(body);
     }
     let response = await fetch(url, init);
     return await response.json();
 }
-async function linkSpaceToUser(email, spaceId) {
-    let user = await sendAuthComponentRequest(`account/${email}`);
+async function linkSpaceToUser(email, spaceId, wallet_token) {
+    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
     user.currentSpaceId = spaceId;
     if(!user.spaces){
         user.spaces = [];
@@ -225,7 +225,7 @@ async function linkSpaceToUser(email, spaceId) {
         return;
     }
     user.spaces.push(spaceId);
-    await sendAuthComponentRequest(`account/${email}`, 'PUT', user);
+    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -334,14 +334,14 @@ async function updateUserFile(userId, userObject) {
     await fsPromises.writeFile(getUserFilePath(userId), JSON.stringify(userObject, null, 2), 'utf8', {encoding: 'utf8'});
 }
 
-async function updateUsersCurrentSpace(userId, spaceId) {
-    const userFile = await getUserFile(userId);
-    userFile.currentSpaceId = spaceId;
-    await updateUserFile(userId, userFile);
+async function updateUsersCurrentSpace(email, spaceId, wallet_token) {
+    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+    user.currentSpaceId = spaceId;
+    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
 }
 
-async function getDefaultSpaceId(email) {
-    let user = await sendAuthComponentRequest(`account/${email}`);
+async function getDefaultSpaceId(email, wallet_token) {
+    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
     return user.currentSpaceId;
 }
 
@@ -388,21 +388,6 @@ async function registerInvite(referrerId, spaceId, email) {
     return invitationToken;
 }
 
-
-async function getUserPrivateChatAgentId(userId, spaceId) {
-    const userFile = await getUserFile(userId);
-    if(!userFile.spaces[spaceId]){
-        return null;
-    }
-    if (userFile.spaces[spaceId].privateChatAgentId) {
-        return userFile.spaces[spaceId].privateChatAgentId;
-    } else {
-        const defaultSpaceAgentId = await Space.APIs.getDefaultSpaceAgentId(spaceId);
-        userFile.spaces[spaceId].privateChatAgentId = defaultSpaceAgentId;
-        await updateUserFile(userId, userFile);
-        return defaultSpaceAgentId;
-    }
-}
 
 async function sendPasswordResetCode(email) {
     const passwordResetCode = await crypto.generateVerificationCode();
@@ -463,18 +448,15 @@ module.exports = {
     logoutUser,
     getActivationFailHTML,
     getActivationSuccessHTML,
-    getUserData,
     createDemoUser,
     linkSpaceToUser,
     unlinkSpaceFromUser,
     getDefaultSpaceId,
     updateUsersCurrentSpace,
     getUserFile,
-    getUserPrivateChatAgentId,
-    sendPasswordResetCode,
-    resetPassword,
     getUserMap,
     registerInvite,
     addSpaceCollaborator,
-    updateUserFile
+    updateUserFile,
+    loadUser
 }

@@ -260,7 +260,7 @@ function createDefaultAnnouncement(spaceName) {
         })
 }
 
-async function createSpace(spaceName, email) {
+async function createSpace(spaceName, email, wallet_token) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
     const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
@@ -320,7 +320,7 @@ async function createSpace(spaceName, email) {
         () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.linkSpaceToUser(email, spaceId),
+        () => User.linkSpaceToUser(email, spaceId, wallet_token),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ];
 

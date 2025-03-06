@@ -7,13 +7,14 @@ async function authentication(req, res, next) {
     const cookies = cookie.parseRequestCookies(req);
     const sessionId = cookies['sessionId'];
     const apiHubToken = cookies['ApiHubAuth'];
+    req.email = cookies['email'];
+    req.wallet_token = cookies['wallet_token'];
     if(sessionId) {
         req.sessionId = sessionId;
     }
     if(apiHubToken) {
         let secret = await secrets.getApiHubAuthSecret();
         if(secret === apiHubToken) {
-            req.userId = cookies.userId;
             req.skipAuthorisation = true;
             return next();
         }else {

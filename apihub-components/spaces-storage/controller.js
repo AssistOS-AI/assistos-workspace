@@ -439,12 +439,12 @@ async function getSpace(request, response) {
         } else if (cookie.parseRequestCookies(request).currentSpaceId) {
             spaceId = cookie.parseRequestCookies(request).currentSpaceId;
         } else {
-            spaceId = await user.getDefaultSpaceId(email);
+            spaceId = await user.getDefaultSpaceId(email, request.wallet_token);
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
-        await user.updateUsersCurrentSpace(email, spaceId);
+        //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
+        await user.updateUsersCurrentSpace(email, spaceId, request.wallet_token);
         utils.sendResponse(response, 200, "application/json", {
             data: spaceObject,
             message: `Space ${spaceId} loaded successfully`
@@ -469,7 +469,7 @@ async function createSpace(request, response) {
         let SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
         const spaceModule = require("assistos").loadModule("space", securityContext);
-        let newSpace = await space.APIs.createSpace(spaceName, userId, spaceModule);
+        let newSpace = await space.APIs.createSpace(spaceName, userId, spaceModule, request.wallet_token);
         utils.sendResponse(response, 201, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
@@ -587,10 +587,6 @@ async function addCollaboratorsToSpace(request, response) {
 async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
-    const userId = request.userId;
-    if (!agentId) {
-        agentId = await user.getUserPrivateChatAgentId(userId, spaceId)
-    }
     if (!agentId) {
         agentId = await space.APIs.getDefaultSpaceAgentId(spaceId)
     }

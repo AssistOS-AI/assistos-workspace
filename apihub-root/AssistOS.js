@@ -196,7 +196,7 @@ class AssistOS {
     }
 
     async initSpace(spaceId) {
-        //assistOS.user = await userModule.loadUser();
+        assistOS.user = await userModule.loadUser();
         assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
         appsData.forEach(application => {

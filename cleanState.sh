@@ -10,6 +10,5 @@ echo "{}" > data-volume/SpacesPendingInvitations.json
 rm -rf ./data-volume/versionlessdsu
 rm -rf ./data-volume/secrets/*
 find ./data-volume/lightDB -mindepth 1 -type d ! -name 'FixedUrls.db' -exec rm -rf {} +
-rm -rf ./data-volume/assets/images/*
-rm -rf ./data-volume/assets/videos/*
-rm -rf ./data-volume/assets/audios/*
+rm -rf ./data-volume/assets/*
+rm -rf ./apihub-root/external-volume/balanceData

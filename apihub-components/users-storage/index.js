@@ -1,10 +1,7 @@
 const {
-    registerUser,
-    activateUser,
     loginUser,
     loadUser,
-    logoutUser,
-    getUserAvatar,
+    getUserImage,
     updateUserImage
 } = require("./controller");
 
@@ -16,13 +13,11 @@ function UserStorage(server) {
     server.post("/users", registerUser);
     server.post("/users/login", loginUser);
 
-    server.get("/users/profileImage/:userId", getUserAvatar);
-    server.post("/users/profileImage/:userId", updateUserImage);
+    server.get("/users/profileImage/:email", getUserImage);
+    server.post("/users/profileImage/:email", updateUserImage);
 
     server.use("/users/*", authentication);
     server.get("/users", loadUser);
-    server.get("/users/logout", logoutUser);
-
 }
 
 module.exports = UserStorage;

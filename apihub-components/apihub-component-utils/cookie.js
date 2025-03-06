@@ -1,4 +1,3 @@
-const jwt = require("./jwt");
 function createSessionCookie(sessionId) {
     return createCookieString('sessionId', sessionId, {
         httpOnly: true,
@@ -8,7 +7,7 @@ function createSessionCookie(sessionId) {
     });
 }
 function parseResponseCookies(response) {
-    let cookies = response.headers['set-cookie'];
+    let cookies = response.headers.get('set-cookie');
     let parsedCookies = {};
     let cookieSplit = cookies.split(',');
     cookieSplit.forEach(function (cookie) {
@@ -69,44 +68,6 @@ function createCookieString(name, value, options = {}) {
     return cookieString;
 }
 
-async function createAuthCookie(userData) {
-    const accessToken = await jwt.createUserAccessJWT(userData)
-    return createCookieString('authToken', accessToken, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 15,
-        path: '/'
-    });
-}
-
-function deleteAuthCookie() {
-    return createCookieString('authToken', '', {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 0,
-        path: '/'
-    });
-}
-
-async function createRefreshAuthCookie(userData) {
-    const refreshToken = await jwt.createUserRefreshAccessJWT(userData)
-    return createCookieString('refreshAuthToken', refreshToken, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/'
-    });
-}
-
-function deleteRefreshAuthCookie() {
-    return createCookieString('refreshAuthToken', '', {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 0,
-        path: '/'
-    });
-}
-
 function createCurrentSpaceCookie(currentSpaceId) {
     return createCookieString('currentSpaceId', currentSpaceId, {
         httpOnly: true,
@@ -165,13 +126,9 @@ module.exports = {
     parseRequestCookies,
     parseResponseCookies,
     createCookieString,
-    createAuthCookie,
     createCurrentSpaceCookie,
-    createRefreshAuthCookie,
     createDemoUserCookie,
     deleteDemoUserCookie,
-    deleteAuthCookie,
-    deleteRefreshAuthCookie,
     deleteCurrentSpaceCookie,
     createApiHubAuthCookies
 }
