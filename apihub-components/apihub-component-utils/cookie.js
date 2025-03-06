@@ -7,7 +7,27 @@ function createSessionCookie(sessionId) {
         path: "/"
     });
 }
-function parseCookies(request) {
+function parseResponseCookies(response) {
+    let cookies = response.headers['set-cookie'];
+    let parsedCookies = {};
+    let cookieSplit = cookies.split(',');
+    cookieSplit.forEach(function (cookie) {
+        const parts = cookie.split('=');
+        let name = parts.shift().trim();
+        parsedCookies[name] = {};
+        cookie.split(';').forEach(function (values) {
+            const parts = values.split('=');
+            let key = parts.shift().trim();
+            if(key === name){
+                parsedCookies[name].value = decodeURIComponent(parts.join('='));
+            } else {
+                parsedCookies[name][key] = decodeURIComponent(parts.join('='));
+            }
+        });
+    });
+    return parsedCookies;
+}
+function parseRequestCookies(request) {
     const list = {};
     const cookieHeader = request.headers.cookie;
 
@@ -142,7 +162,8 @@ function createApiHubAuthCookies(apiHubAuthSecret, userId, spaceId) {
 
 module.exports = {
     createSessionCookie,
-    parseCookies,
+    parseRequestCookies,
+    parseResponseCookies,
     createCookieString,
     createAuthCookie,
     createCurrentSpaceCookie,

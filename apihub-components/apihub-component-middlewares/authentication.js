@@ -4,7 +4,7 @@ const config = require('../../data-volume/config/config.json');
 const secrets = require('../apihub-component-utils/secrets.js');
 const demoUser = require('../users-storage/demoUser.json')
 async function authentication(req, res, next) {
-    const cookies = cookie.parseCookies(req);
+    const cookies = cookie.parseRequestCookies(req);
     const sessionId = cookies['sessionId'];
     const apiHubToken = cookies['ApiHubAuth'];
     if(sessionId) {
@@ -20,6 +20,7 @@ async function authentication(req, res, next) {
             return authenticationError(res, next);
         }
     }
+    next();
 }
 
 function authenticationError(res, next) {

@@ -436,15 +436,15 @@ async function getSpace(request, response) {
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
-        } else if (cookie.parseCookies(request).currentSpaceId) {
-            spaceId = cookie.parseCookies(request).currentSpaceId;
+        } else if (cookie.parseRequestCookies(request).currentSpaceId) {
+            spaceId = cookie.parseRequestCookies(request).currentSpaceId;
         } else {
-            spaceId = user.getDefaultSpaceId(email);
+            spaceId = await user.getDefaultSpaceId(email);
         }
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
-        await user.updateUsersCurrentSpace(userId, spaceId);
+        spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
+        await user.updateUsersCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             data: spaceObject,
             message: `Space ${spaceId} loaded successfully`
@@ -609,7 +609,7 @@ async function getAgent(request, response) {
 }
 
 async function editAPIKey(request, response) {
-    const spaceId = request.params.spaceId || cookie.parseCookies(request).currentSpaceId;
+    const spaceId = request.params.spaceId || cookie.parseRequestCookies(request).currentSpaceId;
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",

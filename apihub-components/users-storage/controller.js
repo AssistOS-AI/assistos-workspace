@@ -57,25 +57,6 @@ async function activateUser(request, response) {
     }
 }
 
-function parseCookies(cookies) {
-    let parsedCookies = {};
-    let cookieSplit = cookies.split(',');
-    cookieSplit.forEach(function (cookie) {
-        const parts = cookie.split('=');
-        let name = parts.shift().trim();
-        parsedCookies[name] = {};
-        cookie.split(';').forEach(function (values) {
-            const parts = values.split('=');
-            let key = parts.shift().trim();
-            if(key === name){
-                parsedCookies[name].value = decodeURIComponent(parts.join('='));
-            } else {
-                parsedCookies[name][key] = decodeURIComponent(parts.join('='));
-            }
-        });
-    });
-    return parsedCookies;
-}
 async function loginUser(request, response) {
     const {email, code, createSpace} = request.body;
     try {
@@ -94,12 +75,13 @@ async function loginUser(request, response) {
             });
         }
         let cookies = internalResponse.headers.get('set-cookie');
+        let cookieArray = cookies.split(',');
         if(createSpace){
             let spaceName = email.split('@')[0];
             const space = await Space.APIs.createSpace(spaceName, email);
-            cookies += cookie.createCurrentSpaceCookie(space.id);
+            cookieArray.push(cookie.createCurrentSpaceCookie(space.id));
         }
-        response.setHeader('Set-Cookie', cookies);
+        response.setHeader('Set-Cookie', cookieArray);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
