@@ -812,6 +812,185 @@ async function deleteDocumentSnapshot(request, response) {
         });
     }
 }
+
+async function proxyDocumentConversion(req, res) {
+    let tempDir = null;
+    try {
+        // Validate content type
+        if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
+            return sendResponse(res, 400, 'application/json', {
+                message: "Expected multipart/form-data content type"
+            });
+        }
+        
+        // Get config for docsConverterUrl
+        const config = require('../../../data-volume/config/config.json');
+        let docsConverterUrl = config.docsConverterUrl || 'http://docsconverter:3001';
+        
+        // Replace docsconverter with localhost for development
+        if (docsConverterUrl.includes('docsconverter') && process.env.NODE_ENV !== 'production') {
+            docsConverterUrl = docsConverterUrl.replace('docsconverter', 'localhost');
+        }
+        
+        // Create a temporary directory for the uploaded file
+        tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
+        await fsPromises.mkdir(tempDir, { recursive: true });
+        const tempFilePath = path.join(tempDir, `upload_${Date.now()}.bin`);
+        
+        // Initialize upload file object
+        let uploadedFile = { ready: false };
+        
+        // Process the multipart form with Busboy
+        const busboyOptions = { headers: req.headers, limits: { fileSize: 50 * 1024 * 1024 } };
+        let busboy;
+        
+        try {
+            busboy = new Busboy(busboyOptions);
+        } catch (err) {
+            busboy = Busboy(busboyOptions);
+        }
+        
+        // Process file uploads
+        busboy.on('file', (fieldname, fileStream, fileInfo) => {
+            const writeStream = fs.createWriteStream(tempFilePath);
+            let fileSize = 0;
+            
+            fileStream.on('data', (chunk) => {
+                fileSize += chunk.length;
+            });
+            
+            fileStream.pipe(writeStream);
+            
+            writeStream.on('finish', () => {
+                // Extract filename and mimetype, handling both string and object formats
+                let filename = 'document.bin';
+                let mimetype = 'application/octet-stream';
+                
+                if (typeof fileInfo === 'object' && fileInfo !== null) {
+                    filename = fileInfo.filename || 'document.bin';
+                    mimetype = fileInfo.mimeType || 'application/octet-stream';
+                } else if (typeof fileInfo === 'string') {
+                    filename = fileInfo;
+                }
+                
+                uploadedFile = {
+                    fieldname,
+                    filepath: tempFilePath,
+                    filename,
+                    mimetype,
+                    size: fileSize,
+                    ready: true
+                };
+            });
+            
+            writeStream.on('error', (err) => {
+                console.error(`[DocConverter] Error saving file: ${err.message}`);
+            });
+        });
+        
+        // Process finish event
+        busboy.on('finish', async () => {
+            // Wait for file to be ready
+            let attempts = 0;
+            const maxAttempts = 50;
+            
+            while ((!uploadedFile || !uploadedFile.ready) && attempts < maxAttempts) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+                attempts++;
+            }
+            
+            try {
+                if (!uploadedFile || !uploadedFile.ready) {
+                    throw new Error('File upload timed out or failed');
+                }
+                
+                // Use curl command to send the file to the converter
+                // This is the most reliable way to send multipart/form-data to Flask
+                const { spawn } = require('child_process');
+                const curl = spawn('curl', [
+                    '-s',
+                    '-X', 'POST',
+                    '-F', `file=@${uploadedFile.filepath};filename=${uploadedFile.filename};type=${uploadedFile.mimetype}`,
+                    `${docsConverterUrl}/convert`
+                ]);
+                
+                let responseData = '';
+                let errorData = '';
+                
+                curl.stdout.on('data', (data) => {
+                    responseData += data.toString();
+                });
+                
+                curl.stderr.on('data', (data) => {
+                    errorData += data.toString();
+                });
+                
+                const exitCode = await new Promise((resolve) => {
+                    curl.on('close', resolve);
+                });
+                
+                if (exitCode === 0 && responseData) {
+                    try {
+                        const data = JSON.parse(responseData);
+                        if (data.text_content) {
+                            return sendResponse(res, 200, 'application/json', data);
+                        } else {
+                            return sendResponse(res, 500, 'application/json', {
+                                message: 'Invalid document structure returned from converter'
+                            });
+                        }
+                    } catch (err) {
+                        return sendResponse(res, 500, 'application/json', {
+                            message: 'Invalid JSON response from converter'
+                        });
+                    }
+                } else {
+                    return sendResponse(res, 500, 'application/json', {
+                        message: `Error from docs converter: ${errorData || 'Unknown error'}`
+                    });
+                }
+            } catch (error) {
+                console.error(`[DocConverter] Conversion error: ${error.message}`);
+                return sendResponse(res, 500, 'application/json', {
+                    message: `Error proxying document conversion: ${error.message}`
+                });
+            } finally {
+                // Clean up temp directory
+                if (tempDir) {
+                    try {
+                        await fsPromises.rm(tempDir, { recursive: true, force: true });
+                    } catch (err) {
+                        // Ignore cleanup errors
+                    }
+                }
+            }
+        });
+        
+        busboy.on('error', (err) => {
+            console.error(`[DocConverter] Form parsing error: ${err.message}`);
+            return sendResponse(res, 500, 'application/json', {
+                message: `Error processing form data: ${err.message}`
+            });
+        });
+        
+        // Pipe the request to busboy
+        req.pipe(busboy);
+    } catch (error) {
+        console.error(`[DocConverter] Setup error: ${error.message}`);
+        // Clean up temp directory if it exists
+        if (tempDir) {
+            try {
+                await fsPromises.rm(tempDir, { recursive: true, force: true });
+            } catch (err) {
+                // Ignore cleanup errors
+            }
+        }
+        return sendResponse(res, 500, 'application/json', {
+            message: `Error processing document conversion: ${error.message}`
+        });
+    }
+}
+
 module.exports = {
     getDocument,
     getDocumentsMetadata,
@@ -832,5 +1011,6 @@ module.exports = {
     getDocumentSnapshots,
     addDocumentSnapshot,
     deleteDocumentSnapshot,
-    restoreDocumentSnapshot
+    restoreDocumentSnapshot,
+    proxyDocumentConversion
 }
