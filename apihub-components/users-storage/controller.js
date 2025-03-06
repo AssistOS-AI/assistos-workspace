@@ -53,6 +53,7 @@ async function loadUser(request, response) {
 
 async function logoutUser(request, response) {
         try {
+            await User.logoutUser(request.email, request.wallet_token);
         utils.sendResponse(response, 200, "application/json", {
             message: "User logged out successfully"
         }, [cookie.deleteCurrentSpaceCookie()]);
@@ -64,8 +65,8 @@ async function logoutUser(request, response) {
 }
 
 async function getUserImage(request, response) {
-    const userId = request.params.userId;
-    const user = await User.getUserFile(userId);
+    const email = request.params.email;
+    const user = await User.loadUser(email, request.wallet_token);
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     const spaceModule = require("assistos").loadModule("space", securityContext);
@@ -80,12 +81,10 @@ async function getUserImage(request, response) {
 
 }
 async function updateUserImage(request, response) {
-    const userId = request.params.userId;
+    const email = request.params.email;
     const imageId = request.body.imageId;
     try {
-        const user = await User.getUserFile(userId);
-        user.imageId = imageId;
-        await User.updateUserFile(user.id, user);
+        await User.updateUserImage(email, imageId, request.wallet_token);
         utils.sendResponse(response, 200, "application/json", {
             message: "User image updated successfully"
         });

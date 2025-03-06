@@ -80,7 +80,7 @@ export class LeftSidebar {
         img.onerror = async () => {
             let uint8Array = await this.generateUserAvatar(assistOS.user.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
+            await userModule.updateUserImage(assistOS.user.email, assistOS.user.imageId);
         };
         img.src = userImageURL;
         img.onload = () => {

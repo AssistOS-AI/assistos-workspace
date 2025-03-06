@@ -3,162 +3,14 @@ const path = require('path');
 const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
-const config = require('../../data-volume/config/config.json')
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 
-const AnonymousTask = require('../tasks/AnonymousTask.js');
-
-async function registerUser(email, password, imageId, inviteToken) {
-    const currentDate = date.getCurrentUTCDate();
-    if(!email && inviteToken){
-        const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
-        const invitation = spacePendingInvitationsObj[inviteToken];
-        email = invitation.email;
-    }
-    const registrationUserObject ={
-        email: email,
-        imageId: imageId,
-        inviteToken: inviteToken,
-        password: crypto.hashPassword(password),
-        verificationToken: await crypto.generateVerificationToken(),
-        verificationTokenExpirationDate: date.incrementUTCDate(currentDate, {minutes: 30}),
-        currentDate: currentDate
-    };
-    const userMap = await getUserMap()
-    if (userMap[email]) {
-        const error = new Error(`User with email ${email} already exists`);
-        error.statusCode = 409;
-        throw error;
-    }
-
-    const userPendingActivation = await getUserPendingActivation()
-    userPendingActivation[registrationUserObject.verificationToken] = registrationUserObject
-    await updateUserPendingActivation(userPendingActivation)
-    if (inviteToken) {
-        return await activateUser(registrationUserObject.verificationToken);
-    }
-
-    if(config.ENABLE_EMAIL_SERVICE){
-        await sendActivationEmail(email, registrationUserObject.verificationToken);
-    }
-
-    return registrationUserObject.verificationToken
+async function updateUserImage(email, imageId, wallet_token) {
+    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+    user.imageId = imageId;
+    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
 }
-
-async function createUser(email, imageId, withDefaultSpace = false) {
-    const Space = require('../spaces-storage/space.js');
-    const rollback = async () => {
-        await fsPromises.rm(userPath, {recursive: true, force: true});
-        if (withDefaultSpace) {
-            await Space.APIs.deleteSpace(user.currentSpaceId)
-        }
-    }
-
-    const userId = crypto.generateId();
-    const username = email.split('@')[0];
-    const spaceName = data.fillTemplate(
-        Space.templates.defaultSpaceNameTemplate,
-        {
-            username: username.endsWith('s') ? username + "'" : username + "'s"
-        }
-    )
-    const user = {
-        id: userId,
-        email: email,
-        imageId: imageId,
-        spaces: {}
-    }
-
-    const userPath = getUserFilePath(userId)
-    try {
-        await updateUserFile(userId, user);
-        if (withDefaultSpace) {
-            let taskFunction = async function () {
-                let spaceModule = await this.loadModule('space');
-                const createdSpaceId = (await Space.APIs.createSpace(spaceName, userId, spaceModule)).id;
-                user.currentSpaceId = createdSpaceId
-                user.spaces[createdSpaceId] = {};
-            }
-            let task = new AnonymousTask(taskFunction);
-            await task.run();
-        }
-        await updateUserFile(userId, user)
-        return user;
-    } catch (error) {
-        await rollback();
-        throw error;
-    }
-}
-
-async function activateUser(activationToken) {
-    const userPendingActivation = await getUserPendingActivation()
-    if (!userPendingActivation[activationToken]) {
-        throw new Error('Invalid activation token');
-    }
-    if (date.compareUTCDates(userPendingActivation[activationToken].verificationTokenExpirationDate, date.getCurrentUTCDate()) < 0) {
-        delete userPendingActivation[activationToken]
-        await updateUserPendingActivation(userPendingActivation)
-        throw new Error('Token Activation Expired');
-    }
-
-    const user = userPendingActivation[activationToken];
-    try {
-        const userDataObject = await createUser(user.email, user.imageId, true);
-        const userMap = await getUserMap();
-        userMap[user.email] = userDataObject.id;
-        await updateUserMap(userMap);
-        delete user.imageId
-        const userCredentials = await getUserCredentials();
-        userCredentials[userDataObject.id] = user;
-        userCredentials[userDataObject.id].activationDate = date.getCurrentUTCDate();
-        await updateUserCredentials(userCredentials);
-
-        let userInvitedSpaceId;
-        const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
-
-        for(let token in spacePendingInvitationsObj) {
-            const invitation = spacePendingInvitationsObj[token];
-            if (invitation.email === user.email) {
-                await addSpaceCollaborator(invitation.spaceId, userDataObject.id, invitation.referrerId, [Space.constants.spaceRoles.member]);
-                userInvitedSpaceId = spacePendingInvitationsObj[token].spaceId;
-                spacePendingInvitationsObj[token].markedForDeletion = true;
-            }
-        }
-        for(let token in spacePendingInvitationsObj) {
-            if(spacePendingInvitationsObj[token].markedForDeletion){
-                delete spacePendingInvitationsObj[token];
-            }
-        }
-        await Space.APIs.updateSpacePendingInvitations(spacePendingInvitationsObj);
-        if(userInvitedSpaceId){
-            let userFile = await getUserFile(userDataObject.id);
-            userFile.currentSpaceId = userInvitedSpaceId;
-            await updateUserFile(userDataObject.id, userFile);
-        }
-
-        return userDataObject;
-    } catch (error) {
-        throw error;
-    } finally {
-        delete userPendingActivation[activationToken]
-        await updateUserPendingActivation(userPendingActivation);
-    }
-}
-
-async function loginUser(email, password) {
-    const userId = await getUserIdByEmail(email);
-    const userCredentials = await getUserCredentials();
-    const hashedPassword = crypto.hashPassword(password);
-    if (userCredentials[userId].password === hashedPassword) {
-        return {userId: userId};
-    } else {
-        const error = new Error('Invalid credentials');
-        error.statusCode = 401;
-        throw error
-    }
-}
-
 async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
     try {
@@ -170,9 +22,6 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
 }
 
 async function createDemoUser() {
-    const {email, password} = require('./demoUser.json');
-    const activationToken = await registerUser(email, crypto.hashPassword(password),'')
-    await activateUser(activationToken);
 }
 
 async function loadUser(email, wallet_token) {
@@ -183,17 +32,6 @@ async function loadUser(email, wallet_token) {
         currentSpaceId: user.currentSpaceId,
         spaces: user.spaces,
         imageId: user.imageId
-    }
-}
-
-async function getUserIdByEmail(email) {
-    const userMap = await getUserMap()
-    if (userMap[email]) {
-        return userMap[email];
-    } else {
-        const error = new Error('No user found with this email');
-        error.statusCode = 404;
-        throw error;
     }
 }
 async function sendAuthComponentRequest(endpoint, method = "GET", body, wallet_token, email, headers) {
@@ -246,15 +84,6 @@ async function linkUserToSpace(spaceId, userId, referrerId, role) {
     await Space.APIs.updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-function getUserPendingActivationPath() {
-    return volumeManager.paths.userPendingActivation
-}
-
-async function sendActivationEmail(emailAddress, activationToken) {
-    const emailService = require('../email').instance
-    await emailService.sendActivationEmail(emailAddress, activationToken);
-}
-
 async function unlinkSpaceFromUser(userId, spaceId) {
     const userFile = await getUserFile(userId)
 
@@ -267,9 +96,6 @@ async function unlinkSpaceFromUser(userId, spaceId) {
     await updateUserFile(userId, userFile);
 }
 
-async function updateUserPendingActivation(userPendingActivationObject) {
-    await fsPromises.writeFile(getUserPendingActivationPath(), JSON.stringify(userPendingActivationObject, null, 2));
-}
 
 function getUserCredentialsPath() {
     return volumeManager.paths.userCredentials
@@ -387,65 +213,11 @@ async function registerInvite(referrerId, spaceId, email) {
     await Space.APIs.updateSpacePendingInvitations(spacePendingInvitationsObj);
     return invitationToken;
 }
-
-
-async function sendPasswordResetCode(email) {
-    const passwordResetCode = await crypto.generateVerificationCode();
-    const userMap = await getUserMap();
-    if (!userMap[email]) {
-        const error = new Error(`User with email ${email} does not exist`);
-        error.statusCode = 404;
-        throw error;
-    }
-    const userId = userMap[email];
-    /* TODO this causes concurrency issues when multiple users are reseting their passwords at the same time */
-    const userCredentials = await getUserCredentials();
-    userCredentials[userId].passwordReset = {
-        code: passwordResetCode,
-        expirationDate: date.incrementUnixTime(date.getCurrentUnixTimeSeconds(), {minutes: 30})
-    }
-    await updateUserCredentials(userCredentials);
-    const {instance: emailService} = require("../email");
-    await emailService.sendPasswordResetCode(email, passwordResetCode);
+async function logoutUser(email, wallet_token) {
+    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", wallet_token, email);
+    return response.ok;
 }
-
-async function resetPassword(email, password, code) {
-    const userMap = await getUserMap();
-    if (!userMap[email]) {
-        const error = new Error(`User with email ${email} does not exist`);
-        error.statusCode = 404;
-        throw error;
-    }
-    const userId = userMap[email];
-    const userCredentials = await getUserCredentials();
-    if (!userCredentials[userId].passwordReset) {
-        const error = new Error(`No password reset code requested for this user`);
-        error.statusCode = 404;
-        throw error;
-    }
-
-    if (userCredentials[userId].passwordReset.code !== parseInt(code)) {
-        const error = new Error(`Invalid code`);
-        error.statusCode = 401;
-        throw error;
-    }
-
-    if (userCredentials[userId].passwordReset.expirationDate < date.getCurrentUnixTimeSeconds()) {
-        const error = new Error(`Code expired`);
-        error.statusCode = 410;
-        throw error;
-    }
-
-    delete userCredentials[userId].passwordReset;
-    userCredentials[userId].password = crypto.hashPassword(password);
-    await updateUserCredentials(userCredentials);
-}
-
 module.exports = {
-    registerUser,
-    activateUser,
-    loginUser,
-    logoutUser,
     getActivationFailHTML,
     getActivationSuccessHTML,
     createDemoUser,
@@ -457,6 +229,7 @@ module.exports = {
     getUserMap,
     registerInvite,
     addSpaceCollaborator,
-    updateUserFile,
-    loadUser
+    loadUser,
+    updateUserImage,
+    logoutUser
 }

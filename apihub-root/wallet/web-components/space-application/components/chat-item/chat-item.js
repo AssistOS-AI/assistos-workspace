@@ -70,6 +70,7 @@ export class ChatItem {
             let imageSrc = "";
             if (this.role === "user") {
                 try {
+                    //TODO : use email instead of user id
                     imageSrc = await userModule.getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = "./wallet/assets/images/default-personality.png";
