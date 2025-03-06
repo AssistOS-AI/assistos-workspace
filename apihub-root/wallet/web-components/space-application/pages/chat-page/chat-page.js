@@ -211,10 +211,10 @@ class BaseChatFrame {
 
         this.chatMessages = [];
 
-        try{
+        try {
             this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
-        }catch(error){
-
+        } catch (error) {
+            this.errorState = true;
         }
 
         this.chatActionButton = sendMessageActionButtonHTML

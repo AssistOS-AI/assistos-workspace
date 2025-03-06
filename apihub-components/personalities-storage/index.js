@@ -16,8 +16,11 @@ function PersonalitiesStorage(server){
     server.get("/personalities/:spaceId/:personalityId",getPersonality);
     server.post("/personalities/chats/:spaceId/:personalityId",createConversation)
     server.get("/personalities/chats/:spaceId/:personalityId",getConversationIds)
+
+    /* TODO Temporary Quick Fixes to handle model logic changes */
+
     server.post("/personalities/:spaceId/ensure-default-llms",ensurePersonalitiesDefaultLllms);
-    server.get("/personalities/:spaceId/ensure-personality-chats",ensurePersonalityChats)
+    server.get("/ensure-personality-chats/personalities/:spaceId",ensurePersonalityChats)
 }
 
 module.exports = PersonalitiesStorage;
