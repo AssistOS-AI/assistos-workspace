@@ -728,7 +728,6 @@ async function addApplicationToSpaceObject(spaceId, applicationData, manifest) {
         description: manifest.description || "No description provided",
         installationDate: date.getCurrentUnixTimeSeconds(),
         lastUpdate: applicationData.lastUpdate,
-        flowsBranch: applicationData.flowsRepository || "No flows repository provided"
     });
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
@@ -759,13 +758,13 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     await user.unlinkSpaceFromUser(userId, spaceId);
 }
 
-async function getSpaceCollaborators(spaceId) {
-    const user = require('../users-storage/user.js');
+async function getSpaceCollaborators(spaceId, wallet_token) {
+    const User = require('../users-storage/user.js');
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let users = [];
-    for (let userId in spaceStatusObject.users) {
-        const userFile = await user.getUserFile(userId);
-        users.push({id: userId, email: userFile.email, role: getPriorityRole(spaceStatusObject.users[userId].roles)});
+    for (let email in spaceStatusObject.users) {
+        let user = await User.loadUser(email, wallet_token);
+        users.push({email: user.email, role: "Member", id: user.id});
     }
     return users;
 }
@@ -797,37 +796,22 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-function getPriorityRole(roles) {
-    let rolePriority = [spaceConstants.spaceRoles.owner, spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.member];
-    return rolePriority.find(priorityRole => roles.includes(priorityRole));
-}
-
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     const user = require('../users-storage/user.js');
     const emailService = require('../email').instance;
     const userMap = await user.getUserMap();
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     const spaceName = spaceStatusObject.name;
-    const existingUserIds = Object.keys(spaceStatusObject.users)
+    const existingUserEmails = Object.keys(spaceStatusObject.users)
     let existingCollaborators = [];
     for (let collaborator of collaborators) {
-        const userId = userMap[collaborator.email];
-
-        if (userId && existingUserIds.includes(userId)) {
+        if (existingUserEmails.includes(collaborator.email)) {
             existingCollaborators.push(collaborator.email);
             continue;
         }
-        if (userId) {
-            await user.addSpaceCollaborator(spaceId, userId, collaborator.role, referrerId);
-            if (configs.ENABLE_EMAIL_SERVICE) {
-                await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
-            }
-
-        } else {
-            const invitationToken = await user.registerInvite(referrerId, spaceId, collaborator.email);
-            if (configs.ENABLE_EMAIL_SERVICE) {
-                await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName, invitationToken);
-            }
+        await user.addSpaceCollaborator(spaceId, collaborator.email, collaborator.role, referrerId);
+        if (configs.ENABLE_EMAIL_SERVICE) {
+            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
         }
     }
     return existingCollaborators;

@@ -512,7 +512,7 @@ async function deleteSpace(request, response) {
 async function getSpaceCollaborators(request, response) {
     const spaceId = request.params.spaceId;
     try {
-        let collaborators = await space.APIs.getSpaceCollaborators(spaceId);
+        let collaborators = await space.APIs.getSpaceCollaborators(spaceId, request.wallet_token);
         utils.sendResponse(response, 200, "application/json", {
             data: collaborators
         });
