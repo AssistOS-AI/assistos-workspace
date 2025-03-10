@@ -1,20 +1,23 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
+const config = require('../../../data-volume/config/config.json');
 
 class Email {
     constructor() {
         const nodemailer = require('nodemailer');
-        this.emailConfig = require('../data-volume/config/emailConfig.json');
+        if (config.ENABLE_EMAIL_SERVICE){
+            this.emailConfig = require('../data-volume/config/emailConfig.json');
+            this.transporter = nodemailer.createTransport({
+                service: this.emailConfig.service,
+                auth: {
+                    user: this.emailConfig.emailAuth,
+                    pass: this.emailConfig.password,
+                },
+            });
+        }
         if (Email.instance) {
             return Email.instance;
         }
-        this.transporter = nodemailer.createTransport({
-            service: this.emailConfig.service,
-            auth: {
-                user: this.emailConfig.emailAuth,
-                pass: this.emailConfig.password,
-            },
-        });
     }
 
     static getInstance() {
