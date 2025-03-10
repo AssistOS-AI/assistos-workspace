@@ -21,7 +21,7 @@ chat-page {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--chat-background);
+    background:  #F3F3F3;
     z-index: -2;
 }
 
@@ -59,7 +59,7 @@ chat-page {
     padding-block-end: 10px;
 }
 .agent-on {
-    background-color: var(--blue-button);
+    background-color: #3478C6;
     color: white;
     cursor: pointer;
     padding: 4px 8px;
@@ -162,7 +162,7 @@ chat-page {
     margin-inline-start:15px;
     margin-inline-end:15px;
     padding-inline-start:10px;
-    background: var(--chat-input-container);
+    background: white;
     border-radius: 6px;
     min-height: 60px;
     width: 100%;
@@ -246,8 +246,8 @@ chat-page {
     word-wrap: break-word;
     white-space: normal;
     border-radius: 16px 16px 16px 16px;
-    color: var(--user-text);
-    background: var(--white-text);
+    color:  black;
+    background: white;
     margin-inline-end: 10px;
     margin-inline-start: 10px;
 }
@@ -264,8 +264,8 @@ chat-page {
     word-wrap: break-word;
     white-space: normal;
     border-radius: 16px 16px 16px 16px;
-    background: var(--light-blue);
-    color: var(--robot-text);
+    background: #E1ECF4;
+    color: black;
     margin-inline-start: 58px;
 }
 
@@ -280,7 +280,7 @@ chat-page {
 }
 
 .arrow-space:hover {
-    background: var(--black);
+    background:  black;
 }
 
 .select-settings-container {
@@ -303,7 +303,7 @@ chat-page {
     left:0;
     bottom:0px;
     flex-direction: column;
-    background-color: var(--white);
+    background-color: white;
 }
 
 .settings-list-container > div {
@@ -311,7 +311,7 @@ chat-page {
     font-size: 14px;
     font-weight: 500;
     line-height: 21px;
-    color: var(--medium-blue);
+    color: #0C5C9E;
 }
 
 .settings-list-container > div:hover {
