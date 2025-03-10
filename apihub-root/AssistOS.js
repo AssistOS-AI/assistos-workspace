@@ -52,7 +52,7 @@ const textFontFamilyMap = Object.freeze({
     "Times New Roman": "font-times-new-roman",
     "Verdana": "font-verdana"
 });
-
+const authPage = "authentication-page";
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -206,11 +206,7 @@ class AssistOS {
         await assistOS.space.loadFlows();
         await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
-        try {
-            await fetch(`/personalities/${assistOS.space.id}/ensure-personality-chats`, {method: "GET"})
-        }catch(error){
-            console.log(error);
-        }
+
         defaultPlugins = await defaultPlugins.json();
         assistOS.space.plugins = defaultPlugins;
         let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
@@ -289,11 +285,11 @@ class AssistOS {
     async loadPage(skipAuth = false, skipSpace = false, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
         spaceId = spaceId ? spaceId : spaceIdURL;
-        if (spaceId === "authentication-page" && skipAuth) {
+        if (spaceId === authPage && skipAuth) {
             spaceId = undefined;
         }
 
-        if (spaceId === "authentication-page") {
+        if (spaceId === authPage) {
             hidePlaceholders();
             if (applicationName === "inviteToken") {
                 return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
@@ -323,7 +319,7 @@ class AssistOS {
         } catch (error) {
             console.info(error);
             hidePlaceholders();
-            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page");
+            await assistOS.UI.changeToDynamicPage(authPage, authPage);
             throw error;
         }
     }
@@ -387,6 +383,7 @@ class AssistOS {
                 throw new Error("Module doesn't exist");
         }
     }
+
     showToast(message, type, timeout = 1500) {
         let toastContainer = document.querySelector(".toast-container");
         let toast = document.createElement("div");
@@ -474,9 +471,6 @@ function defineActions() {
     assistOS.UI.registerAction("closeErrorModal", async (_target) => {
         assistOS.UI.closeModal(_target);
     });
-    assistOS.UI.registerAction("cleanState", async (_target) => {
-        await assistOS.refresh();
-    });
     assistOS.UI.registerAction("toggleSidebar", async (_target) => {
         const arrow = _target.querySelector("#point-arrow-sidebar");
         const sidebar = document.querySelector(".right-sidebar");
@@ -510,11 +504,16 @@ function closeDefaultLoader() {
 }
 
 (async () => {
+    function getCookie(name) {
+        const cookieValue = document.cookie.split('; ').find(row => row.startsWith(name + '='))?.split('=')[1];
+        return cookieValue || null;
+    }
+
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
     window.handleHistory = async (event) => {
-        if (window.location.hash.includes("#authentication-page")) {
+        if (window.location.hash.includes(`#${authPage}`)) {
             await assistOS.logout();
         }
         let modal = document.querySelector("dialog");
@@ -537,7 +536,8 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
-    assistOS.UI.chatState = "open";
+    const chatState= getCookie("chatState");
+    assistOS.UI.chatState = chatState || "open";
     defineActions();
     closeDefaultLoader()
     await assistOS.loadPage();

@@ -476,7 +476,10 @@ async function createSpaceChat(spaceId, personalityId) {
 
 async function createDefaultSpaceChats(lightDbClient, spaceId) {
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));
+    for(const personality of spacePersonalities){
+        await createSpaceChat(spaceId, personality.id);
+    }
+    /*await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));*/
 }
 
 

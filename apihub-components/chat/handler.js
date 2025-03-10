@@ -12,8 +12,13 @@ const getChat = async function (spaceId, chatId) {
 }
 
 const getChatMessages = async function (spaceId, chatId) {
-    const chat = await Document.getDocument(spaceId, chatId);
-    return chat.chapters[0].paragraphs;
+    try {
+        const chat = await Document.getDocument(spaceId, chatId);
+        return chat.chapters[0].paragraphs;
+    }catch(error){
+        error.statusCode=500;
+        throw error;
+    }
 }
 
 const getChatContext = async function (spaceId, chatId) {

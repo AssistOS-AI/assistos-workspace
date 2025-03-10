@@ -22,6 +22,7 @@ const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
     return response.data;
+
 };
 const getChatContext = async (spaceId, chatId) => {
     const request = generateRequest("GET");
@@ -208,13 +209,14 @@ class BaseChatFrame {
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
-        this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
+        try {
+            this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
+        } catch (error) {
+            this.errorState = true;
+        }
+
         this.chatActionButton = sendMessageActionButtonHTML
 
-        if (this.isSubscribed === undefined) {
-            this.isSubscribed = true;
-            await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
-        }
 
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
@@ -582,9 +584,14 @@ if (IFrameContext) {
 
         async beforeRender() {
             await super.beforeRender();
+            if (this.isSubscribed === undefined) {
+                this.isSubscribed = true;
+                await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
+            }
             this.chatOptions = chatOptions;
-            this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
-            this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
+            this.toggleAgentResponseButton =`
+                <button type="button" id="toggleAgentResponse" class="${ this.agentOn ? "agent-on" : "agent-off"}"
+                        data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
         }
 
         async afterRender() {

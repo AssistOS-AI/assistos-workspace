@@ -5,7 +5,6 @@ const authentication = require("../apihub-component-middlewares/authentication.j
 
 
 function ChatComponent(server) {
-
     server.get("/public/chats/:chatId", Chat.getPublicChat)
     server.post("/public/chats", Chat.createPublicChat)
     server.post("/public/chats/:chatId", Chat.sendPublicMessage)
@@ -14,8 +13,8 @@ function ChatComponent(server) {
     server.use("/chats/*", bodyReader);
     server.use("/chats/*", authentication);
 
-    server.post("/chats/:spaceId/:personalityId", Chat.createChat)
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)
+    server.post("/chats/:spaceId/:personalityId", Chat.createChat)
     server.post("/chats/watch/:spaceId/:chatId", Chat.watchChat)
     server.post("/chats/message/:spaceId/:chatId", Chat.sendMessage)
     server.post("/chats/query/:spaceId/:personalityId/:chatId", Chat.sendQueryStreaming)

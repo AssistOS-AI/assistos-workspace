@@ -4,6 +4,12 @@ const paragraphHandler = require("./controllers/paragraph.js");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const authentication = require('../apihub-component-middlewares/authentication.js')
 function document(server) {
+    // Register the document conversion endpoint before applying bodyReader middleware
+    // This endpoint needs to handle the raw request for multipart/form-data
+    server.post("/documents/convert", (req, res) => {
+        documentHandler.proxyDocumentConversion(req, res);
+    });
+
     server.use("/documents/*", bodyReader);
     server.use("/documents/*", authentication);
     // Document

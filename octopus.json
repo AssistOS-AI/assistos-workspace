@@ -211,6 +211,17 @@
             "cmd": "npm uninstall marked"
           }
         ]
+      },
+      {
+        "name": "Git",
+        "src": "https://github.com/AssistOS-AI/git-core.git",
+        "actions": [
+          {
+            "type": "smartClone",
+            "target": "./apihub-components/serverless/cores/",
+            "collectLog": false
+          }
+        ]
       }
     ],
     "postinstall": [

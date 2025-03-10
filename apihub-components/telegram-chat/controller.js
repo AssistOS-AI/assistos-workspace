@@ -49,12 +49,12 @@ async function startBot(req, res){
             username: botData.result.username,
             name: botData.result.first_name,
             id: botId,
-            users: []
+            users: [],
+            public: false
         }
         await personalityModule.updatePersonality(spaceId, personalityId, personality);
         let baseURL = process.env.BASE_URL;
-        //let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
-        let webhookURL = `https://assistos-telegram.ultrahook.com/telegram/${spaceId}/${personalityId}`;
+        let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
         await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
         utils.sendResponse(res, 200, "application/json", {
             data: `Registered bot with id ${botId}, webhook URL: ${webhookURL}`
@@ -133,6 +133,10 @@ async function receiveMessage(req, res){
     let chatId = message.chat.id;
     let personalityModule = await loadAssistOSModule("personality", spaceId);
     let personality = await personalityModule.getPersonality(spaceId, personalityId);
+    if(personality.telegramBot.public){
+        //???
+        return;
+    }
     let userExists = await checkUserExists(res, spaceId, personality, message);
     if(!userExists){
         return utils.sendResponse(res, 200, "application/json", {});

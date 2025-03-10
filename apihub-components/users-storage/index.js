@@ -4,7 +4,6 @@ const {
     loginUser,
     loadUser,
     logoutUser,
-    userSecretExists,
     getUserAvatar,
     resetPassword,
     sendPasswordResetCode,
@@ -68,7 +67,6 @@ function UserStorage(server) {
     }, 0);
 
     server.use("/users/*", bodyReader);
-    server.post("/users/secrets/exists/:spaceId", userSecretExists);
     server.get("/users/verify", activateUser);
     server.post("/users", registerUser);
     server.post("/users/login", loginUser);
