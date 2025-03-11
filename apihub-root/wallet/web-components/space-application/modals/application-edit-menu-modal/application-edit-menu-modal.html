@@ -1,0 +1,48 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <div class="modal-left-header">
+            <span>$$modalName</span>
+        </div>
+        <div class="modal-right-header">
+            <button class="button-close" data-local-action="closeModal"></button>
+        </div>
+    </div>
+    <div class="modal-content">
+        <form class="application-form">
+            <div class="application-form-content">
+                <div class="application-form-item">
+                    <label for="selectedPage">Page</label>
+                    $$pages
+                </div>
+                <div class="application-form-item">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="customFile">
+                        <span>Icon</span>
+                        <label class="file-input-label" for="customFile">
+                            <span></span>
+                            <span>No file selected</span>
+                        </label>
+                        <div class="selected-files"></div>
+                    </div>
+                </div>
+                <div class="application-form-item">
+                    <label for="display-name">Display name</label>
+                    <input type="text" id="display-name" name="display-name" value="$$name">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="modal-footer-left">
+
+        </div>
+        <div class="modal-footer-right">
+            <div class="application-form-footer">
+                <button type="button" class="application-form-button" data-local-action="$$actionFn">$$actionButton
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+

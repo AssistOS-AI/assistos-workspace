@@ -837,8 +837,16 @@ async function addChatToPersonality(spaceId,personalityId,chatId){
     await updatePersonalityData(spaceId, personalityId, personalityData)
 }
 
+const getApplicationEntry = async function(spaceId, applicationId){
+        const applicationPath= path.join(getSpacePath(spaceId), 'applications', applicationId);
+         /* assumption that each application has an index.html where it initialises itself*/
+        const stubHTML=`<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our company. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
+        return stubHTML;
+}
+
 module.exports = {
     APIs: {
+        getApplicationEntry,
         addChatToPersonality,
         addApplicationToSpaceObject,
         removeApplicationFromSpaceObject,

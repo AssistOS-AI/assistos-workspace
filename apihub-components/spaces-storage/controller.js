@@ -1180,8 +1180,20 @@ async function chatCompleteParagraph(request, response) {
         }
     }
 }
-
+const getApplicationEntry = async (request, response) => {
+    const spaceId = request.params.spaceId;
+    const applicationId= request.params.applicationId;
+    try {
+        const entryHTML = await space.APIs.getApplicationEntry(spaceId, applicationId);
+        utils.sendResponse(response, 200, "text/html",entryHTML);
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            message: error.message
+        });
+    }
+}
 module.exports = {
+    getApplicationEntry,
     getUploadURL,
     getDownloadURL,
     headFile,

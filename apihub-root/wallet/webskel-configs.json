@@ -532,6 +532,54 @@
             "directory": "document",
             "type": "modals",
             "presenterClassName": "PrintDocumentModal"
+        },
+        {
+            "name": "application-creator-landing",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorLanding",
+            "type": "pages"
+        },
+        {
+            "name": "application-creator-sidebar",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorSidebar",
+            "type": "components"
+        },
+        {
+            "name": "application-creator-menu",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorMenu",
+            "type": "pages"
+        },
+        {
+            "name": "application-creator-pages",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorPages",
+            "type": "pages"
+        },
+        {
+            "name": "application-creator-preview",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorPreview",
+            "type": "pages"
+        },
+        {
+            "name": "application-creator-settings",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorSettings",
+            "type": "pages"
+        },
+        {
+            "name": "application-edit-page-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationEditPageModal",
+            "type": "modals"
+        },
+        {
+            "name": "application-edit-menu-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationEditMenuModal",
+            "type": "modals"
         }
     ]
 }

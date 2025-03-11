@@ -1,0 +1,37 @@
+<div class="page-container">
+
+    <div class="page-header">
+        <div class="left-header">
+            <span>$$pageName > $$currentPage</span>
+        </div>
+
+        <div class="right-header">
+            <button type="button" class="application-form-button" data-local-action="openAddModal">Add Menu Item</button>
+        </div>
+
+    </div>
+    <div class="page-content">
+        <div class="application-form-item">
+            <label for="selectedPage">Page</label>
+            <select class="application-form-item-select" name="selectedPage" id="selectedPage">
+                $$pages
+            </select>
+        </div>
+        <div class="table-container">
+            <table class="modern-table">
+                <thead>
+                <tr>
+                    <th>Icon</th>
+                    <th>Display Name</th>
+                    <th>Page</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                $$menuRows
+                </tbody>
+            </table>
+        </div>
+    </div>
+    </div>
+</div>

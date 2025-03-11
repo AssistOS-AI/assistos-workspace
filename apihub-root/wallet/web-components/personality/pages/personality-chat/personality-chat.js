@@ -14,7 +14,7 @@ export class PersonalityChat{
         this.chatLLMSection = this.personalityPagePresenter.generateLlmSelectHtml(availableLlms["chat"], "chat");
 
         this.contextSize = this.personality.contextSize||3;
-        const iFrameURL = `${window.location.origin}/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
+        const iFrameURL = `${window.location.origin}/iframes/chat?spaceId=${assistOS.space.id}&personalityId=${this.personality.id}`
         this.chatIframe = `
                         <iframe 
                             id="chatFrame"

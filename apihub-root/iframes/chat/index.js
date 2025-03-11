@@ -1,4 +1,4 @@
-import UI from "../WebSkel/webSkel.js";
+import UI from "../../WebSkel/webSkel.js";
 
 const UIConfigsPath = './chat-configs.json'
 window.UI = new UI();

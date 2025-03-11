@@ -47,7 +47,8 @@ const {
     deleteSpace,
     resetSpaceChat,
     saveSpaceChat,
-    chatCompleteParagraph
+    chatCompleteParagraph,
+    getApplicationEntry
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -135,6 +136,9 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
 
     server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
+
+
+    server.get("/api/v1/spaces/:spaceId/applications/:applicationId", getApplicationEntry);
 }
 
 module.exports = SpaceStorage;

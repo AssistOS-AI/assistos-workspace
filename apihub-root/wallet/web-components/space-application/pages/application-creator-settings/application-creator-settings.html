@@ -1,0 +1,64 @@
+<div class="page-container">
+
+    <div class="page-header">
+        <div class="left-header">
+            <span>$$pageName</span>
+        </div>
+
+        <div class="right-header">
+        </div>
+
+    </div>
+    <div class="page-content">
+        <form class="application-form">
+            <div class="application-form-content">
+                <div class="form-two-column">
+                    <div class="form-left">
+                        <div class="application-form-item">
+                            <label for="selectedHeader">Header</label>
+                            <select class="application-form-item-select" name="selectedHeader" id="selectedHeader">
+                                $$widgets
+                            </select>
+                        </div>
+                        <div class="application-form-item">
+                            <label for="initial-prompt">Initial Prompt</label>
+                            <textarea class="no-resize" id="initial-prompt"
+                                      placeholder="Chose one of the following phrases: 1. How can I help you? 2. Please tell me about you 3. How is your day?">$$initialPrompt</textarea>
+                        </div>
+                        <div class="application-form-item">
+                            <label for="selectedPersonality">Personality</label>
+                            <select class="application-form-item-select" name="selectedPersonality" id="selectedPersonality">
+                                $$personalitiesOptions
+                            </select>
+                        </div>
+                        <div class="application-form-item">
+                            <label for="color">Theme</label>
+                            <select class="application-form-item-select" name="selectedTheme" id="selectedTheme">
+                                $$themes
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-right">
+                        <div class="application-form-item">
+                            <label for="chat-indications">Chat Indications</label>
+                            <textarea class="no-resize" id="chat-indications"
+                                      placeholder="Be short, precise, suggest the relevant page that could help the user resolve his requests">$$chatIndications</textarea>
+                        </div>
+                        <div class="application-form-item">
+                            <label for="color">Primary Color</label>
+                            <input type="color" id="color" name="color" value="$$color">
+                        </div>
+                        <div class="application-form-item">
+                            <label for="text-color">Text Color</label>
+                            <input type="color" id="text-color" name="text-color" value="$$textColor">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            <div class="application-form-footer">
+                <button type="button" class="application-form-button" data-local-action="saveSettings">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
