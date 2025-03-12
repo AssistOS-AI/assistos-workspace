@@ -2,17 +2,13 @@
     "workDir": ".",
     "dependencies": [
         {
-            "name": "Authentication-manager",
-            "src": "https://github.com/AssistOS-AI/Authentication-manager.git",
+            "name": "Gatekeeper",
+            "src": "https://github.com/OpenDSU/Gatekeeper.git",
             "actions": [
                 {
                     "type": "smartClone",
                     "target": ".",
                     "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm install @sendgrid/mail"
                 }
             ]
         },
