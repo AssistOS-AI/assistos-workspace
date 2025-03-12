@@ -40,9 +40,11 @@ export class ApplicationCreatorMenu {
     async beforeRender() {
         const pages = await getPageRows(this.spaceId);
 
-        if (!this.currentPage && pages.length > 0) {
-            this.currentPage = pages[0].id;
-            this.currentPageName = pages[0].name;
+        if (pages.length > 0) {
+            if (!this.currentPage) {
+                this.currentPage = pages[0].id;
+                this.currentPageName = pages[0].name;
+            }
             const menu = await getMenu(this.spaceId, this.currentPage);
             this.menuRows = menu.map(menuData => {
                 return `<tr>
@@ -58,11 +60,10 @@ export class ApplicationCreatorMenu {
             this.pages = pages.map(pageData => {
                 return `<option value="${pageData.id}" ${this.currentPage === pageData.id ? "selected" : ""} >${pageData.name}</option>`
             }).join('');
-        }else{
+        } else {
             this.disabledAdd = "disabled";
-            this.pages= `<option selected>Create A Page First</option>`;
+            this.pages = `<option selected>Create A Page First</option>`;
         }
-
 
 
     }
