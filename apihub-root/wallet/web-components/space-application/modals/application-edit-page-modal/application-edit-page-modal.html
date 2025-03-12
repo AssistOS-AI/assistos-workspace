@@ -12,7 +12,7 @@
             <div class="application-form-content">
                 <div class="application-form-item">
                     <label for="page-name">Page Name</label>
-                    <input type="text" id="page-name" name="page-name" value="$$name" $$disabled>
+                    <input type="text" id="page-name" name="page-name" value="$$name">
                 </div>
                 <div class="application-form-item">
                     <label for="widget-name">Widget</label>
@@ -25,10 +25,7 @@
                 <div class="application-form-item">
                     <label for="chatSize">Chat Width</label>
                     <select class="application-form-item-select" name="chatSize" id="chatSize">
-                        <option value="0">Minimized</option>
-                        <option value="30">Third of Screen</option>
-                        <option value="50">Half of Screen</option>
-                        <option value="100">Full Screen</option>
+                       $$chatOptions
                     </select>
                 </div>
 
@@ -51,11 +48,8 @@
                     </div>
                 </div>
             </div>
-
+        </form>
     </div>
-
-
-    </form>
 </div>
 <div class="modal-footer">
     <div class="modal-footer-left">

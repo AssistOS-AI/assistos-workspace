@@ -22,7 +22,7 @@ function ApplicationsStorage(server) {
     server.get("/applications/tasks/:spaceId/:applicationId", Application.getApplicationTasks);
     server.post("/applications/tasks/:spaceId/:applicationId/:taskName", Application.runApplicationTask);
     server.post("/applications/flows/:spaceId/:applicationId/:flowId", Application.runApplicationFlow);
-
+    server.get("/space/:spaceId/applications/widgets", Application.getWidgets);
     server.put("/app/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
     server.put("/space/:spaceId/applications/:applicationId/:objectType/:objectId", Application.storeObject);
     server.put("/applications/updates/:spaceId/:applicationId", Application.updateApplication);

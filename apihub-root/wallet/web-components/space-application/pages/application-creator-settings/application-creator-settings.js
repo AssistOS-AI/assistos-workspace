@@ -1,39 +1,20 @@
-const getWidgets = (id) => {
-    return [
-        "widget1",
-        "widget2",
-        "widget3",
-        "widget4",
-        "widget5",
-        "widget6",
-        "widget7",
-        "widget8",
-    ]
+const personalityModule = require('assistos').loadModule('personality', {});
+const applicationModule = require('assistos').loadModule('application', {});
+const spaceModule = require('assistos').loadModule('space', {});
+
+const getWidgets = async function (spaceId) {
+    const widgets = await applicationModule.getWidgets(spaceId);
+    return widgets;
 }
 
-const getPersonalities = (id) => {
-    return [
-        {
-            id: 1,
-            name: "Personality 1"
-        },
-        {
-            id: 2,
-            name: "Personality 2"
-        },
-        {
-            id: 3,
-            name: "Personality 3"
-        },
-        {
-            id: 4,
-            name: "Personality 4"
-        },
-        {
-            id: 5,
-            name: "Personality 5"
-        }
-    ]
+const getPersonalities = async function (spaceId) {
+    const personalities = await personalityModule.getPersonalities(spaceId);
+    return personalities;
+}
+
+const getConfiguration = async function (spaceId) {
+    const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)
+    return configuration;
 }
 
 export class ApplicationCreatorSettings {
@@ -41,19 +22,29 @@ export class ApplicationCreatorSettings {
         this.element = element;
         this.invalidate = invalidate;
         this.pageName = "Settings"
+        this.spaceId = assistOS.space.id
         this.invalidate();
     }
 
     async beforeRender() {
-        this.color = "#d0d0d0";
-        this.textColor = "#000000";
-        this.initialPrompt = "";
-        this.knowledge = "";
-        this.chatIndications = "";
-        this.spaceId = assistOS.space.id;
-        this.widgets = getWidgets().map(widget => `<option value="${widget}">${widget}</option>`).join('');
-        this.personalitiesOptions = getPersonalities(this.spaceId).map(personality => `<option value="${personality.id}">${personality.name}</option>`).join('');
-        this.themes = `<option value="light">Light</option><option value="dark">Dark</option>`;
+        const {settings} = await getConfiguration(this.spaceId);
+
+        this.color = settings.primaryColor;
+        this.textColor = settings.textColor;
+        this.initialPrompt = settings.initialPrompt;
+        this.chatIndications = settings.chatIndications;
+        this.theme = settings.theme;
+        this.personality = settings.personality;
+        this.header = settings.header;
+
+        this.widgets = Object.entries(
+            (await getWidgets(this.spaceId)))
+            .map(([app, widgets]) =>
+                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}`===this.header?"selected":""}>${app}/${widget.name}</option>`))
+            .flat(2)
+            .join('');
+        this.personalitiesOptions = (await getPersonalities(this.spaceId)).map(personality => `<option value="${personality.id}" ${this.personality === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
+        this.themes = `<option value="light" ${this.theme==="light"?"selected":""}>Light</option><option value="dark" ${this.theme==="dark"?"selected":""}>Dark</option>`;
     }
 
     async afterRender() {
@@ -61,6 +52,22 @@ export class ApplicationCreatorSettings {
     }
 
     async saveSettings(eventTarget) {
-        console.log('saveSettings');
+        const form = this.element.querySelector('.application-form');
+        let formData = await assistOS.UI.extractFormInformation(form);
+        const initialPrompt = this.element.querySelector('#initial-prompt').value;
+        const chatIndications = this.element.querySelector('#chat-indications').value;
+        if (formData.isValid) {
+            const settingsData = {
+                primaryColor: formData.data.color,
+                textColor: formData.data["text-color"],
+                theme: formData.data.selectedTheme,
+                personality: formData.data.selectedPersonality,
+                header: formData.data.selectedHeader,
+                chatIndications: chatIndications,
+                initialPrompt: initialPrompt
+            }
+            await spaceModule.updateWebAssistantConfigurationSettings(this.spaceId, settingsData);
+            this.invalidate();
+        }
     }
 }

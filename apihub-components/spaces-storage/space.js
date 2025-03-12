@@ -476,7 +476,7 @@ async function createSpaceChat(spaceId, personalityId) {
 
 async function createDefaultSpaceChats(lightDbClient, spaceId) {
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    for(const personality of spacePersonalities){
+    for (const personality of spacePersonalities) {
         await createSpaceChat(spaceId, personality.id);
     }
     /*await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));*/
@@ -826,7 +826,8 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     }
     return existingCollaborators;
 }
-async function addChatToPersonality(spaceId,personalityId,chatId){
+
+async function addChatToPersonality(spaceId, personalityId, chatId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
 
     if (!personalityData.chats) {
@@ -837,16 +838,188 @@ async function addChatToPersonality(spaceId,personalityId,chatId){
     await updatePersonalityData(spaceId, personalityId, personalityData)
 }
 
-const getApplicationEntry = async function(spaceId, applicationId){
-        const applicationPath= path.join(getSpacePath(spaceId), 'applications', applicationId);
-         /* assumption that each application has an index.html where it initialises itself*/
-        const stubHTML=`<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our company. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
-        return stubHTML;
+const getApplicationEntry = async function (spaceId, applicationId) {
+    const applicationPath = path.join(getSpacePath(spaceId), 'applications', applicationId);
+    /* assumption that each application has an index.html where it initialises itself*/
+    const stubHTML = `<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our company. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
+    return stubHTML;
+}
+const getSpaceApplications = async function (spaceId) {
+    const spaceStatusObject = await getSpaceStatusObject(spaceId);
+    return spaceStatusObject.installedApplications;
+}
+const getWebChatConfiguration = async function (spaceId) {
+    const spacePath = getSpacePath(spaceId);
+    const chatConfigPath = path.join(spacePath, 'webAssistantConfig.json');
+    if (fs.existsSync(chatConfigPath)) {
+        const chatConfig = await fsPromises.readFile(chatConfigPath, 'utf8');
+        return JSON.parse(chatConfig);
+    } else {
+        const defaultConfig = {
+            settings: {
+                header:"",
+                initialPrompt:"",
+                chatIndications:"",
+                personality:"",
+                theme:"light",
+                primaryColor:"#007bff",
+                textColor:"#000000",
+            },
+            pages: []
+        }
+        await fsPromises.writeFile(chatConfigPath, JSON.stringify(defaultConfig, null, 2), 'utf8');
+        return defaultConfig;
+    }
+}
+
+async function addWebAssistantConfigurationPage(spaceId, pageData) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    pageData.id = crypto.generateId();
+    config.pages.push(pageData);
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+    return pageData.id;
+}
+
+async function getWebAssistantConfigurationPages(spaceId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    return config.pages;
+}
+async function getWebAssistantConfigurationPage(spaceId, pageId){
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    return page;
+}
+
+async function updateWebAssistantConfigurationPage(spaceId, pageId, pageData) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const pageIndex = config.pages.findIndex(page => page.id === pageId);
+    if (pageIndex === -1) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    config.pages[pageIndex] = { ...config.pages[pageIndex], ...pageData };
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+async function deleteWebAssistantConfigurationPage(spaceId, pageId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const pageIndex = config.pages.findIndex(page => page.id === pageId);
+    if (pageIndex === -1) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    config.pages.splice(pageIndex, 1);
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+async function getWebAssistantConfigurationPageMenu(spaceId, pageId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    return page.menu || [];
+}
+
+async function addWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItem) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    menuItem.id = crypto.generateId();
+    if (!page.menu) {
+        page.menu = [];
+    }
+    page.menu.push(menuItem);
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+    return menuItem.id;
+}
+
+async function updateWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId, menuItemData) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    const menuItemIndex = page.menu.findIndex(item => item.id === menuItemId);
+    if (menuItemIndex === -1) {
+        throw new Error(`Menu item with id ${menuItemId} not found`);
+    }
+    page.menu[menuItemIndex] = { ...page.menu[menuItemIndex], ...menuItemData };
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+async function deleteWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    const menuItemIndex = page.menu.findIndex(item => item.id === menuItemId);
+    if (menuItemIndex === -1) {
+        throw new Error(`Menu item with id ${menuItemId} not found`);
+    }
+    page.menu.splice(menuItemIndex, 1);
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId){
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const page = config.pages.find(page => page.id === pageId);
+    if (!page) {
+        throw new Error(`Page with id ${pageId} not found`);
+    }
+    const menuItem = page.menu.find(item => item.id === menuItemId);
+    if (!menuItem) {
+        throw new Error(`Menu item with id ${menuItemId} not found`);
+    }
+    return menuItem;
+}
+async function updateWebChatConfiguration(spaceId, configuration){
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    config.settings = configuration;
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
 module.exports = {
     APIs: {
+        updateWebChatConfiguration,
+        getWebAssistantConfigurationPageMenuItem,
+        getWebAssistantConfigurationPage,
+        addWebAssistantConfigurationPage,
+        getWebAssistantConfigurationPages,
+        updateWebAssistantConfigurationPage,
+        deleteWebAssistantConfigurationPage,
+        getWebAssistantConfigurationPageMenu,
+        addWebAssistantConfigurationPageMenuItem,
+        updateWebAssistantConfigurationPageMenuItem,
+        deleteWebAssistantConfigurationPageMenuItem,
+        getSpaceApplications,
         getApplicationEntry,
+        getWebChatConfiguration,
         addChatToPersonality,
         addApplicationToSpaceObject,
         removeApplicationFromSpaceObject,

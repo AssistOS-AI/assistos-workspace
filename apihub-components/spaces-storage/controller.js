@@ -1192,7 +1192,200 @@ const getApplicationEntry = async (request, response) => {
         });
     }
 }
+const getWebChatConfiguration = async (request, response) => {
+    const spaceId = request.params.spaceId;
+    try {
+        const configuration = await space.APIs.getWebChatConfiguration(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: configuration
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function addWebAssistantConfigurationPage(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageData = request.body;
+    try {
+        const pageId = await space.APIs.addWebAssistantConfigurationPage(spaceId, pageData);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Page added successfully`,
+            data: { pageId }
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function getWebAssistantConfigurationPages(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        const pages = await space.APIs.getWebAssistantConfigurationPages(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: pages
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function getWebAssistantConfigurationPage(request,response){
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    try {
+        const page = await space.APIs.getWebAssistantConfigurationPage(spaceId, pageId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: page
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function updateWebAssistantConfigurationPage(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    const pageData = request.body;
+    try {
+        await space.APIs.updateWebAssistantConfigurationPage(spaceId, pageId, pageData);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Page updated successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function deleteWebAssistantConfigurationPage(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    try {
+        await space.APIs.deleteWebAssistantConfigurationPage(spaceId, pageId);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Page deleted successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function getWebAssistantConfigurationPageMenu(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    try {
+        const menu = await space.APIs.getWebAssistantConfigurationPageMenu(spaceId, pageId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: menu
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function addWebAssistantConfigurationPageMenuItem(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    const menuItem = request.body;
+    try {
+        const menuItemId = await space.APIs.addWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItem);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Menu item added successfully`,
+            data: { menuItemId }
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function updateWebAssistantConfigurationPageMenuItem(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    const menuItemId = request.params.menuItemId;
+    const menuItemData = request.body;
+    try {
+        await space.APIs.updateWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId, menuItemData);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Menu item updated successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
+async function deleteWebAssistantConfigurationPageMenuItem(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    const menuItemId = request.params.menuItemId;
+    try {
+        await space.APIs.deleteWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Menu item deleted successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function getWebAssistantConfigurationPageMenuItem(request, response) {
+    const spaceId = request.params.spaceId;
+    const pageId = request.params.pageId;
+    const menuItemId = request.params.menuItemId;
+    try {
+        const menuItem = await space.APIs.getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: menuItem
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function updateWebChatConfiguration(request, response) {
+    const spaceId = request.params.spaceId;
+    const configuration = request.body;
+    try {
+        await space.APIs.updateWebChatConfiguration(spaceId, configuration);
+        utils.sendResponse(response, 200, "application/json", {
+            message: `Configuration updated successfully`
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
 module.exports = {
+    updateWebChatConfiguration,
+    getWebAssistantConfigurationPageMenuItem,
+    getWebAssistantConfigurationPage,
+    addWebAssistantConfigurationPage,
+    getWebAssistantConfigurationPages,
+    updateWebAssistantConfigurationPage,
+    deleteWebAssistantConfigurationPage,
+    getWebAssistantConfigurationPageMenu,
+    addWebAssistantConfigurationPageMenuItem,
+    updateWebAssistantConfigurationPageMenuItem,
+    deleteWebAssistantConfigurationPageMenuItem,
+    getWebChatConfiguration,
     getApplicationEntry,
     getUploadURL,
     getDownloadURL,

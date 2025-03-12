@@ -1,22 +1,17 @@
-const getPageData = async (id) => {
-    return {
-        name: "Page Name",
-        widgetName: "Widget Name",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit",
-        data: "Lorem ipsum dolor sit amet, consectetur adipiscing elit"
-    }
+const applicationModule = require('assistos').loadModule('application', {});
+const spaceModule = require('assistos').loadModule('space', {});
+
+const getWidgets = async function (spaceId) {
+    const widgets = await applicationModule.getWidgets(spaceId);
+    return widgets;
 }
-const getWidgets = async () => {
-    return [
-        {name: "Widget Name 1"},
-        {name: "Widget Name 2"},
-        {name: "Widget Name 3"},
-        {name: "Widget Name 4"},
-        {name: "Widget Name 5"},
-        {name: "Widget Name 6"},
-        {name: "Widget Name 7"}
-    ]
+
+
+const getPageData = async function (spaceId, pageId) {
+    const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
+    return page;
 }
+
 
 export class ApplicationEditPageModal {
     constructor(element, invalidate) {
@@ -24,6 +19,7 @@ export class ApplicationEditPageModal {
         this.invalidate = invalidate;
         this.invalidate();
         this.id = this.element.getAttribute('data-id');
+        this.spaceId = assistOS.space.id;
         this.dataStructure = {};
     }
 
@@ -33,57 +29,69 @@ export class ApplicationEditPageModal {
         } else {
             await this.handleAddRender();
         }
-        this.widgets = `<select class="application-form-item-select" name="selectedPage" id="selectedPage">${(await getWidgets()).map(widget => {
-            return `<option value="${widget.name}">${widget.name}</option>`
-        }).join('')}</select>`
     }
 
     async handleAddRender() {
         this.modalName = "Add Page";
         this.actionButton = "Add";
         this.actionFn = `addPage`;
-        this.disabled = '';
+
+        this.widgets = Object.entries(
+            (await getWidgets(this.spaceId)))
+            .map(([app, widgets]) =>
+                widgets.map(widget => `<option value="${app}/${widget.name}">${app}/${widget.name}</option>`))
+            .flat(2)
+            .join('');
+        this.widgets = `<select class="application-form-item-select" id="selectedWidget" name="selectedWidget">${this.widgets}</select>`
+        this.chatOptions = `
+                        <option value="0">Minimized</option>
+                        <option value="30">Third of Screen</option>
+                        <option value="50">Half of Screen</option>
+                        <option value="100">Full Screen</option>
+`
     }
 
     async handleEditRender() {
-        const pageData = await getPageData(this.id);
-        this.description = pageData.description;
-        this.widgetName = pageData.widgetName;
+        const pageData = await getPageData(this.spaceId, this.id);
         this.name = pageData.name;
+
+
+        this.description = pageData.description;
+        this.widget = pageData.widget;
         this.data = pageData.data;
+        this.chatSize = pageData.chatSize;
+        this.generalSettings = pageData.generalSettings;
+
         this.modalName = "Edit Page";
         this.actionButton = "Save";
         this.actionFn = `editPage`;
-        this.widgets = `<input type="text" class="application-form-item-input" id="selectedPage" name="selectedPage" value="${pageData.widgetName}">`
-        this.disabled = 'disabled';
+        this.widgets = Object.entries((await getWidgets(this.spaceId))).map(([app, widgets]) => widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.widget ? "selected" : ""}>${app}/${widget.name}</option>`)).flat(2).join('');
+        this.widgets = `<select class="application-form-item-select" id="selectedWidget" name="selectedWidget">${this.widgets}</select>`
+        this.chatOptions = ` <option value="0" ${this.chatSize === "0" ? "selected" : ""}>Minimized</option>
+                        <option value="30" ${this.chatSize === "30" ? "selected" : ""}>Third of Screen</option>
+                        <option value="50" ${this.chatSize === "50" ? "selected" : ""}>Half of Screen</option>
+                        <option value="100" ${this.chatSize === "100" ? "selected" : ""}>Full Screen</option>
+`
     }
 
     async afterRender() {
         this.tabContent = '';
+        this.form = this.element.querySelector('.application-form');
+        if (!this.id) {
+            this.dataStructure["General Settings"] = {value: ''};
+            this.dataStructure["Data"] = {value: ''};
+        }else{
+            this.dataStructure["General Settings"] = {value: this.generalSettings};
+            this.dataStructure["Data"] = {value: this.data};
+        }
         this.setupDataTabs();
+
     }
 
 
     setupDataTabs() {
         const container = this.element.querySelector('.data-tabs-container');
         if (!container) return;
-
-        try {
-            this.dataStructure = JSON.parse(this.data);
-            // Ensure required tabs exist
-            if (!this.dataStructure["General Settings"]) {
-                this.dataStructure["General Settings"] = { value: '' };
-            }
-            if (!this.dataStructure["Data"]) {
-                this.dataStructure["Data"] = { value: '' };
-            }
-        } catch (e) {
-            this.dataStructure = {
-                "General Settings": { value: '' },
-                "Data": { value: '' }
-            };
-        }
-
         container.addEventListener('input', (e) => {
             if (e.target.tagName === 'TEXTAREA') {
                 const activeKey = this.getActiveTabKey();
@@ -129,7 +137,6 @@ export class ApplicationEditPageModal {
                       placeholder="Enter data..."></textarea>
         `;
 
-        // Set up tab click handlers
         this.element.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 this.element.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -138,7 +145,6 @@ export class ApplicationEditPageModal {
             });
         });
     }
-
 
 
     updateTabContent(key) {
@@ -169,13 +175,42 @@ export class ApplicationEditPageModal {
         await assistOS.UI.closeModal(this.element, {shouldInvalidate: this.shouldInvalidate});
     }
 
-    async addPage() {
-        console.log('addPage', this.dataStructure);
-        await this.closeModal();
+    async addPage(_target) {
+        const form = this.element.querySelector('.application-form');
+        const description = form.querySelector('#description');
+        let formData = await assistOS.UI.extractFormInformation(form);
+        if (formData.isValid) {
+            const pageData = {
+                name: formData.data["page-name"],
+                widget: formData.data.selectedWidget,
+                chatSize: formData.data.chatSize,
+                description: description.value,
+                generalSettings: this.dataStructure["General Settings"].value,
+                data: this.dataStructure["Data"].value
+            }
+            await spaceModule.addWebAssistantConfigurationPage(this.spaceId, pageData);
+            this.shouldInvalidate = true;
+            await this.closeModal();
+        }
     }
 
     async editPage() {
-        console.log('editPage', this.dataStructure);
+        const form = this.element.querySelector('.application-form');
+        const description = form.querySelector('#description');
+        let formData = await assistOS.UI.extractFormInformation(form);
+        if (formData.isValid) {
+            const pageData = {
+                name: formData.data["page-name"],
+                widget: formData.data.selectedWidget,
+                chatSize: formData.data.chatSize,
+                description: description.value,
+                generalSettings: this.dataStructure["General Settings"].value,
+                data: this.dataStructure["Data"].value
+            }
+            await spaceModule.updateWebAssistantConfigurationPage(this.spaceId, this.id, pageData);
+            this.shouldInvalidate = true;
+            await this.closeModal();
+        }
         await this.closeModal();
     }
 }

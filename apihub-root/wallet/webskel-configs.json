@@ -580,6 +580,18 @@
             "directory": "space-application",
             "presenterClassName": "ApplicationEditMenuModal",
             "type": "modals"
+        },
+        {
+            "name":"modal-widget",
+            "directory":"widgets",
+            "presenterClassName":"ModalWidget",
+            "type":"widget"
+        },
+        {
+            "name":"carousel-widget",
+            "directory":"widgets",
+            "presenterClassName":"ModalWidget",
+            "type":"widget"
         }
     ]
 }
