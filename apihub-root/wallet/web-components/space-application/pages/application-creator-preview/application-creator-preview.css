@@ -1,12 +1,76 @@
-application-creator-preview{
-    display:flex;
-    width:100%;
-    height:100%;
+application-creator-preview {
+    display: flex;
+    width: 100%;
+    height: 100%;
 }
 
-#preview-content{
+#preview-content-container {
+    display: flex;
+    flex-direction: column;
+    height: calc(100% - 80px);
+    gap: 10px;
+}
+
+#preview-content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 80px;
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+#preview-content {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    height: 100%;
+    padding-block: 10px;
+}
+
+#preview-content-left, #preview-content-right {
+    display: flex;
+    height: 100%;
+}
+
+#preview-content-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100px;
+    height: 100%;
+    background-color: #f5f5f5;
+    border-radius: 10px;
+}
+
+.menu-icon-img {
+    display: flex;
+    width: 28px;
+    height: 28px;
+}
+
+#preview-page-page-content {
+    display: flex;
+    gap: 10px;
+    width: calc(100% - 100px);
+    height: 100%;
+}
+
+.preview-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-block: 10px;
+    padding-inline: 10px;
+    width: 100%;
+    overflow: auto;
+    cursor: pointer;
+}
+
+.menu-item-name {
     display:flex;
-    flex-direction:column;
-    width:100%;
-    height:100%;
+    flex-wrap: wrap;
+    font-size: 10px;
+    font-weight: 500;
+
 }

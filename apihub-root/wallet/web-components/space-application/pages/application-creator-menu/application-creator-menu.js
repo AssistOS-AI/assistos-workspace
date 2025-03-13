@@ -13,6 +13,10 @@ const getMenu = async function (spaceId, pageId) {
     return menu;
 }
 
+const getPageConfig = async function (spaceId, pageId) {
+    const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
+    return page
+}
 
 const getDropDownMenu = function (id) {
     return `<div class="action-dropdown" id="dropdown-${id}">
@@ -45,12 +49,17 @@ export class ApplicationCreatorMenu {
                 this.currentPage = pages[0].id;
                 this.currentPageName = pages[0].name;
             }
-            const menu = await getMenu(this.spaceId, this.currentPage);
+            let menu = await getMenu(this.spaceId, this.currentPage);
+            menu = await Promise.all(menu.map(async menuItem => {
+                const pageConfig = await getPageConfig(this.spaceId, menuItem.targetPage);
+                return {...menuItem, pageName: pageConfig.name}
+            }))
+
             this.menuRows = menu.map(menuData => {
                 return `<tr>
             <td class="max-icon-display"><img class="menu-item-img" src="${menuData.icon}"></td>
             <td>${menuData.name}</td>
-            <td>${this.currentPageName}</td>
+            <td>${menuData.pageName}</td>
             <td class="application-action-button" data-local-action="viewActions ${menuData.id}" ">
           ${actionButton}
          ${getDropDownMenu(menuData.id)}
@@ -62,7 +71,7 @@ export class ApplicationCreatorMenu {
             }).join('');
         } else {
             this.disabledAdd = "disabled";
-            this.pages = `<option selected>Create A Page First</option>`;
+            this.pages = `<option selected>No Pages Created</option>`;
         }
 
 

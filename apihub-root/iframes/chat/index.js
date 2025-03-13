@@ -1,8 +1,7 @@
 import UI from "../../WebSkel/webSkel.js";
 
 const UIConfigsPath = './chat-configs.json'
-window.UI = new UI();
-await UI.initialise(UIConfigsPath);
+window.UI = await UI.initialise(UIConfigsPath);
 
 const parseCookies = function (cookieString) {
     return cookieString
@@ -26,19 +25,35 @@ const generateId = () => {
     return `${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
 };
 
-const initializeChat = async function(){
+const initializeChat = async function () {
     const appContainer = document.getElementById('app-container');
-    let {chatId=null,userId=null} = parseCookies(document.cookie)
+    let {userId = null} = parseCookies(document.cookie)
 
-    if(userId === null){
+    if (userId === null) {
         userId = generateId()
-        setCookie("userId",userId)
+        setCookie("userId", userId)
     }
 
     const urlParams = new URLSearchParams(window.location.search);
 
-    const personalityId = urlParams.get("personalityId")||null;
-    const spaceId = urlParams.get("spaceId")||null;
+    let chatId = urlParams.get("chatId") || null;
+    const personalityId = urlParams.get("personalityId") || null;
+    const spaceId = urlParams.get("spaceId") || null;
+
+    if (!chatId) {
+        let cookies = parseCookies(document.cookie)
+        chatId = cookies.chatId
+    }
+
+    if (!chatId) {
+        const response = await fetch(`/chats/${spaceId}/${personalityId}`, {
+            method: "POST",
+            headers: {'Content-Type': 'application/json'}
+        })
+        chatId = (await response.json()).data.chatId;
+        setCookie("chatId", chatId)
+        debugger
+    }
 
     appContainer.innerHTML = `<chat-page data-chatId="${chatId}" data-personalityId="${personalityId}" data-spaceId="${spaceId}" data-userId="${userId}" data-presenter="chat-page"></chat-page>`
 }

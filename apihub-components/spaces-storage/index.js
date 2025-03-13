@@ -60,7 +60,8 @@ const {
     deleteWebAssistantConfigurationPageMenuItem,
     getWebAssistantConfigurationPage,
     getWebAssistantConfigurationPageMenuItem,
-    updateWebChatConfiguration
+    updateWebChatConfiguration,
+    getWebAssistantHomePage
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -148,7 +149,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
 
-    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
+    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId", chatCompleteParagraph)
 
 
     server.get("/api/v1/spaces/:spaceId/applications/:applicationId", getApplicationEntry);
@@ -160,7 +161,7 @@ function SpaceStorage(server) {
     server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", getWebAssistantConfigurationPage)
     server.put("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", updateWebAssistantConfigurationPage);
     server.delete("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", deleteWebAssistantConfigurationPage);
-
+    server.get("/spaces/:spaceId/web-assistant/home-page", getWebAssistantHomePage);
     server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", getWebAssistantConfigurationPageMenuItem);
     server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu", getWebAssistantConfigurationPageMenu);
     server.post("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu", addWebAssistantConfigurationPageMenuItem);

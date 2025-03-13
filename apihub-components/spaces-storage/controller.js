@@ -444,7 +444,7 @@ async function getSpace(request, response) {
         }
         try {
             await ensurePersonalityChats(spaceId);
-        }catch(error){
+        } catch (error) {
 
         }
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
@@ -1180,12 +1180,13 @@ async function chatCompleteParagraph(request, response) {
         }
     }
 }
+
 const getApplicationEntry = async (request, response) => {
     const spaceId = request.params.spaceId;
-    const applicationId= request.params.applicationId;
+    const applicationId = request.params.applicationId;
     try {
         const entryHTML = await space.APIs.getApplicationEntry(spaceId, applicationId);
-        utils.sendResponse(response, 200, "text/html",entryHTML);
+        utils.sendResponse(response, 200, "text/html", entryHTML);
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message
@@ -1205,6 +1206,7 @@ const getWebChatConfiguration = async (request, response) => {
         });
     }
 }
+
 async function addWebAssistantConfigurationPage(request, response) {
     const spaceId = request.params.spaceId;
     const pageData = request.body;
@@ -1212,7 +1214,7 @@ async function addWebAssistantConfigurationPage(request, response) {
         const pageId = await space.APIs.addWebAssistantConfigurationPage(spaceId, pageData);
         utils.sendResponse(response, 200, "application/json", {
             message: `Page added successfully`,
-            data: { pageId }
+            data: {pageId}
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -1234,7 +1236,8 @@ async function getWebAssistantConfigurationPages(request, response) {
         });
     }
 }
-async function getWebAssistantConfigurationPage(request,response){
+
+async function getWebAssistantConfigurationPage(request, response) {
     const spaceId = request.params.spaceId;
     const pageId = request.params.pageId;
     try {
@@ -1303,7 +1306,7 @@ async function addWebAssistantConfigurationPageMenuItem(request, response) {
         const menuItemId = await space.APIs.addWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItem);
         utils.sendResponse(response, 200, "application/json", {
             message: `Menu item added successfully`,
-            data: { menuItemId }
+            data: {menuItemId}
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -1344,6 +1347,7 @@ async function deleteWebAssistantConfigurationPageMenuItem(request, response) {
         });
     }
 }
+
 async function getWebAssistantConfigurationPageMenuItem(request, response) {
     const spaceId = request.params.spaceId;
     const pageId = request.params.pageId;
@@ -1359,6 +1363,7 @@ async function getWebAssistantConfigurationPageMenuItem(request, response) {
         });
     }
 }
+
 async function updateWebChatConfiguration(request, response) {
     const spaceId = request.params.spaceId;
     const configuration = request.body;
@@ -1373,7 +1378,23 @@ async function updateWebChatConfiguration(request, response) {
         });
     }
 }
+
+async function getWebAssistantHomePage(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        const homePage = await space.APIs.getWebAssistantHomePage(request,response,spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: homePage
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+
 module.exports = {
+    getWebAssistantHomePage,
     updateWebChatConfiguration,
     getWebAssistantConfigurationPageMenuItem,
     getWebAssistantConfigurationPage,

@@ -11,7 +11,7 @@ function ChatComponent(server) {
     server.post("/public/chats/query/:chatId", Chat.sendPublicQuery)
 
     server.use("/chats/*", bodyReader);
-    server.use("/chats/*", authentication);
+    /*server.use("/chats/!*", authentication);*/
 
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)
     server.post("/chats/:spaceId/:personalityId", Chat.createChat)

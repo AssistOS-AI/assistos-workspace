@@ -1,5 +1,12 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const userModule = require("assistos").loadModule("user", {});
+
+const getImageUrl = async (imageId) => {
+    const response = await fetch(`/spaces/downloads/${imageId}`);
+    return (await response.json()).data.downloadURL;
+}
+const  getUserProfileImage = async (userId) =>{
+    const response = await fetch(`/users/profileImage/${userId}`);
+    return (await response.json()).data.downloadURL;
+}
 
 const stopStreamButton = `<button class="stop-stream-button chat-option-button" data-local-action="stopResponseStream" data-tooltip="Stop Generating">STOP</button>`
 const copyReplyButton = ` <button class="copy-button chat-option-button" data-local-action="copyMessage" data-tooltip="Copy Text"> 
@@ -62,7 +69,7 @@ export class ChatItem {
         this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");
         this.id = this.element.getAttribute("id");
-        this.isContext= this.element.getAttribute("isContext");
+        this.isContext = this.element.getAttribute("isContext");
 
         if (this.ownMessage === "false") {
             this.messageType = "user";
@@ -70,14 +77,14 @@ export class ChatItem {
             let imageSrc = "";
             if (this.role === "user") {
                 try {
-                    imageSrc = await userModule.getUserProfileImage(this.user);
+                    imageSrc = await getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
             } else if (this.role === "assistant") {
                 this.chatMessage = marked.parse(decodeHTML(this.chatMessage));
                 try {
-                    imageSrc = await spaceModule.getImageURL(assistOS.agent.agentData.imageId);
+                    imageSrc = await getImageUrl(assistOS.agent.agentData.imageId);
                 } catch (e) {
                     imageSrc = "./wallet/assets/images/default-personality.png";
                 }
@@ -103,7 +110,7 @@ export class ChatItem {
     }
 
     async addToLocalContext(_target) {
-        await this.chatPagePresenter.addToLocalContext(this.id,this.element)
+        await this.chatPagePresenter.addToLocalContext(this.id, this.element)
     }
 
     async addToGlobalContext(_target) {
@@ -141,7 +148,7 @@ export class ChatItem {
             }, 100);
 
         }
-        if(this.isContext === "true"){
+        if (this.isContext === "true") {
             this.element.classList.add('context-message')
         }
         if (this.role !== "own") {

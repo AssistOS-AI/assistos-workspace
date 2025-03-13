@@ -857,13 +857,13 @@ const getWebChatConfiguration = async function (spaceId) {
     } else {
         const defaultConfig = {
             settings: {
-                header:"",
-                initialPrompt:"",
-                chatIndications:"",
-                personality:"",
-                theme:"light",
-                primaryColor:"#007bff",
-                textColor:"#000000",
+                header: "",
+                initialPrompt: "",
+                chatIndications: "",
+                personality: "",
+                theme: "light",
+                primaryColor: "#007bff",
+                textColor: "#000000",
             },
             pages: []
         }
@@ -888,7 +888,8 @@ async function getWebAssistantConfigurationPages(spaceId) {
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
     return config.pages;
 }
-async function getWebAssistantConfigurationPage(spaceId, pageId){
+
+async function getWebAssistantConfigurationPage(spaceId, pageId) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
@@ -907,7 +908,7 @@ async function updateWebAssistantConfigurationPage(spaceId, pageId, pageData) {
     if (pageIndex === -1) {
         throw new Error(`Page with id ${pageId} not found`);
     }
-    config.pages[pageIndex] = { ...config.pages[pageIndex], ...pageData };
+    config.pages[pageIndex] = {...config.pages[pageIndex], ...pageData};
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
@@ -963,7 +964,7 @@ async function updateWebAssistantConfigurationPageMenuItem(spaceId, pageId, menu
     if (menuItemIndex === -1) {
         throw new Error(`Menu item with id ${menuItemId} not found`);
     }
-    page.menu[menuItemIndex] = { ...page.menu[menuItemIndex], ...menuItemData };
+    page.menu[menuItemIndex] = {...page.menu[menuItemIndex], ...menuItemData};
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
@@ -982,7 +983,8 @@ async function deleteWebAssistantConfigurationPageMenuItem(spaceId, pageId, menu
     page.menu.splice(menuItemIndex, 1);
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
-async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId){
+
+async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
@@ -996,7 +998,8 @@ async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuIte
     }
     return menuItem;
 }
-async function updateWebChatConfiguration(spaceId, configuration){
+
+async function updateWebChatConfiguration(spaceId, configuration) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
@@ -1004,8 +1007,50 @@ async function updateWebChatConfiguration(spaceId, configuration){
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
+async function getWebAssistantHomePage(request,response,spaceId) {
+    const pages = await getWebAssistantConfigurationPages(spaceId);
+    if(pages.length===0){
+        const error = new Error('No pages found in the web assistant configuration');
+        error.statusCode = 404;
+        throw error;
+    }
+    const webAssistantSettings = await getWebChatConfiguration(spaceId);
+    const personalityId = webAssistantSettings.settings.personality;
+    const personalityData = await getPersonalityData(spaceId, personalityId);
+    const modelName=personalityData.llms.text;
+
+    const relevantLlmPagesData = pages.map(page => {
+        return {name: page.name, description: page.description}
+    });
+    const prompt = `
+                **Role**
+                You will be given multiple pages of a web application, and you have to decide which should be the homepage, and to return the index of that page
+                
+                **Pages**
+                ${relevantLlmPagesData.map((page, index) => `Page Index: "${index}" Page name: "${page.name}" Page description: "${page.description}"`).join('\n')}
+                
+                **Output**
+                - You will only respond with the integer between 0 and ${relevantLlmPagesData.length - 1} which will be the index of the page you think should be the homepage
+                - Your response will strictly only include that integer to not cause automatic json parsing issue in the system
+                - Your response will not contain any additional metadata, meta-commentary, or any other information
+                
+                **Output Response examples**
+                Response 1: "0"
+                Response 2: "1"
+                Response 3: "2"        
+    `
+    const {getTextResponse} = require('../llms/controller.js');
+    request.body={}
+    request.body.prompt= prompt;
+    request.body.modelName=modelName;
+    const llmResponse = await getTextResponse(request, response);
+    const pageIndex = parseInt(llmResponse.data.message)||0;
+    return pages[pageIndex];
+}
+
 module.exports = {
     APIs: {
+        getWebAssistantHomePage,
         updateWebChatConfiguration,
         getWebAssistantConfigurationPageMenuItem,
         getWebAssistantConfigurationPage,
