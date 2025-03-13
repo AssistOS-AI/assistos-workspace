@@ -3,6 +3,7 @@
     "lightDBStorage": "../data-volume/lightDB",
     "externalStorage": "../data-volume",
     "port": 8080,
+    "workers": 1,
     "preventRateLimit": true,
     "activeComponents": [
         "bdns",
