@@ -6,10 +6,10 @@ const date = require('../apihub-component-utils/date.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 
-async function updateUserImage(email, imageId, wallet_token) {
-    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+async function updateUserImage(email, imageId, walletKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     user.imageId = imageId;
-    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
 }
 async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
@@ -24,8 +24,8 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
 async function createDemoUser() {
 }
 
-async function loadUser(email, wallet_token) {
-    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+async function loadUser(email, walletKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     return {
         id: user.id,
         email: email,
@@ -34,7 +34,7 @@ async function loadUser(email, wallet_token) {
         imageId: user.imageId
     }
 }
-async function sendAuthComponentRequest(endpoint, method = "GET", body, wallet_token, email, headers) {
+async function sendAuthComponentRequest(endpoint, method = "GET", body, walletKey, email, headers) {
     let url = `${process.env.BASE_URL}/auth/${endpoint}`;
     if(!headers){
         headers = {}
@@ -43,8 +43,8 @@ async function sendAuthComponentRequest(endpoint, method = "GET", body, wallet_t
         method: method,
         headers: headers
     };
-    if(wallet_token){
-        init.headers.Cookie = `wallet_token=${wallet_token}; email=${email}`;
+    if(walletKey){
+        init.headers.Cookie = `walletKey=${walletKey}; email=${email}`;
     }
     if(method === "POST" || method === "PUT"){
         init.body = JSON.stringify(body);
@@ -52,8 +52,8 @@ async function sendAuthComponentRequest(endpoint, method = "GET", body, wallet_t
     let response = await fetch(url, init);
     return await response.json();
 }
-async function linkSpaceToUser(email, spaceId, wallet_token) {
-    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+async function linkSpaceToUser(email, spaceId, walletKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     user.currentSpaceId = spaceId;
     if(!user.spaces){
         user.spaces = [];
@@ -63,7 +63,7 @@ async function linkSpaceToUser(email, spaceId, wallet_token) {
         return;
     }
     user.spaces.push(spaceId);
-    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -160,14 +160,14 @@ async function updateUserFile(userId, userObject) {
     await fsPromises.writeFile(getUserFilePath(userId), JSON.stringify(userObject, null, 2), 'utf8', {encoding: 'utf8'});
 }
 
-async function updateUsersCurrentSpace(email, spaceId, wallet_token) {
-    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+async function updateUsersCurrentSpace(email, spaceId, walletKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     user.currentSpaceId = spaceId;
-    await sendAuthComponentRequest(`account/${email}`, 'PUT', user, wallet_token, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
 }
 
-async function getDefaultSpaceId(email, wallet_token) {
-    let user = await sendAuthComponentRequest(`account/${email}`, 'GET', "", wallet_token, email);
+async function getDefaultSpaceId(email, walletKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     return user.currentSpaceId;
 }
 
@@ -213,8 +213,8 @@ async function registerInvite(referrerId, spaceId, email) {
     await Space.APIs.updateSpacePendingInvitations(spacePendingInvitationsObj);
     return invitationToken;
 }
-async function logoutUser(email, wallet_token) {
-    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", wallet_token, email);
+async function logoutUser(email, walletKey) {
+    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", walletKey, email);
     return response.ok;
 }
 module.exports = {

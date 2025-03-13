@@ -9,6 +9,10 @@
                     "type": "smartClone",
                     "target": ".",
                     "collectLog": false
+                },
+                {
+                     "type": "execute",
+                      "cmd": "cd Gatekeeper && npm install"
                 }
             ]
         },
@@ -70,30 +74,6 @@
             "type": "smartClone",
             "target": "./apihub-root/",
             "collectLog": false
-          }
-        ]
-      },
-      {
-        "name": "temp",
-        "src": "https://github.com/AssistOS-AI/CreditManager.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          },
-          {
-            "type": "copy",
-            "src": "./temp",
-            "target": "./creditManager",
-            "options": {
-              "overwrite": true,
-              "ignoreErrors": true
-            }
-          },
-          {
-            "type": "remove",
-            "target": "./temp"
           }
         ]
       },

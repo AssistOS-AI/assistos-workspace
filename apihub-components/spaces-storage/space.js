@@ -260,7 +260,7 @@ function createDefaultAnnouncement(spaceName) {
         })
 }
 
-async function createSpace(spaceName, email, wallet_token) {
+async function createSpace(spaceName, email, walletKey) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
     const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
@@ -320,7 +320,7 @@ async function createSpace(spaceName, email, wallet_token) {
         () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.linkSpaceToUser(email, spaceId, wallet_token),
+        () => User.linkSpaceToUser(email, spaceId, walletKey),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ];
 
@@ -758,12 +758,12 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     await user.unlinkSpaceFromUser(userId, spaceId);
 }
 
-async function getSpaceCollaborators(spaceId, wallet_token) {
+async function getSpaceCollaborators(spaceId, walletKey) {
     const User = require('../users-storage/user.js');
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     let users = [];
     for (let email in spaceStatusObject.users) {
-        let user = await User.loadUser(email, wallet_token);
+        let user = await User.loadUser(email, walletKey);
         users.push({email: user.email, role: "Member", id: user.id});
     }
     return users;
