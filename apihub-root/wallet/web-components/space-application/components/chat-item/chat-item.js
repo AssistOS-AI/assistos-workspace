@@ -1,11 +1,23 @@
-
-const getImageUrl = async (imageId) => {
-    const response = await fetch(`/spaces/downloads/${imageId}`);
-    return (await response.json()).data.downloadURL;
-}
-const  getUserProfileImage = async (userId) =>{
+const getUserProfileImage = async (userId) => {
     const response = await fetch(`/users/profileImage/${userId}`);
     return (await response.json()).data.downloadURL;
+}
+const getPersonalityImageUrl = async (spaceId, personalityId) => {
+    const response = await fetch(`/spaces/${spaceId}/personalities/${personalityId}/image`);
+    const jsonResponse = await response.json();
+    return jsonResponse.downloadUrl;
+}
+
+const getDefaultUserImage = async () => {
+    try {
+        debugger;
+        const response = await fetch(`${window.location.origin}/assets/images/default-personality`);
+        const imgBuffer = await response.arrayBuffer();
+        const blob = new Blob([imgBuffer], { type: response.headers.get('Content-Type') || 'image/png' });
+        return URL.createObjectURL(blob);
+    } catch (error) {
+        console.error("Error loading default image:", error);
+    }
 }
 
 const stopStreamButton = `<button class="stop-stream-button chat-option-button" data-local-action="stopResponseStream" data-tooltip="Stop Generating">STOP</button>`
@@ -69,6 +81,7 @@ export class ChatItem {
         this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");
         this.id = this.element.getAttribute("id");
+        this.spaceId = this.element.getAttribute("spaceId");
         this.isContext = this.element.getAttribute("isContext");
 
         if (this.ownMessage === "false") {
@@ -79,17 +92,15 @@ export class ChatItem {
                 try {
                     imageSrc = await getUserProfileImage(this.user);
                 } catch (error) {
-                    imageSrc = "./wallet/assets/images/default-personality.png";
+                    imageSrc = await getDefaultUserImage();
                 }
             } else if (this.role === "assistant") {
                 this.chatMessage = marked.parse(decodeHTML(this.chatMessage));
                 try {
-                    imageSrc = await getImageUrl(assistOS.agent.agentData.imageId);
+                    imageSrc = await getPersonalityImageUrl(this.spaceId, this.user);
                 } catch (e) {
-                    imageSrc = "./wallet/assets/images/default-personality.png";
+                    imageSrc = await getDefaultUserImage();
                 }
-            } else {
-                imageSrc = "./wallet/assets/images/default-personality.png";
             }
             this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${imageSrc}" alt="userImage"></div>`;
             this.chatBoxOptions = `<div class="chat-options other-message">

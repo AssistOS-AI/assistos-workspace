@@ -1,6 +1,3 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const personalityModule = require('assistos').loadModule("personality",{})
-
 export class AgentPage{
     constructor(element,invalidate){
         this.element=element;

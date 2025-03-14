@@ -1,6 +1,5 @@
 const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
-const SubscriptionManager = require('../subscribers/SubscriptionManager.js')
 
 const getChatMessages = async function (request, response) {
     const chatId = request.params.chatId;
@@ -67,11 +66,7 @@ const sendMessage = async function (request, response) {
     }
     try {
         const messageId = await Handler.sendMessage(spaceId, chatId, userId, message, "user");
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "messages",
-            action: "add",
-            item: messageId
-        });
+
         return Request.sendResponse(response, 200, "application/json", {
             message: `Successfully added message ${messageId}`,
             data: {messageId}
@@ -131,10 +126,6 @@ const sendQueryStreaming = async function (request, response) {
     }
     try {
         await Handler.sendQueryStreaming(request, response, spaceId, chatId, personalityId,userId, prompt);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "messages",
-            action: "add",
-        });
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to send query to chat ${chatId} from space ${spaceId}`
@@ -157,10 +148,6 @@ const resetChat = async function (request, response) {
     }
     try {
         await Handler.resetChat(spaceId, chatId);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "messages",
-            action: "reset",
-        });
         return Request.sendResponse(response, 200, "application/json", {message: `Chat ${chatId} reset successfully`})
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -184,10 +171,6 @@ const resetChatContext = async function (request, response) {
     }
     try {
         await Handler.resetChatContext(spaceId, chatId);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "context",
-            action: "reset",
-        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
             data: {chatId}
@@ -246,11 +229,6 @@ const addMessageToContext = async function (request, response) {
     }
     try {
         const id = await Handler.addMessageToContext(spaceId, chatId, messageId);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "context",
-            action: "add",
-            item: id
-        });
         return Request.sendResponse(response, 200, "application/json", {
             message: ``
         })
@@ -259,22 +237,6 @@ const addMessageToContext = async function (request, response) {
             message: ``
         })
     }
-}
-
-const getPublicChat = async function (request, response) {
-
-}
-
-const createPublicChat = async function (request, response) {
-
-}
-
-const sendPublicMessage = async function (request, response) {
-
-}
-
-const sendPublicQuery = async function (request, response) {
-
 }
 
 const updateChatContextItem = async function (request, response) {
@@ -300,11 +262,6 @@ const updateChatContextItem = async function (request, response) {
     }
     try {
         await Handler.updateChatContextItem(spaceId, chatId, contextItemId, context);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "context",
-            action: "update",
-            item: contextItemId
-        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Updated Chat Context Item successfully`
         })
@@ -336,11 +293,6 @@ const deleteChatContextItem = async function (request, response) {
     }
     try {
         await Handler.deleteChatContextItem(spaceId, chatId, contextItemId);
-        SubscriptionManager.notifyClients(request.sessionId, `${chatId}/chat`, {
-            type: "context",
-            action: "delete",
-            item: contextItemId
-        });
         return Request.sendResponse(response, 200, "application/json", {
             message: `Deleted Chat Context Item successfully`
         })
@@ -388,9 +340,5 @@ module.exports = {
     addMessageToContext,
     updateChatContextItem,
     deleteChatContextItem,
-    getPublicChat,
-    createPublicChat,
-    sendPublicMessage,
-    sendPublicQuery,
     sendQueryStreaming
 }

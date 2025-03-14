@@ -46,13 +46,18 @@ const initializeChat = async function () {
     }
 
     if (!chatId) {
-        const response = await fetch(`/chats/${spaceId}/${personalityId}`, {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'}
-        })
-        chatId = (await response.json()).data.chatId;
-        setCookie("chatId", chatId)
-        debugger
+        try {
+            debugger
+            const response = await fetch(`/public/chats/${spaceId}/${personalityId}`, {
+                method: "POST",
+                headers: {'Content-Type': 'application/json'}
+            })
+            chatId = (await response.json()).data.chatId;
+            setCookie("chatId", chatId)
+        } catch (error) {
+            alert(`Failed to create chat session. Encountered error:${error.message}`);
+            setCookie("chatId", null)
+        }
     }
 
     appContainer.innerHTML = `<chat-page data-chatId="${chatId}" data-personalityId="${personalityId}" data-spaceId="${spaceId}" data-userId="${userId}" data-presenter="chat-page"></chat-page>`

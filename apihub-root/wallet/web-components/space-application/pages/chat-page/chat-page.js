@@ -230,15 +230,15 @@ class BaseChatFrame {
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
-            if (user === this.userId) {
+            if (user === this.userId || role === "user" && IFrameContext) {
                 ownMessage = true;
             }
             let isContext = chatMessage.commands?.replay?.isContext || "false";
 
             if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
             } else {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
         }
         this.spaceConversation = this.stringHTML;
@@ -357,7 +357,7 @@ class BaseChatFrame {
     }
 
     async displayMessage(role, messageIndex) {
-        const messageHTML = `<chat-item role="${role}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
+        const messageHTML = `<chat-item role="${role}" spaceId="${this.spaceId}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
@@ -447,7 +447,7 @@ class BaseChatFrame {
             }
         )
 
-        const streamContainerHTML = `<chat-item role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
+        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
 
         return await waitForElement(this.conversation.lastElementChild, '.message');
@@ -589,8 +589,8 @@ if (IFrameContext) {
                 await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
             }
             this.chatOptions = chatOptions;
-            this.toggleAgentResponseButton =`
-                <button type="button" id="toggleAgentResponse" class="${ this.agentOn ? "agent-on" : "agent-off"}"
+            this.toggleAgentResponseButton = `
+                <button type="button" id="toggleAgentResponse" class="${this.agentOn ? "agent-on" : "agent-off"}"
                         data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
         }
 

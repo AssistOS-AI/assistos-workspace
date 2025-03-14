@@ -1,6 +1,7 @@
-const {getPersonalityData,getSpaceStatusObject,getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
+const {getPersonalityData, getSpaceStatusObject, getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
 const {createChat} = require('../chat/handler.js');
 const crypto = require("../apihub-component-utils/crypto");
+const storage=require('../apihub-component-utils/storage');
 const {promises: fsPromises} = require("fs");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const SpaceController = require("../spaces-storage/controller.js");
@@ -27,31 +28,37 @@ async function addPersonality(request, spaceId, personalityData) {
     await createChat(spaceId, personalityData.id);
 }
 
-async function addConversation(spaceId,personalityId){
-    return await createChat(spaceId,personalityId);
+async function addConversation(spaceId, personalityId) {
+    return await createChat(spaceId, personalityId);
 }
 
-async function getConversationIds(spaceId,personalityId){
-    const personalityData = await getPersonalityData(spaceId,personalityId)
+async function getConversationIds(spaceId, personalityId) {
+    const personalityData = await getPersonalityData(spaceId, personalityId)
     return personalityData.chats;
 }
 
-async function ensurePersonalityChat(spaceId,personalityId){
-    const personalityData = await getPersonalityData(spaceId,personalityId)
-    if(personalityData.chats === undefined){
-        await addConversation(spaceId,personalityId)
+async function ensurePersonalityChat(spaceId, personalityId) {
+    const personalityData = await getPersonalityData(spaceId, personalityId)
+    if (personalityData.chats === undefined) {
+        await addConversation(spaceId, personalityId)
     }
 }
 
-async function ensurePersonalityChats(spaceId){
+async function ensurePersonalityChats(spaceId) {
     const spacePersonalities = await getSpacePersonalities(spaceId);
     for (const personality of spacePersonalities) {
         await ensurePersonalityChat(spaceId, personality.id);
     }
 }
 
-async function getPersonality(spaceId,personalityId){
-    return await getPersonalityData(spaceId,personalityId);
+async function getPersonality(spaceId, personalityId) {
+    return await getPersonalityData(spaceId, personalityId);
+}
+
+async function getPersonalityImageUrl(spaceId, personalityId) {
+    const personalityData = await getPersonalityData(spaceId, personalityId);
+    const imageId = personalityData.imageId;
+    return await storage.getDownloadURL("image/png", imageId);
 }
 
 module.exports = {
@@ -59,5 +66,6 @@ module.exports = {
     addConversation,
     getConversationIds,
     ensurePersonalityChats,
-    getPersonality
+    getPersonality,
+    getPersonalityImageUrl
 }
