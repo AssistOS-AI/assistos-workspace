@@ -144,7 +144,7 @@ export class AuthenticationPage {
             return;
         }
         let loader = assistOS.UI.showLoading();
-        let result = await userModule.accountExists(email);
+        let result = await userModule.userExists(email);
         await assistOS.UI.hideLoading(loader);
         if(result.account_exists){
             result = await userModule.generateAuthCode(email);
