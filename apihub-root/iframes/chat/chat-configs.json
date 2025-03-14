@@ -17,6 +17,12 @@
       "name": "list-item",
       "directory": "space-application",
       "type": "components"
+    },
+    {
+      "name": "view-context-modal",
+      "directory": "space-application",
+      "type": "modals",
+      "presenterClassName": "ViewContextModal"
     }
   ],
   "services": []

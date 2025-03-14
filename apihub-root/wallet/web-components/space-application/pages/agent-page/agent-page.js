@@ -5,7 +5,7 @@ export class AgentPage{
         this.invalidate();
     }
     async beforeRender(){
-        const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[assistOS.agent.agentData.chats.length-1];
+        const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[0];
         this.chatPage =`<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
         this.personalities = await assistOS.space.getPersonalitiesMetadata();
         let personalitiesHTML = "";

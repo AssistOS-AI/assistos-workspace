@@ -108,6 +108,8 @@ const chatOptions = `
                         <input type="file" class="file-input hidden">
 `
 const IFrameChatOptions = `
+<list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
 `
@@ -519,6 +521,10 @@ class BaseChatFrame {
 
     async newConversation(target) {
         const chatId = await createNewChat(this.spaceId, this.personalityId);
+        if(IFrameContext){
+            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            document.cookie = `chatId=${chatId}`;
+        }
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
