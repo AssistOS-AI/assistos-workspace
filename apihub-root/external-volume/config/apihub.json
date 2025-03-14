@@ -28,6 +28,7 @@
         "logger",
         "flows",
         "telegram-chat",
+        "proxy",
         "Gatekeeper",
         "lightDBEnclave",
         "staticServer"
