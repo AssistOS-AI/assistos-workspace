@@ -47,7 +47,7 @@ async function loadUser(request, response) {
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message
-        }, [cookie.createCurrentSpaceCookie(), cookie.createAuthCookie()]);
+        });
     }
 }
 

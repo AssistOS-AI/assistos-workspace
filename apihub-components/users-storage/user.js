@@ -21,9 +21,6 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     }
 }
 
-async function createDemoUser() {
-}
-
 async function loadUser(email, walletKey) {
     let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
     return {
@@ -50,20 +47,23 @@ async function sendAuthComponentRequest(endpoint, method = "GET", body, walletKe
         init.body = JSON.stringify(body);
     }
     let response = await fetch(url, init);
-    return await response.json();
+    let data = await response.json();
+    if(!response.ok){
+        throw new Error(data.message);
+    }
 }
 async function linkSpaceToUser(email, spaceId, walletKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
-    user.currentSpaceId = spaceId;
-    if(!user.spaces){
-        user.spaces = [];
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+    userInfo.currentSpaceId = spaceId;
+    if(!userInfo.spaces){
+        userInfo.spaces = [];
     }
-    if(user.spaces.includes(spaceId)){
+    if(userInfo.spaces.includes(spaceId)){
         console.log(`User ${email} is already linked to space ${spaceId}`);
         return;
     }
-    user.spaces.push(spaceId);
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
+    userInfo.spaces.push(spaceId);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, walletKey, email);
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -96,94 +96,16 @@ async function unlinkSpaceFromUser(userId, spaceId) {
     await updateUserFile(userId, userFile);
 }
 
-
-function getUserCredentialsPath() {
-    return volumeManager.paths.userCredentials
-}
-
-async function getUserCredentials() {
-    const userCredentialsPath = getUserCredentialsPath();
-    try {
-        await fsPromises.access(userCredentialsPath);
-    } catch (error) {
-        error.message = 'User credentials not found';
-        error.statusCode = 404;
-        throw error;
-    }
-    const userCredentials = await fsPromises.readFile(userCredentialsPath, 'utf8');
-    return JSON.parse(userCredentials);
-}
-
-async function updateUserCredentials(userCredentialsObject) {
-    await fsPromises.writeFile(getUserCredentialsPath(), JSON.stringify(userCredentialsObject, null, 2));
-}
-
-function getUserMapPath() {
-    return volumeManager.paths.userMap
-}
-
-async function getUserMap() {
-    const userMapPath = getUserMapPath();
-    try {
-        await fsPromises.access(userMapPath);
-    } catch (error) {
-        error.message = 'User map not found';
-        error.statusCode = 404;
-        throw error;
-    }
-    const userMap = await fsPromises.readFile(userMapPath, 'utf8');
-    return JSON.parse(userMap);
-}
-
-async function updateUserMap(userMapObject) {
-    await fsPromises.writeFile(getUserMapPath(), JSON.stringify(userMapObject, null, 2));
-}
-
-function getUserFilePath(userId) {
-    return path.join(volumeManager.paths.user, `${userId}.json`);
-}
-
-async function getUserFile(userId) {
-    const userFilePath = await getUserFilePath(userId)
-    try {
-        await fsPromises.access(userFilePath);
-    } catch (e) {
-        const error = new Error(`User with id ${userId} does not exist`);
-        error.statusCode = 404;
-        throw error;
-    }
-    let userFile = await fsPromises.readFile(userFilePath, 'utf8');
-    return JSON.parse(userFile);
-}
-
-async function updateUserFile(userId, userObject) {
-    await fsPromises.writeFile(getUserFilePath(userId), JSON.stringify(userObject, null, 2), 'utf8', {encoding: 'utf8'});
-}
-
-async function updateUsersCurrentSpace(email, spaceId, walletKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
-    user.currentSpaceId = spaceId;
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
+async function setUserCurrentSpace(email, spaceId, walletKey) {
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+    userInfo.currentSpaceId = spaceId;
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, walletKey, email);
 }
 
 async function getDefaultSpaceId(email, walletKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
-    return user.currentSpaceId;
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+    return userInfo.currentSpaceId;
 }
-
-async function getUserPendingActivation() {
-    const userPendingActivationPath = getUserPendingActivationPath();
-    try {
-        await fsPromises.access(userPendingActivationPath);
-    } catch (error) {
-        error.message = 'User pending activation not found';
-        error.statusCode = 404;
-        throw error;
-    }
-    const userPendingActivation = await fsPromises.readFile(userPendingActivationPath, 'utf8');
-    return JSON.parse(userPendingActivation);
-}
-
 async function getActivationSuccessHTML() {
     const activationSuccessTemplate = await require('../email').getTemplate('activationSuccessTemplate')
     const baseURL = process.env.BASE_URL;
@@ -201,18 +123,6 @@ async function getActivationFailHTML(failReason) {
     })
 }
 
-async function registerInvite(referrerId, spaceId, email) {
-    const spacePendingInvitationsObj = await Space.APIs.getSpacesPendingInvitationsObject();
-    const invitationToken = await crypto.generateVerificationToken();
-    spacePendingInvitationsObj[invitationToken] = {
-        spaceId: spaceId,
-        referrerId: referrerId,
-        email: email,
-        invitationDate: date.getCurrentUnixTime()
-    }
-    await Space.APIs.updateSpacePendingInvitations(spacePendingInvitationsObj);
-    return invitationToken;
-}
 async function logoutUser(email, walletKey) {
     let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", walletKey, email);
     return response.ok;
@@ -220,14 +130,10 @@ async function logoutUser(email, walletKey) {
 module.exports = {
     getActivationFailHTML,
     getActivationSuccessHTML,
-    createDemoUser,
     linkSpaceToUser,
     unlinkSpaceFromUser,
     getDefaultSpaceId,
-    updateUsersCurrentSpace,
-    getUserFile,
-    getUserMap,
-    registerInvite,
+    setUserCurrentSpace,
     addSpaceCollaborator,
     loadUser,
     updateUserImage,

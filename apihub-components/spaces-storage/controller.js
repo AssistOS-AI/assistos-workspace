@@ -444,7 +444,7 @@ async function getSpace(request, response) {
 
         let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
         //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
-        await user.updateUsersCurrentSpace(email, spaceId, request.walletKey);
+        await user.setUserCurrentSpace(email, spaceId, request.walletKey);
         utils.sendResponse(response, 200, "application/json", {
             data: spaceObject,
             message: `Space ${spaceId} loaded successfully`
