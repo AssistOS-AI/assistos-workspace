@@ -497,21 +497,21 @@ async function createSpaceStatus(spacePath, spaceObject) {
     await fsPromises.writeFile(statusPath, JSON.stringify(spaceObject, null, 2));
 }
 
-async function deleteSpace(userId, spaceId) {
+async function deleteSpace(email, authKey, spaceId) {
     let user = require('../users-storage/user.js');
     const documentService = require("../document/services/document");
-    let userFile = await user.getUserFile(userId);
+    let userFile = await user.loadUser(email, authKey);
     let spacesNr = Object.keys(userFile.spaces).length;
     if (spacesNr === 1) {
         return "You can't delete your last space";
     }
     let spaceStatus = await getSpaceStatusObject(spaceId);
-    if (!spaceStatus.admins[userId]) {
+    if (!spaceStatus.admins[email]) {
         return "You dont have permission to delete this space";
     }
     //unlink space from all users
     for (let userId of Object.keys(spaceStatus.users)) {
-        await user.unlinkSpaceFromUser(userId, spaceId);
+        await user.unlinkSpaceFromUser(email, authKey, spaceId);
     }
     //delete space folder
     let spacePath = getSpacePath(spaceId);

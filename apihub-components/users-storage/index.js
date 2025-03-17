@@ -3,21 +3,23 @@ const {
     loadUser,
     getUserImage,
     updateUserImage,
-    logoutUser
+    logoutUser,
+    getCurrentSpaceId
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const authentication = require('../apihub-component-middlewares/authentication.js')
+const contextMiddleware = require('../apihub-component-middlewares/context.js')
 function UserStorage(server) {
+    server.use("/*", contextMiddleware);
     server.use("/users/*", bodyReader);
     server.post("/users/login", loginUser);
 
     server.get("/users/profileImage/:email", getUserImage);
     server.post("/users/profileImage/:email", updateUserImage);
 
-    server.use("/users/*", authentication);
     server.get("/users", loadUser);
     server.get("/users/logout", logoutUser);
+    server.get("/users/spaceId/:email", getCurrentSpaceId);
 }
 
 module.exports = UserStorage;

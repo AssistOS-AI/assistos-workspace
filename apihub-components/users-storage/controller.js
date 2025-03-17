@@ -40,6 +40,14 @@ async function loginUser(request, response) {
 async function loadUser(request, response) {
     try {
         const userData = await User.loadUser(request.email, request.authKey);
+        let spaceMap = await Space.APIs.getSpaceMap();
+        let spaces = [];
+        for(let spaceId of userData.spaces){
+            if(spaceMap[spaceId]){
+                spaces.push({id: spaceId, name: spaceMap[spaceId]});
+            }
+        }
+        userData.spaces = spaces;
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             message: `User ${userData.name} loaded successfully`
@@ -94,10 +102,23 @@ async function updateUserImage(request, response) {
         });
     }
 }
+async function getCurrentSpaceId(request, response) {
+    try {
+        const spaceId = await User.getCurrentSpaceId(request.email, request.authKey);
+        utils.sendResponse(response, 200, "application/json", {
+            data: spaceId
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            message: error.message
+        });
+    }
+}
 module.exports = {
     loginUser,
     loadUser,
     logoutUser,
     getUserImage,
-    updateUserImage
+    updateUserImage,
+    getCurrentSpaceId
 };

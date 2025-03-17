@@ -1,10 +1,8 @@
 const Application = require("./controller.js");
 
 const bodyReader=require("../apihub-component-middlewares/bodyReader.js");
-const authentication=require("../apihub-component-middlewares/authentication.js");
 
 function ApplicationsStorage(server) {
-    server.use("/applications/*", authentication);
     server.use("/applications/*", bodyReader);
 
     server.get("/applications/plugins/:spaceId", Application.getApplicationsPlugins);

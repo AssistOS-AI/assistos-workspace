@@ -17,10 +17,9 @@ const {
     translateDocument
 } = require("./controller");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function Tasks(server){
-    server.use("/tasks/*", authentication);
+    //TODO: Add authentication middleware
     server.delete("/tasks/cancel/:taskId", cancelTask);
     server.delete("/tasks/remove/:taskId", cancelTaskAndRemove);
 

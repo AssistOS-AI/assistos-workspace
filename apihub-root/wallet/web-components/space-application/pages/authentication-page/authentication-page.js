@@ -174,7 +174,7 @@ export class AuthenticationPage {
         if (!assistOS.user.imageId) {
             let uint8Array = await this.generateUserAvatar(this.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
+            await userModule.updateUserImage(assistOS.user.email, assistOS.user.imageId);
         }
     }
     async generateUserAvatar(email, size = 100) {

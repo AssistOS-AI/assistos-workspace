@@ -1,11 +1,5 @@
-const fsPromises = require('fs').promises;
-const path = require('path');
-const crypto = require("../apihub-component-utils/crypto");
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
-const volumeManager = require('../volumeManager.js');
-const Space = require("../spaces-storage/space");
-
 async function updateUserImage(email, imageId, authKey) {
     let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     user.imageId = imageId;
@@ -22,13 +16,12 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
 }
 
 async function loadUser(email, authKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     return {
-        id: user.id,
         email: email,
-        currentSpaceId: user.currentSpaceId,
-        spaces: user.spaces,
-        imageId: user.imageId
+        currentSpaceId: userInfo.currentSpaceId,
+        spaces: userInfo.spaces,
+        imageId: userInfo.imageId
     }
 }
 async function sendAuthComponentRequest(endpoint, method = "GET", body, authKey, email, headers) {
@@ -85,22 +78,25 @@ async function linkUserToSpace(spaceId, userId, referrerId, role) {
     await Space.APIs.updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function unlinkSpaceFromUser(userId, spaceId) {
-    const userFile = await getUserFile(userId)
+async function unlinkSpaceFromUser(email, authKey, spaceId) {
+    const userInfo = await loadUser(email, authKey);
 
-    delete userFile.spaces[spaceId];
+    userInfo.spaces = userInfo.spaces.filter(id => id !== spaceId);
 
-    if (userFile.currentSpaceId === spaceId) {
-        let spaces = Object.keys(userFile.spaces);
-        userFile.currentSpaceId = spaces.length > 0 ? spaces[0] : null;
+    if (userInfo.currentSpaceId === spaceId) {
+        userInfo.currentSpaceId = userInfo.spaces.length > 0 ? userInfo.spaces[0] : null;
     }
-    await updateUserFile(userId, userFile);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
 }
 
 async function setUserCurrentSpace(email, spaceId, authKey) {
     let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     userInfo.currentSpaceId = spaceId;
     await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
+}
+async function getCurrentSpaceId(email, authKey) {
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
+    return userInfo.currentSpaceId;
 }
 
 async function getDefaultSpaceId(email, authKey) {
@@ -138,5 +134,6 @@ module.exports = {
     addSpaceCollaborator,
     loadUser,
     updateUserImage,
-    logoutUser
+    logoutUser,
+    getCurrentSpaceId
 }

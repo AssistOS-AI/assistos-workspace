@@ -51,7 +51,6 @@ const {
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const authentication = require('../apihub-component-middlewares/authentication.js')
 
 function SpaceStorage(server) {
     server.head("/spaces/files/:fileId", headFile);
@@ -60,9 +59,8 @@ function SpaceStorage(server) {
     server.use("/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
-    server.use("/apis/v1/spaces/*", authentication);
-    server.use("/spaces/*", authentication);
 
+    //TODO: Add authentication middleware
     /*Attachments*/
     server.get("/spaces/uploads", getUploadURL);
     server.get("/spaces/downloads/:fileId", getDownloadURL);

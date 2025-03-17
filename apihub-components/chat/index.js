@@ -1,7 +1,6 @@
 const Chat = require('./controller')
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader.js");
-const authentication = require("../apihub-component-middlewares/authentication.js");
 
 
 function ChatComponent(server) {
@@ -12,7 +11,6 @@ function ChatComponent(server) {
     server.post("/public/chats/query/:chatId", Chat.sendPublicQuery)
 
     server.use("/chats/*", bodyReader);
-    server.use("/chats/*", authentication);
 
     server.post("/chats/:spaceId/:personalityId", Chat.createChat)
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)

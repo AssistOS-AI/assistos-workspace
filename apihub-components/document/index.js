@@ -2,10 +2,8 @@ const documentHandler = require("./controllers/document.js");
 const chapterHandler = require("./controllers/chapter.js");
 const paragraphHandler = require("./controllers/paragraph.js");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const authentication = require('../apihub-component-middlewares/authentication.js')
 function document(server) {
     server.use("/documents/*", bodyReader);
-    server.use("/documents/*", authentication);
     // Document
     server.get("/documents/metadata/:spaceId", documentHandler.getDocumentsMetadata);
     server.get("/documents/:spaceId/:documentId", documentHandler.getDocument);

@@ -457,7 +457,7 @@ async function getSpace(request, response) {
 }
 
 async function createSpace(request, response) {
-    const userId = request.userId
+    const email = request.email
     const spaceName = request.body.spaceName
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
@@ -466,11 +466,8 @@ async function createSpace(request, response) {
         return;
     }
     try {
-        let SecurityContext = require("assistos").ServerSideSecurityContext;
-        let securityContext = new SecurityContext(request);
-        const spaceModule = require("assistos").loadModule("space", securityContext);
-        let newSpace = await space.APIs.createSpace(spaceName, userId, spaceModule, request.authKey);
-        utils.sendResponse(response, 201, "application/json", {
+        let newSpace = await space.APIs.createSpace(spaceName, email, request.authKey);
+        utils.sendResponse(response, 200, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
         }, cookie.createCurrentSpaceCookie(newSpace.id));
@@ -479,11 +476,6 @@ async function createSpace(request, response) {
             case 409:
                 utils.sendResponse(response, 409, "application/json", {
                     message: "Conflict: Space already exists",
-                });
-                return;
-            case 401:
-                utils.sendResponse(response, 401, "application/json", {
-                    message: "Unauthorized: Invalid API Key",
                 });
                 return;
         }
@@ -495,9 +487,9 @@ async function createSpace(request, response) {
 
 async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
-    let userId = request.userId;
+    let email = request.email;
     try {
-        let message = await space.APIs.deleteSpace(userId, spaceId);
+        let message = await space.APIs.deleteSpace(email, request.authKey, spaceId);
         if (!message) {
             //space deleted
             let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
