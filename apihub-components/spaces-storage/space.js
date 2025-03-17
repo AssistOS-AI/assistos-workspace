@@ -260,9 +260,8 @@ function createDefaultAnnouncement(spaceName) {
         })
 }
 
-async function createSpace(spaceName, email, walletKey) {
+async function createSpace(spaceName, email, authKey) {
     const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
-    const spaceValidationSchema = require('./templates/spaceValidationSchema.json');
 
     const User = require('../users-storage/user.js');
     const rollback = async (spacePath) => {
@@ -297,22 +296,8 @@ async function createSpace(spaceName, email, walletKey) {
         error.statusCode = 500;
         throw error;
     }
-    let spaceValidationResult = {};
-    try {
-        spaceValidationResult = data.validateObject(spaceValidationSchema, spaceObj);
-    } catch (error) {
-        error.message = 'Error validating space data';
-        error.statusCode = 500;
-        throw error;
-    }
-    if (spaceValidationResult.status === false) {
-        const error = new Error(spaceValidationResult.errorMessage);
-        error.statusCode = 400;
-        throw error;
-    }
 
     const spacePath = getSpacePath(spaceId);
-
     await file.createDirectory(spacePath);
     await secrets.createSpaceSecretsContainer(spaceId);
 
@@ -320,7 +305,7 @@ async function createSpace(spaceName, email, walletKey) {
         () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
         () => file.createDirectory(path.join(spacePath, 'applications')),
         () => createSpaceStatus(spacePath, spaceObj),
-        () => User.linkSpaceToUser(email, spaceId, walletKey),
+        () => User.linkSpaceToUser(email, spaceId, authKey),
         () => addSpaceToSpaceMap(spaceId, spaceName),
     ];
 

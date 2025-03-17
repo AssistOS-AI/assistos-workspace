@@ -8,7 +8,7 @@ async function authentication(req, res, next) {
     const sessionId = cookies['sessionId'];
     const apiHubToken = cookies['ApiHubAuth'];
     req.email = cookies['email'];
-    req.walletKey = cookies['walletKey'];
+    req.authKey = cookies['authKey'];
     if(sessionId) {
         req.sessionId = sessionId;
     }

@@ -25,7 +25,7 @@ async function loginUser(request, response) {
         if(createSpace){
             let spaceName = email.split('@')[0];
             let parsedCookies = cookie.parseResponseCookies(internalResponse);
-            const space = await Space.APIs.createSpace(spaceName, email, parsedCookies['walletKey'].value);
+            const space = await Space.APIs.createSpace(spaceName, email, encodeURIComponent(parsedCookies['authKey'].value));
             cookieArray.push(cookie.createCurrentSpaceCookie(space.id));
         }
         response.setHeader('Set-Cookie', cookieArray);
@@ -39,13 +39,13 @@ async function loginUser(request, response) {
 
 async function loadUser(request, response) {
     try {
-        const userData = await User.loadUser(request.email, request.walletKey);
+        const userData = await User.loadUser(request.email, request.authKey);
         utils.sendResponse(response, 200, "application/json", {
             data: userData,
             message: `User ${userData.name} loaded successfully`
         });
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, 500, "application/json", {
             message: error.message
         });
     }
@@ -53,7 +53,7 @@ async function loadUser(request, response) {
 
 async function logoutUser(request, response) {
         try {
-            await User.logoutUser(request.email, request.walletKey);
+            await User.logoutUser(request.email, request.authKey);
         utils.sendResponse(response, 200, "application/json", {
             message: "User logged out successfully"
         }, [cookie.deleteCurrentSpaceCookie()]);
@@ -66,7 +66,7 @@ async function logoutUser(request, response) {
 
 async function getUserImage(request, response) {
     const email = request.params.email;
-    const user = await User.loadUser(email, request.walletKey);
+    const user = await User.loadUser(email, request.authKey);
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     const spaceModule = require("assistos").loadModule("space", securityContext);
@@ -84,7 +84,7 @@ async function updateUserImage(request, response) {
     const email = request.params.email;
     const imageId = request.body.imageId;
     try {
-        await User.updateUserImage(email, imageId, request.walletKey);
+        await User.updateUserImage(email, imageId, request.authKey);
         utils.sendResponse(response, 200, "application/json", {
             message: "User image updated successfully"
         });

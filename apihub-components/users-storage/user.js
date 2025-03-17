@@ -6,10 +6,10 @@ const date = require('../apihub-component-utils/date.js');
 const volumeManager = require('../volumeManager.js');
 const Space = require("../spaces-storage/space");
 
-async function updateUserImage(email, imageId, walletKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+async function updateUserImage(email, imageId, authKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     user.imageId = imageId;
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, walletKey, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, authKey, email);
 }
 async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
@@ -21,8 +21,8 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     }
 }
 
-async function loadUser(email, walletKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+async function loadUser(email, authKey) {
+    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     return {
         id: user.id,
         email: email,
@@ -31,7 +31,7 @@ async function loadUser(email, walletKey) {
         imageId: user.imageId
     }
 }
-async function sendAuthComponentRequest(endpoint, method = "GET", body, walletKey, email, headers) {
+async function sendAuthComponentRequest(endpoint, method = "GET", body, authKey, email, headers) {
     let url = `${process.env.BASE_URL}/auth/${endpoint}`;
     if(!headers){
         headers = {}
@@ -40,8 +40,8 @@ async function sendAuthComponentRequest(endpoint, method = "GET", body, walletKe
         method: method,
         headers: headers
     };
-    if(walletKey){
-        init.headers.Cookie = `walletKey=${walletKey}; email=${email}`;
+    if(authKey){
+        init.headers.Cookie = `authKey=${authKey}; email=${email}`;
     }
     if(method === "POST" || method === "PUT"){
         init.body = JSON.stringify(body);
@@ -51,9 +51,10 @@ async function sendAuthComponentRequest(endpoint, method = "GET", body, walletKe
     if(!response.ok){
         throw new Error(data.message);
     }
+    return data;
 }
-async function linkSpaceToUser(email, spaceId, walletKey) {
-    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+async function linkSpaceToUser(email, spaceId, authKey) {
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     userInfo.currentSpaceId = spaceId;
     if(!userInfo.spaces){
         userInfo.spaces = [];
@@ -63,7 +64,7 @@ async function linkSpaceToUser(email, spaceId, walletKey) {
         return;
     }
     userInfo.spaces.push(spaceId);
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, walletKey, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
@@ -96,14 +97,14 @@ async function unlinkSpaceFromUser(userId, spaceId) {
     await updateUserFile(userId, userFile);
 }
 
-async function setUserCurrentSpace(email, spaceId, walletKey) {
-    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+async function setUserCurrentSpace(email, spaceId, authKey) {
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     userInfo.currentSpaceId = spaceId;
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, walletKey, email);
+    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
 }
 
-async function getDefaultSpaceId(email, walletKey) {
-    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", walletKey, email);
+async function getDefaultSpaceId(email, authKey) {
+    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
     return userInfo.currentSpaceId;
 }
 async function getActivationSuccessHTML() {
@@ -123,8 +124,8 @@ async function getActivationFailHTML(failReason) {
     })
 }
 
-async function logoutUser(email, walletKey) {
-    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", walletKey, email);
+async function logoutUser(email, authKey) {
+    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", authKey, email);
     return response.ok;
 }
 module.exports = {
