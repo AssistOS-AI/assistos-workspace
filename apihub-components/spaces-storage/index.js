@@ -61,7 +61,8 @@ const {
     getWebAssistantConfigurationPage,
     getWebAssistantConfigurationPageMenuItem,
     updateWebChatConfiguration,
-    getWebAssistantHomePage
+    getWebAssistantHomePage,
+    getWidget
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -73,6 +74,7 @@ function SpaceStorage(server) {
     server.get("/spaces/files/:fileId", getFile);
 
     server.use("/spaces/*", bodyReader);
+    server.use("/public/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.use("/apis/v1/spaces/*", authentication);
@@ -167,6 +169,8 @@ function SpaceStorage(server) {
     server.post("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu", addWebAssistantConfigurationPageMenuItem);
     server.put("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", updateWebAssistantConfigurationPageMenuItem);
     server.delete("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", deleteWebAssistantConfigurationPageMenuItem);
+
+    server.get("/public/spaces/widgets/:spaceId/:applicationId/:widgetName", getWidget);
 }
 
 module.exports = SpaceStorage;

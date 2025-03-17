@@ -9,6 +9,38 @@ const generateRequest = function (method, headers = {}, body = null) {
     };
 };
 
+const getConfiguration = async function (spaceId) {
+    const response = await fetch(`/spaces/${spaceId}/web-assistant/configuration`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    const configuration = (await response.json()).data
+    return configuration;
+}
+
+const getHomePageConfig = async function (spaceId) {
+    const response = await fetch(`/spaces/${spaceId}/web-assistant/home-page`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    const homePage = (await response.json()).data
+    return homePage
+}
+const getPageConfig = async function (spaceId, pageId) {
+    const response = await fetch(`/spaces/${spaceId}/web-assistant/configuration/pages/${pageId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    const page = (await response.json()).data
+    return page
+}
+
 const addToLocalContext = async (spaceId, chatId, messageId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"});
     const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
@@ -92,19 +124,9 @@ const stopStreamActionButtonHTML = `
 </button>
 `
 
-const chatOptions = `
-    <list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
-                        <input type="file" class="file-input hidden">
-`
 const IFrameChatOptions = `
 <list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
 <list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
 `
 
 const getChatItemRole = function (chatItem) {
@@ -141,7 +163,7 @@ const waitForElement = (container, selector) => {
 };
 
 const IFrameContext = window.assistOS === undefined;
-const UI = IFrameContext ? window.UI : window.assistOS.UI
+const UI = window.UI
 
 class BaseChatFrame {
     constructor(element, invalidate) {
@@ -151,9 +173,8 @@ class BaseChatFrame {
         this.ongoingStreams = new Map();
         this.observedElement = null;
         this.userHasScrolledManually = false;
-        if (IFrameContext) {
-            this.invalidate();
-        }
+        this.invalidate();
+
     }
 
     async handleChatEvent(eventData) {
@@ -204,6 +225,25 @@ class BaseChatFrame {
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
+        if (!this.currentPageId) {
+            this.configuration = await getConfiguration(this.spaceId);
+            const homePageConfig = await getHomePageConfig(this.spaceId, this.configuration.pages);
+            this.currentPageId = homePageConfig.id;
+        }
+        this.page = await getPageConfig(this.spaceId, this.currentPageId);
+        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
+        const [widgetApp, widgetName] = this.page.widget.split('/');
+        await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
+        await UI.loadWidget(this.spaceId, widgetApp, widgetName);
+        this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
+        this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
+
+        this.previewContentSidebar = this.page.menu.map((menuItem) => {
+            return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
+            </div>`
+        }).join('');
+
         try {
             this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
         } catch (error) {
@@ -211,7 +251,6 @@ class BaseChatFrame {
         }
 
         this.chatActionButton = sendMessageActionButtonHTML
-
 
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
@@ -237,11 +276,21 @@ class BaseChatFrame {
             }
         }
         this.spaceConversation = this.stringHTML;
-
-
     }
 
     async afterRender() {
+        this.previewLeftElement = this.element.querySelector('#preview-content-left');
+        this.previewRightElement = this.element.querySelector('#preview-content-right');
+
+        this.previewLeftElement.style.width = `${this.page.chatSize}%`;
+        this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
+
+        if (this.previewRightElement.style.width === '0%') {
+            this.previewRightElement.style.display = 'none';
+        }
+        if (this.previewLeftElement.style.width === '0%') {
+            this.previewLeftElement.style.display = 'none';
+        }
 
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
@@ -517,7 +566,7 @@ class BaseChatFrame {
 
     async newConversation(target) {
         const chatId = await createNewChat(this.spaceId, this.personalityId);
-        if(IFrameContext){
+        if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
@@ -528,19 +577,6 @@ class BaseChatFrame {
     async resetConversation() {
         await resetChat(this.spaceId, this.chatId);
         this.invalidate();
-    }
-
-    async resetLocalContext(target) {
-        await resetChatContext(this.spaceId, this.chatId);
-        this.invalidate();
-    }
-
-    async viewAgentContext(_target) {
-        await UI.showModal('view-context-modal', {
-            presenter: `view-context-modal`,
-            chatId: this.chatId,
-            spaceId: this.spaceId
-        });
     }
 
     hideSettings(controller, container, event) {
@@ -564,63 +600,13 @@ class BaseChatFrame {
         await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
         chatItemElement.classList.add('context-message');
     }
-}
 
-let ChatPage;
-
-if (IFrameContext) {
-    ChatPage = BaseChatFrame;
-} else {
-    ChatPage = class ChatPageContext extends BaseChatFrame {
-        constructor(element, invalidate) {
-            super(element, invalidate)
-            const agentState = localStorage.getItem("agentOn")
-            if (!agentState) {
-                localStorage.setItem("agentOn", "true");
-                this.agentOn = true;
-            } else {
-                this.agentOn = agentState === "true";
-            }
-            this.invalidate();
-        }
-
-        async beforeRender() {
-            await super.beforeRender();
-            if (this.isSubscribed === undefined) {
-                this.isSubscribed = true;
-                await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
-            }
-            this.chatOptions = chatOptions;
-            this.toggleAgentResponseButton = `
-                <button type="button" id="toggleAgentResponse" class="${this.agentOn ? "agent-on" : "agent-off"}"
-                        data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
-        }
-
-        async afterRender() {
-            await super.afterRender()
-            await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
-        }
-
-        async toggleAgentResponse(_target) {
-            if (this.agentOn) {
-                this.toggleAgentButton.classList.remove("agent-on");
-                this.toggleAgentButton.classList.add("agent-off");
-                this.toggleAgentButton.innerHTML = "Agent:OFF";
-            } else {
-                this.toggleAgentButton.classList.remove("agent-off");
-                this.toggleAgentButton.classList.add("agent-on");
-                this.toggleAgentButton.innerHTML = "Agent:ON";
-            }
-            this.agentOn = !this.agentOn;
-            localStorage.setItem("agentOn", this.agentOn);
-        }
-
-        uploadFile(_target) {
-            let fileInput = this.element.querySelector(".file-input");
-            fileInput.click();
-        }
+    async openPreviewPage(eventTarget, pageId) {
+        this.currentPageId = pageId
+        this.invalidate();
     }
 }
 
+let ChatPage = BaseChatFrame;
 export {ChatPage};
 

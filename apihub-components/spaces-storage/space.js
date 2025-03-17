@@ -1007,9 +1007,9 @@ async function updateWebChatConfiguration(spaceId, configuration) {
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-async function getWebAssistantHomePage(request,response,spaceId) {
+async function getWebAssistantHomePage(request, response, spaceId) {
     const pages = await getWebAssistantConfigurationPages(spaceId);
-    if(pages.length===0){
+    if (pages.length === 0) {
         const error = new Error('No pages found in the web assistant configuration');
         error.statusCode = 404;
         throw error;
@@ -1017,7 +1017,7 @@ async function getWebAssistantHomePage(request,response,spaceId) {
     const webAssistantSettings = await getWebChatConfiguration(spaceId);
     const personalityId = webAssistantSettings.settings.personality;
     const personalityData = await getPersonalityData(spaceId, personalityId);
-    const modelName=personalityData.llms.text;
+    const modelName = personalityData.llms.text;
 
     const relevantLlmPagesData = pages.map(page => {
         return {name: page.name, description: page.description}
@@ -1040,16 +1040,39 @@ async function getWebAssistantHomePage(request,response,spaceId) {
                 Response 3: "2"        
     `
     const {getTextResponse} = require('../llms/controller.js');
-    request.body={}
-    request.body.prompt= prompt;
-    request.body.modelName=modelName;
+    request.body = {}
+    request.body.prompt = prompt;
+    request.body.modelName = modelName;
     const llmResponse = await getTextResponse(request, response);
-    const pageIndex = parseInt(llmResponse.data.message)||0;
+    const pageIndex = parseInt(llmResponse.data.message) || 0;
     return pages[pageIndex];
+}
+
+const getWidget = async function (spaceId, applicationId, widgetId) {
+    let html, css, js;
+    if (applicationId === "assistOS") {
+        const componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetId}`);
+
+        const jsPath = path.join(componentPath, `${widgetId}.js`);
+        const cssPath = path.join(componentPath, `${widgetId}.css`);
+        const htmlPath = path.join(componentPath, `${widgetId}.html`);
+
+        html = await fsPromises.readFile(htmlPath, 'utf8');
+        css = await fsPromises.readFile(cssPath, 'utf8');
+        js = await fsPromises.readFile(jsPath, 'utf8');
+
+    } else {
+        const applicationPath = getApplicationPath(spaceId, applicationId);
+    }
+
+    return {
+        html, css, js
+    }
 }
 
 module.exports = {
     APIs: {
+        getWidget,
         getWebAssistantHomePage,
         updateWebChatConfiguration,
         getWebAssistantConfigurationPageMenuItem,

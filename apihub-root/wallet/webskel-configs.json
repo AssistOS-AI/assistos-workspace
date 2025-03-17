@@ -592,6 +592,12 @@
             "directory":"widgets",
             "presenterClassName":"ModalWidget",
             "type":"widget"
+        },
+        {
+            "name":"text-widget",
+            "directory":"widgets",
+            "presenterClassName":"TextWidget",
+            "type":"widget"
         }
     ]
 }

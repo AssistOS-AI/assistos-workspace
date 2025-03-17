@@ -1382,7 +1382,7 @@ async function updateWebChatConfiguration(request, response) {
 async function getWebAssistantHomePage(request, response) {
     const spaceId = request.params.spaceId;
     try {
-        const homePage = await space.APIs.getWebAssistantHomePage(request,response,spaceId);
+        const homePage = await space.APIs.getWebAssistantHomePage(request, response, spaceId);
         utils.sendResponse(response, 200, "application/json", {
             data: homePage
         });
@@ -1393,7 +1393,32 @@ async function getWebAssistantHomePage(request, response) {
     }
 }
 
+async function getWidget(request, response) {
+    const spaceId = request.params.spaceId;
+    const applicationId = request.params.applicationId;
+    const widgetName = request.params.widgetName;
+    function convertToPascalCase(str) {
+        return str
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join('');
+    }
+
+
+    try {
+        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId,widgetName);
+        utils.sendResponse(response, 200, "application/json", {
+            data: {html, css, js,presenterClassName:convertToPascalCase(widgetName)}
+        });
+    } catch (error) {
+        utils.sendResponse(response, error.statusCode, "application/json", {
+            message: error.message
+        });
+    }
+}
+
 module.exports = {
+    getWidget,
     getWebAssistantHomePage,
     updateWebChatConfiguration,
     getWebAssistantConfigurationPageMenuItem,
