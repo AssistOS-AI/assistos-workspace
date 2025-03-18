@@ -32,6 +32,7 @@ async function uninstallApplication(request, response) {
         });
     }
 }
+
 async function updateApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
@@ -45,6 +46,7 @@ async function updateApplication(request, response) {
         });
     }
 }
+
 async function requiresUpdate(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
@@ -59,6 +61,7 @@ async function requiresUpdate(request, response) {
         });
     }
 }
+
 async function saveJSON(response, spaceData, filePath) {
     const folderPath = path.dirname(filePath);
     try {
@@ -113,6 +116,7 @@ async function loadApplicationConfig(request, response) {
         });
     }
 }
+
 async function getApplicationTasks(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
@@ -126,6 +130,7 @@ async function getApplicationTasks(request, response) {
         });
     }
 }
+
 async function runApplicationTask(request, response) {
     const {spaceId, applicationId, taskName} = request.params;
     try {
@@ -143,6 +148,7 @@ async function runApplicationTask(request, response) {
         });
     }
 }
+
 async function runApplicationFlow(request, response) {
     const {spaceId, applicationId, flowId} = request.params;
     try {
@@ -161,6 +167,7 @@ async function runApplicationFlow(request, response) {
         });
     }
 }
+
 async function storeObject(request, response) {
     const {spaceId, applicationId, objectType} = request.params
     const objectId = decodeURIComponent(request.params.objectId);
@@ -179,6 +186,7 @@ async function storeObject(request, response) {
         });
     }
 }
+
 async function loadObjects(request, response) {
     const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
     try {
@@ -221,6 +229,7 @@ async function loadObjects(request, response) {
         data: localData
     });
 }
+
 async function loadApplicationFile(request, response) {
     function handleFileError(response, error) {
         if (error.code === 'ENOENT') {
@@ -243,7 +252,7 @@ async function loadApplicationFile(request, response) {
         const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
         let defaultOptions = "utf8";
         let imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
-        if(imageTypes.includes(fileType)) {
+        if (imageTypes.includes(fileType)) {
             defaultOptions = "";
         }
         const file = await fsPromises.readFile(fullPath, defaultOptions);
@@ -282,6 +291,7 @@ async function loadAppFlows(request, response) {
     let flows = await loadObjects(filePath);
     return sendResponse(response, 200, "application/javascript", flows);
 }
+
 async function getApplicationsPlugins(request, response) {
     const {spaceId} = request.params;
     try {
@@ -295,7 +305,28 @@ async function getApplicationsPlugins(request, response) {
         });
     }
 }
+
+async function getWidgets(request, response) {
+    const {spaceId} = request.params;
+    if (!spaceId) {
+        return sendResponse(response, 400, "application/json", {
+            message: "SpaceId is required",
+        });
+    }
+    try {
+        const widgets = await ApplicationHandler.getWidgets(spaceId);
+        return sendResponse(response, 200, "application/json", {
+            data: widgets
+        });
+    } catch (error) {
+        return sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Failed to get widgets: ${error}`,
+        });
+    }
+}
+
 module.exports = {
+    getWidgets,
     loadApplicationsMetadata,
     installApplication,
     uninstallApplication,

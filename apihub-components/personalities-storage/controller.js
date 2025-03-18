@@ -3,6 +3,17 @@ const PersonalitiesHandler = require('../personalities-storage/handler.js');
 const Request = require('../apihub-component-utils/utils.js');
 const {ServerSideSecurityContext, loadModule} = require('assistos');
 
+async function getPersonalityImageUrl(request, response) {
+    const spaceId=request.params.spaceId;
+    const personalityId=request.params.personalityId;
+    try{
+        const personalityImageUrl = await PersonalitiesHandler.getPersonalityImageUrl(spaceId,personalityId);
+        return Request.sendResponse(response,200,"application/json",{downloadUrl:personalityImageUrl.downloadURL});
+    }   catch(error){
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching personality image`});
+    }
+}
+
 async function ensurePersonalitiesDefaultLllms(request, response) {
     try {
         const spaceId = request.params.spaceId;
@@ -110,6 +121,7 @@ module.exports = {
     getDefaultPersonality,
     addPersonality,
     createConversation,
+    getPersonalityImageUrl,
     getConversationIds,
     ensurePersonalityChats,
     getPersonality

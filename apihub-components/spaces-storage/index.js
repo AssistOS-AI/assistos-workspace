@@ -47,7 +47,22 @@ const {
     deleteSpace,
     resetSpaceChat,
     saveSpaceChat,
-    chatCompleteParagraph
+    chatCompleteParagraph,
+    getApplicationEntry,
+    getWebChatConfiguration,
+    addWebAssistantConfigurationPage,
+    getWebAssistantConfigurationPages,
+    updateWebAssistantConfigurationPage,
+    deleteWebAssistantConfigurationPage,
+    getWebAssistantConfigurationPageMenu,
+    addWebAssistantConfigurationPageMenuItem,
+    updateWebAssistantConfigurationPageMenuItem,
+    deleteWebAssistantConfigurationPageMenuItem,
+    getWebAssistantConfigurationPage,
+    getWebAssistantConfigurationPageMenuItem,
+    updateWebChatConfiguration,
+    getWebAssistantHomePage,
+    getWidget
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -72,6 +87,7 @@ function Space(server) {
     server.get("/spaces/files/:fileId", getFile);
 
     server.use("/spaces/*", bodyReader);
+    server.use("/public/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
 
@@ -147,7 +163,26 @@ function Space(server) {
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
 
-    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
+    server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId", chatCompleteParagraph)
+
+
+    server.get("/api/v1/spaces/:spaceId/applications/:applicationId", getApplicationEntry);
+
+    server.get("/spaces/:spaceId/web-assistant/configuration", getWebChatConfiguration);
+    server.put("/spaces/:spaceId/web-assistant/configuration/settings", updateWebChatConfiguration);
+    server.post("/spaces/:spaceId/web-assistant/configuration/pages", addWebAssistantConfigurationPage);
+    server.get("/spaces/:spaceId/web-assistant/configuration/pages", getWebAssistantConfigurationPages);
+    server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", getWebAssistantConfigurationPage)
+    server.put("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", updateWebAssistantConfigurationPage);
+    server.delete("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", deleteWebAssistantConfigurationPage);
+    server.get("/spaces/:spaceId/web-assistant/home-page", getWebAssistantHomePage);
+    server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", getWebAssistantConfigurationPageMenuItem);
+    server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu", getWebAssistantConfigurationPageMenu);
+    server.post("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu", addWebAssistantConfigurationPageMenuItem);
+    server.put("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", updateWebAssistantConfigurationPageMenuItem);
+    server.delete("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", deleteWebAssistantConfigurationPageMenuItem);
+
+    server.get("/public/spaces/widgets/:spaceId/:applicationId/:widgetName", getWidget);
 }
 
 module.exports = Space;

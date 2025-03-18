@@ -22,19 +22,13 @@ const getChatMessages = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/${spaceId}/${chatId}`);
     return response.data;
+
 };
 const getChatContext = async (spaceId, chatId) => {
     const request = generateRequest("GET");
     const response = await request(`/chats/context/${spaceId}/${chatId}`);
     return response.data;
 }
-
-const watchChat = async function (spaceId, chatId, chatPresenter) {
-    /*
-    const request = generateRequest("POST", {"Content-Type": "application/json"});
-    return await request(`/chats/watch/${spaceId}/${chatId}`);
-     */
-};
 
 const sendMessage = async (spaceId, chatId, message) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
@@ -107,6 +101,8 @@ const chatOptions = `
                         <input type="file" class="file-input hidden">
 `
 const IFrameChatOptions = `
+<list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
 `
@@ -208,13 +204,14 @@ class BaseChatFrame {
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
-        this.chatMessages = await getChatMessages(this.spaceId, this.chatId);
+        try {
+            this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
+        } catch (error) {
+            this.errorState = true;
+        }
+
         this.chatActionButton = sendMessageActionButtonHTML
 
-        if (this.isSubscribed === undefined) {
-            this.isSubscribed = true;
-            await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
-        }
 
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
@@ -228,21 +225,24 @@ class BaseChatFrame {
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
-            if (user === this.userId) {
+            if (user === this.userId || role === "user" && IFrameContext) {
                 ownMessage = true;
             }
             let isContext = chatMessage.commands?.replay?.isContext || "false";
 
             if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
             } else {
-                this.stringHTML += `<chat-item role="${role}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
             }
         }
         this.spaceConversation = this.stringHTML;
+
+
     }
 
     async afterRender() {
+
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
@@ -355,7 +355,7 @@ class BaseChatFrame {
     }
 
     async displayMessage(role, messageIndex) {
-        const messageHTML = `<chat-item role="${role}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
+        const messageHTML = `<chat-item role="${role}" spaceId="${this.spaceId}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
@@ -445,7 +445,7 @@ class BaseChatFrame {
             }
         )
 
-        const streamContainerHTML = `<chat-item role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
+        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
 
         return await waitForElement(this.conversation.lastElementChild, '.message');
@@ -517,6 +517,10 @@ class BaseChatFrame {
 
     async newConversation(target) {
         const chatId = await createNewChat(this.spaceId, this.personalityId);
+        if(IFrameContext){
+            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            document.cookie = `chatId=${chatId}`;
+        }
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
@@ -582,9 +586,14 @@ if (IFrameContext) {
 
         async beforeRender() {
             await super.beforeRender();
+            if (this.isSubscribed === undefined) {
+                this.isSubscribed = true;
+                await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
+            }
             this.chatOptions = chatOptions;
-            this.toggleAgentResponseButton = this.agentOn ? "Agent:ON" : "Agent:OFF";
-            this.agentClassButton = this.agentOn ? "agent-on" : "agent-off";
+            this.toggleAgentResponseButton = `
+                <button type="button" id="toggleAgentResponse" class="${this.agentOn ? "agent-on" : "agent-off"}"
+                        data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
         }
 
         async afterRender() {

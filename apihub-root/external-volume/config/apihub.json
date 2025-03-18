@@ -1,5 +1,6 @@
 {
     "storage": "../apihub-root",
+    "workers": 1,
     "lightDBStorage": "../data-volume/lightDB",
     "externalStorage": "../data-volume",
     "port": 8080,

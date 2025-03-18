@@ -1,0 +1,66 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <div class="modal-left-header">
+            <span>$$modalName</span>
+        </div>
+        <div class="modal-right-header">
+            <button class="button-close" data-local-action="closeModal"></button>
+        </div>
+    </div>
+    <div class="modal-content">
+        <form class="application-form">
+            <div class="application-form-content">
+                <div class="application-form-item">
+                    <label for="page-name">Page Name</label>
+                    <input type="text" id="page-name" name="page-name" value="$$name">
+                </div>
+                <div class="application-form-item">
+                    <label for="widget-name">Widget</label>
+                    $$widgets
+                </div>
+                <div class="application-form-item">
+                    <label for=description>Description</label>
+                    <textarea class="no-resize" id="description" placeholder="">$$description</textarea>
+                </div>
+                <div class="application-form-item">
+                    <label for="chatSize">Chat Width</label>
+                    <select class="application-form-item-select" name="chatSize" id="chatSize">
+                       $$chatOptions
+                    </select>
+                </div>
+
+                <div class="application-form-item data-container">
+                    <label for="data">Data</label>
+                    <div class="data-tabs-container">
+                        <div class="tabs-header">
+                            <div class="tabs-list">
+                                <div class="tab active" data-key="General Settings">
+                                    <span class="tab-title">General Settings</span>
+                                </div>
+                                <div class="tab" data-key="Data">
+                                    <span class="tab-title">Data</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-content">
+                            $$tabContent
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal-footer">
+    <div class="modal-footer-left">
+
+    </div>
+    <div class="modal-footer-right">
+        <div class="application-form-footer">
+            <button type="button" class="application-form-button" data-local-action="$$actionFn">$$actionButton
+            </button>
+        </div>
+    </div>
+</div>
+</div>
+

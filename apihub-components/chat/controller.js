@@ -1,6 +1,7 @@
 const Request = require('../apihub-component-utils/utils')
 const Handler = require('./handler.js')
 const SubscriptionManager = require('../subscribers/SubscriptionManager.js')
+
 const getChatMessages = async function (request, response) {
     const chatId = request.params.chatId;
     const spaceId = request.params.spaceId;
@@ -364,7 +365,18 @@ async function sendQuery(request, response) {
         })
     }
 }
+async function getDefaultPersonalityImage(request, response) {
+    try {
+        const imageBuffer = await Handler.getDefaultPersonalityImage();
+        return Request.sendResponse(response, 200, "image/png", imageBuffer)
+    } catch (error) {
+        return Request.sendResponse(response, error.statusCode || 500, "application/json", {
+            message: `Encountered error ${error.message} while trying to load default personality image`
+        })
+    }
+}
 module.exports = {
+    getDefaultPersonalityImage,
     getChatMessages,
     createChat,
     watchChat,

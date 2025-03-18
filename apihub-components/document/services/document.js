@@ -38,7 +38,6 @@ async function deleteDocument(spaceId, documentId) {
 }
 
 async function getDocument(spaceId, documentId, queryParams={}) {
-    /* TODO Logic needs to be moved at query level */
     if (Object.keys(queryParams).length === 0) {
         return await lightDB.getContainerObject(spaceId, documentId)
     }

@@ -1,0 +1,21 @@
+application-creator-menu {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.menu-item-img {
+    height: 40px;
+    width: 40px;
+}
+
+button:disabled, button[disabled] {
+    background-color: rgba(0, 0, 0, 0.12);
+    color: rgba(0, 0, 0, 0.26);
+    box-shadow: none;
+    cursor: default;
+    pointer-events: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+}

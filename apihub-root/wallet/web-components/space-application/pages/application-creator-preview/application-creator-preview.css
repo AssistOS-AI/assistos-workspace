@@ -1,0 +1,11 @@
+application-creator-preview {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+#preview-content-container{
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
