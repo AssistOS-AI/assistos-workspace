@@ -1,8 +1,9 @@
 module.exports = {
-    spaceRoles: {
-        owner: "owner",
-        admin: "admin",
-        member: "member"
+    ROLES: {
+        OWNER: "owner",
+        ADMIN: "admin",
+        WRITE: "member",
+        GUEST: "guest",
     },
     defaultPersonality:"Assistant",
 }

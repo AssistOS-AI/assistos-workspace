@@ -52,7 +52,22 @@ const {
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 
-function SpaceStorage(server) {
+function Space(server) {
+    let serverUrl;
+    const serverlessId = "space"
+    setTimeout(async ()=>{
+        const serverlessAPI = await server.createServerlessAPI({
+            port: 8083,
+            urlPrefix: serverlessId,
+            storage: __dirname});
+        serverUrl = serverlessAPI.getUrl();
+        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+    },0);
+    server.use(`/spaces/*`, async function (req, res, next) {
+        req.serverlessId = serverlessId;
+        next();
+    });
+
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 
@@ -135,4 +150,4 @@ function SpaceStorage(server) {
     server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId",chatCompleteParagraph)
 }
 
-module.exports = SpaceStorage;
+module.exports = Space;
