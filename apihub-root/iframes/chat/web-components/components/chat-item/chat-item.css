@@ -1,0 +1,107 @@
+chat-item {
+    width: 100%;
+}
+
+.user-profile-image-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.chat-options {
+    position: absolute;
+    display: none;
+    margin-block-start: 10px;
+    width: fit-content;
+    bottom: -34px;
+    gap: 4px;
+}
+
+.other-message {
+    justify-content: flex-start;
+    left: 0;
+}
+
+.myself-message {
+    justify-content: flex-end;
+    right: 0;
+}
+
+.message {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    overflow-x: hidden; /* Evită scroll-ul orizontal */
+    overflow-y: auto; /* Permite scroll pe verticală dacă e nevoie */
+}
+
+.message > * { /* Aplică stiluri tuturor copiilor direcți */
+    word-wrap: break-word; /* Forțează cuvintele lungi să se împartă */
+    overflow-wrap: break-word; /* Asigură împărțirea corectă */
+    white-space: normal; /* Permite textului să se împartă pe mai multe linii */
+    min-width: 0; /* Evită forțarea extinderii containerului */
+    max-width: 100%; /* Previne depășirea containerului părinte */
+}
+
+
+.stop-stream-button {
+    display: none;
+}
+
+.chat-option-button {
+    align-items: center;
+    justify-content: center;
+    min-width: 30px;
+    height: 32px;
+    padding: 4px 8px;
+    background: linear-gradient(to right, #3478C6, #5a9fe3);
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.chat-option-button:hover {
+    background: linear-gradient(to right, #1d5a99, #3478C6);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.chat-option-button:active {
+    background: linear-gradient(to right, #155a8a, #1d5a99);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2) inset;
+}
+
+.chat-option-button:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+}
+
+.chat-option-button:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
+
+.context-message {
+    transition: background-color 0.2s ease;
+    background-color: rgba(0, 123, 255, 0.1);
+    border-left: 3px solid #007bff;
+}
+

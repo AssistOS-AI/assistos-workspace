@@ -2,11 +2,11 @@ const {addChatToPersonality, getPersonalityData} = require('../spaces-storage/sp
 const Document = require('../document/services/document.js')
 const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
-
-const {getTextStreamingResponse,getTextResponse} = require('../llms/controller.js');
+const fsPromises=require('fs').promises;
+const {getTextStreamingResponse, getTextResponse} = require('../llms/controller.js');
 const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
-
+const path = require('path');
 const getChat = async function (spaceId, chatId) {
     return await Document.getDocument(spaceId, chatId);
 }
@@ -15,8 +15,8 @@ const getChatMessages = async function (spaceId, chatId) {
     try {
         const chat = await Document.getDocument(spaceId, chatId);
         return chat.chapters[0].paragraphs;
-    }catch(error){
-        error.statusCode=500;
+    } catch (error) {
+        error.statusCode = 500;
         throw error;
     }
 }
@@ -122,7 +122,7 @@ const buildContext = async function (spaceId, chatId, configurationId) {
     return context;
 }
 
-const checkApplyContextInstructions = async function (spaceId, chatId, personalityId, prompt, userId){
+const checkApplyContextInstructions = async function (spaceId, chatId, personalityId, prompt, userId) {
     const generateMemoizationPrompt = (prompt) =>
         `
         **Role**: You have received a query from the user and you need to check if the user's query contains general instructions, preferences of any kind that should be remembered and applied to future queries.
@@ -156,12 +156,12 @@ const checkApplyContextInstructions = async function (spaceId, chatId, personali
     let securityContext = new SecurityContext(securityContextConfig);
     let llmModule = require('assistos').loadModule("llm", securityContext);
     let llmAnswer = await llmModule.generateText(spaceId, generateMemoizationPrompt(unsanitize(prompt)), personalityId);
-    try{
+    try {
         const parsedLLMAnswer = JSON.parse(llmAnswer.message);
-        if(parsedLLMAnswer.detectedPreferences){
-            if(Array.isArray(parsedLLMAnswer.preferences)){
-                for(let preference of parsedLLMAnswer.preferences){
-                    await addPreferenceToContext(spaceId,chatId,preference)
+        if (parsedLLMAnswer.detectedPreferences) {
+            if (Array.isArray(parsedLLMAnswer.preferences)) {
+                for (let preference of parsedLLMAnswer.preferences) {
+                    await addPreferenceToContext(spaceId, chatId, preference)
                 }
             }
         }
@@ -169,7 +169,8 @@ const checkApplyContextInstructions = async function (spaceId, chatId, personali
 
     }
 }
-function applyChatPrompt(chatPrompt, userPrompt, context, personalityDescription){
+
+function applyChatPrompt(chatPrompt, userPrompt, context, personalityDescription) {
     return `${chatPrompt}
     **Your Identity**
     ${personalityDescription}
@@ -181,6 +182,7 @@ function applyChatPrompt(chatPrompt, userPrompt, context, personalityDescription
     ${userPrompt}
     `;
 }
+
 const sendQueryStreaming = async function (request, response, spaceId, chatId, personalityId, userId, prompt) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
     let {chatPrompt} = personalityData;
@@ -250,7 +252,8 @@ const sendQueryStreaming = async function (request, response, spaceId, chatId, p
     const queryData = await streamContext.streamPromise;
     await checkApplyContextInstructions(spaceId, chatId, personalityId, prompt, userId)
 }
-async function sendQuery(spaceId, chatId, personalityId, userId, prompt){
+
+async function sendQuery(spaceId, chatId, personalityId, userId, prompt) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
     let {chatPrompt} = personalityData;
     chatPrompt = unsanitize(chatPrompt);
@@ -274,6 +277,7 @@ async function sendQuery(spaceId, chatId, personalityId, userId, prompt){
     await checkApplyContextInstructions(spaceId, chatId, personalityId, prompt, userId);
     return llmResponse.message
 }
+
 const resetChat = async function (spaceId, chatId) {
     const chat = await getChat(spaceId, chatId);
     const messagesChapter = chat.chapters[0];
@@ -351,10 +355,10 @@ const deleteChatContextItem = async function (spaceId, chatId, contextItemId) {
     const chat = await getChat(spaceId, chatId);
     const contextChapterId = chat.chapters[1].id;
 
-    const contextParagraph= chat.chapters[1].paragraphs.find(paragraph => paragraph.id === contextItemId);
-    if(contextParagraph?.commands?.replay?.isContextFor){
+    const contextParagraph = chat.chapters[1].paragraphs.find(paragraph => paragraph.id === contextItemId);
+    if (contextParagraph?.commands?.replay?.isContextFor) {
         const message = chat.chapters[0].paragraphs.find(paragraph => paragraph.id === contextParagraph.commands.replay.isContextFor);
-        if(message){
+        if (message) {
             message.commands.replay.isContext = false;
             await Paragraph.updateParagraph(spaceId, chatId, message.id, message.commands, {fields: "commands"});
         }
@@ -561,8 +565,14 @@ async function callLLM(chatPrompt) {
     // return await LLM.getChatCompletion(assistOS.space.id,chatPrompt);
 }
 
+async function getDefaultPersonalityImage() {
+    const imagePath = path.join(__dirname,'../../apihub-root/wallet/assets/images/default-personality.png');
+    const image = await fsPromises.readFile(imagePath);
+    return image;
+}
 
 module.exports = {
+    getDefaultPersonalityImage,
     getChatMessages,
     createChat,
     watchChat,

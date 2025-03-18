@@ -40,7 +40,7 @@ async function updateApplication(spaceId, applicationId) {
     const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
     if (applicationNeedsUpdate) {
         await git.updateRepo(applicationPath);
-    } else{
+    } else {
         CustomError.throwBadRequestError("No updates available");
     }
 }
@@ -67,7 +67,7 @@ async function installApplication(spaceId, applicationId) {
     try {
         await git.clone(application.repository, applicationFolderPath, spaceId);
     } catch (error) {
-        if(error.message.includes("already exists and is not an empty directory")){
+        if (error.message.includes("already exists and is not an empty directory")) {
             try {
                 await fsPromises.rm(applicationFolderPath, {recursive: true, force: true});
             } catch (e) {
@@ -157,24 +157,26 @@ async function runApplicationFlow(request, spaceId, applicationId, flowId, flowD
     const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId, flowData, flowId);
     return await flowInstance.runTask();
 }
+
 async function getApplicationTasks(spaceId, applicationId) {
     let tasks = TaskManager.serializeTasks(spaceId);
     return tasks.filter(task => task.applicationId === applicationId);
 }
+
 async function getApplicationsPlugins(spaceId) {
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
     const applications = spaceStatusObject.installedApplications;
     let plugins = {};
-    for(let app of applications){
+    for (let app of applications) {
         let manifest = await loadApplicationConfig(spaceId, app.name);
-        if(!manifest.plugins){
+        if (!manifest.plugins) {
             continue;
         }
-        for(let pluginType of Object.keys(manifest.plugins)){
-            if(!plugins[pluginType]){
+        for (let pluginType of Object.keys(manifest.plugins)) {
+            if (!plugins[pluginType]) {
                 plugins[pluginType] = [];
             }
-            for(let plugin of manifest.plugins[pluginType]){
+            for (let plugin of manifest.plugins[pluginType]) {
                 plugin.applicationId = app.name;
             }
             plugins[pluginType] = plugins[pluginType].concat(manifest.plugins[pluginType]);
@@ -182,7 +184,41 @@ async function getApplicationsPlugins(spaceId) {
     }
     return plugins;
 }
+
+async function getApplicationWidget(spaceId, applicationName) {
+    const applicationConfig = await loadApplicationConfig(spaceId, applicationName);
+    if (applicationConfig.components) {
+        const widgets = applicationConfig.components.filter(component => component.type === "widget");
+        return widgets;
+    }
+    return [];
+}
+
+async function getAssistOsWidgets() {
+    const webSkelConfig = require('../../apihub-root/wallet/webskel-configs.json');
+    const widgets = webSkelConfig.components.filter(component => component.type === "widget");
+    return widgets;
+}
+
+async function getWidgets(spaceId) {
+    const installedSpaceApplications = await Space.APIs.getSpaceApplications(spaceId);
+    const widgets = {}
+    for (const application of installedSpaceApplications) {
+        const applicationWidgets = await getApplicationWidget(spaceId, application.name);
+        if (applicationWidgets.length > 0) {
+            widgets[application.name] = applicationWidgets;
+        }
+    }
+    const assistOsWidgets = await getAssistOsWidgets();
+    if(assistOsWidgets.length > 0) {
+        widgets['assistOS'] = assistOsWidgets;
+    }
+    return widgets;
+}
+
 module.exports = {
+    getWidgets,
+    getApplicationWidget,
     installApplication,
     uninstallApplication,
     getApplicationsMetadata,

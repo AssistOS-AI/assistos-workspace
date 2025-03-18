@@ -131,6 +131,7 @@ chat-page {
     height: 20px;
     fill: white;
 }
+
 #llm::after{
     content: attr(data-tooltip);
     visibility: hidden;

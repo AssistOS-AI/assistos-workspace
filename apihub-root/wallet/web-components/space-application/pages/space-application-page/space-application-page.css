@@ -5,9 +5,12 @@ space-application-page {
     overflow: hidden;
     position: relative;
 }
-
+#space-page-container{
+    display:flex;
+    width:100%;
+}
 .right-sidebar {
-    z-index: 10;
+    z-index: 100000;
     position: absolute;
     display: inline-block;
     transition: transform 0.3s ease;

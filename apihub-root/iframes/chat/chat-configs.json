@@ -1,22 +1,24 @@
 {
-  "webComponentsRootDir": "../wallet/web-components",
+  "webComponentsRootDir": "../../iframes/chat/web-components",
   "components": [
     {
       "name": "chat-page",
-      "directory": "space-application",
       "type": "pages",
       "presenterClassName": "ChatPage"
     },
     {
       "name": "chat-item",
-      "directory": "space-application",
       "type": "components",
       "presenterClassName": "ChatItem"
     },
     {
       "name": "list-item",
-      "directory": "space-application",
       "type": "components"
+    },
+    {
+      "name": "view-context-modal",
+      "type": "modals",
+      "presenterClassName": "ViewContextModal"
     }
   ],
   "services": []
