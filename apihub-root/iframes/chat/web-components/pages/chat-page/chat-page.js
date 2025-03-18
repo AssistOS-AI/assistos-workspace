@@ -166,15 +166,15 @@ const IFrameContext = window.assistOS === undefined;
 const UI = window.UI
 
 class BaseChatFrame {
-    constructor(element, invalidate) {
+    constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
         this.agentOn = true;
         this.ongoingStreams = new Map();
         this.observedElement = null;
         this.userHasScrolledManually = false;
+        this.props = props;
         this.invalidate();
-
     }
 
     async handleChatEvent(eventData) {
@@ -220,10 +220,10 @@ class BaseChatFrame {
 
     async beforeRender() {
         this.chatOptions = IFrameChatOptions;
-        this.chatId = this.element.getAttribute('data-chatId');
-        this.personalityId = this.element.getAttribute('data-personalityId');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
+        this.chatId = this.props.chatId;
+        this.personalityId = this.props.personalityId;
+        this.spaceId = this.props.spaceId;
+        this.userId = this.props.userId;
 
         if (!this.currentPageId) {
             this.configuration = await getConfiguration(this.spaceId);
@@ -570,7 +570,7 @@ class BaseChatFrame {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
-        this.element.setAttribute('data-chatId', chatId);
+        this.props.chatId=chatId;
         this.invalidate();
     }
 

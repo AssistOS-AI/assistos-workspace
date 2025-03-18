@@ -74,7 +74,7 @@ function SpaceStorage(server) {
     server.get("/spaces/files/:fileId", getFile);
 
     server.use("/spaces/*", bodyReader);
-    server.use("/public/*", bodyReader);
+    server.use("/public/spaces/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.use("/apis/v1/spaces/*", authentication);

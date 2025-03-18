@@ -25,28 +25,32 @@ const generateId = () => {
     return `${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
 };
 
+
 const urlParams = new URLSearchParams(window.location.search);
 
-let chatId = urlParams.get("chatId") || null;
 const personalityId = urlParams.get("personalityId") || null;
 const spaceId = urlParams.get("spaceId") || null;
 
 const appContainer = document.getElementById('app-container');
 
-const initializeChat = async function () {
-    let {userId = null} = parseCookies(document.cookie)
+let {userId = null} = parseCookies(document.cookie)
 
-    if (userId === null) {
-        userId = generateId()
-        setCookie("userId", userId)
-    }
+if (userId === null) {
+    userId = generateId()
+    setCookie("userId", userId)
+}
 
+
+const cacheNames = await caches.keys();
+await Promise.all(cacheNames.map(name => caches.delete(name)));
+
+async function getChatId(spaceId, personalityId) {
+    let chatId = urlParams.get("chatId") || null;
     if (!chatId) {
         let cookies = parseCookies(document.cookie)
         chatId = cookies.chatId
     }
-
-    if (!chatId) {
+    if (!chatId || chatId === "null") {
         try {
             const response = await fetch(`/public/chats/${spaceId}/${personalityId}`, {
                 method: "POST",
@@ -59,15 +63,23 @@ const initializeChat = async function () {
             setCookie("chatId", null)
         }
     }
-
-    appContainer.innerHTML = `<chat-page data-chatId="${chatId}" data-personalityId="${personalityId}" data-spaceId="${spaceId}" data-userId="${userId}" data-presenter="chat-page"></chat-page>`
+    return chatId;
 }
 
 if ('serviceWorker' in navigator) {
-    await navigator.serviceWorker.register('./serviceWorker.js');
+    navigator.serviceWorker.register('./serviceWorker.js')
+        .then(reg => {
+            console.log('SW registered:', reg);
+            reg.active.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') {
+                    window.location.reload();
+                }
+            });
+        });
 }
 
 const webComponentsRootDir = './web-components';
+
 
 window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = window.UI) {
     const r = await fetch(`/public/spaces/widgets/${spaceId}/${applicationId}/${widgetName}`)
@@ -86,10 +98,23 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
         directory: 'virtual',
         presenterClassName: data.presenterClassName,
     }
+
     await UI.defineComponent(component);
+
     return component;
 }
 
+let chatId = await getChatId(spaceId, personalityId);
 
-
-await initializeChat();
+const component = UI.createElement(
+    'chat-page',
+    appContainer,
+    {
+        "data-chatId": chatId,
+        "data-personalityId": personalityId,
+        "data-spaceId": spaceId,
+        "data-userId": userId
+    },
+    {chatId, personalityId, spaceId, userId},
+    true
+);
