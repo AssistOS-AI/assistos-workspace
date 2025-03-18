@@ -24,8 +24,10 @@ async function loginUser(request, response) {
         let cookieArray = cookies.split(',');
         if(createSpace){
             let spaceName = email.split('@')[0];
-            let parsedCookies = cookie.parseResponseCookies(internalResponse);
-            const space = await Space.APIs.createSpace(spaceName, email, encodeURIComponent(parsedCookies['authKey'].value));
+            let ServerSideSecurityContext = require("assistos").ServerSideSecurityContext;
+            let securityContext = new ServerSideSecurityContext(request);
+            let spaceModule = require("assistos").loadModule("space", securityContext);
+            const space = await spaceModule.createSpace(spaceName);
             cookieArray.push(cookie.createCurrentSpaceCookie(space.id));
         }
         response.setHeader('Set-Cookie', cookieArray);

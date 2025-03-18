@@ -10,7 +10,7 @@ const {
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 function UserStorage(server) {
-    server.use("/*", contextMiddleware);
+    server.use("/users/*", contextMiddleware);
     server.use("/users/*", bodyReader);
     server.post("/users/login", loginUser);
 

@@ -2,16 +2,16 @@ const persisto = require("../../Gatekeeper/Persisto");
 async function createStandardPersistencePlugin(){
     let persistence = await persisto.initialisePersisto();
     persistence.configureTypes({
-        space: {
+        spaceStatus: {
            users: "array",
             name: "string",
             applications: "array",
             defaultAgent: "string",
-        },
+        }
     });
 
     await persistence.createIndex("space", "name");
-
+    await persistence.createGrouping("spaces", "space", "name");
     return persistence;
 }
 

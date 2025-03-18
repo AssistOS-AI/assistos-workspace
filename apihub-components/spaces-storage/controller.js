@@ -13,6 +13,7 @@ const dataVolumePaths = require('../volumeManager').paths;
 const Storage = require("../apihub-component-utils/storage.js");
 const lightDB = require("../apihub-component-utils/lightDB.js");
 const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
+const SPACE_PLUGIN = "SpacePlugin";
 const {
     getTextResponse,
     getTextStreamingResponse,
@@ -447,12 +448,11 @@ async function getSpace(request, response) {
         } catch (error) {
 
         }
-        let spaceObject = await space.APIs.getSpaceStatusObject(spaceId);
-        //spaceObject.chat = await space.APIs.getSpaceChat(spaceId);
+        let client = await initAPIClient(request.userId, request.serverlessId);
+        let spaceObject = await client.getSpace(spaceId);
         await user.setUserCurrentSpace(email, spaceId, request.authKey);
         utils.sendResponse(response, 200, "application/json", {
-            data: spaceObject,
-            message: `Space ${spaceId} loaded successfully`
+            data: spaceObject
         }, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -460,9 +460,11 @@ async function getSpace(request, response) {
         });
     }
 }
-
+async function initAPIClient(userId, serverlessId){
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, SPACE_PLUGIN);
+}
 async function createSpace(request, response) {
-    const email = request.email
+    const email = request.email;
     const spaceName = request.body.spaceName
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
@@ -471,19 +473,13 @@ async function createSpace(request, response) {
         return;
     }
     try {
-        let newSpace = await space.APIs.createSpace(spaceName, email, request.authKey);
+        let client = await initAPIClient(request.userId, request.serverlessId);
+        let newSpace = await client.createSpace(spaceName, email, request.authKey);
         utils.sendResponse(response, 200, "application/json", {
             message: `Space created successfully: ${newSpace.id}`,
             data: newSpace,
         }, cookie.createCurrentSpaceCookie(newSpace.id));
     } catch (error) {
-        switch (error.statusCode) {
-            case 409:
-                utils.sendResponse(response, 409, "application/json", {
-                    message: "Conflict: Space already exists",
-                });
-                return;
-        }
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
         });

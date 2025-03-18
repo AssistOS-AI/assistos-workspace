@@ -539,15 +539,10 @@ async function getSpaceName(spaceId) {
 }
 
 async function getSpacePersonalitiesObject(spaceId) {
-
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
-
     const personalitiesFiles = await fsPromises.readdir(personalitiesDirectoryPath, {withFileTypes: true});
-
     const sortedPersonalitiesFiles = await file.sortFiles(personalitiesFiles, personalitiesDirectoryPath, 'creationDate');
-
     let spacePersonalitiesObject = [];
-
     for (const fileName of sortedPersonalitiesFiles) {
         if (!fileName.includes('metadata')) {
             const personalityJson = await fsPromises.readFile(path.join(personalitiesDirectoryPath, fileName), 'utf8');

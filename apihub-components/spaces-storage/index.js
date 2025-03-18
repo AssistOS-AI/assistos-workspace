@@ -64,9 +64,9 @@ const {
     getWebAssistantHomePage,
     getWidget
 } = require("./controller");
-
+const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-
+const cookie = require('../apihub-component-utils/cookie.js');
 function Space(server) {
     let serverUrl;
     const serverlessId = "space"
@@ -80,9 +80,15 @@ function Space(server) {
     },0);
     server.use(`/spaces/*`, async function (req, res, next) {
         req.serverlessId = serverlessId;
+        const cookies = cookie.parseRequestCookies(req);
+        if (cookies.userId) {
+            req.userId = cookies.userId;
+        } else {
+            req.userId = "*";
+        }
         next();
     });
-
+    server.use("/spaces/*", contextMiddleware);
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 
