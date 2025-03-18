@@ -85,7 +85,7 @@
             "module": "./../../apihub-components/telegram-chat"
         },
         "Gatekeeper": {
-            "module": "./../../Gatekeeper"
+            "module": "./../../apihub-components/Gatekeeper"
         }
     },
     "responseHeaders": {

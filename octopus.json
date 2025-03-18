@@ -7,12 +7,12 @@
             "actions": [
                 {
                     "type": "smartClone",
-                    "target": ".",
+                    "target": "./apihub-components/",
                     "collectLog": false
                 },
                 {
                      "type": "execute",
-                      "cmd": "cd Gatekeeper && npm install"
+                      "cmd": "cd ./apihub-components/Gatekeeper && npm install"
                 }
             ]
         },

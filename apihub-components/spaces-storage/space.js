@@ -784,7 +784,6 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
     const user = require('../users-storage/user.js');
     const emailService = require('../email').instance;
-    const userMap = await user.getUserMap();
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     const spaceName = spaceStatusObject.name;
     const existingUserEmails = Object.keys(spaceStatusObject.users)
