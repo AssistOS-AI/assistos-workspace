@@ -1,7 +1,6 @@
 const utils = require('../../apihub-component-utils/utils.js');
 const paragraphService = require('../services/paragraph.js');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
-const space = require('../../spaces-storage/space.js')
 async function getParagraph(req, res) {
     const {spaceId, documentId, paragraphId} = req.params;
     if (!spaceId || !documentId || !paragraphId) {
@@ -11,9 +10,7 @@ async function getParagraph(req, res) {
     }
     try {
         const paragraph = await paragraphService.getParagraph(spaceId, documentId, paragraphId,req.query);
-        return utils.sendResponse(res, 200, "application/json", {
-            data: paragraph
-        });
+        return utils.sendResponse(res, 200, "application/json", paragraph);
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to get paragraph" + error.message,
@@ -38,9 +35,7 @@ async function createParagraph(req, res) {
             position: position
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return utils.sendResponse(res, 200, "application/json", {
-            data: id
-        });
+        return utils.sendResponse(res, 200, "text/plain", id);
     } catch (error) {
         return utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create paragraph" + error.message,

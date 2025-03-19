@@ -1104,12 +1104,6 @@ module.exports = {
         getPersonalityData,
         getSpacePersonalities
     },
-    templates: {
-        defaultSpaceAnnouncement: require('./templates/defaultSpaceAnnouncement.json'),
-        defaultSpaceNameTemplate: require('./templates/defaultSpaceNameTemplate.json'),
-        defaultSpaceTemplate: require('./templates/defaultSpaceTemplate.json'),
-        spaceValidationSchema: require('./templates/spaceValidationSchema.json')
-    },
     constants: require('./constants.js')
 }
 

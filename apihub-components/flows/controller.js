@@ -3,15 +3,11 @@ const utils = require('../apihub-component-utils/utils.js');
 const constants = require("assistos").constants;
 const path = require('path');
 const dataVolumePaths = require('../volumeManager').paths;
-const flows = require('./flows.js');
 const CustomError = require('../apihub-component-utils/CustomError.js');
 async function listFlows(request, response) {
     try {
         const flowNames = await getSpaceFlowNames();
-        return utils.sendResponse(response, 200, "application/json",
-            {
-                data: JSON.stringify(flowNames),
-            });
+        return utils.sendResponse(response, 200, "text/plain", JSON.stringify(flowNames));
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", e);
     }
@@ -114,9 +110,7 @@ async function callFlow(request, response) {
             message: `Flow execution error: ${error.message}`
         });
     }
-    return utils.sendResponse(response, 200, "application/json", {
-        data: result
-    });
+    return utils.sendResponse(response, 200, "application/json", result);
 }
 
 module.exports = {

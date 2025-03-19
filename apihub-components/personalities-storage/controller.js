@@ -55,7 +55,7 @@ async function getDefaultPersonality(request, response) {
     try {
         const spaceId = request.params.spaceId;
         const personality = await SpaceHandler.APIs.getDefaultPersonality(spaceId);
-        return Request.sendResponse(response, 200, "application/json", {data: personality});
+        return Request.sendResponse(response, 200, "application/json", personality);
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while updating personalities:${error.message}`});
     }
@@ -79,7 +79,7 @@ async function createConversation(request, response) {
         const spaceId = request.params.spaceId;
         const personalityId = request.params.personalityId;
         const conversationId = await PersonalitiesHandler.addConversation(spaceId, personalityId);
-        return Request.sendResponse(response, 200, "application/json", {message: `Conversation ${conversationId} created`,data:conversationId});
+        return Request.sendResponse(response, 200, "text/plain", conversationId);
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while creating a new conversation`});
     }
@@ -100,7 +100,7 @@ async function getConversationIds(request,response){
         const spaceId= request.params.spaceId;
         const personalityId=request.params.personalityId;
         const conversationIds = await PersonalitiesHandler.getConversationIds(spaceId,personalityId);
-        return Request.sendResponse(response,200,"application/json",{data:conversationIds})
+        return Request.sendResponse(response,200,"application/json", conversationIds);
     }   catch(error){
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching conversation Ids`});
     }
@@ -110,7 +110,7 @@ async function getPersonality(request,response){
     const personalityId=request.params.personalityId;
     try{
         const personality = await PersonalitiesHandler.getPersonality(spaceId,personalityId);
-        return Request.sendResponse(response,200,"application/json",{data:personality})
+        return Request.sendResponse(response,200,"application/json", personality)
     }   catch(error){
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching personality`});
     }

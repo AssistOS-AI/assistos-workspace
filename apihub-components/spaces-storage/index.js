@@ -89,6 +89,7 @@ function Space(server) {
         next();
     });
     server.use("/spaces/*", contextMiddleware);
+
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 

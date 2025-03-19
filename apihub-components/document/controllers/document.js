@@ -25,9 +25,7 @@ async function getDocument(req, res) {
     }
     try {
         const document = await documentService.getDocument(spaceId, documentId, req.query);
-        utils.sendResponse(res, 200, "application/json", {
-            data: document
-        });
+        utils.sendResponse(res, 200, "application/json", document);
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: `Failed to retrieve document ${documentId}` + error.message || ""
@@ -45,9 +43,7 @@ async function getDocumentsMetadata(req, res) {
     }
     try {
         const metadata = await documentService.getDocumentsMetadata(spaceId);
-        utils.sendResponse(res, 200, "application/json", {
-            data: metadata
-        });
+        utils.sendResponse(res, 200, "application/json", metadata);
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: `Failed to retrieve document metadata` + error.message
@@ -66,9 +62,7 @@ async function createDocument(req, res) {
     try {
         const documentId = await documentService.createDocument(spaceId, documentData);
         SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        utils.sendResponse(res, 200, "application/json", {
-            data: documentId
-        });
+        utils.sendResponse(res, 200, "text/plain", documentId);
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create document" + error.message
@@ -141,9 +135,7 @@ async function exportDocument(request, response) {
         await TaskManager.addTask(task);
         let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
         SubscriptionManager.notifyClients(sessionId, objectId);
-        sendResponse(response, 200, "application/json", {
-            data: task.id
-        });
+        sendResponse(response, 200, "text/plain", task.id);
         TaskManager.runTask(task.id);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -273,10 +265,7 @@ async function importDocument(request, response) {
     });
 
     request.pipe(busboy);
-    utils.sendResponse(response, 200, "application/json", {
-        message: 'Document import started',
-        data: taskId
-    });
+    utils.sendResponse(response, 200, "text/plain", taskId);
 }
 
 async function storeDocument(spaceId, docData, request, extractedPath) {
@@ -390,10 +379,7 @@ async function estimateDocumentVideoLength(request, response) {
     let document = await documentModule.getDocument(spaceId, documentId);
     try {
         let duration = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
-        sendResponse(response, 200, "application/json", {
-            message: `Estimation in progress`,
-            data: duration
-        });
+        sendResponse(response, 200, "text/plain", duration);
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: e.message
@@ -422,9 +408,7 @@ function getSelectedDocumentItems(req, res) {
             }
         }
 
-        return utils.sendResponse(res, 200, "application/json", {
-            data: otherUsersSelected
-        });
+        return utils.sendResponse(res, 200, "application/json", otherUsersSelected);
     } catch (e) {
         return utils.sendResponse(res, 500, "application/json", {
             message: e.message
@@ -700,9 +684,7 @@ async function undoOperation(request, response) {
     const documentId = request.params.documentId;
     try {
         let success = await documentService.undoOperation(spaceId, documentId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: success
-        });
+        return utils.sendResponse(response, 200, "application/json", success);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", error.message);
     }
@@ -712,9 +694,7 @@ async function redoOperation(request, response) {
     const documentId = request.params.documentId;
     try {
         let success = await documentService.redoOperation(spaceId, documentId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: success
-        });
+        return utils.sendResponse(response, 200, "application/json", success);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", error.message);
     }
@@ -736,9 +716,7 @@ async function addDocumentSnapshot(request, response) {
         snapshotData.documentId = await documentModule.addDocument(spaceId, document);
         let {id, position} = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
         snapshotData.id = id;
-        utils.sendResponse(response, 200, "application/json", {
-          data: snapshotData
-        });
+        utils.sendResponse(response, 200, "application/json", snapshotData);
     } catch (e) {
        utils.sendResponse(response, 500, "application/json", {
          message: e.message
@@ -750,9 +728,7 @@ async function getDocumentSnapshots(request, response) {
     const documentId = request.params.documentId;
     try {
         let snapshots = await documentService.getSnapshots(spaceId, documentId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: snapshots
-        });
+        utils.sendResponse(response, 200, "application/json", snapshots);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
             message: e.message

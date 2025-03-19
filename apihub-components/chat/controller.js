@@ -17,10 +17,7 @@ const getChatMessages = async function (request, response) {
     }
     try {
         const chat = await Handler.getChatMessages(spaceId, chatId);
-        return Request.sendResponse(response, 200, "application/json", {
-            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
-            data: chat
-        })
+        return Request.sendResponse(response, 200, "application/json", chat)
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`
@@ -38,10 +35,7 @@ const createChat = async function (request, response) {
     }
     try {
         const chatId = await Handler.createChat(spaceId, personalityId);
-        return Request.sendResponse(response, 200, "application/json", {
-            message: `Successfully created chat ${chatId}`,
-            data: {chatId}
-        })
+        return Request.sendResponse(response, 200, "application/json", {chatId});
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error:${error.message} while trying to create a new chat`
@@ -72,10 +66,7 @@ const sendMessage = async function (request, response) {
             action: "add",
             item: messageId
         });
-        return Request.sendResponse(response, 200, "application/json", {
-            message: `Successfully added message ${messageId}`,
-            data: {messageId}
-        })
+        return Request.sendResponse(response, 200, "application/json", {messageId});
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered an error : ${error.message} while trying to add message to space ${spaceId}, chat ${chatId}`
@@ -188,10 +179,7 @@ const resetChatContext = async function (request, response) {
             type: "context",
             action: "reset",
         });
-        return Request.sendResponse(response, 200, "application/json", {
-            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
-            data: {chatId}
-        })
+        return Request.sendResponse(response, 200, "application/json", {chatId});
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`
@@ -214,10 +202,7 @@ const getChatContext = async function (request, response) {
     }
     try {
         const chatContext = await Handler.getChatContext(spaceId, chatId);
-        return Request.sendResponse(response, 200, "application/json", {
-            message: `Chat ${chatId} from Space ${spaceId} loaded successfully`,
-            data: chatContext
-        })
+        return Request.sendResponse(response, 200, "application/json", chatContext);
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Encountered error ${error.message} while trying to load chat ${chatId} from space ${spaceId}`

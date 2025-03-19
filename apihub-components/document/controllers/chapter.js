@@ -10,9 +10,7 @@ async function getChapter(req, res) {
     }
     try {
         const chapter = await chapterService.getChapter(spaceId, documentId, chapterId,req.query);
-        return util.sendResponse(res, 200, "application/json", {
-            data: chapter
-        });
+        return util.sendResponse(res, 200, "application/json", chapter);
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to get chapter" + error.message,
@@ -37,9 +35,7 @@ async function createChapter(req, res) {
             position: position
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return util.sendResponse(res, 200, "application/json", {
-            data: id
-        });
+        return util.sendResponse(res, 200, "text/plain", id);
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to create chapter" + error.message,
@@ -59,9 +55,7 @@ async function updateChapter(req, res) {
         await chapterService.updateChapter(spaceId, documentId, chapterId, chapterData, req.query, req.sessionId);
         let objectId = SubscriptionManager.getObjectId(documentId, chapterId);
         SubscriptionManager.notifyClients(req.sessionId, objectId, req.query.fields);
-        return util.sendResponse(res, 200, "application/json", {
-            data: "Chapter updated successfully"
-        });
+        return util.sendResponse(res, 200, "text/plain", chapterId);
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to update chapter" + error.message,
@@ -84,9 +78,7 @@ async function deleteChapter(req, res) {
             chapterId: chapterId
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return util.sendResponse(res, 200, "application/json", {
-            data: "Chapter deleted successfully"
-        });
+        return util.sendResponse(res, 200, "text/plain",  chapterId);
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to delete chapter" + error.message,
@@ -111,9 +103,7 @@ async function swapChapters(req, res) {
             direction: direction
         }
         SubscriptionManager.notifyClients(req.sessionId, objectId, eventData);
-        return util.sendResponse(res, 200, "application/json", {
-            data: "Chapters swapped successfully"
-        });
+        return util.sendResponse(res, 200, "text/plain", "Chapters swapped successfully");
     } catch (error) {
         return util.sendResponse(res, error.statusCode || 500, "application/json", {
             message: "Failed to swap chapters" + error.message,

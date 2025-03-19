@@ -2,7 +2,7 @@ const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 
 async function publicAuthentication(req, res, next) {
-    const cookies = cookie.parseCookies(req);
+    const cookies = cookie.parseRequestCookies(req);
 
     const userId = cookies['userId'];
     if (!userId) {

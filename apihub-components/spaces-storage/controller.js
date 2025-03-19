@@ -16,10 +16,7 @@ const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
 const SPACE_PLUGIN = "SpacePlugin";
 const {
     getTextResponse,
-    getTextStreamingResponse,
-    getImageResponse,
-    editImage,
-    getImageVariants
+    getTextStreamingResponse
 } = require('../llms/controller.js');
 const fs = require("fs");
 
@@ -37,10 +34,7 @@ async function getFileObjectsMetadata(request, response) {
     try {
         let filePath = getFileObjectsMetadataPath(spaceId, objectType);
         let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: metadata,
-            message: `Objects metadata of type ${objectType} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", metadata);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at getting objects metadata of type: ${objectType}`
@@ -59,10 +53,7 @@ async function getFileObject(request, response) {
     try {
         let filePath = getFileObjectPath(spaceId, objectType, objectId);
         let data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
-        return utils.sendResponse(response, 200, "application/json", {
-            data: JSON.parse(data),
-            message: `Object with id: ${objectId} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", JSON.parse(data));
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at getting object with id: ${objectId}`
@@ -82,10 +73,7 @@ async function getFileObjects(request, response) {
             let object = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
             objects.push(object);
         }
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objects,
-            message: `Objects of type ${objectType} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", objects);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at getting objects of type: ${objectType}`
@@ -114,11 +102,7 @@ async function addFileObject(request, response) {
 
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectType} added successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at adding object: ${objectType}`
@@ -149,10 +133,7 @@ async function updateFileObject(request, response) {
         await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} updated successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at updating object: ${objectId}`
@@ -176,10 +157,7 @@ async function deleteFileObject(request, response) {
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
         await fsPromises.unlink(filePath);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} deleted successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at deleting object: ${objectId}`
@@ -192,10 +170,7 @@ async function getContainerObjectsMetadata(request, response) {
     const objectType = request.params.objectType;
     try {
         const metadata = await lightDB.getContainerObjectsMetadata(spaceId, objectType);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: metadata,
-            message: `Objects metadata of type ${objectType} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", metadata);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at getting objects metadata of type: ${objectType}`
@@ -208,10 +183,7 @@ async function getContainerObject(request, response) {
     const objectId = request.params.objectId;
     try {
         let object = await lightDB.getContainerObject(spaceId, objectId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: object,
-            message: `Object with id: ${objectId} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", object);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at getting object with id: ${objectId}`
@@ -226,10 +198,7 @@ async function addContainerObject(request, response) {
     try {
         let objectId = await lightDB.addContainerObject(spaceId, objectType, objectData);
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectType} added successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at adding object: ${objectType}`
@@ -243,12 +212,9 @@ async function updateContainerObject(request, response) {
     const objectData = request.body;
     try {
         await lightDB.updateContainerObject(spaceId, objectId, objectData);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} updated successfully`
-        });
+        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", {
             message: e + ` Error at updating object: ${objectId}`
@@ -263,10 +229,7 @@ async function deleteContainerObject(request, response) {
         await lightDB.deleteContainerObject(spaceId, objectId);
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} deleted successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at deleting object: ${objectId}`
@@ -280,10 +243,7 @@ async function getEmbeddedObject(request, response) {
     let objectURI = decodeURIComponent(request.params.objectURI);
     try {
         let embeddedObject = await lightDB.getEmbeddedObject(spaceId, objectType, objectURI);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: embeddedObject,
-            message: `Object ${objectType} loaded successfully`
-        });
+        return utils.sendResponse(response, 200, "application/json", embeddedObject);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at loading object: ${objectType}: ${objectURI}`
@@ -299,10 +259,7 @@ async function addEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         let objectId = await lightDB.addEmbeddedObject(spaceId, objectURI, objectData);
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} added successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at adding object: ${objectURI}`
@@ -316,10 +273,7 @@ async function updateEmbeddedObject(request, response) {
     const objectData = request.body;
     try {
         let objectId = await lightDB.updateEmbeddedObject(spaceId, objectURI, objectData);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectId,
-            message: `Object ${objectId} updated successfully`
-        })
+        return utils.sendResponse(response, 200, "text/plain", objectId);
     } catch (e) {
         return utils.sendResponse(response, 500, "application/json", {
             message: e + ` Error at updating object: ${objectURI}`
@@ -334,10 +288,7 @@ async function deleteEmbeddedObject(request, response) {
         let parts = objectURI.split("/");
         await lightDB.deleteEmbeddedObject(spaceId, objectURI);
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectURI,
-            message: `Object ${objectURI} deleted successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectURI);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at deleting object: ${objectURI}`
@@ -352,10 +303,7 @@ async function swapEmbeddedObjects(request, response) {
     try {
         let objectId = await lightDBEnclaveClient.swapEmbeddedObjects(spaceId, objectURI, request.body);
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "application/json", {
-            data: objectURI,
-            message: `Objects from ${objectURI} swapped successfully`
-        });
+        return utils.sendResponse(response, 200, "text/plain", objectURI);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at swapping objects: ${objectURI}`
@@ -370,10 +318,7 @@ async function addSpaceChatMessage(request, response) {
     const messageData = request.body;
     try {
         const messageId = await space.APIs.addSpaceChatMessage(spaceId, chatId, userId, "user", messageData);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Message added successfully`,
-            data: {messageId: messageId}
-        });
+        utils.sendResponse(response, 200, "application/json", {messageId: messageId});
         SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -387,10 +332,7 @@ async function getSpaceChat(request, response) {
     const chatId = request.params.chatId;
     try {
         const chat = await space.APIs.getSpaceChat(spaceId, chatId);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Chat loaded successfully`,
-            data: chat
-        });
+        utils.sendResponse(response, 200, "application/json", chat);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -403,10 +345,7 @@ async function resetSpaceChat(request, response) {
     const chatId = request.params.chatId;
     try {
         const chat = await space.APIs.resetSpaceChat(spaceId, chatId);
-        return utils.sendResponse(response, 200, "application/json", {
-            message: `Chat loaded successfully`,
-            data: chat
-        });
+        return utils.sendResponse(response, 200, "application/json", chat);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -419,10 +358,7 @@ async function saveSpaceChat(request, response) {
     const chatId = request.params.chatId;
     try {
         const chat = await space.APIs.storeSpaceChat(spaceId, chatId);
-        return utils.sendResponse(response, 200, "application/json", {
-            message: `Chat loaded successfully`,
-            data: chat
-        });
+        return utils.sendResponse(response, 200, "application/json", chat);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -448,19 +384,17 @@ async function getSpace(request, response) {
         } catch (error) {
 
         }
-        let client = await initAPIClient(request.userId, request.serverlessId);
-        let spaceObject = await client.getSpace(spaceId);
+        let client = initAPIClient(request.userId, request.serverlessId);
+        let spaceStatus = await client.getSpace(spaceId);
         await user.setUserCurrentSpace(email, spaceId, request.authKey);
-        utils.sendResponse(response, 200, "application/json", {
-            data: spaceObject
-        }, cookie.createCurrentSpaceCookie(spaceId));
+        utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
         });
     }
 }
-async function initAPIClient(userId, serverlessId){
+function initAPIClient(userId, serverlessId){
     return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, SPACE_PLUGIN);
 }
 async function createSpace(request, response) {
@@ -473,12 +407,9 @@ async function createSpace(request, response) {
         return;
     }
     try {
-        let client = await initAPIClient(request.userId, request.serverlessId);
+        let client = initAPIClient(request.userId, request.serverlessId);
         let newSpace = await client.createSpace(spaceName, email, request.authKey);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Space created successfully: ${newSpace.id}`,
-            data: newSpace,
-        }, cookie.createCurrentSpaceCookie(newSpace.id));
+        utils.sendResponse(response, 200, "application/json", newSpace, cookie.createCurrentSpaceCookie(newSpace.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
@@ -506,9 +437,7 @@ async function getSpaceCollaborators(request, response) {
     const spaceId = request.params.spaceId;
     try {
         let collaborators = await space.APIs.getSpaceCollaborators(spaceId, request.authKey);
-        utils.sendResponse(response, 200, "application/json", {
-            data: collaborators
-        });
+        utils.sendResponse(response, 200, "application/json", collaborators);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -522,9 +451,7 @@ async function setSpaceCollaboratorRole(request, response) {
     const role = request.body.role;
     try {
         let message = await space.APIs.setSpaceCollaboratorRole(request.userId, spaceId, collaboratorId, role);
-        utils.sendResponse(response, 200, "application/json", {
-            data: message
-        });
+        utils.sendResponse(response, 200, "text/plain", message);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -536,15 +463,11 @@ async function deleteSpaceCollaborator(request, response) {
     const spaceId = request.params.spaceId;
     const collaboratorId = request.params.collaboratorId;
     if (request.userId === collaboratorId) {
-        return utils.sendResponse(response, 200, "application/json", {
-            data: "You can't delete yourself from the space"
-        });
+        return utils.sendResponse(response, 200, "text/plain", "You can't delete yourself from the space");
     }
     try {
         let message = await space.APIs.deleteSpaceCollaborator(request.userId, spaceId, collaboratorId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: message
-        });
+        utils.sendResponse(response, 200, "text/plain", message);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -565,10 +488,7 @@ async function addCollaboratorsToSpace(request, response) {
 
     try {
         let existingCollaborators = await space.APIs.inviteSpaceCollaborators(userId, spaceId, collaborators);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Collaborators invited successfully`,
-            data: existingCollaborators
-        });
+        utils.sendResponse(response, 200, "application/json", existingCollaborators);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error}`,
@@ -580,19 +500,16 @@ async function addCollaboratorsToSpace(request, response) {
 async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
+    let client = initAPIClient(request.userId, request.serverlessId);
     if (!agentId) {
-        agentId = await space.APIs.getDefaultSpaceAgentId(spaceId)
+        agentId = await client.getDefaultSpaceAgentId(spaceId);
     }
     try {
-        const agent = await space.APIs.getSpaceAgent(spaceId, agentId)
-        utils.sendResponse(response, 200, "application/json", {
-            message: "Success retrieving Agent",
-            data: agent
-        })
+        const agent = await client.getSpaceAgent(spaceId, agentId)
+        utils.sendResponse(response, 200, "application/json", agent)
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
-            message: "Error retrieving Agent",
-            data: error.message
+            message: error.message,
         })
     }
 }
@@ -680,12 +597,10 @@ async function getAPIKeysMetadata(request, response) {
     const spaceId = request.params.spaceId;
     try {
         let keys = await space.APIs.getAPIKeysMetadata(spaceId);
-        return sendResponse(response, 200, "application/json", {
-            data: keys,
-        });
+        return sendResponse(response, 200, "application/json", keys);
     } catch (e) {
         return sendResponse(response, 500, "application/json", {
-            message: e
+            message: e.message
         });
     }
 }
@@ -700,10 +615,7 @@ async function addSpaceAnnouncement(request, response) {
     }
     try {
         const announcementId = await space.APIs.addSpaceAnnouncement(spaceId, announcementData);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Announcement added successfully`,
-            data: {announcementId: announcementId}
-        });
+        utils.sendResponse(response, 200, "application/json", {announcementId: announcementId});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error
@@ -726,10 +638,7 @@ async function getSpaceAnnouncement(request, response) {
     }
     try {
         const announcement = await space.APIs.getSpaceAnnouncement(spaceId, announcementId);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Announcement loaded successfully`,
-            data: announcement
-        });
+        utils.sendResponse(response, 200, "application/json", announcement);
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message
@@ -746,10 +655,7 @@ async function getSpaceAnnouncements(request, response) {
     }
     try {
         const announcements = await space.APIs.getSpaceAnnouncements(spaceId);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Announcements loaded successfully`,
-            data: announcements
-        });
+        utils.sendResponse(response, 200, "application/json", announcements);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -945,9 +851,7 @@ async function putFile(request, response) {
     const type = request.headers['content-type'];
     try {
         await Storage.putFile(type, fileId, request);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: fileId,
-        });
+        return utils.sendResponse(response, 200, "text/plain", fileId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at writing fileId: ${fileId}`
@@ -961,9 +865,7 @@ async function deleteFile(request, response) {
     const type = request.headers['content-type'];
     try {
         await Storage.deleteFile(type, fileId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: fileId,
-        });
+        return utils.sendResponse(response, 200, "text/plain", fileId);
     } catch (error) {
         return utils.sendResponse(response, 500, "application/json", {
             message: error + ` Error at deleting file: ${fileId}`
@@ -995,11 +897,7 @@ async function importPersonality(request, response) {
                     .promise();
 
                 const importResult = await space.APIs.importPersonality(spaceId, extractedPath, request);
-
-                utils.sendResponse(response, 200, "application/json", {
-                    message: 'Personality imported successfully',
-                    data: importResult
-                });
+                utils.sendResponse(response, 200, "application/json", importResult);
             } catch (error) {
                 utils.sendResponse(response, error.statusCode || 500, "application/json", {
                     message: `Error at importing personality: ${error.message}`
@@ -1067,7 +965,6 @@ async function getUploadURL(request, response) {
                 fileId: fileId,
                 externalRequest
             },
-            message: `Upload URL retrieved successfully`
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -1181,9 +1078,7 @@ const getWebChatConfiguration = async (request, response) => {
     const spaceId = request.params.spaceId;
     try {
         const configuration = await space.APIs.getWebChatConfiguration(spaceId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: configuration
-        });
+        utils.sendResponse(response, 200, "application/json", configuration);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1196,10 +1091,7 @@ async function addWebAssistantConfigurationPage(request, response) {
     const pageData = request.body;
     try {
         const pageId = await space.APIs.addWebAssistantConfigurationPage(spaceId, pageData);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Page added successfully`,
-            data: {pageId}
-        });
+        utils.sendResponse(response, 200, "application/json", {pageId});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1211,9 +1103,7 @@ async function getWebAssistantConfigurationPages(request, response) {
     const spaceId = request.params.spaceId;
     try {
         const pages = await space.APIs.getWebAssistantConfigurationPages(spaceId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: pages
-        });
+        utils.sendResponse(response, 200, "application/json", pages);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1226,9 +1116,7 @@ async function getWebAssistantConfigurationPage(request, response) {
     const pageId = request.params.pageId;
     try {
         const page = await space.APIs.getWebAssistantConfigurationPage(spaceId, pageId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: page
-        });
+        utils.sendResponse(response, 200, "application/json", page);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1272,9 +1160,7 @@ async function getWebAssistantConfigurationPageMenu(request, response) {
     const pageId = request.params.pageId;
     try {
         const menu = await space.APIs.getWebAssistantConfigurationPageMenu(spaceId, pageId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: menu
-        });
+        utils.sendResponse(response, 200, "application/json", menu);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1288,10 +1174,7 @@ async function addWebAssistantConfigurationPageMenuItem(request, response) {
     const menuItem = request.body;
     try {
         const menuItemId = await space.APIs.addWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItem);
-        utils.sendResponse(response, 200, "application/json", {
-            message: `Menu item added successfully`,
-            data: {menuItemId}
-        });
+        utils.sendResponse(response, 200, "application/json", {menuItemId});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1338,9 +1221,7 @@ async function getWebAssistantConfigurationPageMenuItem(request, response) {
     const menuItemId = request.params.menuItemId;
     try {
         const menuItem = await space.APIs.getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: menuItem
-        });
+        utils.sendResponse(response, 200, "application/json", menuItem);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -1367,9 +1248,7 @@ async function getWebAssistantHomePage(request, response) {
     const spaceId = request.params.spaceId;
     try {
         const homePage = await space.APIs.getWebAssistantHomePage(request, response, spaceId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: homePage
-        });
+        utils.sendResponse(response, 200, "application/json", homePage);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -1391,9 +1270,7 @@ async function getWidget(request, response) {
 
     try {
         const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId,widgetName);
-        utils.sendResponse(response, 200, "application/json", {
-            data: {html, css, js,presenterClassName:convertToPascalCase(widgetName)}
-        });
+        utils.sendResponse(response, 200, "application/json", {html, css, js,presenterClassName:convertToPascalCase(widgetName)});
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message

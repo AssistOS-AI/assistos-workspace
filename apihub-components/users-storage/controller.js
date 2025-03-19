@@ -1,43 +1,6 @@
-const cookie = require('../apihub-component-utils/cookie.js');
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
 const Space = require("../spaces-storage/space");
-
-async function loginUser(request, response) {
-    const {email, code, createSpace} = request.body;
-    try {
-        const BASE_URL= process.env.BASE_URL;
-        let internalResponse = await fetch(`${BASE_URL}/auth/walletLogin`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({email, code})
-        });
-        let responseData = await internalResponse.json();
-        if(responseData.operation !== "success"){
-            return utils.sendResponse(response, 400, "application/json", {
-                message: responseData.message
-            });
-        }
-        let cookies = internalResponse.headers.get('set-cookie');
-        let cookieArray = cookies.split(',');
-        if(createSpace){
-            let spaceName = email.split('@')[0];
-            let ServerSideSecurityContext = require("assistos").ServerSideSecurityContext;
-            let securityContext = new ServerSideSecurityContext(request);
-            let spaceModule = require("assistos").loadModule("space", securityContext);
-            const space = await spaceModule.createSpace(spaceName);
-            cookieArray.push(cookie.createCurrentSpaceCookie(space.id));
-        }
-        response.setHeader('Set-Cookie', cookieArray);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
 
 async function loadUser(request, response) {
     try {
@@ -56,19 +19,6 @@ async function loadUser(request, response) {
         });
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function logoutUser(request, response) {
-        try {
-            await User.logoutUser(request.email, request.authKey);
-        utils.sendResponse(response, 200, "application/json", {
-            message: "User logged out successfully"
-        }, [cookie.deleteCurrentSpaceCookie()]);
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message
         });
     }
@@ -117,9 +67,7 @@ async function getCurrentSpaceId(request, response) {
     }
 }
 module.exports = {
-    loginUser,
     loadUser,
-    logoutUser,
     getUserImage,
     updateUserImage,
     getCurrentSpaceId

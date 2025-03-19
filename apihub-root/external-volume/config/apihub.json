@@ -15,7 +15,6 @@
         "secrets",
         "versionlessDSU",
         "llms",
-        "users-storage",
         "document",
         "spaces-storage",
         "knowledge-storage",
@@ -45,9 +44,6 @@
         "anchoring": {},
         "llms": {
             "module": "./../../apihub-components/llms"
-        },
-        "users-storage": {
-            "module": "./../../apihub-components/users-storage"
         },
         "document": {
             "module": "./../../apihub-components/document"

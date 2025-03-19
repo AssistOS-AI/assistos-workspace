@@ -11,7 +11,6 @@ async function createStandardPersistencePlugin(){
     });
 
     await persistence.createIndex("space", "name");
-    await persistence.createGrouping("spaces", "space", "name");
     return persistence;
 }
 

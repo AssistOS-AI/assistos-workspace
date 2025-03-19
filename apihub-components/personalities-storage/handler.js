@@ -1,4 +1,4 @@
-const {getPersonalityData, getSpaceStatusObject, getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
+const {getPersonalityData, getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
 const {createChat} = require('../chat/handler.js');
 const crypto = require("../apihub-component-utils/crypto");
 const storage=require('../apihub-component-utils/storage');

@@ -83,6 +83,25 @@ async function SpacePlugin(){
             imageId: personality.imageId,
         };
     }
+    self.getSpaceAgent = async function (spaceId, agentId) {
+        try {
+            const agentPath = getAgentPath(spaceId, agentId);
+            const agentObj = JSON.parse(await fsPromises.readFile(agentPath, 'utf8'));
+            return agentObj;
+        } catch (error) {
+            error.message = `Agent ${agentId} not found.`;
+            error.statusCode = 404;
+            throw error;
+        }
+    }
+
+    self.getDefaultSpaceAgentId = async function (spaceId) {
+        let spaceStatus = await persistence.getSpaceStatus(spaceId);
+        return spaceStatus.defaultSpaceAgent;
+    }
+    self.getSpaceStatus = async function (spaceId) {
+        return await persistence.getSpaceStatus(spaceId);
+    }
     self.shutDown = async function(){
         await persistence.shutDown();
     }

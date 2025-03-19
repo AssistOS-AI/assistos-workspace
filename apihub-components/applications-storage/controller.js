@@ -51,10 +51,7 @@ async function requiresUpdate(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
         const needsUpdate = await ApplicationHandler.requiresUpdate(spaceId, applicationId);
-        return sendResponse(response, 200, "application/json", {
-            message: "Application requires update",
-            data: needsUpdate,
-        });
+        return sendResponse(response, 200, "application/json", needsUpdate);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to check for updates: ${error}`,
@@ -91,9 +88,7 @@ async function saveJSON(response, spaceData, filePath) {
 async function loadApplicationsMetadata(request, response) {
     try {
         const applicationsMetadata = await ApplicationHandler.getApplicationsMetadata();
-        return sendResponse(response, 200, "application/json", {
-            data: applicationsMetadata
-        });
+        return sendResponse(response, 200, "application/json", applicationsMetadata);
     } catch (error) {
         return sendResponse(response, 500, "application/json", {
             message: `Failed to load applications metadata: ${error}`,
@@ -106,10 +101,7 @@ async function loadApplicationConfig(request, response) {
     try {
         const applicationManifest = await ApplicationHandler.loadApplicationConfig(spaceId, applicationId);
         response.setHeader('Cache-Control', 'public, max-age=10');
-        return sendResponse(response, 200, "application/json", {
-            message: "",
-            data: applicationManifest
-        });
+        return sendResponse(response, 200, "application/json", applicationManifest);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to load application config:${error}`,
@@ -121,9 +113,7 @@ async function getApplicationTasks(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
         const tasks = await ApplicationHandler.getApplicationTasks(spaceId, applicationId);
-        return sendResponse(response, 200, "application/json", {
-            data: tasks,
-        });
+        return sendResponse(response, 200, "application/json", tasks);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to get application tasks:${error}`,
@@ -138,10 +128,7 @@ async function runApplicationTask(request, response) {
         const taskId = await ApplicationHandler.runApplicationTask(request, spaceId, applicationId, taskName, taskData);
         const sessionId = request.sessionId;
         subscriptionManager.notifyClients(sessionId, applicationId, "tasks");
-        return sendResponse(response, 200, "application/json", {
-            message: `Task ${taskId} started`,
-            data: taskId,
-        });
+        return sendResponse(response, 200, "text/plain", taskId);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to run application task:${error}`,
@@ -157,10 +144,7 @@ async function runApplicationFlow(request, response) {
         const data = await ApplicationHandler.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
         const sessionId = request.sessionId;
         subscriptionManager.notifyClients(sessionId, applicationId, "flows");
-        return sendResponse(response, 200, "application/json", {
-            message: `Flow executed successfully`,
-            data: data,
-        });
+        return sendResponse(response, 200, "application/json", data);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to run application flow:${error}`,
@@ -224,10 +208,7 @@ async function loadObjects(request, response) {
         });
     }
 
-    sendResponse(response, 200, "application/json", {
-        message: "Application or repository not found",
-        data: localData
-    });
+    sendResponse(response, 200, "application/json", localData);
 }
 
 async function loadApplicationFile(request, response) {
@@ -296,9 +277,7 @@ async function getApplicationsPlugins(request, response) {
     const {spaceId} = request.params;
     try {
         const plugins = await ApplicationHandler.getApplicationsPlugins(spaceId);
-        return sendResponse(response, 200, "application/json", {
-            data: plugins
-        });
+        return sendResponse(response, 200, "application/json", plugins);
     } catch (error) {
         return sendResponse(response, 500, "application/json", {
             message: `Failed to get applications plugins: ${error}`,
@@ -315,9 +294,7 @@ async function getWidgets(request, response) {
     }
     try {
         const widgets = await ApplicationHandler.getWidgets(spaceId);
-        return sendResponse(response, 200, "application/json", {
-            data: widgets
-        });
+        return sendResponse(response, 200, "application/json", widgets);
     } catch (error) {
         return sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Failed to get widgets: ${error}`,

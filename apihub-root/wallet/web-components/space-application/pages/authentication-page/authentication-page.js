@@ -169,8 +169,15 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        await userModule.loginUser(this.email, authCode, this.createSpace);
-        await assistOS.loadPage(true);
+        let result = await userModule.loginUser(this.email, authCode);
+        if(result.operation !== "success"){
+            throw new Error(result.message);
+        }
+        if(this.createSpace){
+            let spaceName = this.email.split('@')[0];
+            await spaceModule.createSpace(spaceName);
+        }
+        await assistOS.loadPage(this.email);
         if (!assistOS.user.imageId) {
             let uint8Array = await this.generateUserAvatar(this.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);

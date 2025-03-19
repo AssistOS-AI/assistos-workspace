@@ -195,8 +195,8 @@ class AssistOS {
         window.location = "/";
     }
 
-    async initSpace(spaceId) {
-        assistOS.user = await userModule.loadUser();
+    async initSpace(email, spaceId) {
+        assistOS.user = await userModule.loadUser(email);
         assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
         appsData.forEach(application => {
@@ -261,7 +261,7 @@ class AssistOS {
 
     async createSpace(spaceName) {
         await spaceModule.createSpace(spaceName);
-        await this.loadPage(false, true);
+        await this.loadPage(assistOS.user.email, true);
     }
 
     async initPage(applicationName, applicationLocation) {
@@ -282,10 +282,12 @@ class AssistOS {
         }
     }
 
-    async loadPage(skipAuth = false, skipSpace = false, spaceId) {
+    async loadPage(email, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
-        spaceId = spaceId ? spaceId : spaceIdURL;
-        if (spaceId === authPage && skipAuth) {
+
+        spaceId = spaceId || spaceIdURL;
+
+        if (spaceId === authPage && email) {
             spaceId = undefined;
         }
 
@@ -295,7 +297,7 @@ class AssistOS {
         }
 
         try {
-            await (spaceId ? skipSpace ? assistOS.initSpace() : assistOS.initSpace(spaceId) : assistOS.initSpace());
+            await assistOS.initSpace(email, spaceId);
             try {
                 this.NotificationRouter.createSSEConnection();
                 this.NotificationRouter.getEventSource().onopen = async () => {

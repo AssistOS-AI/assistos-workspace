@@ -15,19 +15,13 @@ async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     }
 }
 
-async function loadUser(email, authKey) {
-    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
-    return {
-        email: email,
-        currentSpaceId: userInfo.currentSpaceId,
-        spaces: userInfo.spaces,
-        imageId: userInfo.imageId
-    }
-}
+
 async function sendAuthComponentRequest(endpoint, method = "GET", body, authKey, email, headers) {
     let url = `${process.env.BASE_URL}/auth/${endpoint}`;
     if(!headers){
-        headers = {}
+        headers = {
+            "x-api-key": process.env.SSO_SECRETS_ENCRYPTION_KEY,
+        }
     }
     let init = {
         method: method,
@@ -94,10 +88,7 @@ async function setUserCurrentSpace(email, spaceId, authKey) {
     userInfo.currentSpaceId = spaceId;
     await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
 }
-async function getCurrentSpaceId(email, authKey) {
-    let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
-    return userInfo.currentSpaceId;
-}
+
 
 async function getDefaultSpaceId(email, authKey) {
     let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
@@ -120,10 +111,6 @@ async function getActivationFailHTML(failReason) {
     })
 }
 
-async function logoutUser(email, authKey) {
-    let response = await sendAuthComponentRequest(`walletLogout`, 'POST', "", authKey, email);
-    return response.ok;
-}
 module.exports = {
     getActivationFailHTML,
     getActivationSuccessHTML,
@@ -132,8 +119,5 @@ module.exports = {
     getDefaultSpaceId,
     setUserCurrentSpace,
     addSpaceCollaborator,
-    loadUser,
     updateUserImage,
-    logoutUser,
-    getCurrentSpaceId
 }
