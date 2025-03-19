@@ -598,6 +598,36 @@
             "directory":"widgets",
             "presenterClassName":"TextWidget",
             "type":"widget"
+        },
+        {
+            "name":"about-us",
+            "directory":"widgets",
+            "presenterClassName":"AboutUs",
+            "type":"widget"
+        },
+        {
+            "name":"blog-widget",
+            "directory":"widgets",
+            "presenterClassName":"BlogWidget",
+            "type":"widget"
+        },
+        {
+            "name":"contact-widget",
+            "directory":"widgets",
+            "presenterClassName":"ContactWidget",
+            "type":"widget"
+        },
+        {
+            "name":"pricing-widget",
+            "directory":"widgets",
+            "presenterClassName":"PricingWidget",
+            "type":"widget"
+        },
+        {
+            "name":"privacy-widget",
+            "directory":"widgets",
+            "presenterClassName":"PrivacyWidget",
+            "type":"widget"
         }
     ]
 }

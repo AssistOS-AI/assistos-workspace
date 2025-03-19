@@ -231,12 +231,6 @@ class BaseChatFrame {
             this.currentPageId = homePageConfig.id;
         }
         this.page = await getPageConfig(this.spaceId, this.currentPageId);
-        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
-        const [widgetApp, widgetName] = this.page.widget.split('/');
-        await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-        await UI.loadWidget(this.spaceId, widgetApp, widgetName);
-        this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
-        this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
 
         this.previewContentSidebar = this.page.menu.map((menuItem) => {
             return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
@@ -279,6 +273,36 @@ class BaseChatFrame {
     }
 
     async afterRender() {
+        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
+        const [widgetApp, widgetName] = this.page.widget.split('/');
+
+        await Promise.all([UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName), UI.loadWidget(this.spaceId, widgetApp, widgetName)]);
+
+        UI.createElement(previewWidgetName, '#preview-content-header');
+        UI.createElement(widgetName, '#preview-content-right', {
+            generalSettings: this.page.generalSettings,
+            data: this.page.data
+        });
+
+        /* new way of inserting components into DOM
+        UI.createElement('chat-item', '#conversation', {
+            role,
+            spaceId,
+            ownMessage,
+            id,
+            isContext,
+            messageIndex,
+            user,
+            dataLastItem
+        })
+
+        old way of inserting components into DOM
+
+        this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+        this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
+        this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
+        */
+
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
 
@@ -570,7 +594,7 @@ class BaseChatFrame {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
-        this.props.chatId=chatId;
+        this.props.chatId = chatId;
         this.invalidate();
     }
 

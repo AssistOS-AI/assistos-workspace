@@ -69,7 +69,6 @@ async function getChatId(spaceId, personalityId) {
 if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./serviceWorker.js')
         .then(reg => {
-            console.log('SW registered:', reg);
             reg.active.addEventListener('statechange', e => {
                 if (e.target.state === 'activated') {
                     window.location.reload();
@@ -106,15 +105,16 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 
 let chatId = await getChatId(spaceId, personalityId);
 
-const component = UI.createElement(
+const component = window.UI.createElement(
     'chat-page',
     appContainer,
+    {chatId, personalityId, spaceId, userId},
     {
         "data-chatId": chatId,
         "data-personalityId": personalityId,
         "data-spaceId": spaceId,
-        "data-userId": userId
+        "data-userId": userId,
     },
-    {chatId, personalityId, spaceId, userId},
     true
 );
+

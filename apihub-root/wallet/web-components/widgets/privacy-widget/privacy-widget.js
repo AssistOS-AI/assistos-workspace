@@ -1,4 +1,4 @@
-export class TextWidget {
+export class PrivacyWidget {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
@@ -7,10 +7,8 @@ export class TextWidget {
     }
 
     async beforeRender() {
-        this.quoteText = this.props.data||"In the middle of difficulty lies opportunity. - Albert Einstein"
+        this.policyText = this.props.data || "Your privacy is important to us. We do not share your data.";
     }
 
-    async afterRender() {
-
-    }
+    async afterRender() {}
 }
