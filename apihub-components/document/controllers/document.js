@@ -1,4 +1,4 @@
-const space = require("../../spaces-storage/space");
+const space = require("../../space/space");
 const utils = require("../../apihub-component-utils/utils");
 const crypto = require("../../apihub-component-utils/crypto");
 const path = require("path");

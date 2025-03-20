@@ -1,4 +1,4 @@
-const SpaceHandler = require('../spaces-storage/space.js');
+const SpaceHandler = require('../space/space.js');
 const PersonalitiesHandler = require('../personalities-storage/handler.js');
 const Request = require('../apihub-component-utils/utils.js');
 const {ServerSideSecurityContext, loadModule} = require('assistos');

@@ -959,13 +959,12 @@ async function getUploadURL(request, response) {
     try {
         const fileId = crypto.generateId();
         const {uploadURL, externalRequest} = await Storage.getUploadURL(type, fileId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: {
-                uploadURL: uploadURL,
-                fileId: fileId,
-                externalRequest
-            },
-        });
+        let data = {
+            uploadURL: uploadURL,
+            fileId: fileId,
+            externalRequest
+        }
+        return utils.sendResponse(response, 200, "application/json", data);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Error getting an upload URL:` + error.message
@@ -978,13 +977,11 @@ async function getDownloadURL(request, response) {
     const fileId = request.params.fileId;
     try {
         const {downloadURL, externalRequest} = await Storage.getDownloadURL(type, fileId);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: {
-                downloadURL: downloadURL,
-                externalRequest: externalRequest
-            },
-            message: `Download URL retrieved successfully`
-        });
+        let data = {
+            downloadURL: downloadURL,
+            externalRequest: externalRequest
+        }
+        return utils.sendResponse(response, 200, "application/json", data);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Error getting a download URL:` + error.message

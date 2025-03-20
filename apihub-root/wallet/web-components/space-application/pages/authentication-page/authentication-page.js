@@ -177,12 +177,14 @@ export class AuthenticationPage {
             let spaceName = this.email.split('@')[0];
             await spaceModule.createSpace(spaceName);
         }
+        await assistOS.UI.showLoading();
         await assistOS.loadPage(this.email);
         if (!assistOS.user.imageId) {
             let uint8Array = await this.generateUserAvatar(this.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
             await userModule.updateUserImage(assistOS.user.email, assistOS.user.imageId);
         }
+        await assistOS.UI.hideLoading();
     }
     async generateUserAvatar(email, size = 100) {
         let firstLetter = email.charAt(0).toUpperCase();

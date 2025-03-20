@@ -1,16 +1,12 @@
-const {generateId} = require("../apihub-component-utils/crypto");
-const {createSessionCookie} = require("../apihub-component-utils/cookie");
-
+const cookie = require('../apihub-component-utils/cookie');
 class SubscriptionManager {
     constructor() {
         this.clients = new Map();
     }
 
-    addClientConnection(userId, response) {
+    addClientConnection(sessionId, userId, response) {
         const client = this.clients.get(userId);
 
-        const sessionId = generateId(16);
-        response.setHeader('Set-Cookie', createSessionCookie(sessionId));
         response.setHeader('Content-Type', 'text/event-stream');
         response.setHeader('Cache-Control', 'no-cache');
         response.setHeader('Connection', 'keep-alive');
@@ -37,15 +33,16 @@ class SubscriptionManager {
     }
 
     registerClient(userId, request, response) {
+        let cookies = cookie.parseRequestCookies(request);
         if (this.clients.has(userId)) {
-            return this.addClientConnection(userId, response);
+            return this.addClientConnection(cookies.sessionId, userId, response);
         }
         const client = {
             connections: new Map(),
             userId: userId,
         };
         this.clients.set(userId, client);
-        this.addClientConnection(userId, response);
+        this.addClientConnection(cookies.sessionId, userId, response);
     }
 
     closeClientConnection(userId, sessionId) {

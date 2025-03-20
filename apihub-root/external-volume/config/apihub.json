@@ -4,7 +4,6 @@
     "lightDBStorage": "../data-volume/lightDB",
     "externalStorage": "../data-volume",
     "port": 8080,
-    "workers": 1,
     "preventRateLimit": true,
     "activeComponents": [
         "bdns",
@@ -16,7 +15,7 @@
         "versionlessDSU",
         "llms",
         "document",
-        "spaces-storage",
+        "space",
         "knowledge-storage",
         "applications-storage",
         "server-flow-apis",
@@ -48,8 +47,8 @@
         "document": {
             "module": "./../../apihub-components/document"
         },
-        "spaces-storage": {
-            "module": "./../../apihub-components/spaces-storage"
+        "space": {
+            "module": "./../../apihub-components/space"
         },
         "chat": {
             "module": "./../../apihub-components/chat"

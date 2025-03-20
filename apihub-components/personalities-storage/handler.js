@@ -1,10 +1,10 @@
-const {getPersonalityData, getSpacePersonalities} = require('../spaces-storage/space.js').APIs;
+const {getPersonalityData, getSpacePersonalities} = require('../space/space.js').APIs;
 const {createChat} = require('../chat/handler.js');
 const crypto = require("../apihub-component-utils/crypto");
 const storage=require('../apihub-component-utils/storage');
 const {promises: fsPromises} = require("fs");
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
-const SpaceController = require("../spaces-storage/controller.js");
+const SpaceController = require("../space/controller.js");
 
 async function addPersonality(request, spaceId, personalityData) {
     const objectId = crypto.generateId();

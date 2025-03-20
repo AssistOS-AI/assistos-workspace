@@ -1,11 +1,3 @@
-function createSessionCookie(sessionId) {
-    return createCookieString('sessionId', sessionId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: "/"
-    });
-}
 function parseResponseCookies(response) {
     let cookies = response.headers.get('set-cookie');
     let parsedCookies = {};
@@ -86,49 +78,10 @@ function deleteCurrentSpaceCookie() {
     });
 }
 
-function createDemoUserCookie(email, password) {
-    return createCookieString("demoCredentials", JSON.stringify({
-            email: email,
-            password: password
-        }
-    ), {
-        path: "/",
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7
-    });
-}
-function deleteDemoUserCookie() {
-    return createCookieString("demoCredentials", "", {
-        path: "/",
-        sameSite: 'Strict',
-        maxAge: 0
-    });
-
-}
-function createApiHubAuthCookies(apiHubAuthSecret, userId, spaceId) {
-    let apiHubSecretCookie = createCookieString('ApiHubAuth', apiHubAuthSecret, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        path: "/"});
-    let userIdCookie = createCookieString('userId', userId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-    });
-    let spaceIdCookie = createCookieString('spaceId', spaceId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-    });
-    return apiHubSecretCookie + " " + userIdCookie + " " + spaceIdCookie;
-}
-
 module.exports = {
-    createSessionCookie,
     parseRequestCookies,
     parseResponseCookies,
     createCookieString,
     createCurrentSpaceCookie,
-    createDemoUserCookie,
-    deleteDemoUserCookie,
     deleteCurrentSpaceCookie,
-    createApiHubAuthCookies
 }

@@ -7,15 +7,14 @@ async function SpacePersistence(){
             name: "string",
             applications: "array",
             defaultAgent: "string",
-        }
-    });
-    persistence.configureTypes({
+        },
         application: {
-           name: "string",
+            name: "string",
         }
     });
 
     await persistence.createIndex("space", "name");
+    await persistence.createIndex("application", "name");
     return persistence;
 }
 

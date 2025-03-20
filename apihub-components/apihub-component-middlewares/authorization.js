@@ -1,4 +1,4 @@
-const Space=require('../spaces-storage/space.js');
+const Space=require('../space/space.js');
 const utils = require('../apihub-component-utils/utils.js');
 
 async function authorization(req, res, next){

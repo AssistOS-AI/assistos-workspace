@@ -220,7 +220,10 @@ class AssistOS {
 
     async loadAgent(spaceId, agentId) {
         if (!agentId) {
-            agentId = localStorage.getItem("agent") ?? undefined;
+            agentId = localStorage.getItem("agent");
+            if(agentId === "undefined"){
+                agentId = undefined;
+            }
         }
         let personalityData;
         try {
@@ -535,11 +538,15 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
-    const chatState= getCookie("chatState");
+    const chatState = getCookie("chatState");
     assistOS.UI.chatState = chatState || "open";
     defineActions();
     closeDefaultLoader()
-    await assistOS.loadPage();
+    let email = getCookie("email");
+    if(email){
+        email = decodeURIComponent(email);
+    }
+    await assistOS.loadPage(email);
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
 
 })();

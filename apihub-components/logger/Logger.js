@@ -6,7 +6,7 @@ const CustomError = require('../apihub-component-utils/CustomError');
 
 const file = require("../apihub-component-utils/file.js")
 const crypto = require('../apihub-component-utils/crypto');
-const {getSpacePath} = require("../spaces-storage/space.js").APIs;
+const {getSpacePath} = require("../space/space.js").APIs;
 
 const LOG_LEVELS = Object.freeze({
     DEBUG: 0,

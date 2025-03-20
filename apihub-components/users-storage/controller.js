@@ -1,6 +1,6 @@
 const utils = require('../apihub-component-utils/utils.js');
 const User = require('./user.js');
-const Space = require("../spaces-storage/space");
+const Space = require("../space/space");
 
 async function loadUser(request, response) {
     try {

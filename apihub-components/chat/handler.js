@@ -1,4 +1,4 @@
-const {addChatToPersonality, getPersonalityData} = require('../spaces-storage/space.js').APIs
+const {addChatToPersonality, getPersonalityData} = require('../space/space.js').APIs
 const Document = require('../document/services/document.js')
 const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')

@@ -55,7 +55,7 @@ async function linkSpaceToUser(email, spaceId, authKey) {
 }
 
 async function linkUserToSpace(spaceId, userId, referrerId, role) {
-    const Space = require('../spaces-storage/space.js');
+    const Space = require('../space/space.js');
     const spaceStatusObject = await Space.APIs.getSpaceStatusObject(spaceId);
     if (!spaceStatusObject.users[userId]) {
         spaceStatusObject.users[userId] =
