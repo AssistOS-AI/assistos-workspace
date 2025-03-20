@@ -1,5 +1,5 @@
 const persisto = require("../../Gatekeeper/Persisto");
-async function createStandardPersistencePlugin(){
+async function SpacePersistence(){
     let persistence = await persisto.initialisePersisto();
     persistence.configureTypes({
         spaceStatus: {
@@ -7,6 +7,11 @@ async function createStandardPersistencePlugin(){
             name: "string",
             applications: "array",
             defaultAgent: "string",
+        }
+    });
+    persistence.configureTypes({
+        application: {
+           name: "string",
         }
     });
 
@@ -19,7 +24,7 @@ let singleton = null;
 module.exports = {
     getInstance: async function () {
         if(!singleton){
-            singleton = await createStandardPersistencePlugin();
+            singleton = await SpacePersistence();
         }
         return singleton;
     },

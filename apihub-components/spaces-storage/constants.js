@@ -5,5 +5,8 @@ module.exports = {
         WRITE: "member",
         GUEST: "guest",
     },
-    defaultPersonality:"Assistant",
+    DEFAULT_PERSONALITY:"Assistant",
+    SERVERLESS_ID: "space",
+    SPACE_PLUGIN: "SpacePlugin",
+    APPLICATION_PLUGIN: "ApplicationPlugin",
 }

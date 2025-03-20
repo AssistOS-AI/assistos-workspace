@@ -5,12 +5,10 @@ const file = require("../../apihub-component-utils/file");
 const secrets = require("../../apihub-component-utils/secrets");
 const path = require("path");
 const volumeManager = require("../../volumeManager");
-const cookie = require("../../apihub-component-utils/cookie");
-const enclave = require('opendsu').loadAPI('enclave');
 
 async function SpacePlugin(){
     let self = {};
-    let persistence = await $$.loadPlugin("StandardPersistence");
+    let persistence = await $$.loadPlugin("SpacePersistence");
     self.createSpace = async function(spaceName, email, authKey){
         const User = require('../../users-storage/user.js');
 
@@ -123,6 +121,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["StandardPersistence"];
+        return ["SpacePersistence"];
     }
 }

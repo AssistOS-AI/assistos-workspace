@@ -13,11 +13,11 @@ const dataVolumePaths = require('../volumeManager').paths;
 const Storage = require("../apihub-component-utils/storage.js");
 const lightDB = require("../apihub-component-utils/lightDB.js");
 const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
-const SPACE_PLUGIN = "SpacePlugin";
 const {
     getTextResponse,
     getTextStreamingResponse
 } = require('../llms/controller.js');
+const constants = require('./constants.js');
 const fs = require("fs");
 
 function getFileObjectsMetadataPath(spaceId, objectType) {
@@ -384,7 +384,7 @@ async function getSpace(request, response) {
         } catch (error) {
 
         }
-        let client = initAPIClient(request.userId, request.serverlessId);
+        let client = getSpaceAPIClient(request.userId);
         let spaceStatus = await client.getSpace(spaceId);
         await user.setUserCurrentSpace(email, spaceId, request.authKey);
         utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
@@ -394,8 +394,8 @@ async function getSpace(request, response) {
         });
     }
 }
-function initAPIClient(userId, serverlessId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, SPACE_PLUGIN);
+function getSpaceAPIClient(userId){
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.SERVERLESS_ID, constants.SPACE_PLUGIN);
 }
 async function createSpace(request, response) {
     const email = request.email;
@@ -407,7 +407,7 @@ async function createSpace(request, response) {
         return;
     }
     try {
-        let client = initAPIClient(request.userId, request.serverlessId);
+        let client = getSpaceAPIClient(request.userId);
         let newSpace = await client.createSpace(spaceName, email, request.authKey);
         utils.sendResponse(response, 200, "application/json", newSpace, cookie.createCurrentSpaceCookie(newSpace.id));
     } catch (error) {
@@ -500,7 +500,7 @@ async function addCollaboratorsToSpace(request, response) {
 async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
-    let client = initAPIClient(request.userId, request.serverlessId);
+    let client = getSpaceAPIClient(request.userId);
     if (!agentId) {
         agentId = await client.getDefaultSpaceAgentId(spaceId);
     }
@@ -1342,5 +1342,5 @@ module.exports = {
     getFileObjectPath,
     resetSpaceChat,
     saveSpaceChat,
-    chatCompleteParagraph
+    chatCompleteParagraph,
 }

@@ -161,13 +161,13 @@ async function getDefaultPersonality(spaceId) {
     const spacePath = getSpacePath(spaceId);
     const personalityPath = path.join(spacePath, 'personalities', 'metadata.json');
     const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
-    const defaultPersonalityId = personalitiesData.find(personality => personality.name === spaceConstants.defaultPersonality).id;
+    const defaultPersonalityId = personalitiesData.find(personality => personality.name === spaceConstants.DEFAULT_PERSONALITY).id;
     const defaultPersonalityPath = path.join(spacePath, 'personalities', `${defaultPersonalityId}.json`);
     try {
         const defaultPersonalityData = await fsPromises.readFile(defaultPersonalityPath, 'utf8');
         return JSON.parse(defaultPersonalityData);
     } catch (error) {
-        error.message = `Default Personality ${spaceConstants.defaultPersonality} not found.`;
+        error.message = `Default Personality ${spaceConstants.DEFAULT_PERSONALITY} not found.`;
         error.statusCode = 404;
         throw error;
     }

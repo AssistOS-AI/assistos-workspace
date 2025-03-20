@@ -66,32 +66,25 @@ const {
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const cookie = require('../apihub-component-utils/cookie.js');
+const constants = require('./constants.js');
+const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js')
 function Space(server) {
     let serverUrl;
-    const serverlessId = "space"
     setTimeout(async ()=>{
         const serverlessAPI = await server.createServerlessAPI({
             port: 8083,
-            urlPrefix: serverlessId,
+            urlPrefix: constants.SERVERLESS_ID,
             storage: __dirname});
         serverUrl = serverlessAPI.getUrl();
-        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+        server.registerServerlessProcessUrl(constants.SERVERLESS_ID, serverUrl);
     },0);
-    server.use(`/spaces/*`, async function (req, res, next) {
-        req.serverlessId = serverlessId;
-        const cookies = cookie.parseRequestCookies(req);
-        if (cookies.userId) {
-            req.userId = cookies.userId;
-        } else {
-            req.userId = "*";
-        }
-        next();
-    });
+
     server.use("/spaces/*", contextMiddleware);
 
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
+
+    server.use("/spaces/*", authenticationMiddleware);
 
     server.use("/spaces/*", bodyReader);
     server.use("/public/*", bodyReader);
@@ -161,11 +154,7 @@ function Space(server) {
     server.get("/spaces/:spaceId/announcements", getSpaceAnnouncements)
     server.put("/spaces/:spaceId/announcements/:announcementId", updateSpaceAnnouncement)
     server.delete("/spaces/:spaceId/announcements/:announcementId", deleteSpaceAnnouncement);
-
-    /*Chat*/
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/generate", getChatTextResponse);
-    server.post("/apis/v1/spaces/:spaceId/chats/:chatId/llms/text/streaming/generate", getChatTextStreamingResponse);
-
+    
     /*Personalities*/
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
