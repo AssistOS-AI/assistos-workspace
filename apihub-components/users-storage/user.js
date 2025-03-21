@@ -1,10 +1,6 @@
 const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
-async function updateUserImage(email, imageId, authKey) {
-    let user = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
-    user.imageId = imageId;
-    await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', user, authKey, email);
-}
+
 async function addSpaceCollaborator(spaceId, userId, role, referrerId) {
     await linkSpaceToUser(userId, spaceId)
     try {
@@ -119,5 +115,4 @@ module.exports = {
     getDefaultSpaceId,
     setUserCurrentSpace,
     addSpaceCollaborator,
-    updateUserImage,
 }

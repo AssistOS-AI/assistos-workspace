@@ -5,8 +5,8 @@ module.exports = {
         WRITE: "member",
         GUEST: "guest",
     },
-    DEFAULT_PERSONALITY:"Assistant",
-    SERVERLESS_ID: "space",
+    DEFAULT_PERSONALITY: "Assistant",
+    GLOBAL_SERVERLESS_ID: "assistOS",
     SPACE_PLUGIN: "SpacePlugin",
     APPLICATION_PLUGIN: "ApplicationPlugin",
 }

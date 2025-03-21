@@ -73,10 +73,10 @@ function Space(server) {
     setTimeout(async ()=>{
         const serverlessAPI = await server.createServerlessAPI({
             port: 8083,
-            urlPrefix: constants.SERVERLESS_ID,
+            urlPrefix: constants.GLOBAL_SERVERLESS_ID,
             storage: __dirname});
         serverUrl = serverlessAPI.getUrl();
-        server.registerServerlessProcessUrl(constants.SERVERLESS_ID, serverUrl);
+        server.registerServerlessProcessUrl(constants.GLOBAL_SERVERLESS_ID, serverUrl);
     },0);
 
     server.use("/spaces/*", contextMiddleware);

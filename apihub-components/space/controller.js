@@ -395,7 +395,7 @@ async function getSpace(request, response) {
     }
 }
 function getSpaceAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.SERVERLESS_ID, constants.SPACE_PLUGIN);
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.SPACE_PLUGIN);
 }
 async function createSpace(request, response) {
     const email = request.email;

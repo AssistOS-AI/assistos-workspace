@@ -5,7 +5,7 @@ const dataVolumePaths = require('../volumeManager').paths;
 const subscriptionManager = require('../subscribers/SubscriptionManager.js');
 const constants = require('../space/constants');
 function getApplicationAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.SERVERLESS_ID, constants.APPLICATION_PLUGIN);
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.APPLICATION_PLUGIN);
 }
 async function installApplication(request, response) {
     const {spaceId, applicationId} = request.params;

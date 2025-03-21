@@ -1,15 +1,15 @@
 const {promises: fsPromises} = require("fs");
 const crypto = require("../../apihub-component-utils/crypto");
-const constants = require("../constants");
 const file = require("../../apihub-component-utils/file");
-const secrets = require("../../apihub-component-utils/secrets");
 const path = require("path");
 const volumeManager = require("../../volumeManager");
+const constants = require("../../space/constants");
+const secrets = require("../../apihub-component-utils/secrets");
 
 async function SpacePlugin(){
     let self = {};
     let persistence = await $$.loadPlugin("SpacePersistence");
-    self.createSpace = async function(spaceName, email, authKey){
+    self.createSpace = async function(server, spaceName, email, authKey){
         const User = require('../../users-storage/user.js');
 
         const defaultSpaceAgentId = crypto.generateId(16);
@@ -20,6 +20,20 @@ async function SpacePlugin(){
             defaultAgent: defaultSpaceAgentId
         }
         let space = await persistence.createSpaceStatus(spaceData);
+        //create serverless API for new space
+        let serverlessAPIStorage = path.join(server.rootFolder, "external-volume", "spaces", space.id);
+        let serverlessId = space.id;
+        const serverlessAPI = await server.createServerlessAPI({
+            urlPrefix: serverlessId,
+            storage: serverlessAPIStorage});
+        let serverUrl = serverlessAPI.getUrl();
+        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+
+        //make space plugins available to the new serverless
+        await fsPromises.mkdir(serverlessAPIStorage, {recursive: true});
+        const SpacePluginRedirect = `module.exports = require("../../../../apihub-components/serverlessAPI/plugins/SpacePlugin.js")`;
+        await fsPromises.writeFile(`${serverlessAPIStorage}/SpacePlugin.js`, SpacePluginRedirect);
+
 
         await secrets.createSpaceSecretsContainer(space.id);
         const spacePath = path.join(volumeManager.paths.space, space.id);
@@ -27,12 +41,20 @@ async function SpacePlugin(){
         await self.copyDefaultPersonalities(spacePath, space.id, defaultSpaceAgentId)
         await file.createDirectory(path.join(spacePath, 'applications'))
         await User.linkSpaceToUser(email, space.id, authKey)
-
-
-        // const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(space.id);
-        // await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-        // await self.createDefaultSpaceChats(lightDBEnclaveClient, space.id);
         return space;
+    }
+    self.linkSpaceToUser = async function (email, spaceId, authKey) {
+        let userInfo = await sendAuthComponentRequest(`getInfo/${email}`, 'GET', "", authKey, email);
+        userInfo.currentSpaceId = spaceId;
+        if(!userInfo.spaces){
+            userInfo.spaces = [];
+        }
+        if(userInfo.spaces.includes(spaceId)){
+            console.log(`User ${email} is already linked to space ${spaceId}`);
+            return;
+        }
+        userInfo.spaces.push(spaceId);
+        await sendAuthComponentRequest(`setInfo/${email}`, 'PUT', userInfo, authKey, email);
     }
     self.getSpace = async function(spaceId){
         let spaceExists = await persistence.hasSpaceStatus(spaceId);

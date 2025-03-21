@@ -13,3 +13,4 @@ find ./data-volume/lightDB -mindepth 1 -type d ! -name 'FixedUrls.db' -exec rm -
 rm -rf ./data-volume/assets/*
 rm -rf ./apihub-root/external-volume/balanceData
 rm -rf ./apihub-root/external-volume/assistOS-logs
+rm -rf ./apihub-root/external-volume/spaces
