@@ -7,6 +7,7 @@ space-application-page {
 }
 #space-page-container{
     display:flex;
+    height:100%;
     width:100%;
 }
 .right-sidebar {
@@ -28,18 +29,7 @@ space-application-page {
     box-shadow: var(--right-sidebar-shadow);
 }
 
-.sidebar-item {
-    cursor: pointer;
-    padding: 7px 2px;
-    margin: 10px;
-    font-weight: 600;
-    border-radius: 5px;
-    width: 190px;
-}
-.sidebar-item-title {
-    margin-left: 12px;
-    color: var(--medium-gray);
-}
+
 
 .toggle-sidebar {
     cursor: pointer;
@@ -57,10 +47,7 @@ space-application-page {
 }
 
 .current-page {
-    width: calc(100% - 42px);
-    transition: width 0.3s;
-    min-width: 35%;
-    background: var(--white);
+    width: 100%;
 }
 .highlighted{
     background: var(--selected-chat) !important;
@@ -144,3 +131,11 @@ space-application-page {
 .arrow-rotated {
     transform: rotate(180deg);
 }
+
+
+#chat-page-container {
+    display: flex;
+    height: 100%;
+    width:100%;
+}
+

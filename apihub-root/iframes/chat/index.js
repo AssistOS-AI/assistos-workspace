@@ -79,7 +79,6 @@ if ('serviceWorker' in navigator) {
 
 const webComponentsRootDir = './web-components';
 
-
 window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = window.UI) {
     const r = await fetch(`/public/spaces/widgets/${spaceId}/${applicationId}/${widgetName}`)
     const data = (await r.json()).data
@@ -118,3 +117,36 @@ const component = window.UI.createElement(
     true
 );
 
+/* Example usage
+    component.chatId = "newId" // triggers re-render if set to observeProps -> better developer experience and less code
+    component.fetchChatMessages = (postId) =>fetch(postId) // dependency injection for better testing, modularity and reusability of components
+
+    faster TTI -> component creation is no longer dependent on the html insertion of the component (after beforeRender)
+             -> tho even more performance is achieved by having the html template inserted into the dom pre beforeRender and after replace the placeholder variables with the actual values
+    component.addEventListener('click', (e) => {}) // adding event listeners to components
+
+ */
+
+/* new way of inserting components into DOM
+   UI.createElement('chat-item', '#conversation', {
+       role,
+       spaceId,
+       ownMessage,
+       id,
+       isContext,
+       messageIndex,
+       user,
+       dataLastItem
+   })
+   UI.createElement(previewWidgetName, '#preview-content-header');
+   UI.createElement(widgetName, '#preview-content-right', {
+            generalSettings: this.page.generalSettings,
+            data: this.page.data
+        });
+
+   old way of inserting components into DOM
+
+   this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+   this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
+   this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
+   */

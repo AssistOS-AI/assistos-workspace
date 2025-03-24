@@ -1,3 +1,6 @@
+*{
+    box-sizing: border-box;
+}
 html{
     display:flex;
     height:100%;

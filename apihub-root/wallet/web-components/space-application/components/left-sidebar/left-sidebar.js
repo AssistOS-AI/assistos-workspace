@@ -21,10 +21,92 @@ export class LeftSidebar {
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
+    async beforeRender() {
+        this.applications = "";
+        let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
+        if(assistOS.user.imageId){
+            userImageURL = await spaceModule.getImageURL(assistOS.user.imageId);
+        }
+        let img = new Image();
+        img.onerror = async () => {
+            let uint8Array = await this.generateUserAvatar(assistOS.user.email);
+            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
+            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
+        };
+        img.src = userImageURL;
+        img.onload = () => {
+            img.remove();
+        };
+        this.userImage = userImageURL;
+        this.userName = assistOS.user.name;
+        for (let application of assistOS.space.installedApplications) {
+            let applicationData = assistOS.applications[application.name];
+            let svgImage = applicationData.svg;
+
+            this.applications += `
+        <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+            <div class="app-focus hidden"></div>
+            <div class="page-logo">
+                ${svgImage}
+                <div class="app-name" id="${applicationData.name.toLowerCase()}">
+                    ${applicationData.name}
+                </div>
+            </div>
+        </div>`;
+        }
+        let stringHTML = "";
+        for(let space of assistOS.user.spaces){
+            stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
+        }
+        this.spaces = stringHTML;
+    }
 
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
             `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
+    }
+    async navigateToPage(_target, page) {
+        debugger
+        if(location.hash.split("/")[1] !== "Space"){
+            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
+        }else{
+            document.querySelector("space-application-page").webSkelPresenter.changePage(page);
+        }
+    }
+
+   toggleChat(_target, mode, width) {
+        const maximizeChat = () => {
+            assistOS.UI.chatState = "open";
+            let spaceApplicationPage = document.querySelector('space-application-page');
+            let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+            agentPage.style.display = "flex";
+            agentPage.style.minWidth = minimumChatWidth + 'px';
+            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
+            assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
+            document.cookie=`chatState=open;path=/;max-age=31536000;`;
+        }
+
+        const minimizeChat = () => {
+            assistOS.UI.chatState = "close";
+            agentPage.style.display = "none";
+            agentPage.style.width = "0px";
+            agentPage.style.minWidth = "0px";
+            document.cookie=`chatState=close;path=/;max-age=31536000;`;
+        }
+
+        const agentPage = document.querySelector("chat-page");
+
+        if (mode === "open") {
+            maximizeChat();
+        } else if (mode === "close") {
+            minimizeChat();
+        } else {
+            if (assistOS.UI.chatState === "open") {
+                minimizeChat();
+            } else {
+                maximizeChat();
+            }
+        }
     }
 
     showTaskNotification(data) {
@@ -70,45 +152,6 @@ export class LeftSidebar {
         canvas.remove();
         return uint8Array;
     }
-    async beforeRender() {
-        this.applications = "";
-        let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
-        if(assistOS.user.imageId){
-            userImageURL = await spaceModule.getImageURL(assistOS.user.imageId);
-        }
-        let img = new Image();
-        img.onerror = async () => {
-            let uint8Array = await this.generateUserAvatar(assistOS.user.email);
-            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
-        };
-        img.src = userImageURL;
-        img.onload = () => {
-            img.remove();
-        };
-        this.userImage = userImageURL;
-        this.userName = assistOS.user.name;
-        for (let application of assistOS.space.installedApplications) {
-            let applicationData = assistOS.applications[application.name];
-            let svgImage = applicationData.svg;
-
-            this.applications += `
-        <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
-            <div class="app-focus hidden"></div>
-            <div class="page-logo">
-                ${svgImage}
-                <div class="app-name" id="${applicationData.name.toLowerCase()}">
-                    ${applicationData.name}
-                </div>
-            </div>
-        </div>`;
-        }
-        let stringHTML = "";
-        for(let space of assistOS.user.spaces){
-            stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
-        }
-        this.spaces = stringHTML;
-    }
     async startApplication(_target, appName) {
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
@@ -142,71 +185,6 @@ export class LeftSidebar {
         let dropdownMenu = this.element.querySelector(".user-action-menu");
         hideDropdown();
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
-    }
-    afterRender() {
-        this.toastsContainer = this.element.querySelector(".toasts-container");
-        let features = this.element.querySelectorAll(".feature");
-        features.forEach((feature) => {
-            let timeoutId;
-            if(feature.getAttribute("data-id") === "space"){
-                let focusSection = feature.querySelector("#space");
-                feature.addEventListener("mouseover", () => {
-                    focusSection.style.visibility = "visible";
-                    let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
-                    if(currentSpace) {
-                        currentSpace.style.backgroundColor = "var(--black)";
-                    }
-
-                });
-                feature.addEventListener("mouseout", () => {
-                    focusSection.style.visibility = "hidden";
-                });
-                focusSection.addEventListener("mouseout", (event) => {
-                    if(!focusSection.contains(event.relatedTarget)){
-                        focusSection.style.visibility = "hidden";
-                    }
-                });
-            } else{
-                feature.addEventListener("mouseover", () => {
-                    timeoutId = setTimeout(() => {
-                        let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                        name.style.visibility = "visible";
-                    }, 300);
-                });
-                feature.addEventListener("mouseout", () => {
-                    clearTimeout(timeoutId);
-                    let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                    name.style.visibility = "hidden";
-                });
-            }
-        });
-        let userSection = this.element.querySelector(".user-photo-container");
-        let userActions = this.element.querySelector(".user-action-menu");
-        userSection.addEventListener("mouseover", () => {
-            userActions.style.visibility = "visible";
-        });
-        userSection.addEventListener("mouseout", () => {
-            userActions.style.visibility = "hidden";
-        });
-        userActions.addEventListener("mouseout", (event) => {
-            if(!userActions.contains(event.relatedTarget)){
-                userActions.style.visibility = "hidden";
-            }
-        });
-
-        let clock = this.element.querySelector(".clock");
-
-        function updateClock() {
-            const now = new Date();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-
-            clock.innerText = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
-        }
-
-        updateClock();
-        setInterval(updateClock, 10000);
-        changeSelectedPageFromSidebar(window.location.hash);
     }
     openUserActions(_target) {
         let userPhotoContainer = this.element.querySelector(".user-photo-container");

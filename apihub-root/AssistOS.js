@@ -543,4 +543,5 @@ function closeDefaultLoader() {
     await assistOS.loadPage();
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
 
+
 })();

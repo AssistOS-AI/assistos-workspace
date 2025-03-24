@@ -284,25 +284,6 @@ class BaseChatFrame {
             data: this.page.data
         });
 
-        /* new way of inserting components into DOM
-        UI.createElement('chat-item', '#conversation', {
-            role,
-            spaceId,
-            ownMessage,
-            id,
-            isContext,
-            messageIndex,
-            user,
-            dataLastItem
-        })
-
-        old way of inserting components into DOM
-
-        this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-        this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
-        this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
-        */
-
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
 
