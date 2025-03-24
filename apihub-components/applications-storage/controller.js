@@ -4,13 +4,13 @@ const {sendResponse, sendFileToClient} = require('../apihub-component-utils/util
 const dataVolumePaths = require('../volumeManager').paths;
 const subscriptionManager = require('../subscribers/SubscriptionManager.js');
 const constants = require('../space/constants');
-function getApplicationAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.APPLICATION_PLUGIN);
+function getApplicationAPIClient(userId, spaceId){
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.APPLICATION_PLUGIN);
 }
 async function installApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = getApplicationAPIClient(request.userId, spaceId);
         await client.installApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: `Application ${applicationId} installed successfully in space ${spaceId}`,
@@ -25,7 +25,7 @@ async function installApplication(request, response) {
 async function uninstallApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = getApplicationAPIClient(request.userId, spaceId);
         await client.uninstallApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "Application uninstalled successfully",
@@ -40,7 +40,7 @@ async function uninstallApplication(request, response) {
 async function updateApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = getApplicationAPIClient(request.userId, spaceId);
         await client.updateApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "Application updated successfully",
@@ -55,7 +55,7 @@ async function updateApplication(request, response) {
 async function requiresUpdate(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = getApplicationAPIClient(request.userId, spaceId);
         const needsUpdate = await client.requiresUpdate(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", needsUpdate);
     } catch (error) {
@@ -93,8 +93,7 @@ async function saveJSON(response, spaceData, filePath) {
 
 async function loadApplicationsMetadata(request, response) {
     try {
-        let client = getApplicationAPIClient(request.userId);
-        const applicationsMetadata = await client.loadApplicationsMetadata();
+        const applicationsMetadata = require("./applications.json");
         return sendResponse(response, 200, "application/json", applicationsMetadata);
     } catch (error) {
         return sendResponse(response, 500, "application/json", {

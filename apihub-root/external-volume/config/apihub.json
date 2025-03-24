@@ -22,7 +22,6 @@
         "personalities-storage",
         "chat",
         "subscribers",
-        "webhook",
         "tasks",
         "logger",
         "flows",

@@ -10,11 +10,18 @@ async function SpacePersistence(){
         },
         application: {
             name: "string",
+        },
+        personality: {
+            name: "string",
+            imageId: "string",
+            description: "string",
+            llms: "object",
         }
     });
 
     await persistence.createIndex("space", "name");
     await persistence.createIndex("application", "name");
+    await persistence.createIndex("personality", "name");
     return persistence;
 }
 

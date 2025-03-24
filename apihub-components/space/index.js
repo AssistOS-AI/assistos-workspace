@@ -16,7 +16,7 @@ const {
     updateEmbeddedObject,
     deleteEmbeddedObject,
     swapEmbeddedObjects,
-    getSpace,
+    getSpaceStatus,
     createSpace,
     addCollaboratorsToSpace,
     getSpaceCollaborators,
@@ -66,21 +66,24 @@ const {
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const constants = require('./constants.js');
-const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js')
+const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js');
+const constants = require("./constants");
+const path = require("path");
 function Space(server) {
-    let serverUrl;
     setTimeout(async ()=>{
-        const serverlessAPI = await server.createServerlessAPI({
-            port: 8083,
-            urlPrefix: constants.GLOBAL_SERVERLESS_ID,
-            storage: __dirname});
-        serverUrl = serverlessAPI.getUrl();
-        server.registerServerlessProcessUrl(constants.GLOBAL_SERVERLESS_ID, serverUrl);
-    },0);
+        let client = require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.SPACE_PLUGIN);
+        let spaces = await client.listAllSpaces();
+        for(let space of spaces){
+            let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", space.id);
+            const serverlessAPI = await server.createServerlessAPI({
+                urlPrefix: space.id,
+                storage: serverlessFolder});
+            let serverUrl = serverlessAPI.getUrl();
+            server.registerServerlessProcessUrl(space.id, serverUrl);
+        }
+    },3000);
 
     server.use("/spaces/*", contextMiddleware);
-
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 
@@ -90,8 +93,6 @@ function Space(server) {
     server.use("/public/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
-
-    //TODO: Add authentication middleware
     /*Attachments*/
     server.get("/spaces/uploads", getUploadURL);
     server.get("/spaces/downloads/:fileId", getDownloadURL);
@@ -99,9 +100,11 @@ function Space(server) {
     server.delete("/spaces/files/:fileId", deleteFile);
 
     /*spaces*/
-    server.get("/spaces", getSpace);
-    server.get("/spaces/:spaceId", getSpace);
-    server.post("/spaces", createSpace);
+    server.get("/spaces", getSpaceStatus);
+    server.get("/spaces/:spaceId", getSpaceStatus);
+    server.post("/spaces", async (req, res)=>{
+        await createSpace(req, res, server);
+    });
     server.delete("/spaces/:spaceId", deleteSpace);
     /*agent*/
     server.get("/spaces/:spaceId/agents", getAgent);

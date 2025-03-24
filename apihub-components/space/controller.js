@@ -2,7 +2,6 @@ require('../../assistos-sdk/build/bundles/assistos_sdk.js');
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const space = require("./space.js");
-const user = require("../users-storage/user.js");
 const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
@@ -368,25 +367,26 @@ async function saveSpaceChat(request, response) {
 
 /* TODO constant object mapping of content types to avoid writing manually the content type of a response
 *   and move the cookie verification authentication, rights, etc in a middleware */
-async function getSpace(request, response) {
+async function getSpaceStatus(request, response) {
     try {
         let spaceId;
+        let client = getSpaceAPIClient(request.userId);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (cookie.parseRequestCookies(request).currentSpaceId) {
             spaceId = cookie.parseRequestCookies(request).currentSpaceId;
         } else {
-            spaceId = await user.getDefaultSpaceId(email, request.authKey);
+            spaceId = await client.getDefaultSpaceId(email);
         }
         try {
             await ensurePersonalityChats(spaceId);
         } catch (error) {
 
         }
-        let client = getSpaceAPIClient(request.userId);
-        let spaceStatus = await client.getSpace(spaceId);
-        await user.setUserCurrentSpace(email, spaceId, request.authKey);
+
+        let spaceStatus = await client.getSpaceStatus(spaceId);
+        await client.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -397,7 +397,7 @@ async function getSpace(request, response) {
 function getSpaceAPIClient(userId){
     return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.SPACE_PLUGIN);
 }
-async function createSpace(request, response) {
+async function createSpace(request, response, server) {
     const email = request.email;
     const spaceName = request.body.spaceName
     if (!spaceName) {
@@ -408,8 +408,29 @@ async function createSpace(request, response) {
     }
     try {
         let client = getSpaceAPIClient(request.userId);
-        let newSpace = await client.createSpace(spaceName, email, request.authKey);
-        utils.sendResponse(response, 200, "application/json", newSpace, cookie.createCurrentSpaceCookie(newSpace.id));
+        let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
+        let space = await client.createSpace(spaceName, email, spacesFolder);
+
+        let serverlessAPIStorage = path.join(spacesFolder, space.id);
+        //make space plugins available to the new serverless
+        let pluginsStorage = path.join(serverlessAPIStorage, "plugins");
+        await fsPromises.mkdir(pluginsStorage, {recursive: true});
+        let defaultPlugins = ["SpacePlugin", "PersonalityPlugin", "SpacePersistence", "ApplicationPlugin"];
+        for(let plugin of defaultPlugins){
+            const pluginRedirect = `module.exports = require("../../../../../apihub-components/serverlessAPI/plugins/${plugin}.js")`;
+            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+        }
+
+        //create serverless API for new space
+        let serverlessId = space.id;
+        const serverlessAPI = await server.createServerlessAPI({
+            urlPrefix: serverlessId,
+            storage: serverlessAPIStorage});
+        let serverUrl = serverlessAPI.getUrl();
+        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+
+
+        utils.sendResponse(response, 200, "application/json", space, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
@@ -500,15 +521,17 @@ async function addCollaboratorsToSpace(request, response) {
 async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
-    let client = getSpaceAPIClient(request.userId);
-    if (!agentId) {
-        agentId = await client.getDefaultSpaceAgentId(spaceId);
-    }
     try {
-        const agent = await client.getSpaceAgent(spaceId, agentId)
+        let client = getSpaceAPIClient(request.userId);
+        if (!agentId) {
+            agentId = await client.getDefaultSpaceAgentId(spaceId);
+        }
+        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let personalityModule = require("assistos").loadModule("personality", new SecurityContext(request));
+        const agent = await personalityModule.getPersonality(spaceId, agentId);
         utils.sendResponse(response, 200, "application/json", agent)
     } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
+        utils.sendResponse(response, 500, "application/json", {
             message: error.message,
         })
     }
@@ -1313,7 +1336,7 @@ module.exports = {
     updateEmbeddedObject,
     swapEmbeddedObjects,
     deleteEmbeddedObject,
-    getSpace,
+    getSpaceStatus,
     addSpaceChatMessage,
     createSpace,
     deleteSpace,

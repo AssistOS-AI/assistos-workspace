@@ -197,7 +197,7 @@ class AssistOS {
 
     async initSpace(email, spaceId) {
         assistOS.user = await userModule.loadUser(email);
-        assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
+        assistOS.space = new spaceModule.Space(await spaceModule.getSpaceStatus(spaceId));
         const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
         appsData.forEach(application => {
             assistOS.applications[application.name] = application;
@@ -209,13 +209,13 @@ class AssistOS {
 
         defaultPlugins = await defaultPlugins.json();
         assistOS.space.plugins = defaultPlugins;
-        let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
-        for (let pluginType in applicationPlugins) {
-            if (!assistOS.space.plugins[pluginType]) {
-                assistOS.space.plugins[pluginType] = [];
-            }
-            assistOS.space.plugins[pluginType] = assistOS.space.plugins[pluginType].concat(applicationPlugins[pluginType]);
-        }
+        // let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
+        // for (let pluginType in applicationPlugins) {
+        //     if (!assistOS.space.plugins[pluginType]) {
+        //         assistOS.space.plugins[pluginType] = [];
+        //     }
+        //     assistOS.space.plugins[pluginType] = assistOS.space.plugins[pluginType].concat(applicationPlugins[pluginType]);
+        // }
     }
 
     async loadAgent(spaceId, agentId) {
@@ -542,11 +542,7 @@ function closeDefaultLoader() {
     assistOS.UI.chatState = chatState || "open";
     defineActions();
     closeDefaultLoader()
-    let email = getCookie("email");
-    if(email){
-        email = decodeURIComponent(email);
-    }
-    await assistOS.loadPage(email);
+    await assistOS.loadPage();
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
 
 })();

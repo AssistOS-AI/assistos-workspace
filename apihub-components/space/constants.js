@@ -9,4 +9,5 @@ module.exports = {
     GLOBAL_SERVERLESS_ID: "assistOS",
     SPACE_PLUGIN: "SpacePlugin",
     APPLICATION_PLUGIN: "ApplicationPlugin",
+    PERSONALITY_PLUGIN: "PersonalityPlugin",
 }

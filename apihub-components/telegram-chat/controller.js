@@ -1,8 +1,6 @@
 const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
-const {promises: fsPromises} = require("fs");
-const User = require("../users-storage/user");
 const configs = require("../../data-volume/config/config.json");
 const Email = require("../email/index.js").instance;
 const chatHandler = require("../chat/handler");

@@ -2,6 +2,7 @@ const SpaceHandler = require('../space/space.js');
 const PersonalitiesHandler = require('../personalities-storage/handler.js');
 const Request = require('../apihub-component-utils/utils.js');
 const {ServerSideSecurityContext, loadModule} = require('assistos');
+const constants = require("../space/constants");
 
 async function getPersonalityImageUrl(request, response) {
     const spaceId=request.params.spaceId;
@@ -105,14 +106,18 @@ async function getConversationIds(request,response){
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching conversation Ids`});
     }
 }
+function getPersonalityAPIClient(userId, spaceId){
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.PERSONALITY_PLUGIN);
+}
 async function getPersonality(request,response){
-    const spaceId=request.params.spaceId;
-    const personalityId=request.params.personalityId;
-    try{
-        const personality = await PersonalitiesHandler.getPersonality(spaceId,personalityId);
+    const spaceId = request.params.spaceId;
+    const personalityId = request.params.personalityId;
+    try {
+        let client = getPersonalityAPIClient(request.userId, spaceId);
+        const personality = await client.getPersonality(personalityId);
         return Request.sendResponse(response,200,"application/json", personality)
     }   catch(error){
-        return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching personality`});
+        return Request.sendResponse(response,  500, "application/json", {message: error.message});
     }
 }
 

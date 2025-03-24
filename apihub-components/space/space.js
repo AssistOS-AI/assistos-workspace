@@ -612,24 +612,8 @@ async function getAPIKeysMetadata(spaceId) {
     return keys;
 }
 
-function getAgentPath(spaceId, agentId) {
-    return path.join(getSpacePath(spaceId), 'personalities', `${agentId}.json`);
-}
-
 async function deleteAPIKey(spaceId, keyType) {
     await secrets.deleteSpaceKey(spaceId, keyType);
-}
-
-async function getSpaceAgent(spaceId, agentId) {
-    try {
-        const agentPath = getAgentPath(spaceId, agentId);
-        const agentObj = JSON.parse(await fsPromises.readFile(agentPath, 'utf8'));
-        return agentObj;
-    } catch (error) {
-        error.message = `Agent ${agentId} not found.`;
-        error.statusCode = 404;
-        throw error;
-    }
 }
 
 async function getDefaultSpaceAgentId(spaceId) {
@@ -780,7 +764,6 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
 }
 
 async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
-    const user = require('../users-storage/user.js');
     const emailService = require('../email').instance;
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     const spaceName = spaceStatusObject.name;
@@ -791,7 +774,13 @@ async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
             existingCollaborators.push(collaborator.email);
             continue;
         }
-        await user.addSpaceCollaborator(spaceId, collaborator.email, collaborator.role, referrerId);
+        await linkSpaceToUser( collaborator.email, spaceId)
+        try {
+            await linkUserToSpace(spaceId,  collaborator.email, referrerId, ollaborator.role)
+        } catch (error) {
+            await unlinkSpaceFromUser( collaborator.email, spaceId);
+            throw error;
+        }
         if (configs.ENABLE_EMAIL_SERVICE) {
             await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
         }
@@ -1081,7 +1070,6 @@ module.exports = {
         editAPIKey,
         deleteAPIKey,
         getAPIKeysMetadata,
-        getSpaceAgent,
         getDefaultSpaceAgentId,
         getSpacePath,
         archivePersonality,
