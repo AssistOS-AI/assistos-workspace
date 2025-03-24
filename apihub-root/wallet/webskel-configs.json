@@ -323,12 +323,6 @@
             "presenterClassName": "MlIDEPage"
         },
         {
-            "name": "agent-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "AgentPage"
-        },
-        {
             "name": "llm-playground-page",
             "directory": "space-application",
             "type": "pages",
