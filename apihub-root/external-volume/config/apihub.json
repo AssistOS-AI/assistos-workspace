@@ -67,9 +67,6 @@
         "flows": {
             "module": "./../../apihub-components/flows"
         },
-        "webhook": {
-            "module": "./../../apihub-components/webhook"
-        },
         "tasks": {
             "module": "./../../apihub-components/tasks"
         },
