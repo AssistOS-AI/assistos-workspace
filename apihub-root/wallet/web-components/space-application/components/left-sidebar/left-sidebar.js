@@ -104,7 +104,8 @@ export class LeftSidebar {
         </div>`;
         }
         let stringHTML = "";
-        for(let space of assistOS.user.spaces){
+        let spaces = await userModule.listUserSpaces(assistOS.user.email);
+        for(let space of spaces){
             stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
         }
         this.spaces = stringHTML;

@@ -8,7 +8,6 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
-const dataVolumePaths = require('../volumeManager').paths;
 const Storage = require("../apihub-component-utils/storage.js");
 const lightDB = require("../apihub-component-utils/lightDB.js");
 const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
@@ -19,151 +18,24 @@ const {
 const constants = require('./constants.js');
 const fs = require("fs");
 
-function getFileObjectsMetadataPath(spaceId, objectType) {
-    return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/metadata.json`);
-}
 
 const Busboy = require('busboy');
 const unzipper = require('unzipper');
-
-
-async function getFileObjectsMetadata(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    try {
-        let filePath = getFileObjectsMetadataPath(spaceId, objectType);
-        let metadata = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
-        return utils.sendResponse(response, 200, "application/json", metadata);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at getting objects metadata of type: ${objectType}`
-        });
+async function listUserSpaces(req, res){
+    let {email} = req.query;
+    if(!email){
+        email = req.email;
     }
-}
-
-function getFileObjectPath(spaceId, objectType, objectId) {
-    return path.join(dataVolumePaths.space, `${spaceId}/${objectType}/${objectId}.json`);
-}
-
-async function getFileObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    const objectId = request.params.objectId;
+    email = decodeURIComponent(email);
     try {
-        let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        let data = await fsPromises.readFile(filePath, {encoding: 'utf8'});
-        return utils.sendResponse(response, 200, "application/json", JSON.parse(data));
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at getting object with id: ${objectId}`
-        });
+        const appSpecificClient = getAppSpecificAPIClient(req.userId);
+        const user = await appSpecificClient.listUserSpaces(email);
+        utils.sendResponse(res, 200, "application/json", user);
+    } catch (e) {
+        utils.sendResponse(res, 500, "text/plain", e.message);
     }
+
 }
-
-async function getFileObjects(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    try {
-        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
-        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        let objects = [];
-        for (let item of metadata) {
-            let filePath = getFileObjectPath(spaceId, objectType, item.id);
-            let object = JSON.parse(await fsPromises.readFile(filePath, {encoding: 'utf8'}));
-            objects.push(object);
-        }
-        return utils.sendResponse(response, 200, "application/json", objects);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at getting objects of type: ${objectType}`
-        });
-    }
-}
-
-async function addFileObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    const objectData = request.body;
-    let objectId = crypto.generateId();
-    try {
-        objectData.id = objectId;
-        let metaObj = {};
-        for (let key of objectData.metadata) {
-            metaObj[key] = objectData[key];
-        }
-        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
-        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        metadata.push(metaObj);
-        await fsPromises.writeFile(metadataPath, JSON.stringify(metadata, null, 2), 'utf8');
-
-        let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at adding object: ${objectType}`
-        });
-    }
-}
-
-async function updateFileObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    const objectId = request.params.objectId;
-    const objectData = request.body;
-    try {
-        let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
-        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        let metaObj = metadata.find(item => item.id === objectId);
-        if (metaObj) {
-            for (let key of objectData.metadata) {
-                metaObj[key] = objectData[key];
-            }
-            await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
-        } else {
-            return utils.sendResponse(response, 500, "application/json", {
-                message: `Error at updating object: ${objectId}: metadata not found`
-            });
-        }
-        await fsPromises.writeFile(filePath, JSON.stringify(objectData, null, 2), 'utf8');
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at updating object: ${objectId}`
-        });
-    }
-}
-
-async function deleteFileObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    const objectId = request.params.objectId;
-    try {
-        let metadataPath = getFileObjectsMetadataPath(spaceId, objectType);
-        let metadata = JSON.parse(await fsPromises.readFile(metadataPath, {encoding: 'utf8'}));
-        let index = metadata.findIndex(item => item.id === objectId);
-        if (index !== -1) {
-            metadata.splice(index, 1);
-            await fsPromises.writeFile(metadataPath, JSON.stringify(metadata), 'utf8');
-        }
-        let filePath = getFileObjectPath(spaceId, objectType, objectId);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
-        await fsPromises.unlink(filePath);
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at deleting object: ${objectId}`
-        });
-    }
-}
-
 async function getContainerObjectsMetadata(request, response) {
     const spaceId = request.params.spaceId;
     const objectType = request.params.objectType;
@@ -368,13 +240,13 @@ async function saveSpaceChat(request, response) {
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = getSpaceAPIClient(request.userId);
+        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
         let appSpecificClient = getAppSpecificAPIClient(request.userId);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
-        } else if (cookie.parseRequestCookies(request).currentSpaceId) {
-            spaceId = cookie.parseRequestCookies(request).currentSpaceId;
+        } else if (request.currentSpaceId) {
+            spaceId = request.currentSpaceId;
         } else {
             spaceId = await appSpecificClient.getDefaultSpaceId(email);
         }
@@ -393,8 +265,11 @@ async function getSpaceStatus(request, response) {
         });
     }
 }
-function getSpaceAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
+function getAPIClient(userId, pluginName, serverlessId){
+    if(!serverlessId){
+        serverlessId = process.env.SERVERLESS_ID;
+    }
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, pluginName);
 }
 function getAppSpecificAPIClient(userId){
     return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN);
@@ -409,10 +284,13 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = getSpaceAPIClient(request.userId);
+        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
-        let space = await client.createSpace(spaceName, email, spacesFolder);
-
+        let result = await client.createSpace(spaceName, email, spacesFolder);
+        if(result.status === "failed"){
+            return utils.sendResponse(response, 500, "text/plain", result.reason);
+        }
+        let space = result.space;
         let appSpecificClient = getAppSpecificAPIClient(request.userId);
         await appSpecificClient.linkSpaceToUser(email, space.id)
 
@@ -420,11 +298,16 @@ async function createSpace(request, response, server) {
         //make space plugins available to the new serverless
         let pluginsStorage = path.join(serverlessAPIStorage, "plugins");
         await fsPromises.mkdir(pluginsStorage, {recursive: true});
-        let defaultPlugins = ["SpacePlugin", "PersonalityPlugin", "SpacePersistence", "ApplicationPlugin"];
+        let defaultPlugins = ["PersonalityPlugin", "SpaceInstancePersistence", "ApplicationPlugin"];
         for(let plugin of defaultPlugins){
             const pluginRedirect = `module.exports = require("../../../../../apihub-components/serverlessAPI/plugins/${plugin}.js")`;
             await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
         }
+        const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
+        await fsPromises.writeFile(`${pluginsStorage}/StandardPersistencePlugin.js`, pluginRedirect);
+        const pluginRedirect2 = `module.exports = require("../../../../../apihub-components/soplang/plugins/WorkspacePlugin.js")`;
+        await fsPromises.writeFile(`${pluginsStorage}/WorkspacePlugin.js`, pluginRedirect);
+
 
         //create serverless API for new space
         let serverlessId = space.id;
@@ -434,8 +317,10 @@ async function createSpace(request, response, server) {
         let serverUrl = serverlessAPI.getUrl();
         server.registerServerlessProcessUrl(serverlessId, serverUrl);
 
-
-        utils.sendResponse(response, 200, "application/json", space, cookie.createCurrentSpaceCookie(space.id));
+        // let personalityAPIClient = getAPIClient(request.userId, constants.PERSONALITY_PLUGIN, serverlessId);
+        // await personalityAPIClient.copyDefaultPersonalities(serverlessAPIStorage, space.id);
+        
+        utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
@@ -527,7 +412,7 @@ async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
     try {
-        let client = getSpaceAPIClient(request.userId);
+        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
         if (!agentId) {
             agentId = await client.getDefaultSpaceAgentId(spaceId);
         }
@@ -1325,12 +1210,6 @@ module.exports = {
     getFile,
     putFile,
     deleteFile,
-    getFileObjectsMetadata,
-    getFileObject,
-    getFileObjects,
-    addFileObject,
-    updateFileObject,
-    deleteFileObject,
     getContainerObjectsMetadata,
     getContainerObject,
     addContainerObject,
@@ -1363,9 +1242,8 @@ module.exports = {
     exportPersonality,
     importPersonality,
     getSpaceChat,
-    getFileObjectsMetadataPath,
-    getFileObjectPath,
     resetSpaceChat,
     saveSpaceChat,
     chatCompleteParagraph,
+    listUserSpaces
 }

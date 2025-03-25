@@ -1,11 +1,6 @@
 const {
     insertContainerObject,
     insertEmbeddedObject,
-    getFileObjectsMetadata,
-    getFileObject,
-    addFileObject,
-    updateFileObject,
-    deleteFileObject,
     getContainerObjectsMetadata,
     getContainerObject,
     addContainerObject,
@@ -33,11 +28,11 @@ const {
     updateSpaceAnnouncement,
     deleteSpaceAnnouncement,
     getChatTextResponse,
+    listUserSpaces,
     getChatTextStreamingResponse,
     exportPersonality,
     importPersonality,
     getSpaceChat,
-    getFileObjects,
     getUploadURL,
     getDownloadURL,
     headFile,
@@ -93,6 +88,7 @@ function Space(server) {
     server.use("/public/*", bodyReader);
     server.use("/apis/v1/spaces/*", bodyReader);
 
+    server.get("/spaces/listSpaces", listUserSpaces);
     /*Attachments*/
     server.get("/spaces/uploads", getUploadURL);
     server.get("/spaces/downloads/:fileId", getDownloadURL);
@@ -109,15 +105,6 @@ function Space(server) {
     /*agent*/
     server.get("/spaces/:spaceId/agents", getAgent);
     server.get("/spaces/:spaceId/agents/:agentId", getAgent);
-
-    /*fileObjects*/
-    /* TODO route to actually get all files of an objectType , or to pass some filtering function */
-    server.get("/spaces/fileObject/:spaceId/:objectType/data", getFileObjects);
-    server.get("/spaces/fileObject/:spaceId/:objectType", getFileObjectsMetadata);
-    server.get("/spaces/fileObject/:spaceId/:objectType/:objectId", getFileObject);
-    server.post("/spaces/fileObject/:spaceId/:objectType", addFileObject);
-    server.put("/spaces/fileObject/:spaceId/:objectType/:objectId", updateFileObject);
-    server.delete("/spaces/fileObject/:spaceId/:objectType/:objectId", deleteFileObject);
 
     /*containerObjects*/
     server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);

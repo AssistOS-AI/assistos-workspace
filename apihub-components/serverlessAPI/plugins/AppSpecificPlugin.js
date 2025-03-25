@@ -1,5 +1,6 @@
 async function AppSpecificPlugin() {
     let self = {};
+    let spacePersistence = await $$.loadPlugin("SpacePersistence");
     self.rewardUser = async function(user, referrerId){
         return true;
     }
@@ -32,7 +33,7 @@ async function AppSpecificPlugin() {
     self.getDefaultSpaceId = async function(email) {
         let UserLogin = await $$.loadPlugin("UserLogin");
 
-        let result = UserLogin.getUserInfo(email);
+        let result = await UserLogin.getUserInfo(email);
         return result.userInfo.currentSpaceId;
     }
     self.setUserCurrentSpace = async function (email, spaceId) {
@@ -41,6 +42,19 @@ async function AppSpecificPlugin() {
         let result = await UserLogin.getUserInfo(email);
         result.userInfo.currentSpaceId = spaceId;
         await UserLogin.setUserInfo(email, result.userInfo);
+    }
+    self.listUserSpaces = async function(email) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+        let result = await UserLogin.getUserInfo(email);
+        let userInfo = result.userInfo;
+        let spaces = [];
+        if(userInfo.spaces){
+            for(let spaceId of userInfo.spaces){
+                let space = await spacePersistence.getSpaceStatus(spaceId);
+                spaces.push({id: spaceId, name: space.name});
+            }
+        }
+        return spaces;
     }
     return self;
 }
@@ -59,7 +73,7 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return [];
+        return ["SpacePersistence"];
     }
 }
 

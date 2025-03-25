@@ -9,7 +9,6 @@ const ITask = require("../../tasks/Task");
 const FlowTask = require("../../tasks/FlowTask");
 async function ApplicationPlugin() {
     let self = {};
-    let persistence = await $$.loadPlugin("SpacePersistence");
     let SpacePlugin = await $$.loadPlugin("SpacePlugin");
     self.getApplicationPath = function (spaceId, applicationName) {
         return path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationName}`);

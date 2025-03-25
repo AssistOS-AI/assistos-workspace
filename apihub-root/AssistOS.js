@@ -204,7 +204,7 @@ class AssistOS {
         });
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         await assistOS.space.loadFlows();
-        await assistOS.loadAgent(assistOS.space.id);
+        //await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
 
         defaultPlugins = await defaultPlugins.json();
@@ -263,8 +263,8 @@ class AssistOS {
     }
 
     async createSpace(spaceName) {
-        await spaceModule.createSpace(spaceName);
-        await this.loadPage(assistOS.user.email, true);
+        let spaceId = await spaceModule.createSpace(spaceName);
+        await this.loadPage(assistOS.user.email, spaceId);
     }
 
     async initPage(applicationName, applicationLocation) {

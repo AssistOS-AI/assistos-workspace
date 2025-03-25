@@ -1,4 +1,3 @@
-const path = require("path");
 const constants = require("../../space/constants");
 const secrets = require("../../apihub-component-utils/secrets");
 const date = require("../../apihub-component-utils/date");
@@ -16,12 +15,20 @@ async function SpacePlugin(){
             applications: [],
             defaultAgent: "Assistant"
         }
-        let space = await persistence.createSpaceStatus(spaceData);
+        let space;
+        try {
+            space = await persistence.createSpaceStatus(spaceData);
+        } catch (e) {
+            return {
+                status: "failed",
+                reason: "Space with this name already exists"
+            }
+        }
         await secrets.createSpaceSecretsContainer(space.id);
-        const spacePath = path.join(spacesFolder, space.id);
-        let PersonalityPlugin = await $$.loadPlugin("PersonalityPlugin");
-        await PersonalityPlugin.copyDefaultPersonalities(spacePath, space.id)
-        return space;
+        return {
+            status: "success",
+            space: space
+        };
     }
 
     self.getSpaceStatus = async function(spaceId){

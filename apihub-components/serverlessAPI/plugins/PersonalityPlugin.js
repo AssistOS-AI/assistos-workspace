@@ -1,10 +1,10 @@
 const volumeManager = require("../../volumeManager");
 const path = require("path");
 const {promises: fsPromises} = require("fs");
-
+const defaultModels = require("../defaultModels");
 async function PersonalityPlugin() {
     let self = {};
-    let persistence = await $$.loadPlugin("SpacePersistence");
+    // let persistence = await $$.loadPlugin("SpaceInstancePersistence");
     self.copyDefaultPersonalities = async function (spacePath, spaceId) {
         const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
         const personalitiesPath = path.join(spacePath, 'personalities');
@@ -13,19 +13,17 @@ async function PersonalityPlugin() {
         const files = await fsPromises.readdir(defaultPersonalitiesPath, {withFileTypes: true});
 
         let promises = [];
-        const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
-        const defaultLlms = (await defaultLlmsRes.json()).data;
         for (const entry of files) {
             if (entry.isFile()) {
-                promises.push(self.preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultLlms));
+                promises.push(self.preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId));
             }
         }
         await Promise.all(promises);
     }
-    self.preparePersonalityData = async function (defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultLlms) {
+    self.preparePersonalityData = async function (defaultPersonalitiesPath, personalitiesPath, entry) {
         const filePath = path.join(defaultPersonalitiesPath, entry.name);
         let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-        personality.llms = defaultLlms;
+        personality.llms = defaultModels;
         let imagesPath = path.join(defaultPersonalitiesPath, 'images');
         let imageBuffer = await fsPromises.readFile(path.join(imagesPath, `${personality.imageId}.png`));
 
@@ -53,6 +51,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence"];
+        return ["SpaceInstancePersistence"];
     }
 }
