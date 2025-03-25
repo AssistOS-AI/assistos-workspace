@@ -1,7 +1,6 @@
 const volumeManager = require("../../volumeManager");
 const path = require("path");
 const {promises: fsPromises} = require("fs");
-const crypto = require("../../apihub-component-utils/crypto");
 
 async function PersonalityPlugin() {
     let self = {};

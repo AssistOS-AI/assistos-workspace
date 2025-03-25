@@ -1,17 +1,47 @@
-const crypto = require("../../apihub-component-utils/crypto");
-const constants = require("../../space/constants");
-const secrets = require("../../apihub-component-utils/secrets");
-const path = require("path");
-const volumeManager = require("../../volumeManager");
-const file = require("../../apihub-component-utils/file");
-const fsPromises = require("fs").promises;
 async function AppSpecificPlugin() {
     let self = {};
-
     self.rewardUser = async function(user, referrerId){
         return true;
     }
+    self.linkSpaceToUser = async function (email, spaceId) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
 
+        let result = await UserLogin.getUserInfo(email);
+        let userInfo = result.userInfo;
+        userInfo.currentSpaceId = spaceId;
+        if(!userInfo.spaces){
+            userInfo.spaces = [];
+        }
+        if(userInfo.spaces.includes(spaceId)){
+            console.log(`User ${email} is already linked to space ${spaceId}`);
+            return;
+        }
+        userInfo.spaces.push(spaceId);
+        await UserLogin.setUserInfo(email, userInfo);
+    }
+    self.unlinkSpaceFromUser = async function (email, spaceId) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+
+        let userInfo = UserLogin.getUserInfo(email);
+        userInfo.spaces = userInfo.spaces.filter(id => id !== spaceId);
+        if (userInfo.currentSpaceId === spaceId) {
+            userInfo.currentSpaceId = userInfo.spaces.length > 0 ? userInfo.spaces[0] : null;
+        }
+        await UserLogin.setUserInfo(email, userInfo);
+    }
+    self.getDefaultSpaceId = async function(email) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+
+        let result = UserLogin.getUserInfo(email);
+        return result.userInfo.currentSpaceId;
+    }
+    self.setUserCurrentSpace = async function (email, spaceId) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+
+        let result = await UserLogin.getUserInfo(email);
+        result.userInfo.currentSpaceId = spaceId;
+        await UserLogin.setUserInfo(email, result.userInfo);
+    }
     return self;
 }
 
@@ -29,7 +59,7 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence"];
+        return [];
     }
 }
 

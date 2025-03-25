@@ -365,19 +365,18 @@ async function saveSpaceChat(request, response) {
     }
 }
 
-/* TODO constant object mapping of content types to avoid writing manually the content type of a response
-*   and move the cookie verification authentication, rights, etc in a middleware */
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
         let client = getSpaceAPIClient(request.userId);
+        let appSpecificClient = getAppSpecificAPIClient(request.userId);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (cookie.parseRequestCookies(request).currentSpaceId) {
             spaceId = cookie.parseRequestCookies(request).currentSpaceId;
         } else {
-            spaceId = await client.getDefaultSpaceId(email);
+            spaceId = await appSpecificClient.getDefaultSpaceId(email);
         }
         try {
             await ensurePersonalityChats(spaceId);
@@ -386,7 +385,7 @@ async function getSpaceStatus(request, response) {
         }
 
         let spaceStatus = await client.getSpaceStatus(spaceId);
-        await client.setUserCurrentSpace(email, spaceId);
+        await appSpecificClient.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -395,11 +394,14 @@ async function getSpaceStatus(request, response) {
     }
 }
 function getSpaceAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.SPACE_PLUGIN);
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
+}
+function getAppSpecificAPIClient(userId){
+    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN);
 }
 async function createSpace(request, response, server) {
     const email = request.email;
-    const spaceName = request.body.spaceName
+    const spaceName = request.body.spaceName;
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space Name is required",
@@ -410,6 +412,9 @@ async function createSpace(request, response, server) {
         let client = getSpaceAPIClient(request.userId);
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let space = await client.createSpace(spaceName, email, spacesFolder);
+
+        let appSpecificClient = getAppSpecificAPIClient(request.userId);
+        await appSpecificClient.linkSpaceToUser(email, space.id)
 
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
         //make space plugins available to the new serverless

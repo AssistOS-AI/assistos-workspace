@@ -71,15 +71,15 @@ const constants = require("./constants");
 const path = require("path");
 function Space(server) {
     setTimeout(async ()=>{
-        let client = require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, constants.GLOBAL_SERVERLESS_ID, constants.SPACE_PLUGIN);
+        let client = require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
         let spaces = await client.listAllSpaces();
-        for(let space of spaces){
-            let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", space.id);
+        for(let spaceId of spaces){
+            let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             const serverlessAPI = await server.createServerlessAPI({
-                urlPrefix: space.id,
+                urlPrefix: spaceId,
                 storage: serverlessFolder});
             let serverUrl = serverlessAPI.getUrl();
-            server.registerServerlessProcessUrl(space.id, serverUrl);
+            server.registerServerlessProcessUrl(spaceId, serverUrl);
         }
     },3000);
 

@@ -6,8 +6,8 @@ module.exports = {
         GUEST: "guest",
     },
     DEFAULT_PERSONALITY: "Assistant",
-    GLOBAL_SERVERLESS_ID: "assistOS",
     SPACE_PLUGIN: "SpacePlugin",
     APPLICATION_PLUGIN: "ApplicationPlugin",
     PERSONALITY_PLUGIN: "PersonalityPlugin",
+    APP_SPECIFIC_PLUGIN: "AppSpecificPlugin",
 }

@@ -19,7 +19,7 @@ async function SpacePersistence(){
         }
     });
 
-    await persistence.createIndex("space", "name");
+    await persistence.createIndex("spaceStatus", "name");
     await persistence.createIndex("application", "name");
     await persistence.createIndex("personality", "name");
     return persistence;
