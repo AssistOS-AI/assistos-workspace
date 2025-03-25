@@ -9,6 +9,7 @@ export class SettingsPage {
         this.collaboratorsTab = "";
         this.preferencesTab = "";
         this.assistantTab = "";
+        this.logsTab = "";
         this.getAPIKeys = async () => {
             this.apiKeys = await spaceModule.getAPIKeysMetadata(assistOS.space.id);
         };
@@ -52,8 +53,7 @@ export class SettingsPage {
             </div>`
             ;
 
-        }
-        else if (this.collaboratorsTab === "active") {
+        } else if (this.collaboratorsTab === "active") {
             let collaborators = await spaceModule.getSpaceCollaborators(assistOS.space.id);
             let collaboratorsHTML = "";
             for (let collaborator of collaborators) {
@@ -78,11 +78,11 @@ export class SettingsPage {
                                         ${collaboratorsHTML}
                                     </div>
                                </div>`;
-        }
-        else if (this.assistantTab === "active") {
+        } else if (this.assistantTab === "active") {
             this.tabContent = `<application-creator-landing data-presenter="application-creator-landing"></application-creator-landing>`
-        }
-        else {
+        } else if(this.logsTab==="active"){
+            this.tabContent=`<notifications-monitor class="open" data-presenter="notifications-monitor"></notifications-monitor>`
+        }else {
             const selectedParagraphSize = parseInt(localStorage.getItem("document-font-size"), 10) || 12;
 
             const selectedFont = localStorage.getItem("document-font-family") || "Arial";
@@ -229,21 +229,31 @@ export class SettingsPage {
             this.collaboratorsTab = "";
             this.preferencesTab = "";
             this.assistantTab = "";
+            this.logsTab = "";
         } else if (tabName === "collaboratorsTab") {
             this.collaboratorsTab = "active";
             this.spaceSettingsTab = "";
             this.preferencesTab = "";
             this.assistantTab = "";
+            this.logsTab = "";
         } else if (tabName === "assistantTab") {
             this.assistantTab = "active";
             this.collaboratorsTab = "";
             this.spaceSettingsTab = "";
             this.preferencesTab = "";
+            this.logsTab = "";
+        } else if (tabName === "logsTab") {
+            this.assistantTab = "";
+            this.collaboratorsTab = "";
+            this.spaceSettingsTab = "";
+            this.preferencesTab = "";
+            this.logsTab = "active";
         } else {
             this.preferencesTab = "active";
             this.spaceSettingsTab = "";
             this.assistantTab = "";
             this.collaboratorsTab = "";
+            this.logsTab = "";
         }
         this.invalidate();
     }

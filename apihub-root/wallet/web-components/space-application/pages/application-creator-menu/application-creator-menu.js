@@ -8,8 +8,8 @@ const getPageRows = async function (spaceId) {
     return await spaceModule.getWebAssistantConfigurationPages(spaceId);
 }
 
-const getMenu = async function (spaceId, pageId) {
-    const menu = await spaceModule.getWebAssistantConfigurationPageMenu(spaceId, pageId);
+const getMenu = async function (spaceId) {
+    const menu = await spaceModule.getWebAssistantConfigurationPageMenu(spaceId);
     return menu;
 }
 
@@ -45,16 +45,11 @@ export class ApplicationCreatorMenu {
         const pages = await getPageRows(this.spaceId);
 
         if (pages.length > 0) {
-            if (!this.currentPage) {
-                this.currentPage = pages[0].id;
-                this.currentPageName = pages[0].name;
-            }
-            let menu = await getMenu(this.spaceId, this.currentPage);
+            let menu = await getMenu(this.spaceId);
             menu = await Promise.all(menu.map(async menuItem => {
                 const pageConfig = await getPageConfig(this.spaceId, menuItem.targetPage);
                 return {...menuItem, pageName: pageConfig.name}
             }))
-
             this.menuRows = menu.map(menuData => {
                 return `<tr>
             <td class="max-icon-display"><img class="menu-item-img" src="${menuData.icon}"></td>
@@ -66,9 +61,6 @@ export class ApplicationCreatorMenu {
         </td>
             </tr>`
             }).join('');
-            this.pages = pages.map(pageData => {
-                return `<option value="${pageData.id}" ${this.currentPage === pageData.id ? "selected" : ""} >${pageData.name}</option>`
-            }).join('');
         } else {
             this.disabledAdd = "disabled";
             this.pages = `<option selected>No Pages Created</option>`;
@@ -78,11 +70,7 @@ export class ApplicationCreatorMenu {
     }
 
     async afterRender() {
-        this.element.querySelector("#selectedPage").addEventListener('change', (event) => {
-            this.currentPage = event.target.value;
-            this.currentPageName = event.target.options[event.target.selectedIndex].text;
-            this.invalidate();
-        });
+
     }
 
     async viewActions(eventTarget, id) {

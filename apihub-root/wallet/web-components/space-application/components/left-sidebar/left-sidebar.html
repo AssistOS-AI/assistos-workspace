@@ -1,34 +1,24 @@
 <section class="sidebar__upper">
-    <div class="user-photo-container">
-        <img class="user-photo pointer" src="$$userImage" alt="" data-local-action="openUserActions"/>
-        <div class="user-action-menu">
-            <list-item data-local-action="openProfile" data-name="Profile" data-highlight="dark-highlight"></list-item>
-            <list-item data-local-action="openAccountSettings" data-name="Account Settings"
-                       data-highlight="dark-highlight"></list-item>
-            <list-item data-local-action="logout" data-name="Logout" data-highlight="dark-highlight"></list-item>
+    <div class="feature first" data-id="space" data-local-action="startApplication Space">
+        <div class="app-focus hidden"></div>
+        <div class="page-logo">
+            <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.94629 27.771C1.99145 25.4658 1.5 22.9951 1.5 20.5C1.5 18.0049 1.99145 15.5342 2.94629 13.229C3.90113 10.9238 5.30066 8.82928 7.06497 7.06497C8.82928 5.30066 10.9238 3.90113 13.229 2.94629C15.5342 1.99145 18.0049 1.5 20.5 1.5C22.9951 1.5 25.4658 1.99145 27.771 2.94629C30.0762 3.90113 32.1707 5.30066 33.935 7.06497C35.6993 8.82928 37.0989 10.9238 38.0537 13.229C39.0086 15.5342 39.5 18.0049 39.5 20.5C39.5 22.9951 39.0086 25.4658 38.0537 27.771C37.0989 30.0762 35.6993 32.1707 33.935 33.935C32.1707 35.6993 30.0762 37.0989 27.771 38.0537C25.4658 39.0086 22.9951 39.5 20.5 39.5C18.0049 39.5 15.5342 39.0086 13.229 38.0537C10.9238 37.0989 8.82928 35.6993 7.06497 33.935C5.30066 32.1707 3.90113 30.0762 2.94629 27.771Z"
+                      stroke="var(--left-sidebar-icons)" stroke-width="3" stroke-linecap="round"
+                      stroke-linejoin="round"/>
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                      d="M18.1559 8.61648L3 31.3503L5.49615 33.0144L20.1925 10.9699L25.7416 19.2935H19.766L17.5884 22.2935H27.7416L34.8889 33.0144L37.385 31.3503L29.7924 19.9614L22.2244 8.60938L18.1559 8.61648Z"
+                      fill="var(--left-sidebar-icons)"/>
+            </svg>
         </div>
-        <div class="feature first" data-id="space" data-local-action="startApplication Space">
-            <div class="app-focus hidden"></div>
-            <div class="page-logo">
-                <svg width="41" height="41" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M2.94629 27.771C1.99145 25.4658 1.5 22.9951 1.5 20.5C1.5 18.0049 1.99145 15.5342 2.94629 13.229C3.90113 10.9238 5.30066 8.82928 7.06497 7.06497C8.82928 5.30066 10.9238 3.90113 13.229 2.94629C15.5342 1.99145 18.0049 1.5 20.5 1.5C22.9951 1.5 25.4658 1.99145 27.771 2.94629C30.0762 3.90113 32.1707 5.30066 33.935 7.06497C35.6993 8.82928 37.0989 10.9238 38.0537 13.229C39.0086 15.5342 39.5 18.0049 39.5 20.5C39.5 22.9951 39.0086 25.4658 38.0537 27.771C37.0989 30.0762 35.6993 32.1707 33.935 33.935C32.1707 35.6993 30.0762 37.0989 27.771 38.0537C25.4658 39.0086 22.9951 39.5 20.5 39.5C18.0049 39.5 15.5342 39.0086 13.229 38.0537C10.9238 37.0989 8.82928 35.6993 7.06497 33.935C5.30066 32.1707 3.90113 30.0762 2.94629 27.771Z"
-                          stroke="var(--left-sidebar-icons)" stroke-width="3" stroke-linecap="round"
-                          stroke-linejoin="round"/>
-                    <path fill-rule="evenodd" clip-rule="evenodd"
-                          d="M18.1559 8.61648L3 31.3503L5.49615 33.0144L20.1925 10.9699L25.7416 19.2935H19.766L17.5884 22.2935H27.7416L34.8889 33.0144L37.385 31.3503L29.7924 19.9614L22.2244 8.60938L18.1559 8.61648Z"
-                          fill="var(--left-sidebar-icons)"/>
-                </svg>
-            </div>
-            <div class="focus-bridge"></div>
-            <div class="app-name" id="space">
-                <div class="spaces-list">$$spaces</div>
-                <div class="app-separator long"></div>
-                <list-item data-local-action="addSpace" data-name="Create Space"
-                           data-highlight="dark-highlight"></list-item>
-            </div>
+        <div class="focus-bridge"></div>
+        <div class="app-name" id="space">
+            <div class="spaces-list">$$spaces</div>
+            <div class="app-separator long"></div>
+            <list-item data-local-action="addSpace" data-name="Create Space"
+                       data-highlight="dark-highlight"></list-item>
         </div>
     </div>
-
     <div class="features-list">
         <div class="app-separator"></div>
         <div class="installed-applications">
@@ -84,7 +74,6 @@
 
     </div>
     <div class="features-list">
-
         <div class="app-separator"></div>
         <div class="installed-applications">
             $$applications
@@ -92,8 +81,17 @@
     </div>
 </section>
 <div class="bottom-section">
-    <div class="bottom__chat" data-local-action="toggleChat">
-        <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div class="user-photo-container bottom__chat">
+        <img class="user-photo pointer" src="$$userImage" alt="" data-local-action="openUserActions"/>
+        <div class="user-action-menu">
+            <list-item data-local-action="openProfile" data-name="Profile" data-highlight="dark-highlight"></list-item>
+            <list-item data-local-action="openAccountSettings" data-name="Account Settings"
+                       data-highlight="dark-highlight"></list-item>
+            <list-item data-local-action="logout" data-name="Logout" data-highlight="dark-highlight"></list-item>
+        </div>
+    </div>
+    <div class="bottom__chat item" data-local-action="toggleChat">
+        <svg width="20" height="20" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g clip-path="url(#clip0_4665_5310)">
                 <path d="M3.59075 0.789062H15.3037C16.2353 0.789062 17.0822 1.15704 17.6967 1.75191C18.3112 2.34677 18.6913 3.16662 18.6913 4.06845V11.3823C18.6913 12.2841 18.3112 13.1039 17.6967 13.6988C17.0822 14.2937 16.2353 14.6616 15.3037 14.6616H9.44623L4.30176 18.942C4.06345 19.1403 3.70302 19.1136 3.49818 18.881C3.39774 18.7666 3.35244 18.6255 3.36229 18.4863L3.63605 14.6597H3.59075C2.65916 14.6597 1.81225 14.2918 1.19775 13.6969C0.583248 13.1039 0.203125 12.2841 0.203125 11.3823V4.06845C0.203125 3.16662 0.583248 2.34677 1.19775 1.75191C1.81028 1.15704 2.65719 0.789062 3.59075 0.789062ZM20.3536 6.12379C21.0173 6.24772 21.6121 6.56422 22.073 7.01037C22.6737 7.59189 23.048 8.39458 23.048 9.27925V16.5931C23.048 17.4777 22.6757 18.2804 22.073 18.8619C21.4723 19.4435 20.6431 19.8057 19.7293 19.8057H19.6091L19.8888 23.7028C19.8967 23.8249 19.8592 23.9507 19.7706 24.0499C19.5914 24.2539 19.2743 24.2767 19.0655 24.1032L13.9014 19.6799H7.09852L10.4487 16.3814H17.547C19.0951 16.3814 20.3635 15.1555 20.3635 13.6549V6.33924C20.3615 6.26679 20.3595 6.19434 20.3536 6.12379ZM5.26093 9.11719C4.9458 9.11719 4.68976 8.86933 4.68976 8.56427C4.68976 8.25921 4.9458 8.01135 5.26093 8.01135H11.2385C11.5536 8.01135 11.8097 8.25921 11.8097 8.56427C11.8097 8.86933 11.5536 9.11719 11.2385 9.11719H5.26093ZM5.26093 6.37928C4.9458 6.37928 4.68976 6.13142 4.68976 5.82636C4.68976 5.5213 4.9458 5.27344 5.26093 5.27344H13.7339C14.0491 5.27344 14.3051 5.5213 14.3051 5.82636C14.3051 6.13142 14.0491 6.37928 13.7339 6.37928H5.26093ZM15.3017 1.8949H3.59075C2.97428 1.8949 2.41296 2.13895 2.00526 2.53362C1.59757 2.92829 1.34546 3.46977 1.34546 4.06845V11.3823C1.34546 11.979 1.59757 12.5224 2.00526 12.9171C2.41296 13.3118 2.97428 13.5558 3.59075 13.5558H4.24858V13.5577L4.286 13.5596C4.59916 13.5806 4.83748 13.8437 4.81581 14.1469L4.59326 17.247L8.83567 13.716C8.93809 13.6168 9.07989 13.5558 9.23746 13.5558H15.3017C15.9182 13.5558 16.4795 13.3118 16.8872 12.9171C17.2949 12.5224 17.547 11.979 17.547 11.3823V4.06845C17.547 3.47168 17.2949 2.92829 16.8872 2.53362C16.4815 2.13895 15.9201 1.8949 15.3017 1.8949Z"
                       fill="white"/>
@@ -105,7 +103,7 @@
             </defs>
         </svg>
     </div>
-
+    <div class="item">ENG</div>
     <div class="clock item"></div>
     <div class="toggle-theme item" data-local-action="toggleTheme">
         <img src="$$themeIcon" alt="theme-icon">
@@ -130,4 +128,3 @@
             No new notifications
         </div>-->
 </div>
-<notifications-monitor class="closed" data-presenter="notifications-monitor"></notifications-monitor>

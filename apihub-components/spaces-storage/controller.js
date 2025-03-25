@@ -1285,9 +1285,8 @@ async function deleteWebAssistantConfigurationPage(request, response) {
 
 async function getWebAssistantConfigurationPageMenu(request, response) {
     const spaceId = request.params.spaceId;
-    const pageId = request.params.pageId;
     try {
-        const menu = await space.APIs.getWebAssistantConfigurationPageMenu(spaceId, pageId);
+        const menu = await space.APIs.getWebAssistantConfigurationPageMenu(spaceId);
         utils.sendResponse(response, 200, "application/json", {
             data: menu
         });

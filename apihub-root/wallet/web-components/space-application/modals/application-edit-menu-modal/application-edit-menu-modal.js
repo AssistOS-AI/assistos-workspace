@@ -34,15 +34,6 @@ export class ApplicationEditMenuModal {
         this.actionButton = "Add";
         this.actionFn = `addMenuItem`;
         const pages = await getPageRows(this.spaceId);
-        this.pages = `
-<select class="application-form-item-select" data-name="selectedPage" id="selectedPage">
-${pages.map(pageData => {
-            return `<option value="${pageData.id}" data-name="${pageData.name}">${pageData.name}</option>`
-        })
-            .join('')}
-        </select>`
-
-
         this.targetPages = `
         <select class="application-form-item-select" data-name="targetPage" id="targetPage">
         ${pages.map(pageData => {
@@ -51,7 +42,6 @@ ${pages.map(pageData => {
             .join('')}
         </select>
         `
-        this.currentPage = pages[0].id || null;
     }
 
     async handleEditRender() {
@@ -77,22 +67,12 @@ ${pages.map(pageData => {
     async afterRender() {
         const fileInput = this.element.querySelector('#customFile');
         const fileLabel = this.element.querySelector('.file-input-label span:last-child');
-        const selectedPageSelectElement = this.element.querySelector('#selectedPage');
         const targetPageSelectElement = this.element.querySelector('#targetPage');
         this.lastTargetPage = targetPageSelectElement.value;
         targetPageSelectElement.addEventListener('change', (e) => {
             this.lastTargetPage = e.target.value;
         })
-        const nameInput = this.element.querySelector('#display-name');
-        this.lastSelectedPage = selectedPageSelectElement.value;
-        nameInput.value = this.lastSelectedPage;
-        selectedPageSelectElement.addEventListener('change', (e) => {
-            if (nameInput.value === '' || nameInput.value === this.lastSelectedPage) {
-                nameInput.value = e.target.value;
-                this.lastSelectedPage = e.target.value;
-            }
-            this.currentPage = e.target.value;
-        })
+
         const iconContainer = this.element.querySelector('.file-input-label span:first-child');
 
         if (this.icon) {

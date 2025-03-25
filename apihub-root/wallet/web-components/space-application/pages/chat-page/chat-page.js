@@ -617,39 +617,59 @@ if (IFrameContext) {
 
         async afterRender() {
             await super.afterRender()
+
             await document.querySelector('left-sidebar')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
             const agentToggleCheckbox = this.element.querySelector('#chat-toggle')
             agentToggleCheckbox.addEventListener('change', this.toggleAgentResponse.bind(this));
         }
-
+        setSpaceContainer() {
+            if(!this.spaceContainer){
+                this.spaceContainer = document.getElementById("space-page-container");
+            }
+            return this.spaceContainer;
+        }
 
         async toggleFullScreen(_target) {
+            this.setSpaceContainer();
             const agentPage = this.element
             agentPage.style.display = "flex";
-            agentPage.style.width = "calc(100vw - 70px - 42px - 36px - 20px)";
-            agentPage.style.minWidth = "calc(100vw - 70px - 42px - 36px - 20px)";
+            agentPage.style.width = "calc(100vw - 75px)";
+            agentPage.style.minWidth = "calc(100vw - 75px)";
+            this.spaceContainer.style.display = "none";
         }
 
         async toggleHalfScreen(_target) {
+            this.setSpaceContainer();
             const agentPage = this.element
             agentPage.style.display = "flex";
-            agentPage.style.width = "calc(50vw - 70px - 42px - 36px - 20px)";
-            agentPage.style.minWidth = "calc(50vw - 70px - 42px - 36px - 20px)";
+            this.spaceContainer.style.display = "flex";
+            agentPage.style.width = "calc(50vw - 37.5px)";
+            agentPage.style.minWidth = "calc(50vw - 37.5px)";
+            this.spaceContainer.style.width="calc(50vw - 37.5px)";
+            this.spaceContainer.style.minWidth="calc(50vw - 37.5px)";
         }
 
         async toggleThirdScreen(_target) {
+            this.setSpaceContainer();
             const agentPage = this.element
             agentPage.style.display = "flex";
-            agentPage.style.width = "calc(30vw - 70px - 42px - 36px - 20px)";
-            agentPage.style.minWidth = "calc(30vw - 70px - 42px - 36px - 20px)";
+            this.spaceContainer.style.display = "flex";
+            agentPage.style.width = "calc(30vw - 37.5px)";
+            agentPage.style.minWidth = "calc(30vw - 37.5px)";
+            this.spaceContainer.style.width="calc(70vw - 37.5px)";
+            this.spaceContainer.style.minWidth="calc(70vw - 37.5px)";
         }
 
         async toggleMinimizeScreen(_target) {
+            this.setSpaceContainer();
             const agentPage = this.element
             assistOS.UI.chatState = "minimized";
             agentPage.style.display = "none";
             agentPage.style.width = "0px";
             agentPage.style.minWidth="0px";
+            this.spaceContainer.style.display = "flex";
+            this.spaceContainer.style.width="calc(100vw - 75px)";
+            this.spaceContainer.style.minWidth="calc(100vw - 75px)";
         }
         async swapPersonality(_target, id) {
             await assistOS.changeAgent(id);

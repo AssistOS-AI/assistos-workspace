@@ -60,18 +60,77 @@ export class LeftSidebar {
         }
         this.spaces = stringHTML;
     }
+    afterRender() {
+        this.toastsContainer = this.element.querySelector(".toasts-container");
+        let features = this.element.querySelectorAll(".feature");
+        features.forEach((feature) => {
+            let timeoutId;
+            if(feature.getAttribute("data-id") === "space"){
+                let focusSection = feature.querySelector("#space");
+                feature.addEventListener("mouseover", () => {
+                    focusSection.style.visibility = "visible";
+                    let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
+                    if(currentSpace) {
+                        currentSpace.style.backgroundColor = "var(--black)";
+                    }
 
+                });
+                feature.addEventListener("mouseout", () => {
+                    focusSection.style.visibility = "hidden";
+                });
+                focusSection.addEventListener("mouseout", (event) => {
+                    if(!focusSection.contains(event.relatedTarget)){
+                        focusSection.style.visibility = "hidden";
+                    }
+                });
+            } else{
+                feature.addEventListener("mouseover", () => {
+                    timeoutId = setTimeout(() => {
+                        let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
+                        name.style.visibility = "visible";
+                    }, 300);
+                });
+                feature.addEventListener("mouseout", () => {
+                    clearTimeout(timeoutId);
+                    let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
+                    name.style.visibility = "hidden";
+                });
+            }
+        });
+        let userSection = this.element.querySelector(".user-photo-container");
+        let userActions = this.element.querySelector(".user-action-menu");
+        userSection.addEventListener("mouseover", () => {
+            userActions.style.visibility = "visible";
+        });
+        userSection.addEventListener("mouseout", () => {
+            userActions.style.visibility = "hidden";
+        });
+        userActions.addEventListener("mouseout", (event) => {
+            if(!userActions.contains(event.relatedTarget)){
+                userActions.style.visibility = "hidden";
+            }
+        });
+
+        let clock = this.element.querySelector(".clock");
+
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours();
+            const minutes = now.getMinutes();
+
+            clock.innerText = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
+        }
+
+        updateClock();
+        setInterval(updateClock, 10000);
+        changeSelectedPageFromSidebar(window.location.hash);
+    }
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
             `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
     }
     async navigateToPage(_target, page) {
-        debugger
-        if(location.hash.split("/")[1] !== "Space"){
-            await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
-        }else{
-            document.querySelector("space-application-page").webSkelPresenter.changePage(page);
-        }
+        assistOS.navigateToPage(page);
     }
 
    toggleChat(_target, mode, width) {

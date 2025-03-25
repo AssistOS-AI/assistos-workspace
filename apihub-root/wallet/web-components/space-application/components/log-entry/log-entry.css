@@ -1,3 +1,7 @@
+log-entry {
+    display:flex;
+    width: 100%;
+}
 .log-container {
     display: flex;
     flex-direction: column;
@@ -5,6 +9,7 @@
     margin-bottom: 16px;
     border-radius: 4px;
     background: #222;
+    width:100%;
     font-family: 'Roboto', sans-serif;
     color: #dcdcdc;
     border-left: 8px solid #7f8c8d;
@@ -47,7 +52,9 @@
 .log-content-message{
     overflow-x:auto;
     max-width:100%;
+    width:100%;
 }
+
 .log-type{
     font-size: 24px;
     padding-top: 4px;
@@ -94,6 +101,7 @@
     overflow-x: auto;
     word-break: break-word;
     margin-bottom: 8px;
+    width:100%;
 }
 .log-footer {
     display: flex;

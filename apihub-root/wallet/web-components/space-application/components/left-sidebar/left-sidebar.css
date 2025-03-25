@@ -9,7 +9,7 @@ left-sidebar {
     z-index:2;
 }
 .sidebar__upper{
-    padding-block-start:20px;
+    padding-block-start:10px;
     display:flex;
     flex-direction: column;
 }
@@ -87,8 +87,8 @@ left-sidebar {
     display:flex;
     align-items: center;
     justify-content: center;
-    width:40px;
-    height:40px;
+    width:30px;
+    height:30px;
     border-radius: 50%;
     background: #878686;
 }
@@ -116,7 +116,7 @@ left-sidebar {
     align-items: center;
     display: flex;
     justify-content: center;
-    padding: 5px 5px 5px 5px;
+    padding: 10px 0;
     max-height: 100%;
     width:100%;
 }
@@ -146,15 +146,15 @@ left-sidebar {
 .page-logo {
     position: relative;
     border-radius: 50%;
-    width: 41px;
-    height: 41px;
+    width: 26px;
+    height: 26px;
     object-fit: cover;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .user-photo {
-    width: 41px;
-    height: 41px;
+    width: 30px;
+    height: 30px;
     object-fit: cover;
     border-radius: 50%;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -169,6 +169,7 @@ left-sidebar {
     cursor: pointer;
 }
 .item {
+    font-size:10pt;
     margin-top: 15px;
     color: var(--left-sidebar-icons);
 }
