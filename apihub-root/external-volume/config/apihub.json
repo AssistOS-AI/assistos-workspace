@@ -15,7 +15,7 @@
         "versionlessDSU",
         "llms",
         "document",
-        "space",
+        "globalServerlessAPI",
         "knowledge-storage",
         "applications-storage",
         "server-flow-apis",
@@ -46,8 +46,8 @@
         "document": {
             "module": "./../../apihub-components/document"
         },
-        "space": {
-            "module": "./../../apihub-components/space"
+        "globalServerlessAPI": {
+            "module": "./../../apihub-components/globalServerlessAPI"
         },
         "chat": {
             "module": "./../../apihub-components/chat"

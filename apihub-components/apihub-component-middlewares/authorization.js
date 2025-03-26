@@ -1,4 +1,4 @@
-const Space=require('../space/space.js');
+const Space=require('../globalServerlessAPI/space.js');
 const utils = require('../apihub-component-utils/utils.js');
 
 async function authorization(req, res, next){

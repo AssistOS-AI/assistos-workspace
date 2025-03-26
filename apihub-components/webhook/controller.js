@@ -2,7 +2,7 @@ const {generateId} = require("../apihub-component-utils/crypto");
 const crypto = require('crypto');
 const utils = require("../apihub-component-utils/utils");
 const secret = generateId(32);
-const space = require("../space/space.js");
+const space = require("../globalServerlessAPI/space.js");
 const subscriptionManager = require("../subscribers/SubscriptionManager.js");
 const Storage = require("../apihub-component-utils/storage.js");
 function generateSignature(timestamp, nonce) {

@@ -1,4 +1,4 @@
-const constants = require("../../space/constants");
+const constants = require("../constants");
 const secrets = require("../../apihub-component-utils/secrets");
 const date = require("../../apihub-component-utils/date");
 

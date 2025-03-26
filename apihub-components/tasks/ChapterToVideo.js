@@ -12,7 +12,7 @@ const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
 const TaskManager = require("./TaskManager");
-const space = require("../space/space");
+const space = require("../globalServerlessAPI/space");
 class ChapterToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);

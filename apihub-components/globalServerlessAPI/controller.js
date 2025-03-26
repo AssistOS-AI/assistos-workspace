@@ -298,15 +298,15 @@ async function createSpace(request, response, server) {
         //make space plugins available to the new serverless
         let pluginsStorage = path.join(serverlessAPIStorage, "plugins");
         await fsPromises.mkdir(pluginsStorage, {recursive: true});
-        let defaultPlugins = ["PersonalityPlugin", "SpaceInstancePersistence", "ApplicationPlugin"];
-        for(let plugin of defaultPlugins){
-            const pluginRedirect = `module.exports = require("../../../../../apihub-components/serverlessAPI/plugins/${plugin}.js")`;
-            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
-        }
+        //let defaultPlugins = ["PersonalityPlugin", "SpaceInstancePersistence", "ApplicationPlugin"];
+        // for(let plugin of defaultPlugins){
+        //     const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/${plugin}.js")`;
+        //     await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+        // }
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
         await fsPromises.writeFile(`${pluginsStorage}/StandardPersistencePlugin.js`, pluginRedirect);
         const pluginRedirect2 = `module.exports = require("../../../../../apihub-components/soplang/plugins/WorkspacePlugin.js")`;
-        await fsPromises.writeFile(`${pluginsStorage}/WorkspacePlugin.js`, pluginRedirect);
+        await fsPromises.writeFile(`${pluginsStorage}/WorkspacePlugin.js`, pluginRedirect2);
 
 
         //create serverless API for new space
