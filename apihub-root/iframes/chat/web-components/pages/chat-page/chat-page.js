@@ -166,15 +166,15 @@ const IFrameContext = window.assistOS === undefined;
 const UI = window.UI
 
 class BaseChatFrame {
-    constructor(element, invalidate) {
+    constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
         this.agentOn = true;
         this.ongoingStreams = new Map();
         this.observedElement = null;
         this.userHasScrolledManually = false;
+        this.props = props;
         this.invalidate();
-
     }
 
     async handleChatEvent(eventData) {
@@ -220,10 +220,10 @@ class BaseChatFrame {
 
     async beforeRender() {
         this.chatOptions = IFrameChatOptions;
-        this.chatId = this.element.getAttribute('data-chatId');
-        this.personalityId = this.element.getAttribute('data-personalityId');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
+        this.chatId = this.props.chatId;
+        this.personalityId = this.props.personalityId;
+        this.spaceId = this.props.spaceId;
+        this.userId = this.props.userId;
 
         if (!this.currentPageId) {
             this.configuration = await getConfiguration(this.spaceId);
@@ -231,12 +231,6 @@ class BaseChatFrame {
             this.currentPageId = homePageConfig.id;
         }
         this.page = await getPageConfig(this.spaceId, this.currentPageId);
-        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
-        const [widgetApp, widgetName] = this.page.widget.split('/');
-        await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-        await UI.loadWidget(this.spaceId, widgetApp, widgetName);
-        this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
-        this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
 
         this.previewContentSidebar = this.page.menu.map((menuItem) => {
             return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
@@ -279,6 +273,17 @@ class BaseChatFrame {
     }
 
     async afterRender() {
+        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
+        const [widgetApp, widgetName] = this.page.widget.split('/');
+
+        await Promise.all([UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName), UI.loadWidget(this.spaceId, widgetApp, widgetName)]);
+
+        UI.createElement(previewWidgetName, '#preview-content-header');
+        UI.createElement(widgetName, '#preview-content-right', {
+            generalSettings: this.page.generalSettings,
+            data: this.page.data
+        });
+
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
 
@@ -570,7 +575,7 @@ class BaseChatFrame {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
-        this.element.setAttribute('data-chatId', chatId);
+        this.props.chatId = chatId;
         this.invalidate();
     }
 

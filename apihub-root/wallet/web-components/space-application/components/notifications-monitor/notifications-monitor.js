@@ -22,7 +22,6 @@ export class NotificationsMonitor {
         this.tabsContainer = this.element.querySelector('#tabsContainer');
         this.taskWatchersContainer = this.element.querySelector('#taskWatchersContainer');
 
-        this.minimizeBtn.addEventListener('click', () => this.toggleMinimize());
         this.addBtn.addEventListener('click', () => this.promptAddWatcher());
 
         const llmObserverTab = document.createElement('div');
@@ -42,10 +41,7 @@ export class NotificationsMonitor {
         for (let taskId of tasksToWatch) {
             await this.addTaskWatcher(taskId);
         }
-        this.debugCheckbox = this.element.querySelector('#debugCheckbox')
-        this.debugCheckbox.addEventListener('change', () => {
-            this.toggleDebugCheckbox();
-        })
+
         this.filterLogsOptionsElement = this.element.querySelector('#filterLogsOptions')
 
     }
@@ -54,13 +50,6 @@ export class NotificationsMonitor {
         window.location.href = `/logs/${assistOS.space.id}`;
     }
 
-    toggleFullscreen() {
-        this.element.classList.toggle('fullscreen');
-    }
-
-    toggleMinimize() {
-        this.element.classList.toggle('minimized');
-    }
 
     showFilterLogsOptions() {
         const leaveFilterLogsOptions = (event) => {

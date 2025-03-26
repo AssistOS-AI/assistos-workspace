@@ -323,12 +323,6 @@
             "presenterClassName": "MlIDEPage"
         },
         {
-            "name": "agent-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "AgentPage"
-        },
-        {
             "name": "llm-playground-page",
             "directory": "space-application",
             "type": "pages",
@@ -597,6 +591,36 @@
             "name":"text-widget",
             "directory":"widgets",
             "presenterClassName":"TextWidget",
+            "type":"widget"
+        },
+        {
+            "name":"about-us",
+            "directory":"widgets",
+            "presenterClassName":"AboutUs",
+            "type":"widget"
+        },
+        {
+            "name":"blog-widget",
+            "directory":"widgets",
+            "presenterClassName":"BlogWidget",
+            "type":"widget"
+        },
+        {
+            "name":"contact-widget",
+            "directory":"widgets",
+            "presenterClassName":"ContactWidget",
+            "type":"widget"
+        },
+        {
+            "name":"pricing-widget",
+            "directory":"widgets",
+            "presenterClassName":"PricingWidget",
+            "type":"widget"
+        },
+        {
+            "name":"privacy-widget",
+            "directory":"widgets",
+            "presenterClassName":"PrivacyWidget",
             "type":"widget"
         }
     ]

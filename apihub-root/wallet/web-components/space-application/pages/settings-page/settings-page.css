@@ -1,14 +1,17 @@
 settings-page {
     display: flex;
     height: 100%;
+    width:100%;
 }
 
 .settings-page {
+    height:100%;
     width: 100%;
 }
 
 .settings-header {
     padding: 20px;
+    height:80px;
     font-size: 26px;
     font-weight: 600;
     color: var(--black)
@@ -59,10 +62,11 @@ settings-page {
 }
 
 
-page-body {
+.page-body {
     display: flex;
     flex-direction: column;
     width: 100%;
+    height: calc(100% - 80px);
 }
 
 .tab-content {

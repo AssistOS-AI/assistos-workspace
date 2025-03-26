@@ -5,27 +5,37 @@ left-sidebar {
     flex-direction: column;
     max-width: 75px;
     position: relative;
+    justify-content: space-between;
+    z-index:2;
+}
+.sidebar__upper{
+    padding-block-start:10px;
+    display:flex;
+    flex-direction: column;
 }
 
 .features-list-wrapper {
-    padding: 15px 15px 15px 0;
     display: flex;
     flex-direction: column;
-    height: 63%;
 }
 .features-list{
-    height: 100%;
     display: flex;
     flex-direction: column;
-    width: 300px;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
     scrollbar-width: initial;
 }
 .installed-applications::-webkit-scrollbar {
     display: block;
 }
 .installed-applications{
-    height: calc(100% - 75px);
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     overflow-y: scroll;
+    width:100%;
 }
 .installed-applications::-webkit-scrollbar-thumb {
     height: 20px;
@@ -36,7 +46,19 @@ left-sidebar {
     background: #f1f1f1;
 }
 
-
+.sidebar-item {
+    display:flex;
+    align-items: center;
+    cursor: pointer;
+    font-weight: 600;
+    border-radius: 5px;
+    width: 100%;
+    justify-content: center;
+}
+.sidebar-item-title {
+    margin-left: 12px;
+    color: var(--medium-gray);
+}
 .closed{
     display: none;
 }
@@ -47,18 +69,33 @@ left-sidebar {
     font-weight: 600;
     display: flex;
     align-items: center;
+    justify-content: center;
     flex-direction: column;
     padding: 15px;
 }
 .user-photo-container {
     position: relative;
-    padding-top: 22px;
     display: flex;
+    gap:10px;
     justify-content: center;
+    align-items: center;
+    flex-direction: column;
     width: 100%;
     overflow: visible;
 }
+.bottom__chat{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    width:30px;
+    height:30px;
+    border-radius: 50%;
+    background: #878686;
+}
+.bottom__chat:hover{
+    cursor: pointer;
 
+}
 .user-action-menu {
     padding: 5px 0;
     border-radius: 5px;
@@ -78,9 +115,10 @@ left-sidebar {
     position: relative;
     align-items: center;
     display: flex;
-    padding: 5px 5px 5px 15px;
-    margin-top: 10px;
+    justify-content: center;
+    padding: 10px 0;
     max-height: 100%;
+    width:100%;
 }
 
 .page-logo:hover {
@@ -104,22 +142,19 @@ left-sidebar {
     line-height: normal;
 }
 
-.first {
-    margin-top: 0;
-    margin-bottom: 10px;
-}
+
 .page-logo {
     position: relative;
     border-radius: 50%;
-    width: 41px;
-    height: 41px;
+    width: 26px;
+    height: 26px;
     object-fit: cover;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 
 .user-photo {
-    width: 41px;
-    height: 41px;
+    width: 30px;
+    height: 30px;
     object-fit: cover;
     border-radius: 50%;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
@@ -134,6 +169,7 @@ left-sidebar {
     cursor: pointer;
 }
 .item {
+    font-size:10pt;
     margin-top: 15px;
     color: var(--left-sidebar-icons);
 }
@@ -189,7 +225,7 @@ html[theme="dark"] {
     background-color: #505050;
     height: 2.5px;
     width: 42px;
-    margin: 5px 0 5px 15px;
+    margin-block:10px;
 }
 .long{
     width: 82%;

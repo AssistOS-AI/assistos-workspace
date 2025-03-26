@@ -1,4 +1,4 @@
-export class TextWidget {
+export class AboutUs {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
@@ -7,10 +7,8 @@ export class TextWidget {
     }
 
     async beforeRender() {
-        this.quoteText = this.props.data||"In the middle of difficulty lies opportunity. - Albert Einstein"
+        this.aboutText = this.props.data || "We are a passionate team dedicated to delivering the best solutions.";
     }
 
-    async afterRender() {
-
-    }
+    async afterRender() {}
 }

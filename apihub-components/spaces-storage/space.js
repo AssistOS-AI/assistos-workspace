@@ -863,8 +863,9 @@ const getWebChatConfiguration = async function (spaceId) {
                 personality: "",
                 theme: "light",
                 primaryColor: "#007bff",
-                textColor: "#000000",
+                textColor: "#000000"
             },
+            menu:[],
             pages: []
         }
         await fsPromises.writeFile(chatConfigPath, JSON.stringify(defaultConfig, null, 2), 'utf8');
@@ -924,30 +925,20 @@ async function deleteWebAssistantConfigurationPage(spaceId, pageId) {
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-async function getWebAssistantConfigurationPageMenu(spaceId, pageId) {
+async function getWebAssistantConfigurationPageMenu(spaceId) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    const page = config.pages.find(page => page.id === pageId);
-    if (!page) {
-        throw new Error(`Page with id ${pageId} not found`);
-    }
-    return page.menu || [];
+    const menu = config.menu;
+    return menu || [];
 }
 
-async function addWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItem) {
+async function addWebAssistantConfigurationPageMenuItem(spaceId,pageId, menuItem) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    const page = config.pages.find(page => page.id === pageId);
-    if (!page) {
-        throw new Error(`Page with id ${pageId} not found`);
-    }
     menuItem.id = crypto.generateId();
-    if (!page.menu) {
-        page.menu = [];
-    }
-    page.menu.push(menuItem);
+    config.menu.push(menuItem);
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
     return menuItem.id;
 }
@@ -956,15 +947,11 @@ async function updateWebAssistantConfigurationPageMenuItem(spaceId, pageId, menu
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    const page = config.pages.find(page => page.id === pageId);
-    if (!page) {
-        throw new Error(`Page with id ${pageId} not found`);
-    }
-    const menuItemIndex = page.menu.findIndex(item => item.id === menuItemId);
+    const menuItemIndex = config.menu.findIndex(item => item.id === menuItemId);
     if (menuItemIndex === -1) {
         throw new Error(`Menu item with id ${menuItemId} not found`);
     }
-    page.menu[menuItemIndex] = {...page.menu[menuItemIndex], ...menuItemData};
+    config.menu[menuItemIndex] = {...config.menu[menuItemIndex], ...menuItemData};
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
@@ -972,15 +959,11 @@ async function deleteWebAssistantConfigurationPageMenuItem(spaceId, pageId, menu
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    const page = config.pages.find(page => page.id === pageId);
-    if (!page) {
-        throw new Error(`Page with id ${pageId} not found`);
-    }
-    const menuItemIndex = page.menu.findIndex(item => item.id === menuItemId);
+    const menuItemIndex = config.menu.findIndex(item => item.id === menuItemId);
     if (menuItemIndex === -1) {
         throw new Error(`Menu item with id ${menuItemId} not found`);
     }
-    page.menu.splice(menuItemIndex, 1);
+    config.menu.splice(menuItemIndex, 1);
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
@@ -988,11 +971,7 @@ async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuIte
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    const page = config.pages.find(page => page.id === pageId);
-    if (!page) {
-        throw new Error(`Page with id ${pageId} not found`);
-    }
-    const menuItem = page.menu.find(item => item.id === menuItemId);
+    const menuItem = config.menu.find(item => item.id === menuItemId);
     if (!menuItem) {
         throw new Error(`Menu item with id ${menuItemId} not found`);
     }
@@ -1003,7 +982,7 @@ async function updateWebChatConfiguration(spaceId, configuration) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    config.settings = configuration;
+    config.settings = [...config.settings,...configuration];
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 

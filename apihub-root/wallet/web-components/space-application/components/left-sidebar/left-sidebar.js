@@ -21,55 +21,6 @@ export class LeftSidebar {
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
-
-    showNotificationToast(message, downloadURL, fileName) {
-        this.toastsContainer.insertAdjacentHTML("beforeend",
-            `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
-    }
-
-    showTaskNotification(data) {
-        if(data.name === "DocumentToVideo"){
-           this.handleDocumentToVideoTask(data);
-        } else if(data.name === "ExportDocument"){
-            this.handleExportDocumentTask(data);
-        }
-    }
-    handleDocumentToVideoTask(task) {
-        if(task.status === "completed"){
-            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "video.mp4");
-        } else if(task.status === "failed"){
-            this.showNotificationToast(`Task ${task.name} has failed`);
-        }
-    }
-    handleExportDocumentTask(task){
-        if(task.status === "completed"){
-            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "document.docai");
-        } else if(task.status === "failed"){
-            this.showNotificationToast(`Task ${task.name} has failed`);
-        }
-    }
-    async generateUserAvatar(email, size = 100) {
-        let firstLetter = email.charAt(0).toUpperCase();
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        // Generate a random background color
-        ctx.fillStyle = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-        ctx.fillRect(0, 0, size, size);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = `${size * 0.5}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(firstLetter, size / 2, size / 2);
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        canvas.remove();
-        return uint8Array;
-    }
     async beforeRender() {
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
@@ -108,40 +59,6 @@ export class LeftSidebar {
             stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
         }
         this.spaces = stringHTML;
-    }
-    async startApplication(_target, appName) {
-        await assistOS.startApplication(appName);
-        changeSelectedPageFromSidebar(window.location.hash);
-    }
-
-    toggleTheme(_target) {
-        const element = document.getElementsByTagName('html')[0];
-        const currentTheme = element.getAttribute('theme');
-        if (currentTheme && currentTheme === 'dark') {
-            element.setAttribute('theme', '');
-            this.themeIcon = "wallet/assets/icons/moon.svg";
-            this.invalidate();
-        } else {
-            element.setAttribute('theme', 'dark');
-            this.themeIcon = "wallet/assets/icons/sun.svg";
-            this.invalidate();
-        }
-        localStorage.setItem('theme', element.getAttribute('theme'));
-    }
-
-    changeBaseURL(newBaseURL) {
-        document.getElementById('baseTag').setAttribute('href', newBaseURL);
-    }
-    async openAccountSettings() {
-        function hideDropdown() {
-            dropdownMenu.style.display = "none";
-            userPhotoContainer.removeEventListener('mouseleave', hideDropdown);
-        }
-
-        let userPhotoContainer = this.element.querySelector(".user-photo-container");
-        let dropdownMenu = this.element.querySelector(".user-action-menu");
-        hideDropdown();
-        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
     }
     afterRender() {
         this.toastsContainer = this.element.querySelector(".toasts-container");
@@ -207,6 +124,126 @@ export class LeftSidebar {
         updateClock();
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
+    }
+    showNotificationToast(message, downloadURL, fileName) {
+        this.toastsContainer.insertAdjacentHTML("beforeend",
+            `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
+    }
+    async navigateToPage(_target, page) {
+        assistOS.navigateToPage(page);
+    }
+
+   toggleChat(_target, mode, width) {
+        const maximizeChat = () => {
+            assistOS.UI.chatState = "open";
+            let spaceApplicationPage = document.querySelector('space-application-page');
+            let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
+            agentPage.style.display = "flex";
+            agentPage.style.minWidth = minimumChatWidth + 'px';
+            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
+            assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
+            document.cookie=`chatState=open;path=/;max-age=31536000;`;
+        }
+
+        const minimizeChat = () => {
+            assistOS.UI.chatState = "close";
+            agentPage.style.display = "none";
+            agentPage.style.width = "0px";
+            agentPage.style.minWidth = "0px";
+            document.cookie=`chatState=close;path=/;max-age=31536000;`;
+        }
+
+        const agentPage = document.querySelector("chat-page");
+
+        if (mode === "open") {
+            maximizeChat();
+        } else if (mode === "close") {
+            minimizeChat();
+        } else {
+            if (assistOS.UI.chatState === "open") {
+                minimizeChat();
+            } else {
+                maximizeChat();
+            }
+        }
+    }
+
+    showTaskNotification(data) {
+        if(data.name === "DocumentToVideo"){
+           this.handleDocumentToVideoTask(data);
+        } else if(data.name === "ExportDocument"){
+            this.handleExportDocumentTask(data);
+        }
+    }
+    handleDocumentToVideoTask(task) {
+        if(task.status === "completed"){
+            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "video.mp4");
+        } else if(task.status === "failed"){
+            this.showNotificationToast(`Task ${task.name} has failed`);
+        }
+    }
+    handleExportDocumentTask(task){
+        if(task.status === "completed"){
+            this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "document.docai");
+        } else if(task.status === "failed"){
+            this.showNotificationToast(`Task ${task.name} has failed`);
+        }
+    }
+    async generateUserAvatar(email, size = 100) {
+        let firstLetter = email.charAt(0).toUpperCase();
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+
+        // Generate a random background color
+        ctx.fillStyle = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
+        ctx.fillRect(0, 0, size, size);
+
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `${size * 0.5}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(firstLetter, size / 2, size / 2);
+        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+        const arrayBuffer = await blob.arrayBuffer();
+        const uint8Array = new Uint8Array(arrayBuffer);
+        canvas.remove();
+        return uint8Array;
+    }
+    async startApplication(_target, appName) {
+        await assistOS.startApplication(appName);
+        changeSelectedPageFromSidebar(window.location.hash);
+    }
+
+    toggleTheme(_target) {
+        const element = document.getElementsByTagName('html')[0];
+        const currentTheme = element.getAttribute('theme');
+        if (currentTheme && currentTheme === 'dark') {
+            element.setAttribute('theme', '');
+            this.themeIcon = "wallet/assets/icons/moon.svg";
+            this.invalidate();
+        } else {
+            element.setAttribute('theme', 'dark');
+            this.themeIcon = "wallet/assets/icons/sun.svg";
+            this.invalidate();
+        }
+        localStorage.setItem('theme', element.getAttribute('theme'));
+    }
+
+    changeBaseURL(newBaseURL) {
+        document.getElementById('baseTag').setAttribute('href', newBaseURL);
+    }
+    async openAccountSettings() {
+        function hideDropdown() {
+            dropdownMenu.style.display = "none";
+            userPhotoContainer.removeEventListener('mouseleave', hideDropdown);
+        }
+
+        let userPhotoContainer = this.element.querySelector(".user-photo-container");
+        let dropdownMenu = this.element.querySelector(".user-action-menu");
+        hideDropdown();
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
     }
     openUserActions(_target) {
         let userPhotoContainer = this.element.querySelector(".user-photo-container");
