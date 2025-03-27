@@ -53,6 +53,29 @@ export class ParagraphItem {
         if(this.currentPlugin){
             this.openPlugin("", "paragraph", this.currentPlugin);
         }
+        // let moveParagraphUp = this.element.querySelector(".comment-menu");
+        // this.documentPresenter.attachTooltip(moveParagraphUp,"Move Paragraph Up");
+
+        let moveParagraphUp = this.element.querySelector(".move-paragraph-up");
+        this.documentPresenter.attachTooltip(moveParagraphUp,"Move Paragraph Up");
+
+        let moveParagraphDown = this.element.querySelector(".move-paragraph-down");
+        this.documentPresenter.attachTooltip(moveParagraphDown,"Move Paragraph Down");
+
+        let copyParagraph = this.element.querySelector(".copy-paragraph");
+        this.documentPresenter.attachTooltip(copyParagraph,"Copy Paragraph");
+
+        let cutParagraph = this.element.querySelector(".cut-paragraph");
+        this.documentPresenter.attachTooltip(cutParagraph,"Cut Paragraph");
+
+        let insert = this.element.querySelector(".insert");
+        this.documentPresenter.attachTooltip(insert,"Insert Elements");
+
+        let attachFiles = this.element.querySelector(".files-menu");
+        this.documentPresenter.attachTooltip(attachFiles,"Attach Files");
+
+        let commentMenu = this.element.querySelector(".comment-menu");
+        this.documentPresenter.attachTooltip(commentMenu,"Comments");
 
         if(this.paragraph.comment.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
@@ -69,35 +92,35 @@ export class ParagraphItem {
             return;
         }
 
-        let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
-
-        let parser = new DOMParser();
-        let doc = parser.parseFromString(decodedText, "text/html");
-        let tags = Array.from(doc.body.querySelectorAll("*"));
-
-        if (tags.length > 0) {
-            console.log("Length:", tags.length);
-
-            let htmlString = tags.map(tag => {
-                    let tempElement = document.createElement("div");
-                    tempElement.innerHTML = tag.innerHTML;
-                    let decodedContent = tempElement.textContent || tempElement.innerText || "";
-
-                    return `<${tag.tagName.toLowerCase()}>${decodedContent}</${tag.tagName.toLowerCase()}>`;
-                }).join("\n");
-
-                paragraphContainer.insertAdjacentHTML("afterbegin", `
-                <paragraph-html-preview data-presenter="paragraph-html-preview">
-                </paragraph-html-preview>`);
-
-                setTimeout(() => {
-                    let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
-                    if (previewElement) {
-                        previewElement.innerHTML += htmlString;
-                        console.log(htmlString + 1112)
-                    }
-                }, 500);
-        }
+        // let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
+        //
+        // let parser = new DOMParser();
+        // let doc = parser.parseFromString(decodedText, "text/html");
+        // let tags = Array.from(doc.body.querySelectorAll("*"));
+        //
+        // if (tags.length > 0) {
+        //     console.log("Length:", tags.length);
+        //
+        //     let htmlString = tags.map(tag => {
+        //             let tempElement = document.createElement("div");
+        //             tempElement.innerHTML = tag.innerHTML;
+        //             let decodedContent = tempElement.textContent || tempElement.innerText || "";
+        //
+        //             return `<${tag.tagName.toLowerCase()}>${decodedContent}</${tag.tagName.toLowerCase()}>`;
+        //         }).join("\n");
+        //
+        //         paragraphContainer.insertAdjacentHTML("afterbegin", `
+        //         <paragraph-html-preview data-presenter="paragraph-html-preview">
+        //         </paragraph-html-preview>`);
+        //
+        //         setTimeout(() => {
+        //             let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
+        //             if (previewElement) {
+        //                 previewElement.innerHTML += htmlString;
+        //                 console.log(htmlString + 1112)
+        //             }
+        //         }, 500);
+        // }
 
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text
@@ -438,6 +461,7 @@ export class ParagraphItem {
     }
 
     async pasteParagraph(_target) {
+
         window.cutParagraph.id = this.paragraph.id;
         await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
         this.invalidate(async () => {
