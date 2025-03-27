@@ -20,6 +20,21 @@ async function AppSpecificPlugin() {
         userInfo.spaces.push(spaceId);
         await UserLogin.setUserInfo(email, userInfo);
     }
+    self.addSpaceToUsers = async function(userEmails, spaceId){
+        let UserLogin = await $$.loadPlugin("UserLogin");
+
+        for(let email of userEmails){
+            let result = await UserLogin.getUserInfo(email);
+            if(result.status === "success"){
+                if(!result.userInfo.spaces.includes(spaceId)){
+                    result.userInfo.spaces.push(spaceId);
+                }
+                await UserLogin.setUserInfo(email, result.userInfo);
+            } else {
+                throw new Error(result.reason);
+            }
+        }
+    }
     self.unlinkSpaceFromUser = async function (email, spaceId) {
         let UserLogin = await $$.loadPlugin("UserLogin");
 

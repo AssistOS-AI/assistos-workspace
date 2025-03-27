@@ -30,22 +30,6 @@ async function SpacePlugin(){
         }
     }
 
-    self.linkUserToSpace = async function(spaceId, userId, referrerId, role) {
-        const spaceStatus = await persistence.getSpaceStatus(spaceId);
-        if (spaceStatus.users[userId]) {
-            return {
-                status: "failed",
-                reason: "user already linked to space",
-            }
-        }
-        spaceStatus.users[userId] = {
-                roles: [role],
-                referrerId: referrerId,
-                joinDate: Date.now(),
-            }
-        await persistence.updateSpaceStatus(spaceId, spaceStatus);
-    }
-
     self.getDefaultSpaceAgentId = async function (spaceId) {
         let spaceStatus = await persistence.getSpaceStatus(spaceId);
         return spaceStatus.defaultAgent;

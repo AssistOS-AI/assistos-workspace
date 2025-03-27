@@ -64,6 +64,7 @@ const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js');
 const constants = require("./constants");
 const path = require("path");
+const process = require("process");
 function Space(server) {
     setTimeout(async ()=> {
         let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
@@ -72,7 +73,13 @@ function Space(server) {
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             server.createServerlessAPI({
                 urlPrefix: spaceId,
-                storage: serverlessFolder}).then((serverlessAPI) => {
+                storage: serverlessFolder,
+                env: {
+                    PERSISTENCE_FOLDER: path.join(serverlessFolder, "persistence"),
+                    SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+                    SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
+                }
+            }).then((serverlessAPI) => {
                 let serverUrl = serverlessAPI.getUrl();
                 server.registerServerlessProcessUrl(spaceId, serverUrl);
             });

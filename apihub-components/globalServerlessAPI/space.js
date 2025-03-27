@@ -244,84 +244,6 @@ async function getSpacePersonalities(spaceId) {
     return JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
 }
 
-function createDefaultAnnouncement(spaceName) {
-    const defaultSpaceAnnouncement = require('./templates/defaultSpaceAnnouncement.json');
-    const currentDate = date.getCurrentUTCDate();
-    const announcementId = crypto.generateId();
-    return data.fillTemplate(defaultSpaceAnnouncement,
-        {
-            announcementId: announcementId,
-            spaceName: spaceName,
-            currentUTCDate: currentDate
-        })
-}
-
-async function createSpace(spaceName, email, authKey) {
-    const defaultSpaceTemplate = require('./templates/defaultSpaceTemplate.json');
-
-    const User = require('../users-storage/user.js');
-    const rollback = async (spacePath) => {
-        try {
-            await fsPromises.rm(spacePath, {recursive: true, force: true});
-        } catch (error) {
-            console.error(`Failed to clean up space directory at ${spacePath}: ${error}`);
-            throw error;
-        }
-    };
-
-    const spaceId = crypto.generateId();
-    let spaceObj = {};
-    const defaultSpaceAgentId = crypto.generateId(16);
-    try {
-        spaceObj = data.fillTemplate(defaultSpaceTemplate, {
-            spaceName: spaceName,
-            spaceId: spaceId,
-            admin: {
-                [email]: {
-                    roles: [spaceConstants.spaceRoles.admin, spaceConstants.spaceRoles.owner],
-                    joinDate: date.getCurrentUnixTime()
-                }
-            },
-            defaultSpaceAgentId: defaultSpaceAgentId,
-            defaultAnnouncement: createDefaultAnnouncement(spaceName),
-            creationDate:
-                date.getCurrentUTCDate()
-        });
-    } catch (error) {
-        error.message = 'Error creating space';
-        error.statusCode = 500;
-        throw error;
-    }
-
-    const spacePath = getSpacePath(spaceId);
-    await file.createDirectory(spacePath);
-    await secrets.createSpaceSecretsContainer(spaceId);
-
-    const filesPromises = [
-        () => copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId),
-        () => file.createDirectory(path.join(spacePath, 'applications')),
-        () => createSpaceStatus(spacePath, spaceObj),
-        () => User.linkSpaceToUser(email, spaceId, authKey),
-        () => addSpaceToSpaceMap(spaceId, spaceName),
-    ];
-
-    const results = await Promise.allSettled(filesPromises.map(fn => fn()));
-    const failed = results.filter(r => r.status === 'rejected');
-
-    if (failed.length > 0) {
-        await rollback(spacePath);
-        const error = new Error(failed.map(op => op.reason?.message || 'Unknown error').join(', '));
-        error.statusCode = 500;
-        throw error;
-    }
-    const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    await $$.promisify(lightDBEnclaveClient.createDatabase)(spaceId);
-    await $$.promisify(lightDBEnclaveClient.grantWriteAccess)($$.SYSTEM_IDENTIFIER);
-
-    await createDefaultSpaceChats(lightDBEnclaveClient, spaceId);
-
-    return spaceObj;
-}
 
 async function getSpaceChat(spaceId, chatId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
@@ -722,31 +644,6 @@ async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function inviteSpaceCollaborators(referrerId, spaceId, collaborators) {
-    const emailService = require('../email').instance;
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    const spaceName = spaceStatusObject.name;
-    const existingUserEmails = Object.keys(spaceStatusObject.users)
-    let existingCollaborators = [];
-    for (let collaborator of collaborators) {
-        if (existingUserEmails.includes(collaborator.email)) {
-            existingCollaborators.push(collaborator.email);
-            continue;
-        }
-        await linkSpaceToUser( collaborator.email, spaceId)
-        try {
-            await linkUserToSpace(spaceId,  collaborator.email, referrerId, ollaborator.role)
-        } catch (error) {
-            await unlinkSpaceFromUser( collaborator.email, spaceId);
-            throw error;
-        }
-        if (configs.ENABLE_EMAIL_SERVICE) {
-            await emailService.sendUserAddedToSpaceEmail(collaborator.email, spaceName);
-        }
-    }
-    return existingCollaborators;
-}
-
 async function addChatToPersonality(spaceId, personalityId, chatId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
 
@@ -1016,7 +913,6 @@ module.exports = {
         getSpaceAnnouncements,
         updateSpaceAnnouncement,
         deleteSpaceAnnouncement,
-        createSpace,
         getSpaceMap,
         getSpaceStatusObject,
         updateSpaceStatus,
@@ -1037,7 +933,6 @@ module.exports = {
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
         setSpaceCollaboratorRole,
-        inviteSpaceCollaborators,
         deleteSpaceCollaborator,
         createSpaceChat,
         updateSpaceChatMessage,

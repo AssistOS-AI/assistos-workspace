@@ -312,7 +312,9 @@ async function createSpace(request, response, server) {
             urlPrefix: serverlessId,
             storage: serverlessAPIStorage,
             env: {
-                PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence")
+                PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
+                SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+                SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL
             }
         });
         let serverUrl = serverlessAPI.getUrl();
@@ -321,7 +323,7 @@ async function createSpace(request, response, server) {
         await new Promise(resolve => setTimeout(resolve, 2000));
         let ownerId = request.userId;
         let workspaceClient = await getAPIClient(request.userId, constants.WORKSPACE_PLUGIN, serverlessId);
-        await workspaceClient.createWorkspace(space.name, ownerId);
+        await workspaceClient.createWorkspace(space.name, ownerId, space.id);
 
         let WorkspaceUserClient = await getAPIClient(request.userId, constants.WORKSPACE_USER_PLUGIN, serverlessId);
         await WorkspaceUserClient.createUser(email, email, constants.ROLES.OWNER);
@@ -349,7 +351,11 @@ async function createSpacePlugins(pluginsStorage){
     }
     const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect);
+
+    const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
+    await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
 }
+
 async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
     let email = request.email;
@@ -370,7 +376,7 @@ async function getSpaceCollaborators(request, response) {
     const spaceId = request.params.spaceId;
     try {
         let client = await getAPIClient(request.userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
-        let collaborators = await client.getSpaceCollaborators();
+        let collaborators = await client.getCollaborators();
         utils.sendResponse(response, 200, "application/json", collaborators);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -412,21 +418,23 @@ async function deleteSpaceCollaborator(request, response) {
 async function addCollaboratorsToSpace(request, response) {
     const userId = request.userId;
     const spaceId = request.params.spaceId;
-    const collaborators = request.body.collaborators;
+    let collaborators = request.body.collaborators;
 
     if (!collaborators) {
-        utils.sendResponse(response, 400, "application/json", {
-            message: "Bad Request: Collaborator Emails is required",
-        });
+        utils.sendResponse(response, 400, "text/plain", "Bad Request: Collaborator Emails is required");
     }
 
     try {
-        let existingCollaborators = await space.APIs.inviteSpaceCollaborators(userId, spaceId, collaborators);
+        let globalAPIClient = await getAPIClient(userId, constants.APP_SPECIFIC_PLUGIN);
+        let userEmails = collaborators.map(user => user.email);
+        await globalAPIClient.addSpaceToUsers(userEmails, spaceId);
+
+        let client = await getAPIClient(userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
+        let existingCollaborators = await client.addCollaborators(request.email, collaborators, spaceId);
+
         utils.sendResponse(response, 200, "application/json", existingCollaborators);
     } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error}`,
-        });
+        utils.sendResponse(response, 500, "text/plain", e.message);
     }
 
 }
@@ -435,9 +443,9 @@ async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
     try {
-        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request.userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
         if (!agentId) {
-            agentId = await client.getDefaultSpaceAgentId(spaceId);
+            agentId = await client.getDefaultAgentId(spaceId);
         }
         let SecurityContext = require("assistos").ServerSideSecurityContext;
         let personalityModule = require("assistos").loadModule("personality", new SecurityContext(request));
