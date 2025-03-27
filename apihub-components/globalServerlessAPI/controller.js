@@ -287,8 +287,8 @@ async function createSpace(request, response, server) {
     }
     try {
         let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
-        let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
-        let result = await client.createSpace(spaceName, email, spacesFolder);
+
+        let result = await client.createSpace(spaceName);
         if(result.status === "failed"){
             return utils.sendResponse(response, 500, "text/plain", result.reason);
         }
@@ -297,26 +297,14 @@ async function createSpace(request, response, server) {
         let appSpecificClient = await getAppSpecificAPIClient(request.userId);
         await appSpecificClient.linkSpaceToUser(email, space.id)
 
+        let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
-        //make space plugins available to the new serverless
         let pluginsStorage = path.join(serverlessAPIStorage, "plugins");
         await fsPromises.mkdir(pluginsStorage, {recursive: true});
         let persistenceStorage = path.join(serverlessAPIStorage, "persistence");
         await fsPromises.mkdir(persistenceStorage, {recursive: true});
 
-        let defaultPlugins = ["AgentWrapper", "SpaceInstancePersistence", "SpaceInstancePlugin"];
-        for(let plugin of defaultPlugins){
-            const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}.js")`;
-            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
-        }
-        let soplangPlugins = ["WorkspacePlugin", "AgentPlugin", "WorkspaceUserPlugin"];
-        for(let plugin of soplangPlugins){
-            const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/${plugin}.js")`;
-            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
-        }
-        const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
-        await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect);
-
+        await createSpacePlugins(pluginsStorage);
 
         //create serverless API for new space
         let serverlessId = space.id;
@@ -330,9 +318,17 @@ async function createSpace(request, response, server) {
         let serverUrl = serverlessAPI.getUrl();
         server.registerServerlessProcessUrl(serverlessId, serverUrl);
 
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        let ownerId = request.userId;
+        let workspaceClient = await getAPIClient(request.userId, constants.WORKSPACE_PLUGIN, serverlessId);
+        await workspaceClient.createWorkspace(space.name, ownerId);
+
+        let WorkspaceUserClient = await getAPIClient(request.userId, constants.WORKSPACE_USER_PLUGIN, serverlessId);
+        await WorkspaceUserClient.createUser(email, email, constants.ROLES.OWNER);
+
         let agentAPIClient = await getAPIClient(request.userId, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
-        
+
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -340,7 +336,20 @@ async function createSpace(request, response, server) {
         });
     }
 }
-
+async function createSpacePlugins(pluginsStorage){
+    let defaultPlugins = ["AgentWrapper", "SpaceInstancePersistence", "SpaceInstancePlugin"];
+    for(let plugin of defaultPlugins){
+        const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}.js")`;
+        await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+    }
+    let soplangPlugins = ["WorkspacePlugin", "AgentPlugin", "WorkspaceUser"];
+    for(let plugin of soplangPlugins){
+        const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/${plugin}.js")`;
+        await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+    }
+    const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
+    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect);
+}
 async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
     let email = request.email;
@@ -360,7 +369,8 @@ async function deleteSpace(request, response) {
 async function getSpaceCollaborators(request, response) {
     const spaceId = request.params.spaceId;
     try {
-        let collaborators = await space.APIs.getSpaceCollaborators(spaceId, request.authKey);
+        let client = await getAPIClient(request.userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
+        let collaborators = await client.getSpaceCollaborators();
         utils.sendResponse(response, 200, "application/json", collaborators);
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {

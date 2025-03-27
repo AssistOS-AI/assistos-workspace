@@ -1,17 +1,12 @@
-const constants = require("../constants");
-
 async function SpacePlugin(){
     let self = {};
     let persistence = await $$.loadPlugin("SpacePersistence");
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
-    self.createSpace = async function(spaceName, email, spacesFolder){
+    self.createSpace = async function(spaceName){
         let spaceData = {
-            name: spaceName,
-            users: [{email: email, role: constants.ROLES.OWNER}],
-            applications: [],
-            defaultAgent: "Assistant"
+            name: spaceName
         }
         let space;
         try {

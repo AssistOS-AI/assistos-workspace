@@ -2,6 +2,16 @@ async function SpaceInstancePlugin(){
     let self = {};
     let persistence = await $$.loadPlugin("SpaceInstancePersistence");
     let Workspace = await $$.loadPlugin("WorkspacePlugin");
+    let WorkspaceUser = await $$.loadPlugin("WorkspaceUser");
+    self.getSpaceCollaborators = async function () {
+        const userIds = await WorkspaceUser.getAllUsers();
+        let users = [];
+        for (let userId of userIds) {
+            let user = await WorkspaceUser.getUser(userId);
+            users.push(user);
+        }
+        return users;
+    }
     return self;
 }
 
@@ -20,6 +30,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpaceInstancePersistence"];
+        return ["SpaceInstancePersistence", "WorkspacePlugin", "WorkspaceUser"];
     }
 }

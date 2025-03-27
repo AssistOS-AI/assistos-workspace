@@ -24,10 +24,6 @@ function getSpaceMapPath() {
     return volumeManager.paths.spaceMap;
 }
 
-function getSpacePendingInvitationsPath() {
-    return volumeManager.paths.spacePendingInvitations;
-}
-
 async function updateSpaceMap(spaceMapObject) {
     await fsPromises.writeFile(getSpaceMapPath(), JSON.stringify(spaceMapObject, null, 2), 'utf8');
 }
@@ -533,11 +529,6 @@ async function deleteSpace(email, authKey, spaceId) {
     //TODO delete lightdb chat and folder
 }
 
-async function getSpaceName(spaceId) {
-    const spaceMap = await getSpaceMap();
-    return spaceMap[spaceId];
-}
-
 async function getSpacePersonalitiesObject(spaceId) {
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
     const personalitiesFiles = await fsPromises.readdir(personalitiesDirectoryPath, {withFileTypes: true});
@@ -572,17 +563,6 @@ async function updateSpaceStatus(spaceId, spaceStatusObject) {
     const spacePath = getSpacePath(spaceId)
     const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
     await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
-}
-
-
-async function getSpacesPendingInvitationsObject() {
-    const path = getSpacePendingInvitationsPath();
-    return JSON.parse(await fsPromises.readFile(path, 'utf8'));
-}
-
-async function updateSpacePendingInvitations(pendingInvitationsObject) {
-    const path = getSpacePendingInvitationsPath();
-    await fsPromises.writeFile(path, JSON.stringify(pendingInvitationsObject, null, 2), 'utf8');
 }
 
 async function editAPIKey(spaceId, userId, APIkeyObj) {
@@ -626,16 +606,6 @@ async function streamToJson(stream) {
         let data = '';
         stream.on('data', chunk => data += chunk);
         stream.on('end', () => resolve(JSON.parse(data)));
-        stream.on('error', err => reject(err));
-    });
-}
-
-async function readFileAsBuffer(filePath) {
-    return new Promise((resolve, reject) => {
-        let data = '';
-        const stream = fs.createReadStream(filePath, {encoding: 'binary'});
-        stream.on('data', chunk => data += chunk);
-        stream.on('end', () => resolve(Buffer.from(data, "binary")));
         stream.on('error', err => reject(err));
     });
 }
@@ -723,17 +693,6 @@ async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
     delete spaceStatusObject.users[userId];
     await updateSpaceStatus(spaceId, spaceStatusObject);
     await user.unlinkSpaceFromUser(userId, spaceId);
-}
-
-async function getSpaceCollaborators(spaceId, walletKey) {
-    const User = require('../users-storage/user.js');
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    let users = [];
-    for (let email in spaceStatusObject.users) {
-        let user = await User.loadUser(email, walletKey);
-        users.push({email: user.email, role: "Member", id: user.id});
-    }
-    return users;
 }
 
 function getOwnersCount(users) {
@@ -1060,13 +1019,10 @@ module.exports = {
         createSpace,
         getSpaceMap,
         getSpaceStatusObject,
-        getSpacesPendingInvitationsObject,
-        updateSpacePendingInvitations,
         updateSpaceStatus,
         deleteSpace,
         getSpaceChat,
         addSpaceChatMessage,
-        getSpaceName,
         editAPIKey,
         deleteAPIKey,
         getAPIKeysMetadata,
@@ -1077,11 +1033,9 @@ module.exports = {
         getSpaceMapPath,
         getPersonalitiesIds,
         streamToJson,
-        readFileAsBuffer,
         getDefaultPersonality,
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
-        getSpaceCollaborators,
         setSpaceCollaboratorRole,
         inviteSpaceCollaborators,
         deleteSpaceCollaborator,

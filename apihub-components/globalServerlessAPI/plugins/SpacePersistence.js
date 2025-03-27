@@ -3,10 +3,7 @@ async function SpacePersistence(){
     let persistence = await persisto.initialisePersisto();
     persistence.configureTypes({
         spaceStatus: {
-            name: "string",
-            users: "array",
-            applications: "array",
-            defaultAgent: "string",
+            name: "string"
         }
     });
 
