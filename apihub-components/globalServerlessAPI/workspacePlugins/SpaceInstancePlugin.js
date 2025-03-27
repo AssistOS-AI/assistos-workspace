@@ -20,6 +20,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence", "PersonalityPlugin"];
+        return ["SpaceInstancePersistence"];
     }
 }

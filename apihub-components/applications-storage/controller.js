@@ -4,13 +4,13 @@ const {sendResponse, sendFileToClient} = require('../apihub-component-utils/util
 const dataVolumePaths = require('../volumeManager').paths;
 const subscriptionManager = require('../subscribers/SubscriptionManager.js');
 const constants = require('../globalServerlessAPI/constants');
-function getApplicationAPIClient(userId, spaceId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.APPLICATION_PLUGIN);
+async function getApplicationAPIClient(userId, spaceId){
+    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.APPLICATION_PLUGIN);
 }
 async function installApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId, spaceId);
+        let client = await getApplicationAPIClient(request.userId, spaceId);
         await client.installApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: `Application ${applicationId} installed successfully in space ${spaceId}`,
@@ -25,7 +25,7 @@ async function installApplication(request, response) {
 async function uninstallApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId, spaceId);
+        let client = await getApplicationAPIClient(request.userId, spaceId);
         await client.uninstallApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "Application uninstalled successfully",
@@ -40,7 +40,7 @@ async function uninstallApplication(request, response) {
 async function updateApplication(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId, spaceId);
+        let client = await getApplicationAPIClient(request.userId, spaceId);
         await client.updateApplication(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", {
             message: "Application updated successfully",
@@ -55,7 +55,7 @@ async function updateApplication(request, response) {
 async function requiresUpdate(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId, spaceId);
+        let client = await getApplicationAPIClient(request.userId, spaceId);
         const needsUpdate = await client.requiresUpdate(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", needsUpdate);
     } catch (error) {
@@ -105,7 +105,7 @@ async function loadApplicationsMetadata(request, response) {
 async function loadApplicationConfig(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const applicationManifest = await client.loadApplicationConfig(spaceId, applicationId);
         response.setHeader('Cache-Control', 'public, max-age=10');
         return sendResponse(response, 200, "application/json", applicationManifest);
@@ -119,7 +119,7 @@ async function loadApplicationConfig(request, response) {
 async function getApplicationTasks(request, response) {
     const {spaceId, applicationId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const tasks = await client.getApplicationTasks(spaceId, applicationId);
         return sendResponse(response, 200, "application/json", tasks);
     } catch (error) {
@@ -133,7 +133,7 @@ async function runApplicationTask(request, response) {
     const {spaceId, applicationId, taskName} = request.params;
     try {
         const taskData = request.body;
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const taskId = await client.runApplicationTask(request, spaceId, applicationId, taskName, taskData);
         const sessionId = request.sessionId;
         subscriptionManager.notifyClients(sessionId, applicationId, "tasks");
@@ -150,7 +150,7 @@ async function runApplicationFlow(request, response) {
     try {
         request.setTimeout(0);
         const flowData = request.body;
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const data = await client.runApplicationFlow(request, spaceId, applicationId, flowId, flowData);
         const sessionId = request.sessionId;
         subscriptionManager.notifyClients(sessionId, applicationId, "flows");
@@ -286,7 +286,7 @@ async function loadAppFlows(request, response) {
 async function getApplicationsPlugins(request, response) {
     const {spaceId} = request.params;
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const plugins = await client.getApplicationsPlugins(spaceId);
         return sendResponse(response, 200, "application/json", plugins);
     } catch (error) {
@@ -304,7 +304,7 @@ async function getWidgets(request, response) {
         });
     }
     try {
-        let client = getApplicationAPIClient(request.userId);
+        let client = await getApplicationAPIClient(request.userId);
         const widgets = await client.getWidgets(spaceId);
         return sendResponse(response, 200, "application/json", widgets);
     } catch (error) {

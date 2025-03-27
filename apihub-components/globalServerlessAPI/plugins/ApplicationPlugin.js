@@ -3,10 +3,10 @@ const fsPromises = require("fs").promises;
 
 const CustomError = require("../../apihub-component-utils/CustomError.js");
 const {paths: dataVolumePaths} = require("../../volumeManager");
-const git = require("../../apihub-component-utils/git.js");
-const TaskManager = require("../../tasks/TaskManager");
-const ITask = require("../../tasks/Task");
-const FlowTask = require("../../tasks/FlowTask");
+//const git = require("../../apihub-component-utils/git.js");
+// const TaskManager = require("../../tasks/TaskManager");
+// const ITask = require("../../tasks/Task");
+// const FlowTask = require("../../tasks/FlowTask");
 async function ApplicationPlugin() {
     let self = {};
     let SpacePlugin = await $$.loadPlugin("SpacePlugin");

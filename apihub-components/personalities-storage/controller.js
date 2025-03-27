@@ -106,14 +106,14 @@ async function getConversationIds(request,response){
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {message: `An error occurred while fetching conversation Ids`});
     }
 }
-function getPersonalityAPIClient(userId, spaceId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.PERSONALITY_PLUGIN);
+async function getPersonalityAPIClient(userId, spaceId){
+    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.AGENT_PLUGIN);
 }
 async function getPersonality(request,response){
     const spaceId = request.params.spaceId;
     const personalityId = request.params.personalityId;
     try {
-        let client = getPersonalityAPIClient(request.userId, spaceId);
+        let client = await getPersonalityAPIClient(request.userId, spaceId);
         const personality = await client.getPersonality(personalityId);
         return Request.sendResponse(response,200,"application/json", personality)
     }   catch(error){

@@ -8,6 +8,6 @@ module.exports = {
     DEFAULT_PERSONALITY: "Assistant",
     SPACE_PLUGIN: "SpacePlugin",
     APPLICATION_PLUGIN: "ApplicationPlugin",
-    PERSONALITY_PLUGIN: "PersonalityPlugin",
+    AGENT_PLUGIN: "AgentWrapper",
     APP_SPECIFIC_PLUGIN: "AppSpecificPlugin",
 }

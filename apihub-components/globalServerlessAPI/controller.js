@@ -21,6 +21,8 @@ const fs = require("fs");
 
 const Busboy = require('busboy');
 const unzipper = require('unzipper');
+const secrets = require("../apihub-component-utils/secrets");
+const process = require("process");
 async function listUserSpaces(req, res){
     let {email} = req.query;
     if(!email){
@@ -28,7 +30,7 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = getAppSpecificAPIClient(req.userId);
+        const appSpecificClient = await getAppSpecificAPIClient(req.userId);
         const user = await appSpecificClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {
@@ -240,8 +242,8 @@ async function saveSpaceChat(request, response) {
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
-        let appSpecificClient = getAppSpecificAPIClient(request.userId);
+        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
+        let appSpecificClient = await getAppSpecificAPIClient(request.userId);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
@@ -265,14 +267,14 @@ async function getSpaceStatus(request, response) {
         });
     }
 }
-function getAPIClient(userId, pluginName, serverlessId){
+async function getAPIClient(userId, pluginName, serverlessId){
     if(!serverlessId){
         serverlessId = process.env.SERVERLESS_ID;
     }
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, pluginName);
+    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, pluginName);
 }
-function getAppSpecificAPIClient(userId){
-    return require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN);
+async function getAppSpecificAPIClient(userId){
+    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN);
 }
 async function createSpace(request, response, server) {
     const email = request.email;
@@ -284,41 +286,52 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let result = await client.createSpace(spaceName, email, spacesFolder);
         if(result.status === "failed"){
             return utils.sendResponse(response, 500, "text/plain", result.reason);
         }
         let space = result.space;
-        let appSpecificClient = getAppSpecificAPIClient(request.userId);
+        await secrets.createSpaceSecretsContainer(space.id);
+        let appSpecificClient = await getAppSpecificAPIClient(request.userId);
         await appSpecificClient.linkSpaceToUser(email, space.id)
 
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
         //make space plugins available to the new serverless
         let pluginsStorage = path.join(serverlessAPIStorage, "plugins");
         await fsPromises.mkdir(pluginsStorage, {recursive: true});
-        //let defaultPlugins = ["PersonalityPlugin", "SpaceInstancePersistence", "ApplicationPlugin"];
-        // for(let plugin of defaultPlugins){
-        //     const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/${plugin}.js")`;
-        //     await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
-        // }
+        let persistenceStorage = path.join(serverlessAPIStorage, "persistence");
+        await fsPromises.mkdir(persistenceStorage, {recursive: true});
+
+        let defaultPlugins = ["AgentWrapper", "SpaceInstancePersistence", "SpaceInstancePlugin"];
+        for(let plugin of defaultPlugins){
+            const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}.js")`;
+            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+        }
+        let soplangPlugins = ["WorkspacePlugin", "AgentPlugin", "WorkspaceUserPlugin"];
+        for(let plugin of soplangPlugins){
+            const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/${plugin}.js")`;
+            await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+        }
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
-        await fsPromises.writeFile(`${pluginsStorage}/StandardPersistencePlugin.js`, pluginRedirect);
-        const pluginRedirect2 = `module.exports = require("../../../../../apihub-components/soplang/plugins/WorkspacePlugin.js")`;
-        await fsPromises.writeFile(`${pluginsStorage}/WorkspacePlugin.js`, pluginRedirect2);
+        await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect);
 
 
         //create serverless API for new space
         let serverlessId = space.id;
         const serverlessAPI = await server.createServerlessAPI({
             urlPrefix: serverlessId,
-            storage: serverlessAPIStorage});
+            storage: serverlessAPIStorage,
+            env: {
+                PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence")
+            }
+        });
         let serverUrl = serverlessAPI.getUrl();
         server.registerServerlessProcessUrl(serverlessId, serverUrl);
 
-        // let personalityAPIClient = getAPIClient(request.userId, constants.PERSONALITY_PLUGIN, serverlessId);
-        // await personalityAPIClient.copyDefaultPersonalities(serverlessAPIStorage, space.id);
+        let agentAPIClient = await getAPIClient(request.userId, constants.AGENT_PLUGIN, serverlessId);
+        await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
         
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
@@ -412,7 +425,7 @@ async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
     try {
-        let client = getAPIClient(request.userId, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
         if (!agentId) {
             agentId = await client.getDefaultSpaceAgentId(spaceId);
         }

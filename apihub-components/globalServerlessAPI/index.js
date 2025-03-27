@@ -65,18 +65,19 @@ const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js')
 const constants = require("./constants");
 const path = require("path");
 function Space(server) {
-    setTimeout(async ()=>{
-        let client = require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
+    setTimeout(async ()=> {
+        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
         let spaces = await client.listAllSpaces();
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
-            const serverlessAPI = await server.createServerlessAPI({
+            server.createServerlessAPI({
                 urlPrefix: spaceId,
-                storage: serverlessFolder});
-            let serverUrl = serverlessAPI.getUrl();
-            server.registerServerlessProcessUrl(spaceId, serverUrl);
+                storage: serverlessFolder}).then((serverlessAPI) => {
+                let serverUrl = serverlessAPI.getUrl();
+                server.registerServerlessProcessUrl(spaceId, serverUrl);
+            });
         }
-    },3000);
+    },0);
 
     server.use("/spaces/*", contextMiddleware);
     server.head("/spaces/files/:fileId", headFile);

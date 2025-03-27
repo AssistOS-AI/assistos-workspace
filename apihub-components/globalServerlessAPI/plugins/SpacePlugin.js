@@ -1,6 +1,4 @@
 const constants = require("../constants");
-const secrets = require("../../apihub-component-utils/secrets");
-const date = require("../../apihub-component-utils/date");
 
 async function SpacePlugin(){
     let self = {};
@@ -24,7 +22,6 @@ async function SpacePlugin(){
                 reason: "Space with this name already exists"
             }
         }
-        await secrets.createSpaceSecretsContainer(space.id);
         return {
             status: "success",
             space: space
@@ -49,7 +46,7 @@ async function SpacePlugin(){
         spaceStatus.users[userId] = {
                 roles: [role],
                 referrerId: referrerId,
-                joinDate: date.getCurrentUnixTime()
+                joinDate: Date.now(),
             }
         await persistence.updateSpaceStatus(spaceId, spaceStatus);
     }
@@ -82,6 +79,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence", "PersonalityPlugin"];
+        return ["SpacePersistence"];
     }
 }

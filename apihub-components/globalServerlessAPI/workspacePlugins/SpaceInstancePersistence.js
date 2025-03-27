@@ -1,7 +1,7 @@
 const path = require("path");
 async function SpaceInstancePersistence(){
     // process.env.process.env.PERSISTENCE_FOLDER = path.join(server.rootFolder, "external-volume", "spaces");
-    let persistence = await $$.loadPlugin("StandardPersistencePlugin");
+    let persistence = await $$.loadPlugin("DefaultPersistence");
     persistence.configureTypes({
         application: {
             name: "string",
@@ -20,5 +20,8 @@ module.exports = {
         return async function(globalUserId, email, command, ...args){
             return false;
         }
+    },
+    getDependencies: function(){
+        return ["DefaultPersistence"];
     }
 }
