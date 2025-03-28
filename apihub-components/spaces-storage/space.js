@@ -967,7 +967,7 @@ async function deleteWebAssistantConfigurationPageMenuItem(spaceId, pageId, menu
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
-async function getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId) {
+async function getWebAssistantConfigurationPageMenuItem(spaceId, menuItemId) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));

@@ -123,6 +123,12 @@
             "presenterClassName": "ConfirmActionModal"
         },
         {
+            "name": "application-preview-page-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ApplicationPreviewPageModal"
+        },
+        {
             "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",

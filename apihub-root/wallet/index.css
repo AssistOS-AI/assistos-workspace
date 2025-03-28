@@ -189,6 +189,21 @@ dialog {
     border: none;
 }
 
+.modal-full-screen {
+    width: 100% !important;
+    height: 100% !important;
+    max-width:none !important;
+    border:none !important;
+    border-radius:0 !important;
+    display: flex;
+}
+.modal-full-screen-content{
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex;
+}
+
 /*forms*/
 .form-label {
     color: var(--gray-black);

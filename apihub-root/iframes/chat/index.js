@@ -30,7 +30,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 const personalityId = urlParams.get("personalityId") || null;
 const spaceId = urlParams.get("spaceId") || null;
-
+const pageId= urlParams.get("pageId") || null;
 const appContainer = document.getElementById('app-container');
 
 let {userId = null} = parseCookies(document.cookie)
@@ -103,16 +103,17 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 }
 
 let chatId = await getChatId(spaceId, personalityId);
-
+debugger
 const component = window.UI.createElement(
     'chat-page',
     appContainer,
-    {chatId, personalityId, spaceId, userId},
+    {chatId, personalityId, spaceId, userId, pageId},
     {
         "data-chatId": chatId,
         "data-personalityId": personalityId,
         "data-spaceId": spaceId,
         "data-userId": userId,
+        "data-pageId": pageId
     },
     true
 );

@@ -55,6 +55,7 @@ export class ApplicationCreatorMenu {
             <td class="max-icon-display"><img class="menu-item-img" src="${menuData.icon}"></td>
             <td>${menuData.name}</td>
             <td>${menuData.pageName}</td>
+            <td>${menuData.itemLocation}</td>
             <td class="application-action-button" data-local-action="viewActions ${menuData.id}" ">
           ${actionButton}
          ${getDropDownMenu(menuData.id)}

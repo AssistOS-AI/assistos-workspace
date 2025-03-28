@@ -3,8 +3,8 @@ const spaceModule = require('assistos').loadModule('space', {});
 const getPageRows = async function (spaceId) {
     return await spaceModule.getWebAssistantConfigurationPages(spaceId);
 }
-const getPageMenuItem = async function (spaceId, pageId, menuItemId) {
-    return await spaceModule.getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId);
+const getMenuItem = async function (spaceId,menuItemId) {
+    return await spaceModule.getWebAssistantConfigurationPageMenuItem(spaceId,  menuItemId);
 }
 const getPage = async function (spaceId, pageId) {
     const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
@@ -42,13 +42,18 @@ export class ApplicationEditMenuModal {
             .join('')}
         </select>
         `
+        this.menuTypes = `
+        <select class="application-form-item-select" data-name="itemLocation" id="itemLocation">
+            <option value="chat">Chat</option>
+            <option value="assistant">Assistant</option>
+            <option value="page">Page</option>
+        </select>`
     }
 
     async handleEditRender() {
         this.modalName = "Edit Menu Item";
         this.actionButton = "Save";
         this.actionFn = `editMenuItem`;
-        const page = await getPage(this.spaceId, this.pageId);
         const pages = await getPageRows(this.spaceId);
         this.targetPages = `
         <select class="application-form-item-select" data-name="targetPage" id="targetPage"
@@ -57,9 +62,15 @@ export class ApplicationEditMenuModal {
         })
             .join('')}
         </select>`
-        const pageMenu = await getPageMenuItem(this.spaceId, this.pageId, this.id);
-        this.pages = `<input type="text" class="application-form-item-input" id="selectedPage" name="selectedPage" value="${page.name}" disabled>`
 
+        this.menuTypes = `
+        <select class="application-form-item-select" data-name="itemLocation" id="itemLocation">
+            <option value="chat">Chat</option>
+            <option value="assistant">Assistant</option>
+            <option value="page">Page</option>
+        </select>`
+
+        const pageMenu = await getMenuItem(this.spaceId,  this.id);
         this.name = pageMenu.name;
         this.icon = pageMenu.icon;
     }
@@ -108,13 +119,15 @@ export class ApplicationEditMenuModal {
     }
 
     async addMenuItem() {
+        const locationSelect = this.element.querySelector('#itemLocation');
         const form = this.element.querySelector('.application-form');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid && this.currentPage !== null) {
             const menuItem = {
                 icon: this.icon,
                 name: formData.data["display-name"],
-                targetPage: this.lastTargetPage
+                targetPage: this.lastTargetPage,
+                itemLocation: locationSelect.value
             }
             await spaceModule.addWebAssistantConfigurationPageMenuItem(this.spaceId, this.currentPage, menuItem)
             this.shouldInvalidate = true;

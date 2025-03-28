@@ -164,7 +164,7 @@ function SpaceStorage(server) {
     server.put("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", updateWebAssistantConfigurationPage);
     server.delete("/spaces/:spaceId/web-assistant/configuration/pages/:pageId", deleteWebAssistantConfigurationPage);
     server.get("/spaces/:spaceId/web-assistant/home-page", getWebAssistantHomePage);
-    server.get("/spaces/:spaceId/web-assistant/configuration/pages/:pageId/menu/:menuItemId", getWebAssistantConfigurationPageMenuItem);
+    server.get("/spaces/:spaceId/web-assistant/configuration/menu/:menuItemId", getWebAssistantConfigurationPageMenuItem);
 
     server.get("/spaces/:spaceId/web-assistant/configuration/menu", getWebAssistantConfigurationPageMenu);
 

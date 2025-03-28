@@ -153,7 +153,7 @@ class AssistOS {
         }
         if (appName === assistOS.configuration.defaultApplicationName) {
             if (!applicationLocation) {
-                applicationLocation = ["announcements-page"];
+                applicationLocation = ["documents-page  "];
             }
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
             return;

@@ -4,6 +4,7 @@ left-sidebar {
     display: flex;
     flex-direction: column;
     max-width: 75px;
+    width:75px;
     position: relative;
     justify-content: space-between;
     z-index:2;
@@ -166,6 +167,8 @@ left-sidebar {
 
 
 .toggle-theme{
+    width:26px;
+    height:26px;
     cursor: pointer;
 }
 .item {
