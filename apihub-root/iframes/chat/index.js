@@ -103,7 +103,6 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 }
 
 let chatId = await getChatId(spaceId, personalityId);
-debugger
 const component = window.UI.createElement(
     'chat-page',
     appContainer,

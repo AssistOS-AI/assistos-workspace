@@ -20,6 +20,17 @@ const getConfiguration = async function (spaceId) {
     return configuration;
 }
 
+const getTheme = async function (spaceId,themeId) {
+    const response = await fetch(`/spaces/${spaceId}/web-assistant/themes/${themeId}`, {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    const theme = (await response.json()).data
+    return theme;
+}
+
 const getHomePageConfig = async function (spaceId) {
     const response = await fetch(`/spaces/${spaceId}/web-assistant/home-page`, {
         method: "GET",
@@ -166,6 +177,31 @@ const waitForElement = (container, selector) => {
     });
 };
 
+async function applyTheme(themeVars, customCSS) {
+    const rootCSS = generateRootCSS(themeVars)
+    const valid = await validateCSS(customCSS)
+
+    const styleEl = document.getElementById('theme-style') || document.createElement('style')
+    styleEl.id = 'theme-style'
+    styleEl.textContent = valid ? `${rootCSS}\n\n${customCSS}` : rootCSS
+    document.head.appendChild(styleEl)
+}
+
+async function validateCSS(css) {
+    try {
+        const sheet = new CSSStyleSheet()
+        await sheet.replace(css)
+        return true
+    } catch {
+        return false
+    }
+}
+function generateRootCSS(themeVars) {
+    const entries = Object.entries(themeVars).map(([key, val]) => `${key}: ${val};`)
+    return `:root { ${entries.join(' ')} }`
+}
+
+
 const IFrameContext = window.assistOS === undefined;
 const UI = window.UI
 
@@ -277,7 +313,8 @@ class BaseChatFrame {
 
 
         this.page = await getPageConfig(this.spaceId, this.currentPageId);
-
+        this.theme= await getTheme(this.spaceId, this.configuration.settings.theme);
+        await applyTheme(this.theme.themeVars, this.theme.customCSS)
         this.chatOptions = this.chatMenu + IFrameChatOptions;
 
         try {

@@ -552,6 +552,12 @@
             "type": "pages"
         },
         {
+            "name": "application-creator-themes",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorThemes",
+            "type": "pages"
+        },
+        {
             "name": "application-creator-pages",
             "directory": "space-application",
             "presenterClassName": "ApplicationCreatorPages",
@@ -573,6 +579,12 @@
             "name": "application-edit-page-modal",
             "directory": "space-application",
             "presenterClassName": "ApplicationEditPageModal",
+            "type": "modals"
+        },
+        {
+            "name": "application-edit-theme-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationEditThemeModal",
             "type": "modals"
         },
         {

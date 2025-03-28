@@ -1,25 +1,25 @@
-.text-widget {
-    background: #f9f9f9;
+text-widget{
+    background: var(--bg,#f9f9f9);
+    height:100%;
+    width:100%;
+    color: var(--text,#333);
     border: 1px solid #ddd;
-    border-radius: 10px;
+    border-radius: var(--border-radius,10px);
     padding: 20px;
     max-width: 500px;
     margin: 20px auto;
-    font-family: "Arial", sans-serif;
+    font-family: var(--font-family), serif;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
-
 .text-widget-title {
     font-size: 24px;
     font-weight: bold;
-    color: #333;
     text-align: center;
     margin-bottom: 10px;
 }
 
 .text-widget-content {
     font-size: 16px;
-    color: #555;
     line-height: 1.6;
     text-align: justify;
 }
@@ -27,8 +27,7 @@
 .text-widget-quote {
     font-style: italic;
     font-size: 18px;
-    color: #444;
-    border-left: 4px solid #007bff;
+    border-left: 4px solid var(--primary,#007bff);
     padding-left: 10px;
     margin: 15px 0;
 }
@@ -41,7 +40,6 @@
 
 .text-widget-list li {
     font-size: 15px;
-    color: #333;
     padding: 5px 0;
     display: flex;
     align-items: center;
@@ -49,14 +47,12 @@
 
 .text-widget-list li::before {
     content: "✔";
-    color: #28a745;
     margin-right: 10px;
     font-weight: bold;
 }
 
 .text-widget-footer {
     font-size: 14px;
-    color: #777;
     text-align: right;
     border-top: 1px solid #ddd;
     padding-top: 10px;
@@ -65,5 +61,4 @@
 
 .text-widget-date {
     font-weight: bold;
-    color: #007bff;
 }

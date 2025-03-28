@@ -16,6 +16,10 @@ const getConfiguration = async function (spaceId) {
     const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)
     return configuration;
 }
+const getThemes = async function (spaceId) {
+    const themes = await spaceModule.getWebAssistantThemes(spaceId);
+    return themes;
+}
 
 export class ApplicationCreatorSettings {
     constructor(element, invalidate) {
@@ -44,7 +48,7 @@ export class ApplicationCreatorSettings {
             .flat(2)
             .join('');
         this.personalitiesOptions = (await getPersonalities(this.spaceId)).map(personality => `<option value="${personality.id}" ${this.personality === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
-        this.themes = `<option value="light" ${this.theme==="light"?"selected":""}>Light</option><option value="dark" ${this.theme==="dark"?"selected":""}>Dark</option>`;
+        this.themes = (await getThemes(this.spaceId)).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
     }
 
     async afterRender() {

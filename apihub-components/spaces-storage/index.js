@@ -62,7 +62,12 @@ const {
     getWebAssistantConfigurationPageMenuItem,
     updateWebChatConfiguration,
     getWebAssistantHomePage,
-    getWidget
+    getWidget,
+    getWebChatTheme,
+    addWebChatTheme,
+    updateWebChatTheme,
+    getWebChatThemes,
+    deleteWebAssistantTheme
 } = require("./controller");
 
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -155,6 +160,14 @@ function SpaceStorage(server) {
 
 
     server.get("/api/v1/spaces/:spaceId/applications/:applicationId", getApplicationEntry);
+
+
+
+    server.get("/spaces/:spaceId/web-assistant/themes", getWebChatThemes);
+    server.get("/spaces/:spaceId/web-assistant/themes/:themeId", getWebChatTheme);
+    server.post("/spaces/:spaceId/web-assistant/themes", addWebChatTheme);
+    server.put("/spaces/:spaceId/web-assistant/themes/:themeId", updateWebChatTheme);
+    server.delete("/spaces/:spaceId/web-assistant/themes/:themeId", deleteWebAssistantTheme);
 
     server.get("/spaces/:spaceId/web-assistant/configuration", getWebChatConfiguration);
     server.put("/spaces/:spaceId/web-assistant/configuration/settings", updateWebChatConfiguration);

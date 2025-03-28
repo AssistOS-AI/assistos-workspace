@@ -1207,6 +1207,7 @@ const getWebChatConfiguration = async (request, response) => {
     }
 }
 
+
 async function addWebAssistantConfigurationPage(request, response) {
     const spaceId = request.params.spaceId;
     const pageData = request.body;
@@ -1395,6 +1396,7 @@ async function getWidget(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const widgetName = request.params.widgetName;
+
     function convertToPascalCase(str) {
         return str
             .split('-')
@@ -1402,11 +1404,10 @@ async function getWidget(request, response) {
             .join('');
     }
 
-
     try {
-        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId,widgetName);
+        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId, widgetName);
         utils.sendResponse(response, 200, "application/json", {
-            data: {html, css, js,presenterClassName:convertToPascalCase(widgetName)}
+            data: {html, css, js, presenterClassName: convertToPascalCase(widgetName)}
         });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
@@ -1415,7 +1416,85 @@ async function getWidget(request, response) {
     }
 }
 
+async function getWebChatTheme(request,response) {
+    const themeId=request.params.themeId;
+    const spaceId=request.params.spaceId;
+    try{
+        const theme = await space.APIs.getWebChatTheme(spaceId,themeId);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: theme
+        });
+    }catch(error){
+        return utils.sendResponse(response, error.statusCode||500, "application/json", {
+            message: error.message
+        })
+    }
+}
+
+async function addWebChatTheme(request,response) {
+    const spaceId=request.params.spaceId;
+    const themeData = request.body;
+    try{
+        const themeId = await space.APIs.addWebChatTheme(spaceId,themeData);
+        return utils.sendResponse(response, 200, "application/json", {
+            data: themeId
+        });
+    }catch(error){
+        return utils.sendResponse(response, error.statusCode||500, "application/json", {
+            message: error.message
+        })
+    }
+}
+
+async function updateWebChatTheme(request,response) {
+    const themeId=request.params.themeId;
+    const spaceId=request.params.spaceId;
+    const themeData = request.body;
+    try{
+        await space.APIs.updateWebChatTheme(spaceId,themeId,themeData);
+        return utils.sendResponse(response, 200, "application/json", {
+            message: "Theme updated successfully"
+        });
+    }catch(error){
+        return utils.sendResponse(response, error.statusCode||500, "application/json", {
+            message: error.message
+        })
+    }
+}
+
+const getWebChatThemes = async (request, response) => {
+    const spaceId=request.params.spaceId;
+    try {
+        const themes = await space.APIs.getWebChatThemes(spaceId);
+        utils.sendResponse(response, 200, "application/json", {
+            data: themes
+        });
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: error.message
+        });
+    }
+}
+async function deleteWebAssistantTheme(request,response){
+    const themeId=request.params.themeId;
+    const spaceId=request.params.spaceId;
+    try{
+        await space.APIs.deleteWebAssistantTheme(spaceId,themeId);
+        return utils.sendResponse(response, 200, "application/json", {
+            message: "Theme deleted successfully"
+        });
+    }catch(error){
+        return utils.sendResponse(response, error.statusCode||500, "application/json", {
+            message: error.message
+        })
+    }
+}
 module.exports = {
+    deleteWebAssistantTheme,
+    getWebChatTheme,
+    addWebChatTheme,
+    getWebChatThemes,
+    updateWebChatTheme,
     getWidget,
     getWebAssistantHomePage,
     updateWebChatConfiguration,

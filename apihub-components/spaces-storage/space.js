@@ -865,6 +865,7 @@ const getWebChatConfiguration = async function (spaceId) {
                 primaryColor: "#007bff",
                 textColor: "#000000"
             },
+            themes:[],
             menu:[],
             pages: []
         }
@@ -982,7 +983,7 @@ async function updateWebChatConfiguration(spaceId, configuration) {
     const spacePath = getSpacePath(spaceId);
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
-    config.settings = [...config.settings,...configuration];
+    config.settings = {...config.settings,...configuration};
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
 }
 
@@ -1043,14 +1044,73 @@ const getWidget = async function (spaceId, applicationId, widgetId) {
     } else {
         const applicationPath = getApplicationPath(spaceId, applicationId);
     }
-
     return {
         html, css, js
     }
 }
 
+const getWebChatTheme = async function (spaceId,themeId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const theme = config.themes.find(theme => theme.id === themeId);
+    if (!theme) {
+        throw new Error(`Theme with id ${themeId} not found`);
+    }
+    return theme;
+}
+
+const updateWebChatTheme = async function (spaceId,themeId,themeData) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    const themeIndex = config.themes.findIndex(theme => theme.id === themeId);
+    if (themeIndex === -1) {
+        throw new Error(`Theme with id ${themeId} not found`);
+    }
+    config.themes[themeIndex] = {...config.themes[themeIndex], ...themeData};
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+const addWebChatTheme = async function (spaceId,themeData) {
+    const themeId = crypto.generateId();
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    themeData.id = themeId;
+    if(!config.themes){
+        config.themes = [];
+    }
+    config.themes.push(themeData);
+    await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
+}
+
+const getWebChatThemes = async function (spaceId) {
+    const spacePath = getSpacePath(spaceId);
+    const configPath = path.join(spacePath, 'webAssistantConfig.json');
+    const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
+    return config.themes||[];
+}
+
+const deleteWebAssistantTheme= async function (spaceId,themeId){
+    const spacePath=getSpacePath(spaceId);
+    const configPath=path.join(spacePath,'webAssistantConfig.json');
+    const config=JSON.parse(await fsPromises.readFile(configPath,'utf8'));
+    const themeIndex=config.themes.findIndex(theme=>theme.id===themeId);
+    if(themeIndex===-1){
+        throw new Error(`Theme with id ${themeId} not found`);
+    }
+    config.themes.splice(themeIndex,1);
+    await fsPromises.writeFile(configPath,JSON.stringify(config,null,2),'utf8');
+}
+
 module.exports = {
     APIs: {
+        deleteWebAssistantTheme,
+        getWebChatThemes,
+        getWebChatTheme,
+        updateWebChatTheme,
+        addWebChatTheme,
         getWidget,
         getWebAssistantHomePage,
         updateWebChatConfiguration,
