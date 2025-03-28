@@ -39,7 +39,7 @@ function document(server) {
     server.get("/documents/export/:spaceId/:fileName", documentHandler.downloadDocumentArchive);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
     server.post("/documents/export/docx/:spaceId/:documentId", documentHandler.exportDocumentAsDocx);
-
+    server.post("/documents/export/html/:spaceId/:documentId", documentHandler.exportDocumentAsHTML);
 
     //Video
     server.get("/documents/video/:spaceId/:fileName", documentHandler.downloadDocumentVideo);

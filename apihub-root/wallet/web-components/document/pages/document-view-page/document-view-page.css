@@ -384,3 +384,79 @@ html[theme="dark"] input.document-title{
 .paragraph-highlight-plugin{
     border: 3px solid var(--medium-blue);
 }
+
+.toc-container {
+    margin: 25px 0;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e4e8;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.toc-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1e4e8;
+}
+
+.toc-header {
+    margin: 0;
+    font-size: 1.2em;
+    color: #24292e;
+    font-weight: 600;
+}
+
+.toc-delete-btn {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #6a737d;
+    padding: 5px;
+    line-height: 1;
+}
+
+.toc-delete-btn:hover {
+    color: #0366d6;
+}
+
+.toc-content {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.toc-item {
+    padding: 6px 0;
+    color: #0366d6;
+    text-decoration: none;
+    transition: color 0.2s;
+    font-size: 0.95em;
+    border-bottom: 1px solid transparent;
+}
+
+.toc-item:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.toc-title {
+    font-weight: 600;
+    color: #24292e;
+    font-size: 1em;
+}
+
+.toc-chapter {
+    padding-left: 15px;
+}
+
+.toc-empty {
+    color: #6a737d;
+    font-style: italic;
+}
