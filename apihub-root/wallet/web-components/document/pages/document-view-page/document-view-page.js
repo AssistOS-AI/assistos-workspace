@@ -26,6 +26,135 @@ export class DocumentViewPage {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
 
+    async addTableOfContents(targetElement) {
+        if (!this._document) {
+            console.error("Document data is not available.");
+            return;
+        }
+
+        let tocContainer = this.element.querySelector(".toc-container");
+
+        if (!tocContainer) {
+            tocContainer = document.createElement("div");
+            tocContainer.className = "toc-container";
+
+            const tocHeader = document.createElement("h3");
+            tocHeader.className = "toc-header";
+            tocHeader.textContent = "Table of Contents";
+
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "toc-delete-btn";
+            deleteButton.innerHTML = "×";
+            deleteButton.addEventListener("click", async () => {
+                await this.removeTableOfContents();
+            });
+
+            const tocContent = document.createElement("div");
+            tocContent.className = "toc-content";
+
+            const headerContainer = document.createElement("div");
+            headerContainer.className = "toc-header-container";
+            headerContainer.appendChild(tocHeader);
+            headerContainer.appendChild(deleteButton);
+
+            tocContainer.appendChild(headerContainer);
+            tocContainer.appendChild(tocContent);
+
+            const titleElement = this.element.querySelector(".document-title-container");
+            const abstractElement = this.element.querySelector(".document-abstract-container");
+
+            if (titleElement && abstractElement) {
+                titleElement.parentNode.insertBefore(tocContainer, abstractElement);
+            } else {
+                console.error("Cannot find title or abstract containers");
+                return;
+            }
+        }
+
+        const tocContent = tocContainer.querySelector(".toc-content");
+        tocContent.innerHTML = "";
+
+        if (this._document.title) {
+            const titleItem = document.createElement("a");
+            titleItem.className = "toc-item toc-title";
+            titleItem.href = "#document-title";
+            titleItem.textContent = assistOS.UI.unsanitize(this._document.title);
+            titleItem.addEventListener("click", (e) => {
+                e.preventDefault();
+                document.querySelector(".document-title").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            });
+            tocContent.appendChild(titleItem);
+        }
+
+        if (this._document.abstract) {
+            const abstractItem = document.createElement("a");
+            abstractItem.className = "toc-item toc-abstract";
+            abstractItem.href = "#document-abstract";
+            abstractItem.textContent = "Document Info";
+            abstractItem.addEventListener("click", (e) => {
+                e.preventDefault();
+                document.querySelector(".document-abstract").scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            });
+            tocContent.appendChild(abstractItem);
+        }
+
+        if (this._document.chapters && this._document.chapters.length > 0) {
+            this._document.chapters.forEach((chapter, index) => {
+                const chapterItem = document.createElement("a");
+                chapterItem.className = "toc-item toc-chapter";
+                chapterItem.href = `#chapter-${chapter.id}`;
+                chapterItem.textContent = `Chapter ${index + 1}: ${assistOS.UI.unsanitize(chapter.title)}`;
+                chapterItem.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    const chapterElement = document.querySelector(`chapter-item[data-chapter-id="${chapter.id}"]`);
+                    if (chapterElement) {
+                        chapterElement.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }
+                });
+                tocContent.appendChild(chapterItem);
+            });
+        } else {
+            const noChapters = document.createElement("div");
+            noChapters.className = "toc-item toc-empty";
+            noChapters.textContent = "No chapters available";
+            tocContent.appendChild(noChapters);
+        }
+
+        this._document.hasTableOfContents = true;
+        await documentModule.updateDocumentProperty(
+            assistOS.space.id,
+            this._document.id,
+            "hasTableOfContents",
+            true
+        );
+
+        console.log("Table of Contents added as standalone element between title and abstract");
+    }
+    async removeTableOfContents() {
+        const tocContainer = this.element.querySelector(".toc-container");
+        if (tocContainer) {
+            tocContainer.remove();
+
+            await documentModule.updateDocumentProperty(
+                assistOS.space.id,
+                this._document.id,
+                "hasTableOfContents",
+                false
+            );
+
+            console.log("Table of Contents removed from document.");
+        }
+    }
+
     async initTitleAbstractSelection() {
         this.abstractClass = "document-abstract";
         this.titleClass = "document-title";
@@ -173,6 +302,7 @@ export class DocumentViewPage {
                 this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
             });
         }
+        this.hasTableOfContents = this._document.hasTableOfContents || false;
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
     }
 

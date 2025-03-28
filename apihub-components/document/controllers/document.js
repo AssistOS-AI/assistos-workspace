@@ -13,7 +13,7 @@ const documentService = require("../services/document");
 const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
-const {Document, Packer, Paragraph, TextRun} = require("docx");
+const { Document, Packer, TextRun, Paragraph, AlignmentType, Footer, BorderStyle, PageBorderDisplay, PageBorderOffsetFrom, PageBorderZOrder, PageNumber, PageOrientation, WidthType } = require("docx");
 const lightDB = require("../../apihub-component-utils/lightDB");
 
 async function getDocument(req, res) {
@@ -562,8 +562,15 @@ function deleteSelection(itemSelectId, selectId, sessionId, documentId, itemId) 
 
 function refineTextContent(text) {
     if (typeof text !== "string") {
-        return [{text: text, color: "black"}];
+        return [{ text: String(text), color: "000000" }];
     }
+
+    text = text.replace(/&nbsp;/g, " ")
+        .replace(/&amp;/g, "&")
+        .replace(/&#13;/g, "")
+        .replace(/\r/g, "")
+        .replace(/\s+/g, " ")
+        .trim();
 
     const instructionPatterns = [
         /Your task is to write.*?\*\*Paragraph Idea\*\*/gis,
@@ -581,117 +588,304 @@ function refineTextContent(text) {
 
     const errorWords = new Set(["error", "undefined", "null"]);
 
+    // Mapare culori predefinite la coduri hex
+    const colorMap = {
+        black: "000000",
+        red: "FF0000"
+    };
+
+    function isValidHex(color) {
+        return /^[0-9A-Fa-f]{6}$/.test(color);
+    }
+
     const paragraphs = text.split(/\n{2,}/);
 
     return paragraphs.map((paragraph) => {
         const words = paragraph.match(/\b\w+\b/g) || [];
         const hasErrorWord = words.some((word) => errorWords.has(word.toLowerCase()));
-
         const isInstruction = instructionPatterns.some((pattern) => pattern.test(paragraph));
+
+        let color = hasErrorWord || isInstruction ? "FF0000" : "000000";
+
+        if (colorMap[color]) {
+            color = colorMap[color];
+        }
+
         return {
             text: paragraph,
-            color: hasErrorWord || isInstruction ? "red" : "black",
+            color: isValidHex(color) ? color : "000000",
         };
     });
 }
 
-
 async function exportDocumentAsDocx(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
+    const settings = request.body.settings;
+
+    if (!settings) {
+        return utils.sendResponse(response, 400, "application/json", "Missing settings for export.");
+    }
+
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
     const documentModule = require("assistos").loadModule("document", securityContext);
+
     try {
         let documentData = await documentModule.getDocument(spaceId, documentId);
         const paragraphs = [];
 
+        function applyTextSettings(text, sectionSettings) {
+            const refinedContent = refineTextContent(text);
+            const refinedText = refinedContent.length > 0 ? refinedContent[0].text : text;
+            const refinedColor = refinedContent.length > 0 ? refinedContent[0].color : "000000";
+
+            return new TextRun({
+                text: refinedText,
+                font: sectionSettings?.font || "Arial",
+                size: (parseInt(sectionSettings?.fontSize) || 12) * 2,
+                color: sectionSettings?.color || refinedColor.replace("#", ""),
+                bold: sectionSettings?.bold || false,
+                italic: sectionSettings?.italic || false,
+            });
+        }
+
         if (documentData.title) {
-            paragraphs.push(
-                new Paragraph({
-                    children: [
-                        new TextRun({
-                            text: `Book title: ${documentData.title}`,
-                            bold: true,
-                            size: 28,
-                        }),
-                    ],
-                    spacing: {
-                        after: 200,
-                    },
-                })
-            );
+            paragraphs.push(new Paragraph({
+                children: [applyTextSettings(documentData.title, settings.title)],
+                spacing: { after: 300 },
+                alignment: AlignmentType.JUSTIFIED,
+            }));
+        }
+
+        if (documentData.abstract) {
+            paragraphs.push(new Paragraph({
+                children: [applyTextSettings("Abstract", settings.abstract)],
+                spacing: { after: 150 },
+                alignment: AlignmentType.JUSTIFIED,
+            }));
+            paragraphs.push(new Paragraph({
+                children: [applyTextSettings(documentData.abstract, settings.paragraphs || {})],
+                spacing: { after: 300 },
+                alignment: AlignmentType.JUSTIFIED,
+            }));
         }
 
         if (documentData.chapters && documentData.chapters.length > 0) {
-            documentData.chapters.forEach((chapter, chapterIndex) => {
+            documentData.chapters.forEach((chapter) => {
                 if (chapter.title) {
-                    paragraphs.push(
-                        new Paragraph({
-                            children: [
-                                new TextRun({
-                                    text: `Chapter ${chapterIndex + 1}: ${chapter.title}`,
-                                    bold: true,
-                                    size: 24,
-                                }),
-                            ],
-                            spacing: {
-                                after: 150,
-                            },
-                        })
-                    );
+                    paragraphs.push(new Paragraph({
+                        children: [applyTextSettings(chapter.title, settings.chapters)],
+                        spacing: { after: 150 },
+                        alignment: AlignmentType.JUSTIFIED,
+                    }));
                 }
-
                 if (chapter.paragraphs && chapter.paragraphs.length > 0) {
                     chapter.paragraphs.forEach((paragraph) => {
                         if (paragraph.text) {
-                            const refinedContent = refineTextContent(paragraph.text);
-                            const runs = refinedContent.map((sentence) => {
-                                return new TextRun({
-                                    text: sentence.text,
-                                    color: sentence.color === "red" ? "FF0000" : "000000",
-                                    size: 22,
-                                });
-                            });
-
-                            paragraphs.push(
-                                new Paragraph({
-                                    children: runs,
-                                    spacing: {
-                                        after: 100,
-                                    },
-                                })
-                            );
+                            paragraphs.push(new Paragraph({
+                                children: [applyTextSettings(paragraph.text, settings.paragraphs || {})],
+                                spacing: { after: 200 },
+                                alignment: AlignmentType.JUSTIFIED,
+                            }));
                         }
                     });
                 }
             });
-        } else {
-            paragraphs.push(
-                new Paragraph({
-                    children: [
-                        new TextRun({
-                            text: "Nu există capitole în acest document.",
-                            italic: true,
-                            size: 22,
-                        }),
-                    ],
-                })
-            );
         }
 
-        const doc = new Document({
-            sections: [
-                {
-                    children: paragraphs,
-                },
+        let footerAlignment;
+        if (settings.paginationPosition === "center") {
+            footerAlignment = AlignmentType.CENTER;
+        } else if (settings.paginationPosition === "left") {
+            footerAlignment = AlignmentType.LEFT;
+        } else {
+            footerAlignment = AlignmentType.RIGHT;
+        }
+
+        function getPageNumberText(style) {
+            switch (style) {
+                case "fraction":
+                    return {
+                        text: "",
+                        children: [
+                            new TextRun({ text: "Page ", size: 20 }),
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                            new TextRun({ text: " / ", size: 20 }),
+                            new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 20 }),
+                        ],
+                    };
+                case "simple":
+                    return {
+                        text: "",
+                        children: [
+                            new TextRun({ text: "Page ", size: 20 }),
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                            new TextRun({ text: " of ", size: 20 }),
+                            new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 20 }),
+                        ],
+                    };
+                case "dashed":
+                    return {
+                        text: "-- ",
+                        children: [
+                            new TextRun({ text: "Page ", size: 20 }),
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                            new TextRun({ text: " of ", size: 20 }),
+                            new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 20 }),
+                            new TextRun({ text: " --", size: 20 }),
+                        ],
+                    };
+                case "hyphenated":
+                    return {
+                        text: "",
+                        children: [
+                            new TextRun({ text: "Page ", size: 20 }),
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                            new TextRun({ text: " - ", size: 20 }),
+                            new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 20 }),
+                        ],
+                    };
+                case "formal":
+                    return {
+                        text: "[ ",
+                        children: [
+                            new TextRun({ text: "Page ", size: 20 }),
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                            new TextRun({ text: " of ", size: 20 }),
+                            new TextRun({ children: [PageNumber.TOTAL_PAGES], size: 20 }),
+                            new TextRun({ text: " ]", size: 20 }),
+                        ],
+                    };
+                case "number":
+                default:
+                    return {
+                        text: "",
+                        children: [
+                            new TextRun({ children: [PageNumber.CURRENT], size: 20 }),
+                        ],
+                    };
+            }
+        }
+
+        const pagination = getPageNumberText(settings.paginationStyle);
+        const footer = new Footer({
+            children: [
+                new Paragraph({
+                    alignment: footerAlignment,
+                    spacing: { before: 0, after: 0 },
+                    children: [
+                        new TextRun({ text: pagination.text, size: 20 }),
+                        ...pagination.children,
+                    ],
+                }),
             ],
         });
 
+        function convertToTwips(value, unit = "pt") {
+            const units = {
+                pt: 20, // 1 punct = 20 TWIPs
+                mm: 56.7, // 1 milimetru ≈ 56.7 TWIPs
+                cm: 567, // 1 centimetru ≈ 567 TWIPs
+                in: 1440, // 1 inch = 1440 TWIPs
+            };
+            return Math.round(value * (units[unit] || 1));
+        }
+
+        const pageSize = settings.pageSize?.toUpperCase() || "A4";
+        const pageOrientation = settings.orientation === "l" ? PageOrientation.LANDSCAPE : PageOrientation.PORTRAIT;
+
+        const pageDimensions = {
+            A3: { width: 16838, height: 23812 }, // A3 în TWIPs
+            A4: { width: 11906, height: 16838 }, // A4 în TWIPs
+            A5: { width: 8391, height: 11906 },  // A5 în TWIPs
+        };
+
+        const pageWidth = pageOrientation === PageOrientation.LANDSCAPE ? pageDimensions[pageSize].height : pageDimensions[pageSize].width;
+        const pageHeight = pageOrientation === PageOrientation.LANDSCAPE ? pageDimensions[pageSize].width : pageDimensions[pageSize].height;
+
+        const doc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        size: {
+                            width: pageWidth,
+                            height: pageHeight,
+                        },
+                        orientation: pageOrientation,
+                        margin: {
+                            top: convertToTwips(settings.topPadding || 10, "pt"),
+                            bottom: convertToTwips(settings.bottomPadding || 0, "pt"),
+                            left: convertToTwips(settings.leftPadding || 10, "pt"),
+                            right: convertToTwips(settings.rightPadding || 10, "pt"),
+                        },
+                    },
+                },
+                footers: { default: footer },
+                children: paragraphs,
+            }],
+        });
+
         const buffer = await Packer.toBuffer(doc);
-        return utils.sendResponse(response, 200, "application/octet-stream", buffer);
+
+        if (!response.headersSent) {
+            return utils.sendResponse(response, 200, "application/octet-stream", buffer);
+        }
+
     } catch (error) {
-        return utils.sendResponse(response, error.statusCode || 500, "application/json", error.message)
+        console.error("Export DOCX error:", error);
+        if (!response.headersSent) {
+            return utils.sendResponse(response, error.statusCode || 500, "application/json", error.message);
+        }
+    }
+}
+
+async function exportDocumentAsHTML(request, response) {
+    const spaceId = request.params.spaceId;
+    const documentId = request.params.documentId;
+
+    try {
+        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        let securityContext = new SecurityContext(request);
+
+        const documentModule = require("assistos").loadModule("document", securityContext);
+        const documentData = await documentModule.getDocument(spaceId, documentId);
+
+        if (!documentData) {
+            throw new Error("Document data is not available.");
+        }
+
+        const {title, abstract, chapters} = documentData;
+        let htmlContent = `<html><head><title>${title}</title></head><body>`;
+        htmlContent += `<h1>${title}</h1>`;
+
+        if (abstract) {
+            htmlContent += `<h3>${abstract}</h3>`;
+        }
+
+        if (Array.isArray(chapters)) {
+            chapters.forEach((chapter) => {
+                const {title: chapterTitle, paragraphs} = chapter;
+                htmlContent += `<h2>${chapterTitle}</h2>`;
+                if (paragraphs) {
+                    paragraphs.forEach((paragraph) => {
+                        htmlContent += `<p>${paragraph.text}</p>`;
+                    });
+                }
+            });
+        }
+
+        htmlContent += `</body></html>`;
+
+        if (!response.headersSent) {
+            return utils.sendResponse(response, 200, "text/html", htmlContent);
+        }
+
+    } catch (error) {
+        console.error("Export HTML error:", error);
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Error exporting document: ${error.message}`
+        });
     }
 }
 
@@ -1001,6 +1195,7 @@ module.exports = {
     downloadDocumentArchive,
     downloadDocumentVideo,
     exportDocumentAsDocx,
+    exportDocumentAsHTML,
     undoOperation,
     redoOperation,
     getDocumentSnapshots,
