@@ -9,10 +9,8 @@ const {
     getPersonality,
     getPersonalityImageUrl
 } = require("./controller");
-const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js');
 function PersonalitiesStorage(server) {
     server.use("/personalities/*", bodyReader);
-    server.use("/personalities/*", authenticationMiddleware);
 
     server.get("/personalities/default/:spaceId", getDefaultPersonality);
     server.post("/personalities/:spaceId", addPersonality);

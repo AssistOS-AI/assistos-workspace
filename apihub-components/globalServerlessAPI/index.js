@@ -1,22 +1,7 @@
 const {
-    insertContainerObject,
-    insertEmbeddedObject,
-    getContainerObjectsMetadata,
-    getContainerObject,
-    addContainerObject,
-    updateContainerObject,
-    deleteContainerObject,
-    getEmbeddedObject,
-    addEmbeddedObject,
-    updateEmbeddedObject,
-    deleteEmbeddedObject,
-    swapEmbeddedObjects,
     getSpaceStatus,
     createSpace,
-    addCollaboratorsToSpace,
-    getSpaceCollaborators,
-    setSpaceCollaboratorRole,
-    deleteSpaceCollaborator,
+    listUserSpaces,
     getAgent,
     addSpaceChatMessage,
     editAPIKey,
@@ -27,9 +12,6 @@ const {
     getSpaceAnnouncements,
     updateSpaceAnnouncement,
     deleteSpaceAnnouncement,
-    getChatTextResponse,
-    listUserSpaces,
-    getChatTextStreamingResponse,
     exportPersonality,
     importPersonality,
     getSpaceChat,
@@ -61,13 +43,12 @@ const {
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const {authenticationMiddleware} = require('../Gatekeeper/middlewares/index.js');
-const constants = require("./constants");
+const constants = require("assistos").constants;
 const path = require("path");
 const process = require("process");
 function Space(server) {
     setTimeout(async ()=> {
-        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN);
+        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.SPACE_PLUGIN, "",{authToken: process.env.SSO_SECRETS_ENCRYPTION_KEY});
         let spaces = await client.listAllSpaces();
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
@@ -90,7 +71,6 @@ function Space(server) {
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 
-    server.use("/spaces/*", authenticationMiddleware);
 
     server.use("/spaces/*", bodyReader);
     server.use("/public/*", bodyReader);
@@ -114,26 +94,6 @@ function Space(server) {
     server.get("/spaces/:spaceId/agents", getAgent);
     server.get("/spaces/:spaceId/agents/:agentId", getAgent);
 
-    /*containerObjects*/
-    server.get("/spaces/containerObject/meta/:spaceId/:objectType", getContainerObjectsMetadata);
-    server.get("/spaces/containerObject/:spaceId/:objectId", getContainerObject);
-    server.post("/spaces/containerObject/:spaceId/:objectType", addContainerObject);
-    server.put("/spaces/containerObject/:spaceId/:objectId", updateContainerObject);
-    server.delete("/spaces/containerObject/:spaceId/:objectId", deleteContainerObject);
-
-    /*embeddedObjects*/
-    server.get("/spaces/embeddedObject/:spaceId/:objectURI", getEmbeddedObject);
-    server.post("/spaces/embeddedObject/:spaceId/:objectURI", addEmbeddedObject);
-    server.put("/spaces/embeddedObject/:spaceId/:objectURI", updateEmbeddedObject);
-    server.delete("/spaces/embeddedObject/:spaceId/:objectURI", deleteEmbeddedObject);
-    server.put("/spaces/embeddedObject/swap/:spaceId/:objectURI", swapEmbeddedObjects);
-
-    /*Collaborators*/
-    server.get("/spaces/collaborators/:spaceId", getSpaceCollaborators);
-    server.post("/spaces/collaborators/:spaceId", addCollaboratorsToSpace);
-    server.put("/spaces/collaborators/:spaceId/:collaboratorId", setSpaceCollaboratorRole);
-    server.delete("/spaces/collaborators/:spaceId/:collaboratorId", deleteSpaceCollaborator);
-
     server.post("/spaces/chat/:spaceId/:chatId", addSpaceChatMessage);
     server.get("/spaces/chat/:spaceId/:chatId", getSpaceChat);
     server.delete("/spaces/chat/:spaceId/:chatId", resetSpaceChat);
@@ -156,12 +116,8 @@ function Space(server) {
     /*Personalities*/
     server.get("/spaces/:spaceId/export/personalities/:personalityId", exportPersonality);
     server.post("/spaces/:spaceId/import/personalities", importPersonality);
-
     server.post("/spaces/chat-completion/:spaceId/:documentId/:paragraphId", chatCompleteParagraph)
-
-
     server.get("/api/v1/spaces/:spaceId/applications/:applicationId", getApplicationEntry);
-
     server.get("/spaces/:spaceId/web-assistant/configuration", getWebChatConfiguration);
     server.put("/spaces/:spaceId/web-assistant/configuration/settings", updateWebChatConfiguration);
     server.post("/spaces/:spaceId/web-assistant/configuration/pages", addWebAssistantConfigurationPage);

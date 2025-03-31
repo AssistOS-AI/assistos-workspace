@@ -1,6 +1,8 @@
 const path = require("path");
 const {promises: fsPromises} = require("fs");
 const defaultModels = require("../defaultModels");
+//const {createChat} = require("../../chat/handler");
+const storage = require("../../apihub-component-utils/storage");
 async function AgentWrapper() {
     let self = {};
     let AgentPlugin = await $$.loadPlugin("AgentPlugin");
@@ -29,6 +31,38 @@ async function AgentWrapper() {
     self.getAgent = async function(id) {
         //id can be name
         return await AgentPlugin.getAgent(id);
+    }
+    self.getAllAgents = async function() {
+        return await AgentPlugin.getAllAgents();
+    }
+    self.createAgent = async function (name, description) {
+        let agent = await AgentPlugin.createAgent(name, description);
+        await createChat(spaceId, agent.id);
+    }
+
+    self.getConversationIds = async function (id) {
+        const personalityData = await self.getAgent(id)
+        return personalityData.chats;
+    }
+
+    self.ensureAgentChat = async function (id) {
+        const agent = await self.getAgent(id)
+        if (agent.chats === undefined) {
+            await createChat(spaceId, id)
+        }
+    }
+
+    self.ensureAgentsChats = async function () {
+        const agents = await self.getAllAgents();
+        for (const agentId of agents) {
+            await self.ensureAgentChat(agentId);
+        }
+    }
+
+    self.getPersonalityImageUrl = async function (id) {
+        const agent = await self.getAgent(id);
+        const imageId = agent.imageId;
+        return await storage.getDownloadURL("image/png", imageId);
     }
     return self;
 }

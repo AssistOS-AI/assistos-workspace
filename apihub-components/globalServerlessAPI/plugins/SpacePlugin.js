@@ -1,3 +1,5 @@
+const {promises: fsPromises} = require("fs");
+
 async function SpacePlugin(){
     let self = {};
     let persistence = await $$.loadPlugin("SpacePersistence");
@@ -21,6 +23,34 @@ async function SpacePlugin(){
             status: "success",
             space: space
         };
+    }
+    self.deleteSpace = async function (email, authKey, spaceId) {
+        // let userFile = await user.loadUser(email, authKey);
+        // let spacesNr = Object.keys(userFile.spaces).length;
+        // if (spacesNr === 1) {
+        //     return "You can't delete your last space";
+        // }
+        // let spaceStatus = await getSpaceStatusObject(spaceId);
+        // if (!spaceStatus.admins[email]) {
+        //     return "You dont have permission to delete this space";
+        // }
+        // //unlink space from all users
+        // for (let userId of Object.keys(spaceStatus.users)) {
+        //     await user.unlinkSpaceFromUser(email, authKey, spaceId);
+        // }
+        // //delete space folder
+        // let spacePath = getSpacePath(spaceId);
+        // await fsPromises.rm(spacePath, {recursive: true, force: true});
+        // //delete documents
+        // let documentsList = await documentService.getDocumentsMetadata(spaceId);
+        // for (let document of documentsList) {
+        //     await documentService.deleteDocument(spaceId, document.id);
+        // }
+        // //delete api keys
+        // let keys = await secrets.getAPIKeys(spaceId);
+        // for (let keyType in keys) {
+        //     await secrets.deleteSpaceKey(spaceId, keyType);
+        // }
     }
 
     self.getSpaceStatus = async function(spaceId){

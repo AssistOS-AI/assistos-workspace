@@ -1,28 +1,29 @@
 require('../../assistos-sdk/build/bundles/assistos_sdk.js');
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
-const space = require("./space.js");
-const enclave = require("opendsu").loadAPI("enclave");
 const crypto = require('../apihub-component-utils/crypto.js');
 const fsPromises = require('fs').promises;
 const path = require('path');
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
-const lightDB = require("../apihub-component-utils/lightDB.js");
 const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
 const {
     getTextResponse,
     getTextStreamingResponse
 } = require('../llms/controller.js');
-const constants = require('./constants.js');
+let assistOSSDK = require('assistos');
+const constants = assistOSSDK.constants;
+const getAPIClientSDK = assistOSSDK.utils.getAPIClient;
+
 const fs = require("fs");
-
-
 const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
+async function getAPIClient(request, pluginName, serverlessId){
+    return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
+}
 async function listUserSpaces(req, res){
     let {email} = req.query;
     if(!email){
@@ -30,158 +31,13 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = await getAppSpecificAPIClient(req.userId);
+        const appSpecificClient = await getAPIClient(req, constants.APP_SPECIFIC_PLUGIN);
         const user = await appSpecificClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {
         utils.sendResponse(res, 500, "text/plain", e.message);
     }
 
-}
-async function getContainerObjectsMetadata(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    try {
-        const metadata = await lightDB.getContainerObjectsMetadata(spaceId, objectType);
-        return utils.sendResponse(response, 200, "application/json", metadata);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at getting objects metadata of type: ${objectType}`
-        });
-    }
-}
-
-async function getContainerObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectId = request.params.objectId;
-    try {
-        let object = await lightDB.getContainerObject(spaceId, objectId);
-        return utils.sendResponse(response, 200, "application/json", object);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at getting object with id: ${objectId}`
-        });
-    }
-}
-
-async function addContainerObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    const objectData = request.body;
-    try {
-        let objectId = await lightDB.addContainerObject(spaceId, objectType, objectData);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectType));
-        return utils.sendResponse(response, 200, "application/json", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at adding object: ${objectType}`
-        });
-    }
-}
-
-async function updateContainerObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectId = request.params.objectId;
-    const objectData = request.body;
-    try {
-        await lightDB.updateContainerObject(spaceId, objectId, objectData);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (e) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: e + ` Error at updating object: ${objectId}`
-        });
-    }
-}
-
-async function deleteContainerObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectId = request.params.objectId;
-    try {
-        await lightDB.deleteContainerObject(spaceId, objectId);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId), "delete");
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId.split('_')[0]));
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at deleting object: ${objectId}`
-        });
-    }
-}
-
-async function getEmbeddedObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectType = request.params.objectType;
-    let objectURI = decodeURIComponent(request.params.objectURI);
-    try {
-        let embeddedObject = await lightDB.getEmbeddedObject(spaceId, objectType, objectURI);
-        return utils.sendResponse(response, 200, "application/json", embeddedObject);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at loading object: ${objectType}: ${objectURI}`
-        });
-    }
-}
-
-async function addEmbeddedObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectURI = decodeURIComponent(request.params.objectURI);
-    const objectData = request.body;
-    try {
-        let parts = objectURI.split("/");
-        let objectId = await lightDB.addEmbeddedObject(spaceId, objectURI, objectData);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at adding object: ${objectURI}`
-        });
-    }
-}
-
-async function updateEmbeddedObject(request, response) {
-    const spaceId = request.params.spaceId;
-    let objectURI = decodeURIComponent(request.params.objectURI);
-    const objectData = request.body;
-    try {
-        let objectId = await lightDB.updateEmbeddedObject(spaceId, objectURI, objectData);
-        return utils.sendResponse(response, 200, "text/plain", objectId);
-    } catch (e) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: e + ` Error at updating object: ${objectURI}`
-        });
-    }
-}
-
-async function deleteEmbeddedObject(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectURI = decodeURIComponent(request.params.objectURI);
-    try {
-        let parts = objectURI.split("/");
-        await lightDB.deleteEmbeddedObject(spaceId, objectURI);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, parts[parts.length - 2]));
-        return utils.sendResponse(response, 200, "text/plain", objectURI);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at deleting object: ${objectURI}`
-        });
-    }
-}
-
-async function swapEmbeddedObjects(request, response) {
-    const spaceId = request.params.spaceId;
-    const objectURI = decodeURIComponent(request.params.objectURI);
-    let lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
-    try {
-        let objectId = await lightDBEnclaveClient.swapEmbeddedObjects(spaceId, objectURI, request.body);
-        SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, objectId));
-        return utils.sendResponse(response, 200, "text/plain", objectURI);
-    } catch (error) {
-        return utils.sendResponse(response, 500, "application/json", {
-            message: error + ` Error at swapping objects: ${objectURI}`
-        });
-    }
 }
 
 async function addSpaceChatMessage(request, response) {
@@ -242,8 +98,8 @@ async function saveSpaceChat(request, response) {
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
-        let appSpecificClient = await getAppSpecificAPIClient(request.userId);
+        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
+        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
@@ -267,15 +123,7 @@ async function getSpaceStatus(request, response) {
         });
     }
 }
-async function getAPIClient(userId, pluginName, serverlessId){
-    if(!serverlessId){
-        serverlessId = process.env.SERVERLESS_ID;
-    }
-    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, serverlessId, pluginName);
-}
-async function getAppSpecificAPIClient(userId){
-    return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN);
-}
+
 async function createSpace(request, response, server) {
     const email = request.email;
     const spaceName = request.body.spaceName;
@@ -286,7 +134,7 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = await getAPIClient(request.userId, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
 
         let result = await client.createSpace(spaceName);
         if(result.status === "failed"){
@@ -294,8 +142,8 @@ async function createSpace(request, response, server) {
         }
         let space = result.space;
         await secrets.createSpaceSecretsContainer(space.id);
-        let appSpecificClient = await getAppSpecificAPIClient(request.userId);
-        await appSpecificClient.linkSpaceToUser(email, space.id)
+        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        await appSpecificClient.linkSpaceToUser(email, space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
@@ -320,15 +168,10 @@ async function createSpace(request, response, server) {
         let serverUrl = serverlessAPI.getUrl();
         server.registerServerlessProcessUrl(serverlessId, serverUrl);
 
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        let ownerId = request.userId;
-        let workspaceClient = await getAPIClient(request.userId, constants.WORKSPACE_PLUGIN, serverlessId);
-        await workspaceClient.createWorkspace(space.name, ownerId, space.id);
+        let spaceInstanceClient = await getAPIClient(request, constants.SPACE_INSTANCE_PLUGIN, space.id);
+        await spaceInstanceClient.createWorkspace(space.name, space.id, request.userId, email);
 
-        let WorkspaceUserClient = await getAPIClient(request.userId, constants.WORKSPACE_USER_PLUGIN, serverlessId);
-        await WorkspaceUserClient.createUser(email, email, constants.ROLES.OWNER);
-
-        let agentAPIClient = await getAPIClient(request.userId, constants.AGENT_PLUGIN, serverlessId);
+        let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
 
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
@@ -360,7 +203,8 @@ async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
     let email = request.email;
     try {
-        let message = await space.APIs.deleteSpace(email, request.authKey, spaceId);
+        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
+        let message = await client.deleteSpace(email, request.authKey, spaceId);
         if (!message) {
             //space deleted
             let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
@@ -372,78 +216,11 @@ async function deleteSpace(request, response) {
     }
 }
 
-async function getSpaceCollaborators(request, response) {
-    const spaceId = request.params.spaceId;
-    try {
-        let client = await getAPIClient(request.userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
-        let collaborators = await client.getCollaborators();
-        utils.sendResponse(response, 200, "application/json", collaborators);
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function setSpaceCollaboratorRole(request, response) {
-    const spaceId = request.params.spaceId;
-    const collaboratorId = request.params.collaboratorId;
-    const role = request.body.role;
-    try {
-        let message = await space.APIs.setSpaceCollaboratorRole(request.userId, spaceId, collaboratorId, role);
-        utils.sendResponse(response, 200, "text/plain", message);
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message
-        });
-    }
-}
-
-async function deleteSpaceCollaborator(request, response) {
-    const spaceId = request.params.spaceId;
-    const collaboratorId = request.params.collaboratorId;
-    if (request.userId === collaboratorId) {
-        return utils.sendResponse(response, 200, "text/plain", "You can't delete yourself from the space");
-    }
-    try {
-        let message = await space.APIs.deleteSpaceCollaborator(request.userId, spaceId, collaboratorId);
-        utils.sendResponse(response, 200, "text/plain", message);
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error
-        });
-    }
-}
-
-async function addCollaboratorsToSpace(request, response) {
-    const userId = request.userId;
-    const spaceId = request.params.spaceId;
-    let collaborators = request.body.collaborators;
-
-    if (!collaborators) {
-        utils.sendResponse(response, 400, "text/plain", "Bad Request: Collaborator Emails is required");
-    }
-
-    try {
-        let globalAPIClient = await getAPIClient(userId, constants.APP_SPECIFIC_PLUGIN);
-        let userEmails = collaborators.map(user => user.email);
-        await globalAPIClient.addSpaceToUsers(userEmails, spaceId);
-
-        let client = await getAPIClient(userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
-        let existingCollaborators = await client.addCollaborators(request.email, collaborators, spaceId);
-
-        utils.sendResponse(response, 200, "application/json", existingCollaborators);
-    } catch (error) {
-        utils.sendResponse(response, 500, "text/plain", e.message);
-    }
-
-}
-
 async function getAgent(request, response) {
     let agentId = request.params.agentId;
     const spaceId = request.params.spaceId;
     try {
-        let client = await getAPIClient(request.userId, constants.SPACE_INSTANCE_PLUGIN, spaceId);
+        let client = await getAPIClient(request, constants.SPACE_INSTANCE_PLUGIN, spaceId);
         if (!agentId) {
             agentId = await client.getDefaultAgentId(spaceId);
         }
@@ -540,8 +317,8 @@ async function deleteAPIKey(request, response) {
 async function getAPIKeysMetadata(request, response) {
     const spaceId = request.params.spaceId;
     try {
-        let keys = await space.APIs.getAPIKeysMetadata(spaceId);
-        return sendResponse(response, 200, "application/json", keys);
+        //let keys = await space.APIs.getAPIKeysMetadata(spaceId);
+        return sendResponse(response, 200, "application/json", []);
     } catch (e) {
         return sendResponse(response, 500, "application/json", {
             message: e.message
@@ -773,7 +550,6 @@ async function headFile(request, response) {
     }
 }
 
-
 async function getFile(request, response) {
     const fileId = request.params.fileId;
     const type = request.headers['content-type'];
@@ -789,7 +565,6 @@ async function getFile(request, response) {
     }
 }
 
-
 async function putFile(request, response) {
     const fileId = request.params.fileId;
     const type = request.headers['content-type'];
@@ -802,7 +577,6 @@ async function putFile(request, response) {
         });
     }
 }
-
 
 async function deleteFile(request, response) {
     const fileId = request.params.fileId;
@@ -1015,6 +789,7 @@ const getApplicationEntry = async (request, response) => {
         });
     }
 }
+
 const getWebChatConfiguration = async (request, response) => {
     const spaceId = request.params.spaceId;
     try {
@@ -1241,24 +1016,10 @@ module.exports = {
     getFile,
     putFile,
     deleteFile,
-    getContainerObjectsMetadata,
-    getContainerObject,
-    addContainerObject,
-    updateContainerObject,
-    deleteContainerObject,
-    getEmbeddedObject,
-    addEmbeddedObject,
-    updateEmbeddedObject,
-    swapEmbeddedObjects,
-    deleteEmbeddedObject,
     getSpaceStatus,
     addSpaceChatMessage,
     createSpace,
     deleteSpace,
-    getSpaceCollaborators,
-    deleteSpaceCollaborator,
-    setSpaceCollaboratorRole,
-    addCollaboratorsToSpace,
     getAgent,
     editAPIKey,
     deleteAPIKey,

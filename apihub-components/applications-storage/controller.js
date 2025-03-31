@@ -3,7 +3,6 @@ const fsPromises = require('fs').promises;
 const {sendResponse, sendFileToClient} = require('../apihub-component-utils/utils.js')
 const dataVolumePaths = require('../volumeManager').paths;
 const subscriptionManager = require('../subscribers/SubscriptionManager.js');
-const constants = require('../globalServerlessAPI/constants');
 async function getApplicationAPIClient(userId, spaceId){
     return await require("opendsu").loadAPI("serverless").createServerlessAPIClient(userId, process.env.BASE_URL, spaceId, constants.APPLICATION_PLUGIN);
 }

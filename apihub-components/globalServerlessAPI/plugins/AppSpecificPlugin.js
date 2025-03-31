@@ -38,7 +38,8 @@ async function AppSpecificPlugin() {
     self.unlinkSpaceFromUser = async function (email, spaceId) {
         let UserLogin = await $$.loadPlugin("UserLogin");
 
-        let userInfo = UserLogin.getUserInfo(email);
+        let result = await UserLogin.getUserInfo(email);
+        let userInfo = result.userInfo;
         userInfo.spaces = userInfo.spaces.filter(id => id !== spaceId);
         if (userInfo.currentSpaceId === spaceId) {
             userInfo.currentSpaceId = userInfo.spaces.length > 0 ? userInfo.spaces[0] : null;

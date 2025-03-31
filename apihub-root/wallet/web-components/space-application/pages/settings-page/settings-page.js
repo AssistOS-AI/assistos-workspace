@@ -51,18 +51,18 @@ export class SettingsPage {
             ;
 
         } else if(this.collaboratorsTab === "active"){
-            let collaborators = await spaceModule.getSpaceCollaborators(assistOS.space.id);
+            let collaborators = await spaceModule.getCollaborators(assistOS.space.id);
             let collaboratorsHTML = "";
             for(let collaborator of collaborators){
                 collaboratorsHTML += `<div class="collaborator-item">
                                         <div class="collaborator-email"> ${collaborator.email}</div>
-                                        <select class="collaborator-role" data-user-id="${collaborator.id}">
+                                        <select class="collaborator-role" data-user-email="${collaborator.email}">
                                             <option value="member" ${collaborator.role === "member" ? "selected" : ""}>Member</option>
                                             <option value="admin" ${collaborator.role === "admin" ? "selected" : ""}>Admin</option>
                                             <option value="owner" ${collaborator.role === "owner" ? "selected" : ""}>Owner</option>
                                         </select>
                                         <div class="delete-collaborator">
-                                            <img class="trash-icon black-icon" data-local-action="deleteCollaborator ${collaborator.id} ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
+                                            <img class="trash-icon black-icon" data-local-action="removeCollaborator ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                                         </div>
                                      </div>`;
             }
@@ -166,11 +166,11 @@ export class SettingsPage {
     addCollaborator(){
         assistOS.UI.showModal("add-space-collaborator-modal");
     }
-    async deleteCollaborator(button, userId, email){
+    async removeCollaborator(button, email){
         let message= `Are you sure you want to delete collaborator ${email}?`;
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message: message}, true);
         if(confirmation){
-            let message = await spaceModule.deleteSpaceCollaborator(assistOS.space.id, userId);
+            let message = await spaceModule.removeCollaborator(assistOS.space.id, email);
             if(message){
                 alert(message);
             } else {
@@ -201,9 +201,9 @@ export class SettingsPage {
             let collaboratorsRoles = this.element.querySelectorAll(".collaborator-role");
             for(let role of collaboratorsRoles){
                 role.addEventListener("change", async (e)=>{
-                    let userId = e.target.getAttribute("data-user-id");
+                    let email = e.target.getAttribute("data-user-email");
                     let role = e.target.value;
-                    let message = await spaceModule.setSpaceCollaboratorRole(assistOS.space.id, userId, role);
+                    let message = await spaceModule.setCollaboratorRole(assistOS.space.id, email, role);
                     if(message){
                         alert(message);
                     }

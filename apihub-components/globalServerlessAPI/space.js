@@ -3,18 +3,14 @@ const fsPromises = require('fs').promises;
 const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
 const crypto = require("../apihub-component-utils/crypto.js");
-const data = require('../apihub-component-utils/data.js');
 const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
 const lightDB = require('../apihub-component-utils/lightDB.js');
 const fs = require('fs');
-const spaceConstants = require('./constants.js');
 const volumeManager = require('../volumeManager.js');
 const cookie = require("../apihub-component-utils/cookie");
-const configs = require('../../data-volume/config/config.json')
-
 
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
@@ -418,39 +414,6 @@ async function createSpaceStatus(spacePath, spaceObject) {
     await fsPromises.writeFile(statusPath, JSON.stringify(spaceObject, null, 2));
 }
 
-async function deleteSpace(email, authKey, spaceId) {
-    let user = require('../users-storage/user.js');
-    const documentService = require("../document/services/document");
-    let userFile = await user.loadUser(email, authKey);
-    let spacesNr = Object.keys(userFile.spaces).length;
-    if (spacesNr === 1) {
-        return "You can't delete your last space";
-    }
-    let spaceStatus = await getSpaceStatusObject(spaceId);
-    if (!spaceStatus.admins[email]) {
-        return "You dont have permission to delete this space";
-    }
-    //unlink space from all users
-    for (let userId of Object.keys(spaceStatus.users)) {
-        await user.unlinkSpaceFromUser(email, authKey, spaceId);
-    }
-    //delete space folder
-    let spacePath = getSpacePath(spaceId);
-    await fsPromises.rm(spacePath, {recursive: true, force: true});
-    //delete documents
-    let documentsList = await documentService.getDocumentsMetadata(spaceId);
-    for (let document of documentsList) {
-        await documentService.deleteDocument(spaceId, document.id);
-    }
-    //delete api keys
-    let keys = await secrets.getAPIKeys(spaceId);
-    for (let keyType in keys) {
-        await secrets.deleteSpaceKey(spaceId, keyType);
-    }
-    //delete chat
-    //TODO delete lightdb chat and folder
-}
-
 async function getSpacePersonalitiesObject(spaceId) {
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
     const personalitiesFiles = await fsPromises.readdir(personalitiesDirectoryPath, {withFileTypes: true});
@@ -597,53 +560,6 @@ async function removeApplicationFromSpaceObject(spaceId, applicationId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function deleteSpaceCollaborator(referrerId, spaceId, userId) {
-    const user = require('../users-storage/user.js');
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-
-    let referrerRoles = spaceStatusObject.users[referrerId].roles;
-    if (!referrerRoles.includes(spaceConstants.spaceRoles.owner) && !referrerRoles.includes(spaceConstants.spaceRoles.admin)) {
-        return "You don't have permission to delete a collaborator";
-    }
-    let userRoles = spaceStatusObject.users[userId].roles;
-    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
-        let owners = getOwnersCount(spaceStatusObject.users);
-        if (owners === 1) {
-            return "Can't delete the last owner of the space";
-        }
-    }
-    delete spaceStatusObject.users[userId];
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-    await user.unlinkSpaceFromUser(userId, spaceId);
-}
-
-function getOwnersCount(users) {
-    let owners = 0;
-    for (let id in users) {
-        if (users[id].roles.includes(spaceConstants.spaceRoles.owner)) {
-            owners++;
-        }
-    }
-    return owners;
-}
-
-async function setSpaceCollaboratorRole(referrerId, spaceId, userId, role) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    let referrerRoles = spaceStatusObject.users[referrerId].roles;
-    if (!referrerRoles.includes(spaceConstants.spaceRoles.owner) && !referrerRoles.includes(spaceConstants.spaceRoles.admin)) {
-        return "You don't have permission to change the role of a collaborator";
-    }
-    let userRoles = spaceStatusObject.users[userId].roles;
-    if (userRoles.includes(spaceConstants.spaceRoles.owner)) {
-        let owners = getOwnersCount(spaceStatusObject.users);
-        if (owners === 1 && role !== spaceConstants.spaceRoles.owner) {
-            return "Can't change the role of the last owner of the space";
-        }
-    }
-    spaceStatusObject.users[userId].roles = [role];
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-}
-
 async function addChatToPersonality(spaceId, personalityId, chatId) {
     const personalityData = await getPersonalityData(spaceId, personalityId);
 
@@ -661,10 +577,12 @@ const getApplicationEntry = async function (spaceId, applicationId) {
     const stubHTML = `<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our company. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
     return stubHTML;
 }
+
 const getSpaceApplications = async function (spaceId) {
     const spaceStatusObject = await getSpaceStatusObject(spaceId);
     return spaceStatusObject.installedApplications;
 }
+
 const getWebChatConfiguration = async function (spaceId) {
     const spacePath = getSpacePath(spaceId);
     const chatConfigPath = path.join(spacePath, 'webAssistantConfig.json');
@@ -916,7 +834,6 @@ module.exports = {
         getSpaceMap,
         getSpaceStatusObject,
         updateSpaceStatus,
-        deleteSpace,
         getSpaceChat,
         addSpaceChatMessage,
         editAPIKey,
@@ -932,15 +849,12 @@ module.exports = {
         getDefaultPersonality,
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
-        setSpaceCollaboratorRole,
-        deleteSpaceCollaborator,
         createSpaceChat,
         updateSpaceChatMessage,
         resetSpaceChat,
         storeSpaceChat,
         getPersonalityData,
         getSpacePersonalities
-    },
-    constants: require('./constants.js')
+    }
 }
 

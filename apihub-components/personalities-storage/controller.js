@@ -2,7 +2,6 @@ const SpaceHandler = require('../globalServerlessAPI/space.js');
 const PersonalitiesHandler = require('../personalities-storage/handler.js');
 const Request = require('../apihub-component-utils/utils.js');
 const {ServerSideSecurityContext, loadModule} = require('assistos');
-const constants = require("../globalServerlessAPI/constants");
 
 async function getPersonalityImageUrl(request, response) {
     const spaceId=request.params.spaceId;
