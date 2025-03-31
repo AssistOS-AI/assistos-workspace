@@ -25,7 +25,7 @@ class TranslateDocument extends Task {
 
             this.llmModule = await this.loadModule("llm");
             this.utilModule = await this.loadModule("util");
-            this.personalityModule = await this.loadModule("personality");
+            this.personalityModule = await this.loadModule("agent");
             let documentModule = await this.loadModule("document");
             this.documentModule = documentModule;
             let document = await documentModule.getDocument(this.spaceId, this.documentId);
@@ -66,7 +66,7 @@ class TranslateDocument extends Task {
                     paragraph.comment = await this.translateText(paragraph.comment);
                     paragraph.id = await documentModule.addParagraph(this.spaceId, docId, chapterId, paragraph);
                     if (paragraph.commands.speech) {
-                        let personality = await this.personalityModule.getPersonalityByName(this.spaceId, paragraph.commands.speech.personality);
+                        let personality = await this.personalityModule.getAgent(this.spaceId, paragraph.commands.speech.personality);
                         let audioLanguages = await this.llmModule.getModelLanguages(this.spaceId, personality.llms["audio"]);
                         if(audioLanguages.includes(this.language)){
                             paragraph.commands.speech.taskId = await documentModule.createTextToSpeechTask(this.spaceId, docId, paragraph.id);

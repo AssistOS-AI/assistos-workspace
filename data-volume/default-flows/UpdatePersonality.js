@@ -26,8 +26,8 @@ class UpdatePersonality extends IFlow {
 
     async userCode(apis, parameters) {
         try {
-            let personalityModule = apis.loadModule("personality");
-            await personalityModule.updatePersonality(parameters.spaceId, parameters.personalityId, parameters.personalityData);
+            let personalityModule = apis.loadModule("agent");
+            await personalityModule.updateAgent(parameters.spaceId, parameters.personalityId, parameters.personalityData);
             apis.success(parameters.personalityId);
         } catch (e) {
             apis.fail(e);

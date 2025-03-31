@@ -15,60 +15,6 @@ const cookie = require("../apihub-component-utils/cookie");
 function getSpacePath(spaceId) {
     return path.join(volumeManager.paths.space, spaceId);
 }
-
-function getSpaceMapPath() {
-    return volumeManager.paths.spaceMap;
-}
-
-async function updateSpaceMap(spaceMapObject) {
-    await fsPromises.writeFile(getSpaceMapPath(), JSON.stringify(spaceMapObject, null, 2), 'utf8');
-}
-
-async function getSpaceMap() {
-    const spaceMapPath = getSpaceMapPath();
-    return JSON.parse(await fsPromises.readFile(spaceMapPath, 'utf8'));
-}
-
-async function addSpaceAnnouncement(spaceId, announcementObject) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId)
-    announcementObject.date = date.getCurrentUTCDate();
-    announcementObject.id = crypto.generateId();
-    spaceStatusObject.announcements.push(announcementObject)
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-    return announcementObject.id;
-}
-
-async function getSpaceAnnouncement(spaceId, announcementId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId)
-    const announcement = spaceStatusObject.announcements.find(announcement => announcement.id === announcementId);
-    if (announcement) {
-        return announcement;
-    } else {
-        const error = new Error(`Announcement with id ${announcementId} not found`);
-        error.statusCode = 404;
-        throw error;
-    }
-}
-
-async function getSpaceAnnouncements(spaceId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId)
-    return spaceStatusObject.announcements;
-}
-
-async function updateSpaceAnnouncement(spaceId, announcementId, announcementData) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId)
-    const announcementIndex = spaceStatusObject.announcements.findIndex(announcement => announcement.id === announcementId);
-    if (announcementIndex === -1) {
-        const error = new Error(`Announcement with id ${announcementId} not found`);
-        error.statusCode = 404;
-        throw error
-    }
-    spaceStatusObject.announcements[announcementIndex].title = announcementData.title;
-    spaceStatusObject.announcements[announcementIndex].text = announcementData.text;
-    spaceStatusObject.announcements[announcementIndex].lastUpdated = date.getCurrentUTCDate();
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-}
-
 async function ensureTasksFolderExists(spaceId) {
     const tasksFolderPath = path.join(getSpacePath(spaceId), 'tasks');
     try {
@@ -124,123 +70,6 @@ async function getTaskLogFilePath(spaceId) {
     return path.join(getSpacePath(spaceId), 'tasks', getDailyLogFileName());
 }
 
-async function deleteSpaceAnnouncement(spaceId, announcementId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    const announcementIndex = spaceStatusObject.announcements.findIndex(announcement => announcement.id === announcementId);
-    if (announcementIndex === -1) {
-        const error = new Error(`Announcement with id ${announcementId} not found`);
-        error.statusCode = 404;
-        throw error
-    }
-    spaceStatusObject.announcements.splice(announcementIndex, 1);
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-    return announcementId;
-}
-
-async function addSpaceToSpaceMap(spaceId, spaceName) {
-    let spacesMapObject = await getSpaceMap();
-
-    if (spacesMapObject.hasOwnProperty(spaceId)) {
-        throw new Error(`Space with id ${spaceId} already exists`);
-    } else {
-        spacesMapObject[spaceId] = spaceName;
-    }
-    await updateSpaceMap(spacesMapObject);
-}
-
-
-async function getDefaultPersonality(spaceId) {
-    const spacePath = getSpacePath(spaceId);
-    const personalityPath = path.join(spacePath, 'personalities', 'metadata.json');
-    const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
-    const defaultPersonalityId = personalitiesData.find(personality => personality.name === spaceConstants.DEFAULT_PERSONALITY).id;
-    const defaultPersonalityPath = path.join(spacePath, 'personalities', `${defaultPersonalityId}.json`);
-    try {
-        const defaultPersonalityData = await fsPromises.readFile(defaultPersonalityPath, 'utf8');
-        return JSON.parse(defaultPersonalityData);
-    } catch (error) {
-        error.message = `Default Personality ${spaceConstants.DEFAULT_PERSONALITY} not found.`;
-        error.statusCode = 404;
-        throw error;
-    }
-}
-
-async function createChat(spaceId, chatId) {
-
-
-}
-
-async function copyDefaultPersonalities(spacePath, spaceId, defaultSpaceAgentId) {
-    const defaultPersonalitiesPath = volumeManager.paths.defaultPersonalities;
-    const personalitiesPath = path.join(spacePath, 'personalities');
-
-    await file.createDirectory(personalitiesPath);
-    const files = await fsPromises.readdir(defaultPersonalitiesPath, {withFileTypes: true});
-
-    let promises = [];
-    const defaultLlmsRes = await fetch(`${process.env.BASE_URL}/apis/v1/llms/defaults`);
-    const defaultLlms = (await defaultLlmsRes.json()).data;
-    let authSecret = await secrets.getApiHubAuthSecret();
-    let securityContextConfig = {
-        headers: {
-            cookie: cookie.createApiHubAuthCookies(authSecret, "", spaceId)
-        }
-    }
-    const SecurityContext = require('assistos').ServerSideSecurityContext;
-    let securityContext = new SecurityContext(securityContextConfig);
-    let spaceModule = require('assistos').loadModule('space', securityContext);
-    for (const entry of files) {
-        if (entry.isFile()) {
-            promises.push(preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, defaultLlms, spaceModule));
-        }
-    }
-    const personalitiesData = await Promise.all(promises);
-
-    await Promise.all(personalitiesData.map(personalityData => createChat(spaceId, personalityData.id)));
-    await fsPromises.writeFile(path.join(spacePath, 'personalities', 'metadata.json'), JSON.stringify(personalitiesData), 'utf8');
-}
-
-async function preparePersonalityData(defaultPersonalitiesPath, personalitiesPath, entry, spaceId, defaultSpaceAgentId, defaultLlms, spaceModule) {
-    const filePath = path.join(defaultPersonalitiesPath, entry.name);
-    let personality = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-    const constants = require("assistos").constants;
-    personality.llms = defaultLlms;
-    if (personality.name === constants.DEFAULT_PERSONALITY_NAME) {
-        personality.id = defaultSpaceAgentId;
-    } else {
-        personality.id = crypto.generateId(16);
-    }
-    let imagesPath = path.join(defaultPersonalitiesPath, 'images');
-    let imageBuffer = await fsPromises.readFile(path.join(imagesPath, `${personality.imageId}.png`));
-
-    personality.imageId = await spaceModule.putImage(imageBuffer);
-    await fsPromises.writeFile(path.join(personalitiesPath, `${personality.id}.json`), JSON.stringify(personality), 'utf8');
-
-    return {
-        id: personality.id,
-        name: personality.name,
-        imageId: personality.imageId,
-    };
-}
-
-async function getPersonalitiesIds(spaceId, personalityNames) {
-    const personalityIds = [];
-    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
-    const personalitiesData = JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
-    for (let personality of personalitiesData) {
-        if (personalityNames.has(personality.name)) {
-            personalityIds.push(personality.id);
-        }
-    }
-    return personalityIds;
-}
-
-async function getSpacePersonalities(spaceId) {
-    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', 'metadata.json');
-    return JSON.parse(await fsPromises.readFile(personalityPath, 'utf8'));
-}
-
-
 async function getSpaceChat(spaceId, chatId) {
     const lightDBEnclaveClient = enclave.initialiseLightDBEnclave(spaceId);
     const tableName = `chat_${chatId}`
@@ -272,7 +101,6 @@ async function resetSpaceChat(spaceId, chatId) {
     const tableName = `chat_${chatId}`
     await lightDB.deleteAllRecords(spaceId, tableName);
 }
-
 
 async function addSpaceChatMessage(spaceId, chatId, entityId, role, messageData) {
     const messageId = crypto.generateId();
@@ -408,11 +236,6 @@ async function updatePersonalityData(spaceId, personalityId, personalityData) {
     await fsPromises.writeFile(personalityPath, JSON.stringify(personalityData, null, 2), 'utf8');
 }
 
-async function createSpaceStatus(spacePath, spaceObject) {
-    await file.createDirectory(path.join(spacePath, 'status'));
-    const statusPath = path.join(spacePath, 'status', 'status.json');
-    await fsPromises.writeFile(statusPath, JSON.stringify(spaceObject, null, 2));
-}
 
 async function getSpacePersonalitiesObject(spaceId) {
     const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
@@ -481,11 +304,6 @@ async function deleteAPIKey(spaceId, keyType) {
     await secrets.deleteSpaceKey(spaceId, keyType);
 }
 
-async function getDefaultSpaceAgentId(spaceId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    return spaceStatusObject.defaultSpaceAgent;
-}
-
 async function streamToJson(stream) {
     return new Promise((resolve, reject) => {
         let data = '';
@@ -525,7 +343,7 @@ async function importPersonality(spaceId, extractedPath, request) {
 
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    let personalityModule = require("assistos").loadModule("personality", securityContext);
+    let personalityModule = require("assistos").loadModule("agent", securityContext);
     const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
 
     const personalityData = await streamToJson(personalityDataStream);
@@ -535,10 +353,10 @@ async function importPersonality(spaceId, extractedPath, request) {
     let personalityId, overriden = false, personalityName = personalityData.name;
     if (existingPersonality) {
         personalityData.id = existingPersonality.id;
-        personalityId = await personalityModule.updatePersonality(spaceId, existingPersonality.id, personalityData);
+        personalityId = await personalityModule.updateAgent(spaceId, existingPersonality.id, personalityData);
         overriden = true;
     } else {
-        personalityId = await personalityModule.addPersonality(spaceId, personalityData);
+        personalityId = await personalityModule.addAgent(spaceId, personalityData);
     }
     return {id: personalityId, overriden: overriden, name: personalityName};
 }
@@ -560,16 +378,6 @@ async function removeApplicationFromSpaceObject(spaceId, applicationId) {
     await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
-async function addChatToPersonality(spaceId, personalityId, chatId) {
-    const personalityData = await getPersonalityData(spaceId, personalityId);
-
-    if (!personalityData.chats) {
-        personalityData.chats = [];
-    }
-    personalityData.chats.push(chatId);
-    personalityData.selectedChat = chatId;
-    await updatePersonalityData(spaceId, personalityId, personalityData)
-}
 
 const getApplicationEntry = async function (spaceId, applicationId) {
     const applicationPath = path.join(getSpacePath(spaceId), 'applications', applicationId);
@@ -823,15 +631,8 @@ module.exports = {
         getSpaceApplications,
         getApplicationEntry,
         getWebChatConfiguration,
-        addChatToPersonality,
         addApplicationToSpaceObject,
         removeApplicationFromSpaceObject,
-        addSpaceAnnouncement,
-        getSpaceAnnouncement,
-        getSpaceAnnouncements,
-        updateSpaceAnnouncement,
-        deleteSpaceAnnouncement,
-        getSpaceMap,
         getSpaceStatusObject,
         updateSpaceStatus,
         getSpaceChat,
@@ -839,14 +640,10 @@ module.exports = {
         editAPIKey,
         deleteAPIKey,
         getAPIKeysMetadata,
-        getDefaultSpaceAgentId,
         getSpacePath,
         archivePersonality,
         importPersonality,
-        getSpaceMapPath,
-        getPersonalitiesIds,
         streamToJson,
-        getDefaultPersonality,
         getTaskLogFilePath,
         getSpacePersonalitiesObject,
         createSpaceChat,
@@ -854,7 +651,6 @@ module.exports = {
         resetSpaceChat,
         storeSpaceChat,
         getPersonalityData,
-        getSpacePersonalities
     }
 }
 

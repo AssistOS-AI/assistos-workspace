@@ -4,7 +4,7 @@ import NotificationManager from "./wallet/core/NotificationManager.js";
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
-const personalityModule = require('assistos').loadModule('personality', {});
+const personalityModule = require('assistos').loadModule('agent', {});
 const flowModule = require('assistos').loadModule('flow', {});
 
 
@@ -225,14 +225,14 @@ class AssistOS {
                 agentId = undefined;
             }
         }
-        let personalityData;
+        let agent;
         try {
-            personalityData = await personalityModule.getAgent(spaceId, agentId);
+            agent = await personalityModule.getAgent(spaceId, agentId);
         } catch (error) {
-            personalityData = await personalityModule.getAgent(spaceId);
+            agent = personalityModule.getDefaultAgent(spaceId);
         }
-        localStorage.setItem("agent", personalityData.id);
-        assistOS.agent = new personalityModule.models.agent(personalityData);
+        localStorage.setItem("agent", agent.id);
+        assistOS.agent = agent;
     }
 
     async changeAgent(agentId) {
@@ -376,7 +376,7 @@ class AssistOS {
             case "user":
                 return require("assistos").loadModule("user", {});
             case "personality":
-                return require("assistos").loadModule("personality", {});
+                return require("assistos").loadModule("agent", {});
             case "document":
                 return require("assistos").loadModule("document", {});
             case "application":

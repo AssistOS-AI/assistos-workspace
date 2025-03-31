@@ -1,6 +1,6 @@
 const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 const constants = require("assistos").constants;
 
 export class PersonalityDescription{

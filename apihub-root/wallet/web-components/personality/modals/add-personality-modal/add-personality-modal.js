@@ -1,5 +1,5 @@
 const spaceModule = require("assistos").loadModule("space", {});
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 export class AddPersonalityModal {
     constructor(element,invalidate) {
         this.element=element;
@@ -38,7 +38,7 @@ export class AddPersonalityModal {
                     imageId: imageId,
                     metadata: ["name", "id", "imageId"]
                 };
-                await personalityModule.addPersonality(assistOS.space.id, personalityData);
+                await personalityModule.addAgent(assistOS.space.id, personalityData);
                 document.querySelector('agent-page').webSkelPresenter.invalidate();
 
                 assistOS.UI.closeModal(_target,{refresh:true});

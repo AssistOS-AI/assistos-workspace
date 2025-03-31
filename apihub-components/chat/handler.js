@@ -1,10 +1,10 @@
-const {addChatToPersonality, getPersonalityData} = require('../globalServerlessAPI/space.js').APIs
+const {getPersonalityData} = require('../globalServerlessAPI/space.js').APIs
 const Document = require('../document/services/document.js')
 const Chapter = require('../document/services/chapter.js')
 const Paragraph = require('../document/services/paragraph.js')
 const fsPromises=require('fs').promises;
 const {getTextStreamingResponse, getTextResponse} = require('../llms/controller.js');
-const secrets = require("../apihub-component-utils/secrets");
+//const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
 const path = require('path');
 const getChat = async function (spaceId, chatId) {
@@ -26,31 +26,6 @@ const getChatContext = async function (spaceId, chatId) {
     return chat.chapters[1].paragraphs;
 }
 
-const createChat = async function (spaceId, personalityId) {
-    const documentData = {
-        title: `chat_${personalityId}`,
-        topic: '',
-        metadata: ["id", "title"]
-    }
-    const chatChapterData = {
-        title: `Messages`,
-        position: 0,
-        paragraphs: []
-    }
-    const chatContextChapterData = {
-        title: `Context`,
-        position: 1,
-        paragraphs: []
-    }
-    const chatId = await Document.createDocument(spaceId, documentData);
-
-    const chatItemsChapterId = await Chapter.createChapter(spaceId, chatId, chatChapterData)
-    const chatContextChapterId = await Chapter.createChapter(spaceId, chatId, chatContextChapterData)
-
-    await addChatToPersonality(spaceId, personalityId, chatId);
-
-    return chatId;
-}
 
 const watchChat = async function () {
 
@@ -574,7 +549,6 @@ async function getDefaultPersonalityImage() {
 module.exports = {
     getDefaultPersonalityImage,
     getChatMessages,
-    createChat,
     watchChat,
     sendMessage,
     sendQuery,

@@ -1,4 +1,4 @@
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const constants = require("assistos").constants;
 
@@ -33,7 +33,7 @@ export class EditPersonalityPage {
     }
 
     async beforeRender() {
-        this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deletePersonality">Delete personality</div>`;
+        this.deletePersonalityButton=`<div class="delete-personality" data-local-action="deleteAgent">Delete personality</div>`;
         if (this.personality.name === constants.DEFAULT_PERSONALITY_NAME) {
             this.deletePersonalityButton="";
         }
@@ -66,13 +66,13 @@ export class EditPersonalityPage {
             </select>
         </div>`
     }
-    async deletePersonality() {
+    async deleteAgent() {
         let message = "Are you sure you want to delete this personality?";
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
         if (!confirmation) {
             return;
         }
-        await personalityModule.deletePersonality(assistOS.space.id, this.personality.id);
+        await personalityModule.deleteAgent(assistOS.space.id, this.personality.id);
         if(this.personality.id === assistOS.agent.agentData.id){
             if(localStorage.getItem("agent") === this.personality.id) {
                 localStorage.removeItem("agent");
@@ -138,7 +138,7 @@ export class EditPersonalityPage {
         if (this.photoAsFile) {
             await this.uploadImage();
         }
-        await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+        await personalityModule.updateAgent(assistOS.space.id, this.personality.id, this.personality);
         this.initialPersonality = JSON.parse(JSON.stringify(this.personality));
         this.checkSaveButtonState();
         if(this.personality.name === assistOS.agent.agentData.name){

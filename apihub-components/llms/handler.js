@@ -1,12 +1,12 @@
 async function processTextAdvancedRequest(request, response, sendRequest, initiator, target, text, outputFormat) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    const personalityModule = require('assistos').loadModule("personality", securityContext);
+    const personalityModule = require('assistos').loadModule("agent", securityContext);
     let initiatorPersonality, targetPersonality;
 
     try {
-        initiatorPersonality = await personalityModule.getPersonalityByName(request.spaceId, initiator);
-        targetPersonality = await personalityModule.getPersonalityByName(request.spaceId, target);
+        initiatorPersonality = await personalityModule.getAgent(request.spaceId, initiator);
+        targetPersonality = await personalityModule.getAgent(request.spaceId, target);
     } catch (error) {
         error.statusCode = 404;
         throw error;

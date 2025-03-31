@@ -1,5 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";

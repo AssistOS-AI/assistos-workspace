@@ -19,9 +19,6 @@
         "llms",
         "document",
         "knowledge-storage",
-        "applications-storage",
-        "server-flow-apis",
-        "personalities-storage",
         "chat",
         "subscribers",
         "tasks",
@@ -51,15 +48,6 @@
         },
         "chat": {
             "module": "./../../apihub-components/chat"
-        },
-        "personalities-storage": {
-            "module": "./../../apihub-components/personalities-storage"
-        },
-        "applications-storage": {
-            "module": "./../../apihub-components/applications-storage"
-        },
-        "server-flow-apis": {
-            "module": "./../../apihub-components/applications-storage"
         },
         "subscribers": {
             "module": "./../../apihub-components/subscribers"

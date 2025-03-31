@@ -3,6 +3,7 @@ const fsPromises = require("fs").promises;
 
 const CustomError = require("../../apihub-component-utils/CustomError.js");
 const {paths: dataVolumePaths} = require("../../volumeManager");
+const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/utils");
 //const git = require("../../apihub-component-utils/git.js");
 // const TaskManager = require("../../tasks/TaskManager");
 // const ITask = require("../../tasks/Task");
@@ -31,7 +32,7 @@ async function ApplicationPlugin() {
     }
 
     self.loadApplicationsMetadata = function () {
-        return require("../../applications-storage/applications.json");
+        return require("../applications.json");
     }
 
     self.updateApplication = async function (spaceId, applicationId) {
@@ -149,12 +150,6 @@ async function ApplicationPlugin() {
         return ITaskInstance.id;
     }
 
-    self.runApplicationFlow = async function (request, spaceId, applicationId, flowId, flowData) {
-        const SecurityContextClass = require('assistos').ServerSideSecurityContext;
-        const flowInstance = await new FlowTask(new SecurityContextClass(request), spaceId, request.userId, applicationId, flowData, flowId);
-        return await flowInstance.runTask();
-    }
-
     self.getApplicationTasks = async function (spaceId, applicationId) {
         let tasks = TaskManager.serializeTasks(spaceId);
         return tasks.filter(task => task.applicationId === applicationId);
@@ -211,6 +206,122 @@ async function ApplicationPlugin() {
             widgets['assistOS'] = assistOsWidgets;
         }
         return widgets;
+    }
+    self.saveJSON = async function (response, spaceData, filePath) {
+        const folderPath = path.dirname(filePath);
+        try {
+            await fsPromises.access(filePath);
+        } catch (e) {
+            try {
+                await fsPromises.mkdir(folderPath, {recursive: true});
+            } catch (error) {
+                sendResponse(response, 500, "application/json", {
+                    message: error + ` Error at creating folder: ${folderPath}`,
+                });
+                return false;
+            }
+        }
+        try {
+            await fsPromises.writeFile(filePath, spaceData, 'utf8');
+        } catch (error) {
+            sendResponse(response, 500, "application/json", {
+                message: error + ` Error at writing file: ${filePath}`,
+            });
+            return false;
+        }
+        return true;
+    }
+
+    self.storeObject = async function (request, response) {
+        const {spaceId, applicationId, objectType} = request.params
+        const objectId = decodeURIComponent(request.params.objectId);
+        const filePath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
+        if (request.body.toString() === "") {
+            await fsPromises.unlink(filePath);
+            sendResponse(response, 200, "application/json", {
+                message: "Deleted successfully " + objectId,
+            });
+            return;
+        }
+        let jsonData = JSON.parse(request.body.toString());
+        if (await self.saveJSON(response, JSON.stringify(jsonData), filePath)) {
+            sendResponse(response, 200, "application/json", {
+                message: `Success, write ${objectId}`,
+            });
+        }
+    }
+
+    self.loadObjects = async function (request, response) {
+        const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
+        try {
+            await fsPromises.access(filePath);
+        } catch (e) {
+            try {
+                await fsPromises.mkdir(filePath, {recursive: true});
+            } catch (error) {
+                return sendResponse(response, 500, "application/json", {
+                    message: error + ` Error at creating folder: ${filePath}`,
+                });
+            }
+        }
+        let localData = [];
+        try {
+            const files = await fsPromises.readdir(filePath);
+            const statPromises = files.map(async (file) => {
+                const fullPath = path.join(filePath, file);
+                const stat = await fsPromises.stat(fullPath);
+                if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
+                    return {file, stat};
+                }
+            });
+
+            let fileStats = await Promise.all(statPromises);
+
+            fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
+            for (const {file} of fileStats) {
+                const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
+                localData.push(JSON.parse(jsonContent));
+            }
+        } catch (e) {
+            sendResponse(response, 500, "application/json", {
+                message: JSON.stringify(e),
+            });
+        }
+
+        sendResponse(response, 200, "application/json", localData);
+    }
+
+    self.loadApplicationFile = async function(request, response) {
+        function handleFileError(response, error) {
+            if (error.code === 'ENOENT') {
+                sendResponse(response, 404, "application/json", {
+                    message: "File not found",
+                });
+            } else {
+                sendResponse(response, 500, "application/json", {
+                    message: "Internal Server Error",
+                });
+            }
+        }
+
+        try {
+            let {spaceId, applicationId} = request.params;
+
+            const filePath = request.url.split(`${applicationId}/`)[1];
+            const fullPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
+
+            const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
+            let defaultOptions = "utf8";
+            let imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
+            if (imageTypes.includes(fileType)) {
+                defaultOptions = "";
+            }
+            const file = await fsPromises.readFile(fullPath, defaultOptions);
+            response.setHeader('Cache-Control', 'public, max-age=10');
+            return await sendFileToClient(response, file, fileType);
+        } catch (error) {
+            return handleFileError(response, error);
+        }
     }
     return self;
 }

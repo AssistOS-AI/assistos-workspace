@@ -90,9 +90,6 @@ function Space(server) {
         await createSpace(req, res, server);
     });
     server.delete("/spaces/:spaceId", deleteSpace);
-    /*agent*/
-    server.get("/spaces/:spaceId/agents", getAgent);
-    server.get("/spaces/:spaceId/agents/:agentId", getAgent);
 
     server.post("/spaces/chat/:spaceId/:chatId", addSpaceChatMessage);
     server.get("/spaces/chat/:spaceId/:chatId", getSpaceChat);

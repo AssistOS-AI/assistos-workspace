@@ -31,14 +31,14 @@ class AddPersonality extends IFlow {
 
     async userCode(apis, parameters) {
         try {
-            let personalityModule = apis.loadModule("personality");
+            let personalityModule = apis.loadModule("agent");
             let personalityData = {
                 name: parameters.name,
                 description: parameters.description,
                 image: parameters.imageId,
                 metadata: ["name", "id", "imageId"]
             };
-            await personalityModule.addPersonality(parameters.spaceId, personalityData);
+            await personalityModule.addAgent(parameters.spaceId, personalityData);
             apis.success(personalityData);
         } catch (e) {
             apis.fail(e);

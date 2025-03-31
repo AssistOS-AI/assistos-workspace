@@ -1,4 +1,4 @@
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 const llmModule = require("assistos").loadModule("llm", {});
 
 export class PersonalityChat{

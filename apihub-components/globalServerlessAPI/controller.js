@@ -7,7 +7,6 @@ const path = require('path');
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
-const {ensurePersonalityChats} = require("../personalities-storage/handler.js");
 const {
     getTextResponse,
     getTextStreamingResponse
@@ -182,10 +181,10 @@ async function createSpace(request, response, server) {
     }
 }
 async function createSpacePlugins(pluginsStorage){
-    let defaultPlugins = ["AgentWrapper", "SpaceInstancePersistence", "SpaceInstancePlugin"];
-    for(let plugin of defaultPlugins){
-        const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}.js")`;
-        await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+    let workspacePluginsDir = await fsPromises.readdir("../apihub-components/globalServerlessAPI/workspacePlugins");
+    for(let plugin of workspacePluginsDir){
+        const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
+        await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
     let soplangPlugins = ["WorkspacePlugin", "AgentPlugin", "WorkspaceUser"];
     for(let plugin of soplangPlugins){
@@ -213,25 +212,6 @@ async function deleteSpace(request, response) {
         utils.sendResponse(response, 200, "text/plain", message || "");
     } catch (error) {
         utils.sendResponse(response, 500, "text/plain", error.message);
-    }
-}
-
-async function getAgent(request, response) {
-    let agentId = request.params.agentId;
-    const spaceId = request.params.spaceId;
-    try {
-        let client = await getAPIClient(request, constants.SPACE_INSTANCE_PLUGIN, spaceId);
-        if (!agentId) {
-            agentId = await client.getDefaultAgentId(spaceId);
-        }
-        let SecurityContext = require("assistos").ServerSideSecurityContext;
-        let personalityModule = require("assistos").loadModule("personality", new SecurityContext(request));
-        const agent = await personalityModule.getPersonality(spaceId, agentId);
-        utils.sendResponse(response, 200, "application/json", agent)
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: error.message,
-        })
     }
 }
 
@@ -429,7 +409,6 @@ async function deleteSpaceAnnouncement(request, response) {
         });
     }
 }
-
 
 async function getChatTextResponse(request, response) {
     const spaceId = request.params.spaceId;
@@ -1020,7 +999,6 @@ module.exports = {
     addSpaceChatMessage,
     createSpace,
     deleteSpace,
-    getAgent,
     editAPIKey,
     deleteAPIKey,
     getAPIKeysMetadata,

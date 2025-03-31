@@ -1,5 +1,5 @@
 const spaceModule = require("assistos").loadModule("space", {});
-const personalityModule = require("assistos").loadModule("personality", {});
+const personalityModule = require("assistos").loadModule("agent", {});
 
 export class TelegramBot{
     constructor(element, invalidate) {
@@ -48,7 +48,7 @@ export class TelegramBot{
             // let checkbox = this.element.querySelector(".public-checkbox");
             // checkbox.addEventListener("change", async (e) => {
             //     this.personality.telegramBot.public = e.target.checked;
-            //     await personalityModule.updatePersonality(assistOS.space.id, this.personality.id, this.personality);
+            //     await personalityModule.updateAgent(assistOS.space.id, this.personality.id, this.personality);
             // });
         }
     }

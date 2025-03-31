@@ -75,14 +75,14 @@ async function callFlow(request, response) {
     const SecurityContext = require("assistos").ServerSideSecurityContext;
 
     let securityContext = new SecurityContext(request);
-    const personalityModule = require("assistos").loadModule("personality", securityContext);
+    const personalityModule = require("assistos").loadModule("agent", securityContext);
     const flowModule = require("assistos").loadModule("flow", securityContext);
 
     let personality;
     if (personalityId) {
         personality = await personalityModule.getPersonality(spaceId, personalityId);
     } else {
-        personality = await personalityModule.getPersonalityByName(spaceId, constants.DEFAULT_PERSONALITY_NAME);
+        personality = await personalityModule.getAgent(spaceId, constants.DEFAULT_PERSONALITY_NAME);
     }
     const flowPath = path.join(dataVolumePaths.defaultFlows, `${flowName}.js`);
     let flowClass;
