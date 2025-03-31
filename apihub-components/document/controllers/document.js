@@ -15,6 +15,7 @@ const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const { Document, Packer, TextRun, Paragraph, AlignmentType, Footer, BorderStyle, PageBorderDisplay, PageBorderOffsetFrom, PageBorderZOrder, PageNumber, PageOrientation, WidthType } = require("docx");
 const lightDB = require("../../apihub-component-utils/lightDB");
+const paragraphService = require("../services/paragraph");
 
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -252,7 +253,10 @@ async function importDocument(request, response) {
                 }
                 const documentId = await storeDocument(spaceId, docData, request, extractedPath);
                 await fs.promises.unlink(filePath);
-                SubscriptionManager.notifyClients("", objectId, {id:documentId, overriddenPersonalities: Array.from(overriddenPersonalities)});
+                SubscriptionManager.notifyClients("", objectId, {
+                    id: documentId,
+                    overriddenPersonalities: Array.from(overriddenPersonalities)
+                });
             } catch (error) {
                 console.error('Error processing extracted files:', error);
                 SubscriptionManager.notifyClients("", objectId, {error: error.message});
@@ -334,7 +338,7 @@ async function storeDocument(spaceId, docData, request, extractedPath) {
             }
         }
     }
-    if(extractedPath){
+    if (extractedPath) {
         fs.rmSync(extractedPath, {recursive: true, force: true});
     }
     return docId;
@@ -454,7 +458,7 @@ function setNewSelection(sessionId, spaceId, documentId, lockData) {
                 selectId: lockData.selectId,
                 timeoutId,
                 userId: lockData.userId,
-                userImageId : lockData.userImageId,
+                userImageId: lockData.userImageId,
                 userEmail: lockData.userEmail
             }]
         };
@@ -510,7 +514,7 @@ function selectDocumentItem(req, res) {
         let itemId = req.params.itemId;
         let documentId = req.params.documentId;
         let userId = req.userId;
-        let { lockItem, selectId, userImageId, userEmail } = req.body;
+        let {lockItem, selectId, userImageId, userEmail} = req.body;
         let spaceId = req.params.spaceId;
         let lockData = {selectId, itemId, lockItem, userImageId, userId, userEmail};
         let lockOwner = setNewSelection(req.sessionId, spaceId, documentId, lockData);
@@ -901,6 +905,7 @@ async function undoOperation(request, response) {
         return utils.sendResponse(response, 500, "application/json", error.message);
     }
 }
+
 async function redoOperation(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -931,14 +936,15 @@ async function addDocumentSnapshot(request, response) {
         let {id, position} = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
         snapshotData.id = id;
         utils.sendResponse(response, 200, "application/json", {
-          data: snapshotData
+            data: snapshotData
         });
     } catch (e) {
-       utils.sendResponse(response, 500, "application/json", {
-         message: e.message
-       });
+        utils.sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
     }
 }
+
 async function getDocumentSnapshots(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -953,6 +959,7 @@ async function getDocumentSnapshots(request, response) {
         });
     }
 }
+
 async function restoreDocumentSnapshot(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -991,6 +998,7 @@ async function restoreDocumentSnapshot(request, response) {
         });
     }
 }
+
 async function deleteDocumentSnapshot(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -1010,58 +1018,60 @@ async function deleteDocumentSnapshot(request, response) {
 async function proxyDocumentConversion(req, res) {
     let tempDir = null;
     try {
-        // Validate content type
+
+        return new Promise(async (resolve, reject) => {
+            // Validate content type
         if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
             return sendResponse(res, 400, 'application/json', {
                 message: "Expected multipart/form-data content type"
             });
         }
-        
+
         // Get config for docsConverterUrl
         const config = require('../../../apihub-root/assistOS-configs.json');
         let docsConverterUrl = config.docsConverterUrl;
-        
+
         // Create a temporary directory for the uploaded file
         tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
-        await fsPromises.mkdir(tempDir, { recursive: true });
+        await fsPromises.mkdir(tempDir, {recursive: true});
         const tempFilePath = path.join(tempDir, `upload_${Date.now()}.bin`);
-        
+
         // Initialize upload file object
-        let uploadedFile = { ready: false };
-        
+        let uploadedFile = {ready: false};
+
         // Process the multipart form with Busboy
-        const busboyOptions = { headers: req.headers, limits: { fileSize: 50 * 1024 * 1024 } };
+        const busboyOptions = {headers: req.headers, limits: {fileSize: 50 * 1024 * 1024}};
         let busboy;
-        
+
         try {
             busboy = new Busboy(busboyOptions);
         } catch (err) {
             busboy = Busboy(busboyOptions);
         }
-        
+
         // Process file uploads
         busboy.on('file', (fieldname, fileStream, fileInfo) => {
             const writeStream = fs.createWriteStream(tempFilePath);
             let fileSize = 0;
-            
+
             fileStream.on('data', (chunk) => {
                 fileSize += chunk.length;
             });
-            
+
             fileStream.pipe(writeStream);
-            
+
             writeStream.on('finish', () => {
                 // Extract filename and mimetype, handling both string and object formats
                 let filename = 'document.bin';
                 let mimetype = 'application/octet-stream';
-                
+
                 if (typeof fileInfo === 'object' && fileInfo !== null) {
                     filename = fileInfo.filename || 'document.bin';
                     mimetype = fileInfo.mimeType || 'application/octet-stream';
                 } else if (typeof fileInfo === 'string') {
                     filename = fileInfo;
                 }
-                
+
                 uploadedFile = {
                     fieldname,
                     filepath: tempFilePath,
@@ -1071,111 +1081,283 @@ async function proxyDocumentConversion(req, res) {
                     ready: true
                 };
             });
-            
+
             writeStream.on('error', (err) => {
                 console.error(`[DocConverter] Error saving file: ${err.message}`);
             });
         });
-        
+
         // Process finish event
         busboy.on('finish', async () => {
             // Wait for file to be ready
             let attempts = 0;
             const maxAttempts = 50;
-            
+
             while ((!uploadedFile || !uploadedFile.ready) && attempts < maxAttempts) {
                 await new Promise(resolve => setTimeout(resolve, 100));
                 attempts++;
             }
-            
+
             try {
                 if (!uploadedFile || !uploadedFile.ready) {
                     throw new Error('File upload timed out or failed');
                 }
-                
+
                 // Use curl command to send the file to the converter
                 // This is the most reliable way to send multipart/form-data to Flask
-                const { spawn } = require('child_process');
+                const {spawn} = require('child_process');
                 const curl = spawn('curl', [
                     '-s',
                     '-X', 'POST',
                     '-F', `file=@${uploadedFile.filepath};filename=${uploadedFile.filename};type=${uploadedFile.mimetype}`,
                     `${docsConverterUrl}/convert`
                 ]);
-                
+
                 let responseData = '';
                 let errorData = '';
-                
+
                 curl.stdout.on('data', (data) => {
                     responseData += data.toString();
                 });
-                
+
                 curl.stderr.on('data', (data) => {
                     errorData += data.toString();
                 });
-                
+
                 const exitCode = await new Promise((resolve) => {
                     curl.on('close', resolve);
                 });
-                
+
                 if (exitCode === 0 && responseData) {
                     try {
                         const data = JSON.parse(responseData);
                         if (data.text_content) {
-                            return sendResponse(res, 200, 'application/json', data);
+                            sendResponse(res, 200, 'application/json', data);
                         } else {
-                            return sendResponse(res, 500, 'application/json', {
+                            sendResponse(res, 500, 'application/json', {
                                 message: 'Invalid document structure returned from converter'
                             });
                         }
+                        resolve();
+                        return;
                     } catch (err) {
-                        return sendResponse(res, 500, 'application/json', {
+                        sendResponse(res, 500, 'application/json', {
                             message: 'Invalid JSON response from converter'
                         });
+                        resolve();
+                        return;
                     }
                 } else {
-                    return sendResponse(res, 500, 'application/json', {
+                    sendResponse(res, 500, 'application/json', {
                         message: `Error from docs converter: ${errorData || 'Unknown error'}`
                     });
+                    resolve();
+                    return;
                 }
             } catch (error) {
                 console.error(`[DocConverter] Conversion error: ${error.message}`);
-                return sendResponse(res, 500, 'application/json', {
+                sendResponse(res, 500, 'application/json', {
                     message: `Error proxying document conversion: ${error.message}`
                 });
+                resolve();
+                return;
             } finally {
                 // Clean up temp directory
                 if (tempDir) {
                     try {
-                        await fsPromises.rm(tempDir, { recursive: true, force: true });
+                        await fsPromises.rm(tempDir, {recursive: true, force: true});
                     } catch (err) {
                         // Ignore cleanup errors
                     }
                 }
             }
         });
-        
+
         busboy.on('error', (err) => {
             console.error(`[DocConverter] Form parsing error: ${err.message}`);
-            return sendResponse(res, 500, 'application/json', {
+            sendResponse(res, 500, 'application/json', {
                 message: `Error processing form data: ${err.message}`
             });
+            resolve();
+            return;
         });
-        
+
         // Pipe the request to busboy
         req.pipe(busboy);
+        });
     } catch (error) {
         console.error(`[DocConverter] Setup error: ${error.message}`);
         // Clean up temp directory if it exists
         if (tempDir) {
             try {
-                await fsPromises.rm(tempDir, { recursive: true, force: true });
+                await fsPromises.rm(tempDir, {recursive: true, force: true});
             } catch (err) {
                 // Ignore cleanup errors
             }
         }
         return sendResponse(res, 500, 'application/json', {
             message: `Error processing document conversion: ${error.message}`
+        });
+    }
+}
+
+async function uploadDoc(req, res) {
+    const spaceId = req.params.spaceId;
+
+    try {
+        let body = null;
+        // Create a proxy response object to capture the conversion result
+        const proxyRes = {
+            _headers: {},
+            _statusCode: 200,
+            setHeader(name, value) {
+                this._headers[name] = value;
+            },
+            writeHead(statusCode) {
+                this._statusCode = statusCode;
+            },
+            end(data) {
+            },
+            write(data) {
+                body = data;
+            },
+        };
+
+        // Use the existing proxyDocumentConversion function
+        await proxyDocumentConversion(req, proxyRes);
+
+        // If conversion failed, return the error
+        if (proxyRes._statusCode !== 200 || !body) {
+            return utils.sendResponse(res, proxyRes._statusCode, 'application/json',
+                body ? JSON.parse(body) : { message: 'Document conversion failed' });
+        }
+
+        // Parse the conversion result
+        const jsonData = JSON.parse(body);
+
+        if (!jsonData.text_content) {
+            throw new Error('Invalid document structure returned from converter');
+        }
+
+        // Process the converted document
+        const textContent = jsonData.text_content;
+        const images = jsonData.images || [];
+
+        // Get config for docsConverterUrl
+        const config = require('../../../apihub-root/assistOS-configs.json');
+        let docsConverterUrl = config.docsConverterUrl;
+
+        // Create a map to store uploaded image IDs
+        const imageMap = new Map();
+
+        // Upload images if any
+        if (images.length > 0) {
+            const SecurityContext = require("assistos").ServerSideSecurityContext;
+            const securityContext = new SecurityContext(req);
+            const spaceModuleClient = require("assistos").loadModule("space", securityContext);
+
+            for (const imageName of images) {
+                try {
+                    // Fetch the image from the docs converter service
+                    const imageUrl = `${docsConverterUrl}/images/${imageName}`;
+
+                    const imageResponse = await fetch(imageUrl);
+                    if (!imageResponse.ok) {
+                        console.error(`Failed to fetch image ${imageName}: ${imageResponse.status} ${imageResponse.statusText}`);
+                        continue;
+                    }
+
+                    // Get the image as a buffer
+                    const imageBlob = await imageResponse.blob();
+                    const imageArrayBuffer = await imageBlob.arrayBuffer();
+                    const imageBuffer = new Uint8Array(imageArrayBuffer);
+
+                    // Upload the image to AssistOS space using the proper module
+                    const imageId = await spaceModuleClient.putImage(imageBuffer);
+                    imageMap.set(imageName, imageId);
+                } catch (imageError) {
+                    console.error(`Error uploading image ${imageName}:`, imageError);
+                }
+            }
+        }
+
+        // Create the main document
+        const chapterService = require('../services/chapter');
+        const documentData = {
+            title: textContent.title || 'Converted Document',
+            topic: 'Converted Document',
+            abstract: JSON.stringify(textContent.document_info || {}),
+            metadata: ['id', 'title', 'type'],
+            content: '',
+            type: ''
+        };
+
+        const documentId = await documentService.createDocument(spaceId, documentData);
+
+        // Add chapters and paragraphs
+        for (const chapter of textContent.chapters) {
+            const chapterTitle = Object.keys(chapter)[0];
+            const chapterContent = chapter[chapterTitle];
+
+            // Create chapter
+            const chapterId = await chapterService.createChapter(spaceId, documentId, {
+                title: chapterTitle
+            });
+
+            // Add paragraphs to chapter
+            for (const paragraph of chapterContent) {
+                const paragraphText = Object.values(paragraph)[0];
+
+                // Check if paragraph has image tags
+                if (paragraphText.includes('[Image:')) {
+                    // Extract image name from tag
+                    const imageTagMatch = paragraphText.match(/\[Image:\s*([^\]]+)\]/);
+                    if (imageTagMatch && imageTagMatch[1]) {
+                        const imageName = imageTagMatch[1].trim();
+
+                        // Check if we have this image in our map
+                        if (imageMap.has(imageName)) {
+                            const imageId = imageMap.get(imageName);
+
+                            // Add paragraph with image command
+                            await paragraphService.createParagraph(spaceId, documentId, chapterId.id, {
+                                text: paragraphText.replace(`[Image: ${imageName}]`, '').trim(),
+                                commands: {
+                                    image: {
+                                        id: imageId
+                                    }
+                                }
+                            });
+                        } else {
+                            // Add regular paragraph without image
+                            await paragraphService.createParagraph(spaceId, documentId, chapterId.id, {
+                                text: paragraphText
+                            });
+                        }
+                    } else {
+                        // Add regular paragraph without image
+                        await paragraphService.createParagraph(spaceId, documentId, chapterId.id, {
+                            text: paragraphText
+                        });
+                    }
+                } else {
+                    // Add regular paragraph without image
+                    await paragraphService.createParagraph(spaceId, documentId, chapterId.id, {
+                        text: paragraphText
+                    });
+                }
+            }
+        }
+
+        // Send back the created document ID
+        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
+        return utils.sendResponse(res, 200, "application/json", {
+            data: documentId
+        });
+    } catch (error) {
+        console.error(`[DocUpload] Error: ${error.message}`);
+        return utils.sendResponse(res, 500, "application/json", {
+            message: `Error uploading document: ${error.message}`
         });
     }
 }
@@ -1202,5 +1384,6 @@ module.exports = {
     addDocumentSnapshot,
     deleteDocumentSnapshot,
     restoreDocumentSnapshot,
-    proxyDocumentConversion
+    proxyDocumentConversion,
+    uploadDoc
 }

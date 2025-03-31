@@ -2,14 +2,17 @@ const lightDB = require('../../apihub-component-utils/lightDB.js');
 const TaskManager = require('../../tasks/TaskManager');
 const documentService = require('./document.js');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const indexer = require('./indexer');
 
 function constructChapterURI(documentId, chapterId, property) {
     return `${documentId}/${chapterId}${property ? `/${property}` : ''}`
 }
+
 async function getChapterParagraphIds(spaceId, documentId, chapterId) {
     const chapterParagraphs=await getChapter(spaceId, documentId, chapterId, {fields: "paragraphs"});
     return chapterParagraphs.map(paragraph => paragraph.id);
 }
+
 async function getChapterTasks(spaceId, documentId, chapterId) {
     const paragraphService = require('../services/paragraph.js');
     const chapterParagraphIds = await getChapterParagraphIds(spaceId, documentId, chapterId);
@@ -44,6 +47,8 @@ async function deleteChapter(spaceId, documentId, chapterId) {
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'update', 'chapter', documentService.getDocument);
+    console.log(`AssistOS chapter ${chapterId} deleted.`);
     return await lightDB.deleteEmbeddedObject(spaceId, chapterURI);
 }
 
@@ -79,6 +84,8 @@ async function createChapter(spaceId, documentId, chapterData) {
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'create', 'chapter', documentService.getDocument);
+    console.log(`AssistOS chapter ${id} created.`);
     return {id, position};
 }
 
@@ -110,6 +117,8 @@ async function updateChapter(spaceId, documentId, chapterId, chapterData, queryP
             eventData: queryParams.fields
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'update', 'chapter', documentService.getDocument);
+    console.log(`AssistOS chapter ${chapterId} updated.`);
 }
 
 async function swapChapters(spaceId, documentId, chapterId1, chapterId2, direction) {
@@ -136,8 +145,9 @@ async function swapChapters(spaceId, documentId, chapterId1, chapterId2, directi
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'swap', 'chapter', documentService.getDocument);
+    console.log(`AssistOS chapters ${chapterId1} and ${chapterId2} swapped.`);
 }
-
 
 module.exports = {
     getChapter,
