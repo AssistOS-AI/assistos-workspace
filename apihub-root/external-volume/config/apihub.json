@@ -23,7 +23,6 @@
         "subscribers",
         "tasks",
         "logger",
-        "flows",
         "telegram-chat",
         "lightDBEnclave",
         "staticServer"
@@ -51,9 +50,6 @@
         },
         "subscribers": {
             "module": "./../../apihub-components/subscribers"
-        },
-        "flows": {
-            "module": "./../../apihub-components/flows"
         },
         "tasks": {
             "module": "./../../apihub-components/tasks"

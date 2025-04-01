@@ -1,7 +1,5 @@
 const {getPersonalityData} = require('../globalServerlessAPI/space.js').APIs
 const Document = require('../document/services/document.js')
-const Chapter = require('../document/services/chapter.js')
-const Paragraph = require('../document/services/paragraph.js')
 const fsPromises=require('fs').promises;
 const {getTextStreamingResponse, getTextResponse} = require('../llms/controller.js');
 //const secrets = require("../apihub-component-utils/secrets");

@@ -3,7 +3,7 @@ const utilModule = require("assistos").loadModule("util", {});
 export class FlowsPage {
     constructor(element, invalidate) {
         this.refreshFlows = async () =>{
-            this.flows = await assistOS.space.loadFlows();
+            this.flows = [];
         }
         this.id = "flows";
         this.element = element;

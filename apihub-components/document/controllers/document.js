@@ -6,7 +6,6 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
-const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");
@@ -14,7 +13,6 @@ const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const {Document, Packer, Paragraph, TextRun} = require("docx");
-const lightDB = require("../../apihub-component-utils/lightDB");
 
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
@@ -370,25 +368,7 @@ async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) 
     }
 }
 
-async function estimateDocumentVideoLength(request, response) {
-    let documentId = request.params.documentId;
-    let spaceId = request.params.spaceId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    const documentModule = require("assistos").loadModule("document", securityContext);
-    let document = await documentModule.getDocument(spaceId, documentId);
-    try {
-        let duration = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
-        sendResponse(response, 200, "text/plain", duration);
-    } catch (e) {
-        sendResponse(response, 500, "application/json", {
-            message: e.message
-        });
-    }
-}
-
 let selectedDocumentItems = {};
-
 function getSelectedDocumentItems(req, res) {
     try {
         let spaceId = req.params.spaceId;
@@ -970,7 +950,6 @@ module.exports = {
     deleteDocument,
     exportDocument,
     importDocument,
-    estimateDocumentVideoLength,
     selectDocumentItem,
     deselectDocumentItem,
     getSelectedDocumentItems,

@@ -4,7 +4,6 @@ const path = require('path');
 const fsPromises = fs.promises;
 const fileSys = require('../apihub-component-utils/fileSys');
 const space = require('../globalServerlessAPI/space');
-const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const STATUS = constants.STATUS;

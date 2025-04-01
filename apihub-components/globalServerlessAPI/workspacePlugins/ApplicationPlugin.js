@@ -1,7 +1,5 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
-
-const CustomError = require("../../apihub-component-utils/CustomError.js");
 const {paths: dataVolumePaths} = require("../../volumeManager");
 const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/utils");
 //const git = require("../../apihub-component-utils/git.js");
@@ -38,21 +36,21 @@ async function ApplicationPlugin() {
     self.updateApplication = async function (spaceId, applicationId) {
         const applicationMetadata = self.loadApplicationsMetadata().find(app => app.id === applicationId);
         if (!applicationMetadata) {
-            CustomError.throwNotFoundError("Application not Found");
+            throw new Error("Application not Found");
         }
         const applicationPath = self.getApplicationPath(spaceId, applicationId);
         const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
         if (applicationNeedsUpdate) {
             await git.updateRepo(applicationPath);
         } else {
-            CustomError.throwBadRequestError("No updates available");
+            throw new Error("No updates available");
         }
     }
 
     self.requiresUpdate = async function (spaceId, applicationId) {
         const applicationMetadata = self.loadApplicationsMetadata().find(app => app.id === applicationId);
         if (!applicationMetadata) {
-            CustomError.throwNotFoundError("Application not Found");
+            throw new Error("Application not Found");
         }
         const applicationPath = self.getApplicationPath(spaceId, applicationId);
         return await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
@@ -64,7 +62,7 @@ async function ApplicationPlugin() {
 
         const application = applications.find(app => app.id === applicationId);
         if (!application) {
-            CustomError.throwNotFoundError("Application not Found");
+            throw new Error("Application not Found");
         }
         const applicationFolderPath = self.getApplicationPath(spaceId, application.name);
 
@@ -86,7 +84,7 @@ async function ApplicationPlugin() {
             manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
             manifest = JSON.parse(manifestContent);
         } catch (error) {
-            CustomError.throwServerError("Failed to read or parse Application manifest", error);
+            throw new Error("Failed to read or parse Application manifest", error);
         }
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
@@ -112,7 +110,7 @@ async function ApplicationPlugin() {
 
         const application = applications.find(app => app.id === applicationId);
         if (!application) {
-            CustomError.throwNotFoundError("Application not Found");
+            throw new Error("Application not Found");
 
         }
         const manifestPath = self.getApplicationManifestPath(spaceId, application.name);

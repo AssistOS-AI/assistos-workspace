@@ -1,7 +1,6 @@
 const fsPromises = require('fs').promises;
 const path = require('path');
 const config = require('../../../data-volume/config/config.json');
-const data = require("../../apihub-component-utils/data");
 
 class Email {
     constructor() {

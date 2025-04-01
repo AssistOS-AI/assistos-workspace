@@ -74,6 +74,38 @@ async function SpaceInstancePlugin(){
     self.getDefaultAgentId = async function(){
         return "Assistant";
     }
+
+    self.estimateDocumentVideoLength = async function(spaceId, document) {
+        let totalDuration = 0;
+        for (let chapter of document.chapters) {
+            totalDuration += self.estimateChapterVideoLength(spaceId, chapter);
+        }
+        return totalDuration;
+    }
+    self.estimateChapterVideoLength = function(spaceId, chapter) {
+        let totalDuration = 0;
+        for (let paragraph of chapter.paragraphs) {
+            if (paragraph.commands.video) {
+                let videoDuration = paragraph.commands.video.end - paragraph.commands.video.start;
+                if(paragraph.commands.audio){
+                    //has both audio and video
+                    let maxDuration = Math.max(paragraph.commands.audio.duration, videoDuration);
+                    totalDuration += maxDuration;
+                } else {
+                    totalDuration += parseFloat(videoDuration);
+                }
+            } else if (paragraph.commands.audio) {
+                totalDuration += parseFloat(paragraph.commands.audio.duration);
+            } else if (paragraph.commands["silence"]) {
+                if (paragraph.commands["silence"].duration) {
+                    totalDuration += parseFloat(paragraph.commands["silence"].duration);
+                }
+            } else if (paragraph.commands.image) {
+                totalDuration += 1;
+            }
+        }
+        return totalDuration;
+    }
     return self;
 }
 

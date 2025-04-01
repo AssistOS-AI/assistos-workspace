@@ -7,7 +7,6 @@ const date = require('../apihub-component-utils/date.js');
 const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
-const lightDB = require('../apihub-component-utils/lightDB.js');
 const fs = require('fs');
 const volumeManager = require('../volumeManager.js');
 const cookie = require("../apihub-component-utils/cookie");

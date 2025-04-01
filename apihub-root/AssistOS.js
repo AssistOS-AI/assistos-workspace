@@ -203,7 +203,6 @@ class AssistOS {
             assistOS.applications[application.name] = application;
         });
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
-        await assistOS.space.loadFlows();
         //await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
 

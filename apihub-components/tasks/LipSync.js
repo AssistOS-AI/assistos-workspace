@@ -1,5 +1,4 @@
 const Task = require('./Task');
-const ffmpeg = require("../apihub-component-utils/ffmpeg");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;

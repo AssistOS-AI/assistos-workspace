@@ -1,4 +1,3 @@
-const CustomError = require('../apihub-component-utils/CustomError');
 
 const Handler = require('./handler');
 const Request = require('../apihub-component-utils/utils.js');

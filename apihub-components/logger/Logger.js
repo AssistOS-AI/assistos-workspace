@@ -1,9 +1,6 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
 
-const CustomError = require('../apihub-component-utils/CustomError');
-
-
 const file = require("../apihub-component-utils/file.js")
 const crypto = require('../apihub-component-utils/crypto');
 const {getSpacePath} = require("../globalServerlessAPI/space.js").APIs;

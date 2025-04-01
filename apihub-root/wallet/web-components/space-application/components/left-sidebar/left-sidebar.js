@@ -17,7 +17,8 @@ export class LeftSidebar {
             this.themeIcon = "wallet/assets/icons/moon.svg";
         }
         this.invalidate(async ()=>{
-            this.tasks = await utilModule.getTasks(assistOS.space.id);
+            //this.tasks = await utilModule.getTasks(assistOS.space.id);
+            this.tasks = []
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }

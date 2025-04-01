@@ -5,7 +5,6 @@ const storage = require("../../apihub-component-utils/storage");
 async function AgentWrapper() {
     let self = {};
     let AgentPlugin = await $$.loadPlugin("AgentPlugin");
-    let ChatPlugin = await $$.loadPlugin("ChatPlugin");
     self.copyDefaultAgents = async function (spacePath, spaceId) {
         let agentsFolder = '../apihub-components/globalServerlessAPI/default-agents';
         const files = await fsPromises.readdir(agentsFolder, {withFileTypes: true});
@@ -38,47 +37,14 @@ async function AgentWrapper() {
     self.deleteAgent = async function(id) {
         return await AgentPlugin.deleteAgent(id);
     }
+    self.getAllAgentObjects = async function() {
+        return await AgentPlugin.getAllAgentObjects();
+    }
     self.getAllAgents = async function() {
-        let agentIds = await AgentPlugin.getAllAgents();
-        let agents = [];
-        for(const agentId of agentIds){
-            agents.push(await AgentPlugin.getAgent(agentId));
-        }
-        return agents;
+        return await AgentPlugin.getAllAgents();
     }
     self.createAgent = async function (name, description) {
-        let agent = await AgentPlugin.createAgent(name, description);
-        let chatId = await ChatPlugin.createChat(agent.id);
-        await self.addChatToAgent(agent.id, chatId);
-    }
-    self.addChatToAgent = async function (agentId, chatId) {
-        let agent = await AgentPlugin.getAgent(agentId);
-        if (!agent.chats) {
-            agent.chats = [];
-        }
-        agent.chats.push(chatId);
-        agent.selectedChat = chatId;
-        await AgentPlugin.updateAgent(agent.id);
-    }
-
-    self.getConversationIds = async function (id) {
-        const personalityData = await self.getAgent(id)
-        return personalityData.chats;
-    }
-
-    self.ensureAgentChat = async function (id) {
-        const agent = await self.getAgent(id)
-        if (agent.chats === undefined) {
-            let chatId = await ChatPlugin.createChat(id);
-            await self.addChatToAgent(agent.id, chatId);
-        }
-    }
-
-    self.ensureAgentsChats = async function () {
-        const agents = await AgentPlugin.getAllAgents();
-        for (const agentId of agents) {
-            await self.ensureAgentChat(agentId);
-        }
+        return await AgentPlugin.createAgent(name, description);
     }
 
     self.getPersonalityImageUrl = async function (id) {
@@ -103,6 +69,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["AgentPlugin", "ChatPlugin"];
+        return ["AgentPlugin"];
     }
 }

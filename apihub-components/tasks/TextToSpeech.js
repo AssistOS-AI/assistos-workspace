@@ -2,7 +2,6 @@ const Task = require('./Task');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
-const ffmpeg = require('../apihub-component-utils/ffmpeg');
 const Storage = require('../apihub-component-utils/storage');
 class TextToSpeech extends Task {
     constructor(spaceId, userId, configs) {

@@ -1,4 +1,3 @@
-const lightDB = require('../../apihub-component-utils/lightDB.js');
 const TaskManager = require('../../tasks/TaskManager');
 const crypto = require("../../apihub-component-utils/crypto");
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
@@ -7,7 +6,6 @@ function constructDocumentURI(documentId, property) {
 }
 
 async function getDocumentTasks(spaceId, documentId) {
-    const chapterService= require('../services/chapter.js');
     const documentChapters = await getDocument(spaceId, documentId, {fields: "chapters"});
     if(!documentChapters){
         return [];
