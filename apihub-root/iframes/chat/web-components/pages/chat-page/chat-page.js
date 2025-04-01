@@ -314,7 +314,7 @@ class BaseChatFrame {
 
         this.page = await getPageConfig(this.spaceId, this.currentPageId);
         this.theme= await getTheme(this.spaceId, this.configuration.settings.theme);
-        await applyTheme(this.theme.themeVars, this.theme.customCSS)
+        await applyTheme(this.theme?.themeVars||{}, this.theme?.customCSS||'')
         this.chatOptions = this.chatMenu + IFrameChatOptions;
 
         try {
@@ -353,16 +353,18 @@ class BaseChatFrame {
 
     async afterRender() {
         const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
+        const [previewFooterApp, previewFooterName] = this.configuration.settings.footer.split('/');
+
         const [widgetApp, widgetName] = this.page.widget.split('/');
 
         await Promise.all([UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName), UI.loadWidget(this.spaceId, widgetApp, widgetName)]);
 
         UI.createElement(previewWidgetName, '#preview-content-header');
+        UI.createElement(previewFooterName, '#preview-content-footer');
         UI.createElement(widgetName, '#preview-content-right', {
             generalSettings: this.page.generalSettings,
             data: this.page.data
         });
-
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
 
@@ -375,6 +377,7 @@ class BaseChatFrame {
         if (this.previewLeftElement.style.width === '0%') {
             this.previewLeftElement.style.display = 'none';
         }
+
 
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");

@@ -46,6 +46,15 @@ export class ApplicationCreatorThemes {
 
     }
 
+    async generateTheme(eventTarget) {
+        const {shouldInvalidate} = await assistOS.UI.showModal("application-generate-theme-modal", {
+            presenter: "application-generate-theme-modal",
+        }, true)
+        if (shouldInvalidate) {
+            this.invalidate();
+        }
+    }
+
     async viewActions(eventTarget, id) {
         document.querySelectorAll('.action-dropdown').forEach(d => d.classList.remove('show'));
 

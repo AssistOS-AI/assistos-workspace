@@ -14,7 +14,7 @@ chat-page {
     gap: 10px;
 }
 
-#preview-content-header {
+#preview-content-header, #preview-content-footer {
     width:100%;
     display: flex;
     justify-content: space-between;
@@ -50,6 +50,12 @@ chat-page {
     float: right;
     cursor: pointer;
 }
+.assistant-header__button svg path{
+    fill:var(--text);
+    color: var(--text);
+    background:var(--text);
+}
+
 .hidden {
     display: none !important;
 }
@@ -76,6 +82,7 @@ chat-page {
     height: 80px;
     width: 100%;
     justify-content: space-between;
+    background: var(--bg,white);
     align-items: center;
     padding: 10px;
 }
@@ -83,7 +90,7 @@ chat-page {
 .middle-content {
     display: flex;
     flex-direction: column;
-    background: rgba(0, 0, 0, 0.01) url("../../../../../wallet/assets/images/chat-background.png") repeat;
+    background: var(--bg) url("../../../../../wallet/assets/images/chat-background.png") repeat;
     position: relative;
     width: 100%;
     height: calc(100% - 80px);
@@ -275,6 +282,11 @@ chat-page {
     width: 100%;
 }
 
+.input-container svg path{
+    fill:var(--bg-secondary);
+    color: var(--text);
+    background:var(--bg-secondary);
+}
 .assistant-header {
     display: flex;
     align-items: center;
@@ -287,7 +299,7 @@ chat-page {
     align-items: center;
     width: 100%;
     gap: 12px;
-    color: black;
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -322,8 +334,13 @@ chat-page {
     flex-direction: column;
     overflow-y: scroll;
     height: 100%;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
+.conversation::-webkit-scrollbar {
+    display: none;
+}
 .conversation > :last-child {
     margin-block-end: 20px;
 }
@@ -353,7 +370,7 @@ chat-page {
 }
 
 .input__button:hover {
-    background-color: #2d6bb1;
+    background-color: var(--bg);
 }
 
 .input__button:active {

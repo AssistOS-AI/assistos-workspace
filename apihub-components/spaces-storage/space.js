@@ -939,6 +939,11 @@ async function addWebAssistantConfigurationPageMenuItem(spaceId,pageId, menuItem
     const configPath = path.join(spacePath, 'webAssistantConfig.json');
     const config = JSON.parse(await fsPromises.readFile(configPath, 'utf8'));
     menuItem.id = crypto.generateId();
+    if(!menuItem.icon){
+        const svg = `<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>default_file</title><path d="M20.414,2H5V30H27V8.586ZM7,28V4H19v6h6V28Z" style="fill:#c5c5c5"/></svg>`
+        const base64 = btoa(unescape(encodeURIComponent(svg)));
+        menuItem.icon=`data:image/svg+xml;base64,${base64}`;
+    }
     config.menu.push(menuItem);
     await fsPromises.writeFile(configPath, JSON.stringify(config, null, 2), 'utf8');
     return menuItem.id;

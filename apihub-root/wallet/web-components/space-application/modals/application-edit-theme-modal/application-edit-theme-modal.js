@@ -2,16 +2,45 @@ const spaceModule = require('assistos').loadModule('space', {});
 
 const themeContract = {
     '--bg': { type: 'color', default: '#ffffff', label: 'Background' },
-    '--text': { type: 'color', default: '#000000', label: 'Text' },
+    '--bg-secondary': { type: 'color', default: '#f5f5f5', label: 'Secondary Background' },
+
+    '--text': { type: 'color', default: '#000000', label: 'Primary Text' },
+    '--text-secondary': { type: 'color', default: '#6c757d', label: 'Secondary Text' },
+
     '--primary': { type: 'color', default: '#007bff', label: 'Primary Color' },
-    '--border-radius': { type: 'range', min: 0, max: 32, step: 1, default: 8, label: 'Border Radius' },
+    '--primary-hover': { type: 'color', default: '#0056b3', label: 'Primary Hover' },
+    '--accent': { type: 'color', default: '#17a2b8', label: 'Accent Color' },
+
+    '--danger': { type: 'color', default: '#dc3545', label: 'Danger Color' },
+    '--success': { type: 'color', default: '#28a745', label: 'Success Color' },
+    '--warning': { type: 'color', default: '#ffc107', label: 'Warning Color' },
+
+    '--focus-ring': { type: 'color', default: '#66afe9', label: 'Focus Ring Color' },
+    '--disabled-bg': { type: 'color', default: '#e9ecef', label: 'Disabled Background' },
+    '--disabled-text': { type: 'color', default: '#adb5bd', label: 'Disabled Text' },
+    '--link-color': { type: 'color', default: '#007bff', label: 'Link Color' },
+    '--link-hover': { type: 'color', default: '#0056b3', label: 'Link Hover Color' },
+
     '--font-family': {
         type: 'select',
         options: ['Roboto', 'Inter', 'Arial', 'Georgia'],
         default: 'Roboto',
         label: 'Font Family'
-    }
+    },
+
+    '--font-size': { type: 'text', default: '16px', label: 'Base Font Size' },
+    '--heading-font-size': { type: 'text', default: '24px', label: 'Heading Font Size' },
+
+    '--padding': { type: 'text', default: '16px', label: 'Padding' },
+    '--margin': { type: 'text', default: '16px', label: 'Margin' },
+
+    '--border-color': { type: 'color', default: '#dee2e6', label: 'Border Color' },
+    '--border-radius': { type: 'text', default: '8px', label: 'Border Radius' },
+    '--button-radius': { type: 'text', default: '4px', label: 'Button Radius' },
+    '--container-max-width': { type: 'text', default: '1200px', label: 'Container Max Width' },
+    '--gap': { type: 'text', default: '1rem', label: 'Grid Gap' }
 };
+
 
 const getThemeData = async function (spaceId, pageId) {
     const theme = await spaceModule.getWebAssistantTheme(spaceId, pageId);
@@ -40,6 +69,8 @@ export class ApplicationEditThemeModal {
             await this.handleAddRender();
         }
     }
+
+
 
     async handleAddRender() {
         this.modalName = "Add Theme";
@@ -79,15 +110,10 @@ export class ApplicationEditThemeModal {
             wrapper.appendChild(label);
 
             let input;
-            if (config.type === 'color' || config.type === 'range') {
+            if (config.type === 'color' || config.type === 'text') {
                 input = document.createElement('input');
                 input.type = config.type;
                 input.name = key;
-                if (config.type === 'range') {
-                    input.min = config.min;
-                    input.max = config.max;
-                    input.step = config.step;
-                }
                 input.value = value;
             } else if (config.type === 'select') {
                 input = document.createElement('select');
@@ -100,10 +126,12 @@ export class ApplicationEditThemeModal {
                     input.appendChild(option);
                 });
             }
+
             wrapper.appendChild(input);
             container.appendChild(wrapper);
         });
     }
+
 
     async closeModal() {
         await assistOS.UI.closeModal(this.element, { shouldInvalidate: true });

@@ -3,17 +3,18 @@
         $$previewContentHeader
     </div>
     <div id="preview-content">
-        <div class="$$previewContentStateClass">
-            <div id="preview-content-left"> <!-- target cont -->
-                <div class="assistant-header">
-                    <section class="assistant-header__item">
-                        <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="60" height="60" rx="30" fill="#C0DEED"/>
-                            <path d="M27.0659 15.1951C26.8257 15.6098 14.1445 44.1463 14.0244 44.561C13.9044 44.9512 14.1445 45 16.6423 45H19.4043L20.5091 42.4878L21.6139 40L27.7384 39.9268C31.1248 39.9024 33.8868 39.8293 33.8868 39.7805C33.8868 39.7317 33.4065 38.6098 32.8301 37.2927L31.7733 34.878L27.8825 34.8049C24.3519 34.7561 24.0157 34.7073 24.1598 34.3415C24.8803 32.4146 29.924 21.3902 30.02 21.4878C30.0921 21.561 32.4938 26.8537 35.3279 33.2439L40.4916 44.878L43.3257 44.9512C45.9676 45 46.1357 44.9756 45.9436 44.5854C45.8235 44.3415 42.8213 37.5854 39.2667 29.561L32.8301 15H29.996C28.4589 15 27.1379 15.0976 27.0659 15.1951Z"
-                                  fill="#427F9E"/>
-                        </svg>
-                        <span>Assist WebChat</span>
-                    </section>
+            <div class="$$previewContentStateClass">
+                <div id="preview-content-left"> <!-- target cont -->
+                    <div class="assistant-header">
+                        <section class="assistant-header__item">
+                            <svg width="60" height="60" viewBox="0 0 60 60" fill="none"
+                                 xmlns="http://www.w3.org/2000/svg">
+                                <rect width="60" height="60" rx="30" fill="#C0DEED"/>
+                                <path d="M27.0659 15.1951C26.8257 15.6098 14.1445 44.1463 14.0244 44.561C13.9044 44.9512 14.1445 45 16.6423 45H19.4043L20.5091 42.4878L21.6139 40L27.7384 39.9268C31.1248 39.9024 33.8868 39.8293 33.8868 39.7805C33.8868 39.7317 33.4065 38.6098 32.8301 37.2927L31.7733 34.878L27.8825 34.8049C24.3519 34.7561 24.0157 34.7073 24.1598 34.3415C24.8803 32.4146 29.924 21.3902 30.02 21.4878C30.0921 21.561 32.4938 26.8537 35.3279 33.2439L40.4916 44.878L43.3257 44.9512C45.9676 45 46.1357 44.9756 45.9436 44.5854C45.8235 44.3415 42.8213 37.5854 39.2667 29.561L32.8301 15H29.996C28.4589 15 27.1379 15.0976 27.0659 15.1951Z"
+                                      fill="#427F9E"/>
+                            </svg>
+                            <span>Assist WebChat</span>
+                        </section>
 
                         <button class="assistant-header__button" data-local-action="openAssistantMenu">
                             <svg width="6" height="22" viewBox="0 0 6 22" fill="none"
@@ -25,45 +26,47 @@
                                 $$assistantMenu
                             </div>
                         </button>
-                </div>
-
-                <div class="middle-content">
-
-                    <div class="conversation">
-                        $$spaceConversation
                     </div>
-                    <form class="chat-input-container">
-                        <label for="input" class="hidden"></label>
-                        <div class="input-container">
-                            <div id="options-menu">
-                                $$toggleAgentResponseButton
-                                <button class="input__button" data-local-action="showSettings off">
-                                    <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
-                                         xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M14 27.5C13.575 27.5 13.219 27.356 12.932 27.068C12.645 26.78 12.501 26.424 12.5 26L12.5 15.5H2.00001C1.57501 15.5 1.21901 15.356 0.932005 15.068C0.645005 14.78 0.501005 14.424 0.500005 14C0.499005 13.576 0.643005 13.22 0.932005 12.932C1.22101 12.644 1.57701 12.5 2.00001 12.5H12.5V2.00001C12.5 1.57501 12.644 1.21901 12.932 0.932005C13.22 0.645005 13.576 0.501005 14 0.500005C14.424 0.499005 14.7805 0.643005 15.0695 0.932005C15.3585 1.22101 15.502 1.57701 15.5 2.00001V12.5L26 12.5C26.425 12.5 26.7815 12.644 27.0695 12.932C27.3575 13.22 27.501 13.576 27.5 14C27.499 14.424 27.355 14.7805 27.068 15.0695C26.781 15.3585 26.425 15.502 26 15.5L15.5 15.5L15.5 26C15.5 26.425 15.356 26.7815 15.068 27.0695C14.78 27.3575 14.424 27.501 14 27.5Z"
-                                              fill="black"/>
-                                    </svg>
-                                </button>
-                                <div class="settings-list-container">
-                                    $$chatOptions
+
+                    <div class="middle-content">
+
+                        <div class="conversation">
+                            $$spaceConversation
+                        </div>
+                        <form class="chat-input-container">
+                            <label for="input" class="hidden"></label>
+                            <div class="input-container">
+                                <div id="options-menu">
+                                    $$toggleAgentResponseButton
+                                    <button class="input__button" data-local-action="showSettings off">
+                                        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"
+                                             xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M14 27.5C13.575 27.5 13.219 27.356 12.932 27.068C12.645 26.78 12.501 26.424 12.5 26L12.5 15.5H2.00001C1.57501 15.5 1.21901 15.356 0.932005 15.068C0.645005 14.78 0.501005 14.424 0.500005 14C0.499005 13.576 0.643005 13.22 0.932005 12.932C1.22101 12.644 1.57701 12.5 2.00001 12.5H12.5V2.00001C12.5 1.57501 12.644 1.21901 12.932 0.932005C13.22 0.645005 13.576 0.501005 14 0.500005C14.424 0.499005 14.7805 0.643005 15.0695 0.932005C15.3585 1.22101 15.502 1.57701 15.5 2.00001V12.5L26 12.5C26.425 12.5 26.7815 12.644 27.0695 12.932C27.3575 13.22 27.501 13.576 27.5 14C27.499 14.424 27.355 14.7805 27.068 15.0695C26.781 15.3585 26.425 15.502 26 15.5L15.5 15.5L15.5 26C15.5 26.425 15.356 26.7815 15.068 27.0695C14.78 27.3575 14.424 27.501 14 27.5Z"
+                                                  fill="black"/>
+                                        </svg>
+                                    </button>
+                                    <div class="settings-list-container">
+                                        $$chatOptions
+                                    </div>
+                                </div>
+                                <textarea name="input" data-id="input" id="input"
+                                          placeholder="Talk to AssistChat"></textarea>
+                                <div id="actionButtonContainer">
+                                    $$chatActionButton
                                 </div>
                             </div>
-                            <textarea name="input" data-id="input" id="input"
-                                      placeholder="Talk to AssistChat"></textarea>
-                            <div id="actionButtonContainer">
-                                $$chatActionButton
-                            </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+                </div>
+
+                <div id="preview-content-right">
+                    $$previewContentRight
                 </div>
             </div>
-
-            <div id="preview-content-right">
-                $$previewContentRight
-            </div>
-        </div>
-        $$previewContentSidebar
-
+            $$previewContentSidebar
+    </div>
+    <div id="preview-content-footer">
+        $$previewContentFooter
     </div>
 </div>
 

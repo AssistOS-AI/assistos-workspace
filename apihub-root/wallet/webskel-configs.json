@@ -588,6 +588,12 @@
             "type": "modals"
         },
         {
+            "name": "application-generate-theme-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationGenerateThemeModal",
+            "type": "modals"
+        },
+        {
             "name": "application-edit-menu-modal",
             "directory": "space-application",
             "presenterClassName": "ApplicationEditMenuModal",
