@@ -1,9 +1,10 @@
 const documentModule = require("assistos").loadModule("document", {});
+const constants = require("assistos").constants;
 export class DocumentsPage {
     constructor(element, invalidate) {
         this.refreshDocuments = async () => {
-            this.documents = await assistOS.space.getDocumentsMetadata(assistOS.space.id);
-            this.documents = this.documents.filter(document => document.type !== documentModule.documentTypes.SNAPSHOT);
+            this.documents = await documentModule.getDocuments(assistOS.space.id);
+            this.documents = this.documents.filter(document => document.type !== constants.DOCUMENT_CATEGORIES.SNAPSHOT);
         };
         this.invalidate = invalidate;
         this.id = "documents";

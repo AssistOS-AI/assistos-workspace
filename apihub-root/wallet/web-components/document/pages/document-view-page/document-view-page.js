@@ -1,5 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
-const personalityModule = require("assistos").loadModule("agent", {});
+const agentModule = require("assistos").loadModule("agent", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
@@ -11,12 +11,12 @@ export class DocumentViewPage {
         this.invalidate = invalidate;
         this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
-            this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
             assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
-            this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
-            this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
-            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
+            this.agents = await agentModule.getAgents(assistOS.space.id);
+            this.boundrefreshAgents = this.refreshAgents.bind(this);
+            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundrefreshAgents);
             this.selectedParagraphs = await documentModule.getSelectedDocumentItems(assistOS.space.id, this._document.id);
             await this.initTitleAbstractSelection();
         });
@@ -38,11 +38,11 @@ export class DocumentViewPage {
     }
 
     async getPersonalityName(personalityId){
-        let personality = this.personalitiesMetadata.find(personality => personality.id === personalityId);
+        let personality = this.agents.find(personality => personality.id === personalityId);
         return personality.name;
     }
     async getPersonalityImageByName(personalityName) {
-        let personality = this.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personality = this.agents.find(personality => personality.name === personalityName);
         let personalityImageId;
         if (personality) {
             personalityImageId = personality.imageId;
@@ -56,8 +56,8 @@ export class DocumentViewPage {
         return "./wallet/assets/images/default-personality.png"
     }
 
-    async refreshPersonalitiesMetadata() {
-        this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+    async refreshAgents() {
+        this.agents = await agentModule.getAgents(assistOS.space.id);
     }
 
     async insertNewChapter(chapterId, position) {
@@ -314,16 +314,7 @@ export class DocumentViewPage {
 
         }
         let chapterTitle = assistOS.UI.sanitize("New Chapter");
-        let chapterData = {title: chapterTitle, commands: {}, paragraphs: [
-                {
-                    text: "",
-                    position: 0,
-                    commands: {}
-                }
-            ]};
-        chapterData.position = position;
-        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-
+        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterTitle);
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 

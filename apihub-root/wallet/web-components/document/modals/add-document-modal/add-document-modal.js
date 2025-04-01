@@ -1,5 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
-
+let constants = require("assistos").constants;
 export class AddDocumentModal {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
@@ -51,12 +51,9 @@ export class AddDocumentModal {
     async addDocument(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
-            let docId = await documentModule.addDocument(assistOS.space.id, {
-                title: formData.data.documentTitle,
-                topic: formData.data.documentTopic
-            });
+            let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, constants.DOCUMENT_CATEGORIES.DOCUMENT);
             assistOS.UI.closeModal(_target);
-            await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${docId}`);
+            await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
         }
     }
 

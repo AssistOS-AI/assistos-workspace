@@ -1,5 +1,5 @@
 const TaskManager = require('../../tasks/TaskManager');
-const crypto = require("../../apihub-component-utils/crypto");
+//const crypto = require("../../apihub-component-utils/crypto");
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 function constructDocumentURI(documentId, property) {
     return `${documentId}${property ? `/${property}` : ''}`
@@ -52,7 +52,7 @@ async function getDocument(spaceId, documentId, queryParams={}) {
     }
 }
 
-async function getDocumentsMetadata(spaceId) {
+async function getDocuments(spaceId) {
     return await lightDB.getContainerObjectsMetadata(spaceId, "documents")
 }
 
@@ -278,7 +278,7 @@ async function getSnapshots(spaceId, documentId) {
 module.exports = {
     deleteDocument,
     getDocument,
-    getDocumentsMetadata,
+    getDocuments,
     createDocument,
     updateDocument,
     addOperation,

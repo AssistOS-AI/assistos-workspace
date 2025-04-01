@@ -9,7 +9,7 @@ function document(server) {
 
     server.use("/documents/*", bodyReader);
     // Document
-    server.get("/documents/metadata/:spaceId", documentHandler.getDocumentsMetadata);
+    server.get("/documents/metadata/:spaceId", documentHandler.getDocuments);
     server.get("/documents/:spaceId/:documentId", documentHandler.getDocument);
     server.post("/documents/:spaceId", documentHandler.createDocument);
     server.put("/documents/:spaceId/:documentId", documentHandler.updateDocument);

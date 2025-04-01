@@ -8,7 +8,7 @@ const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/u
 // const FlowTask = require("../../tasks/FlowTask");
 async function ApplicationPlugin() {
     let self = {};
-    let SpacePlugin = await $$.loadPlugin("SpacePlugin");
+    let SpaceInstancePlugin = await $$.loadPlugin("SpaceInstancePlugin");
     self.getApplicationPath = function (spaceId, applicationName) {
         return path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationName}`);
     }
@@ -88,7 +88,7 @@ async function ApplicationPlugin() {
         }
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
-        await SpacePlugin.addApplicationToSpaceObject(spaceId, application, manifest);
+        await SpaceInstancePlugin.addApplicationToSpaceObject(spaceId, application, manifest);
     }
 
     self.uninstallApplication = async function (spaceId, applicationId) {
@@ -102,7 +102,7 @@ async function ApplicationPlugin() {
         } catch (error) {
             throw new Error("Failed to uninstall application " + error.message);
         }
-        await SpacePlugin.removeApplicationFromSpaceObject(spaceId, applicationId);
+        await SpaceInstancePlugin.removeApplicationFromSpaceObject(spaceId, applicationId);
     }
 
     self.loadApplicationConfig = async function (spaceId, applicationId) {
@@ -154,7 +154,7 @@ async function ApplicationPlugin() {
     }
 
     self.getApplicationsPlugins = async function (spaceId) {
-        const spaceStatusObject = await SpacePlugin.getSpaceStatusObject(spaceId);
+        const spaceStatusObject = await SpaceInstancePlugin.getSpaceStatusObject(spaceId);
         const applications = spaceStatusObject.installedApplications;
         let plugins = {};
         for (let app of applications) {
@@ -191,7 +191,7 @@ async function ApplicationPlugin() {
     }
 
     self.getWidgets = async function (spaceId) {
-        const installedSpaceApplications = await SpacePlugin.getSpaceApplications(spaceId);
+        const installedSpaceApplications = await SpaceInstancePlugin.getSpaceApplications(spaceId);
         const widgets = {}
         for (const application of installedSpaceApplications) {
             const applicationWidgets = await self.getApplicationWidget(spaceId, application.name);
@@ -338,7 +338,7 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence", "SpacePlugin"];
+        return ["SpaceInstancePlugin"];
     }
 }
 

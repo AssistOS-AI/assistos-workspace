@@ -32,7 +32,7 @@ async function getDocument(req, res) {
 
 }
 
-async function getDocumentsMetadata(req, res) {
+async function getDocuments(req, res) {
     const {spaceId} = req.params;
     if (!spaceId) {
         return utils.sendResponse(res, 400, "application/json", {
@@ -40,7 +40,7 @@ async function getDocumentsMetadata(req, res) {
         });
     }
     try {
-        const metadata = await documentService.getDocumentsMetadata(spaceId);
+        const metadata = await documentService.getDocuments(spaceId);
         utils.sendResponse(res, 200, "application/json", metadata);
     } catch (error) {
         utils.sendResponse(res, error.statusCode || 500, "application/json", {
@@ -944,7 +944,7 @@ async function proxyDocumentConversion(req, res) {
 
 module.exports = {
     getDocument,
-    getDocumentsMetadata,
+    getDocuments,
     createDocument,
     updateDocument,
     deleteDocument,

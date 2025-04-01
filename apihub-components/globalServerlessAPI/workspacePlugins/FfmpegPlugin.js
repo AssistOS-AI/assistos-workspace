@@ -6,8 +6,8 @@ const {promises: fsPromises} = require("fs");
 const ffmpegPath = require("../../../ffmpeg/packages/ffmpeg-static");
 const ffprobePath = require("../../../ffmpeg/packages/ffprobe-static");
 //const crypto = require("../../apihub-component-utils/crypto");
-const {APIs: space} = require("../space");
-const AnonymousTask = require("../../tasks/AnonymousTask");
+//const {APIs: space} = require("../space");
+//const AnonymousTask = require("../../tasks/AnonymousTask");
 const {Readable} = require("stream");
 const {once} = require("events");
 

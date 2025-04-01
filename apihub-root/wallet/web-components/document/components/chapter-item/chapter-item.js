@@ -256,13 +256,8 @@ export class ChapterItem {
             if (assistOS.space.currentParagraphId) {
                 position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
             }
-            let paragraphObj = {
-                text:"",
-                position:position,
-                commands:{},
-            }
 
-            assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
+            assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "");
             await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
             await this.invalidateCompiledVideo();
         }

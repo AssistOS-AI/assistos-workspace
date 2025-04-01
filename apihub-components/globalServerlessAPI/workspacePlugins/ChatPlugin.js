@@ -1,5 +1,4 @@
-const Document = require("../../document/services/document");
-const Chapter = require("../../document/services/chapter");
+//const Document = require("../../document/services/document");
 async function SpaceInstancePersistence(){
     let self = {};
     let AgentPlugin = await $$.loadPlugin("AgentWrapper");

@@ -42,7 +42,7 @@ async function SpacePlugin(){
         // let spacePath = getSpacePath(spaceId);
         // await fsPromises.rm(spacePath, {recursive: true, force: true});
         // //delete documents
-        // let documentsList = await documentService.getDocumentsMetadata(spaceId);
+        // let documentsList = await documentService.getDocuments(spaceId);
         // for (let document of documentsList) {
         //     await documentService.deleteDocument(spaceId, document.id);
         // }
