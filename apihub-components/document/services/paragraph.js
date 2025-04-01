@@ -2,6 +2,8 @@ const lightDB = require('../../apihub-component-utils/lightDB.js');
 const TaskManager = require('../../tasks/TaskManager');
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 const documentService = require('./document.js');
+const indexer = require('./indexer');
+
 function constructParagraphURI(pathSegments) {
     let paragraphURI = "";
     if (pathSegments.documentId) {
@@ -60,6 +62,8 @@ async function deleteParagraph(spaceId, documentId, chapterId, paragraphId) {
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'update', 'paragraph', documentService.getDocument);
+    console.log(`AssistOS paragraph ${paragraphId} deleted.`);
     return await lightDB.deleteEmbeddedObject(spaceId, objectURI);
 }
 
@@ -116,6 +120,8 @@ async function createParagraph(spaceId, documentId, chapterId, paragraphData) {
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'create', 'paragraph', documentService.getDocument);
+    console.log(`AssistOS paragraph ${id} created.`);
     return {id, position};
 }
 
@@ -159,6 +165,8 @@ async function updateParagraph(spaceId, documentId, paragraphId, paragraphData, 
             eventData: queryParams.fields
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'update', 'paragraph', documentService.getDocument);
+    console.log(`AssistOS paragraph ${paragraphId} updated.`);
 }
 
 async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, paragraphId2, direction) {
@@ -189,6 +197,8 @@ async function swapParagraphs(spaceId, documentId, chapterId, paragraphId, parag
             }
         }
     });
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'swap', 'paragraph', documentService.getDocument);
+    console.log(`AssistOS paragraphs ${paragraphId} and ${paragraphId2} swapped.`);
 }
 
 

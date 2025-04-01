@@ -12,6 +12,8 @@ function document(server) {
 
     server.use("/documents/*", bodyReader);
     server.use("/documents/*", authentication);
+
+    server.put("/documents/upload/:spaceId", documentHandler.uploadDoc);
     // Document
     server.get("/documents/metadata/:spaceId", documentHandler.getDocumentsMetadata);
     server.get("/documents/:spaceId/:documentId", documentHandler.getDocument);
