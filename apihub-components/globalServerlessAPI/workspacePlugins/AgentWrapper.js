@@ -2,6 +2,8 @@ const path = require("path");
 const {promises: fsPromises} = require("fs");
 const defaultModels = require("../defaultModels");
 const storage = require("../../apihub-component-utils/storage");
+
+
 async function AgentWrapper() {
     let self = {};
     let AgentPlugin = await $$.loadPlugin("AgentPlugin");
@@ -17,6 +19,25 @@ async function AgentWrapper() {
         }
         await Promise.all(promises);
     }
+
+    self.updateAgent = async function(id, values) {
+        return await AgentPlugin.updateAgent(id, values);
+    }
+
+    // TODO:  Using function expressions inside a factory pattern causes ordering issues when methods reference each other. Isn't it better to use classes, or at least function declarations for hoisting?
+
+    self.addChat = async function(id,chatId){
+        const agent = await self.getAgent(id);
+        if (!agent.chats) {
+            agent.chats = [];
+        }
+
+        agent.chats.push(chatId);
+        agent.selectedChat = chatId;
+
+        await self.updateAgent(agent.id, {...agent});
+    }
+
     self.createAgentFromFile = async function (agentsFolder, entry) {
         const filePath = path.join(agentsFolder, entry.name);
         let agent = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
@@ -31,12 +52,16 @@ async function AgentWrapper() {
         //id can be name
         return await AgentPlugin.getAgent(id);
     }
-    self.updateAgent = async function(id, values) {
-        return await AgentPlugin.updateAgent(id, values);
-    }
+
     self.deleteAgent = async function(id) {
         return await AgentPlugin.deleteAgent(id);
     }
+
+    self.getConversationIds = async function (id) {
+        const agent = await self.getAgent(id)
+        return agent.chats;
+    }
+
     self.getAllAgentObjects = async function() {
         return await AgentPlugin.getAllAgentObjects();
     }

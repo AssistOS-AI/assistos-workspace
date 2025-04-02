@@ -25,7 +25,6 @@ function ChatComponent(server) {
     server.put("/public/chats/context/:spaceId/:chatId/:contextItemId", Chat.updateChatContextItem)
     server.delete("/public/chats/context/:spaceId/:chatId/:contextItemId", Chat.deleteChatContextItem)
 
-
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)
     server.post("/chats/:spaceId/:personalityId", Chat.createChat)
     server.post("/chats/watch/:spaceId/:chatId", Chat.watchChat)

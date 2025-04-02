@@ -5,54 +5,7 @@ const {getTextStreamingResponse, getTextResponse} = require('../llms/controller.
 //const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
 const path = require('path');
-const getChat = async function (spaceId, chatId) {
-    return await Document.getDocument(spaceId, chatId);
-}
 
-const getChatMessages = async function (spaceId, chatId) {
-    try {
-        const chat = await Document.getDocument(spaceId, chatId);
-        return chat.chapters[0].paragraphs;
-    } catch (error) {
-        error.statusCode = 500;
-        throw error;
-    }
-}
-
-const getChatContext = async function (spaceId, chatId) {
-    const chat = await Document.getDocument(spaceId, chatId);
-    return chat.chapters[1].paragraphs;
-}
-
-
-const watchChat = async function () {
-
-}
-
-const sendMessage = async function (spaceId, chatId, userId, message, role) {
-    const chat = await Document.getDocument(spaceId, chatId);
-    let chapterId;
-    if (chat.chapters.length === 0) {
-        const chatChapterData = {
-            title: `Chat Messages`,
-            paragraphs: []
-        }
-        chapterId = await Chapter.createChapter(spaceId, chatId, chatChapterData);
-    } else {
-        chapterId = chat.chapters[0].id;
-    }
-
-    const paragraphData = {
-        text: message,
-        commands: {
-            replay: {
-                role,
-                name: userId
-            }
-        }
-    }
-    return (await Paragraph.createParagraph(spaceId, chatId, chapterId, paragraphData)).id;
-}
 
 const getConfiguration = async function (spaceId, configurationId) {
     const personalityData = await getPersonalityData(spaceId, configurationId);
@@ -251,94 +204,10 @@ async function sendQuery(spaceId, chatId, personalityId, userId, prompt) {
     return llmResponse.message
 }
 
-const resetChat = async function (spaceId, chatId) {
-    const chat = await getChat(spaceId, chatId);
-    const messagesChapter = chat.chapters[0];
-    const contextChapter = chat.chapters[1];
-    /* await Promise.all(
-         [...messagesChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, messagesChapter.id, paragraph.id)),
-             ...contextChapter.paragraphs.map(paragraph => Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id))]);
-    */
-    for (let paragraph of messagesChapter.paragraphs) {
-        await Paragraph.deleteParagraph(spaceId, chatId, messagesChapter.id, paragraph.id)
-    }
-    for (let paragraph of contextChapter.paragraphs) {
-        await Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
-    }
-    return chatId;
-}
-const resetChatContext = async function (spaceId, chatId) {
-    const chat = await getChat(spaceId, chatId);
-    const contextChapter = chat.chapters[1];
-    /* await Promise.all(
-        contextChapter.paragraphs.map(paragraph => {
-            return Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
-        })
-    );*/
-    for (let paragraph of contextChapter.paragraphs) {
-        await Paragraph.deleteParagraph(spaceId, chatId, contextChapter.id, paragraph.id)
-    }
-    return chatId;
-}
 
-const updateMessage = async function (spaceId, chatId, messageId, message) {
-    await Paragraph.updateParagraph(spaceId, chatId, messageId, message, {fields: "text"});
-}
 
-const addMessageToContext = async function (spaceId, chatId, messageId) {
-    const chat = await getChat(spaceId, chatId);
-    const message = chat.chapters[0].paragraphs.find(paragraph => paragraph.id === messageId);
 
-    if (!message) {
-        const error = new Error(`Message not found with id ${messageId}`);
-        error.statusCode = 404;
-        throw error;
-    }
 
-    let contextChapterId = chat.chapters[1].id;
-    const paragraphData = {
-        text: message.text,
-        commands: {
-            replay: {...message.commands.replay, isContextFor: messageId}
-        }
-    }
-
-    message.commands.replay.isContext = true;
-    await Paragraph.updateParagraph(spaceId, chatId, messageId, message.commands, {fields: "commands"});
-    return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;
-}
-
-const addPreferenceToContext = async function (spaceId, chatId, preferenceString) {
-    const chat = await getChat(spaceId, chatId);
-    const contextChapterId = chat.chapters[1].id;
-    const paragraphData = {
-        text: preferenceString,
-        commands: {
-            replay: {
-                role: "assistant",
-            }
-        }
-    }
-    return (await Paragraph.createParagraph(spaceId, chatId, contextChapterId, paragraphData)).id;
-}
-const updateChatContextItem = async function (spaceId, chatId, contextItemId, context) {
-    await Paragraph.updateParagraph(spaceId, chatId, contextItemId, context, {fields: "text"});
-}
-const deleteChatContextItem = async function (spaceId, chatId, contextItemId) {
-    const chat = await getChat(spaceId, chatId);
-    const contextChapterId = chat.chapters[1].id;
-
-    const contextParagraph = chat.chapters[1].paragraphs.find(paragraph => paragraph.id === contextItemId);
-    if (contextParagraph?.commands?.replay?.isContextFor) {
-        const message = chat.chapters[0].paragraphs.find(paragraph => paragraph.id === contextParagraph.commands.replay.isContextFor);
-        if (message) {
-            message.commands.replay.isContext = false;
-            await Paragraph.updateParagraph(spaceId, chatId, message.id, message.commands, {fields: "commands"});
-        }
-    }
-
-    return await Paragraph.deleteParagraph(spaceId, chatId, contextChapterId, contextItemId);
-}
 
 
 async function handleMissingParameters(context, missingParameters, userRequest, chosenFlow, responseContainerLocation) {

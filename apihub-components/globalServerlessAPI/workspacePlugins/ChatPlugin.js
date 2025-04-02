@@ -1,59 +1,161 @@
-//const Document = require("../../document/services/document");
-async function SpaceInstancePersistence(){
-    let self = {};
-    let AgentPlugin = await $$.loadPlugin("AgentWrapper");
+async function SpaceInstancePersistence() {
+    const self = {};
 
-    self.createChat = async function (spaceId, personalityId) {
-        const documentData = {
-            title: `chat_${personalityId}`,
-            topic: '',
-            metadata: ["id", "title"]
-        }
-        const chatChapterData = {
-            title: `Messages`,
-            position: 0,
-            paragraphs: []
-        }
-        const chatContextChapterData = {
-            title: `Context`,
-            position: 1,
-            paragraphs: []
-        }
-        const chatId = await Document.createDocument(spaceId, documentData);
+    const AgentPlugin = await $$.loadPlugin("AgentWrapper");
+    const Workspace = await $$.loadPlugin("WorkspacePlugin");
 
-        const chatItemsChapterId = await Chapter.createChapter(spaceId, chatId, chatChapterData)
-        const chatContextChapterId = await Chapter.createChapter(spaceId, chatId, chatContextChapterData)
+    self.getChat = async function (chatId) {
+        return await Workspace.getDocument(chatId);
+    }
+    self.getChatMessages = async function (chatId) {
+        const chat = await Workspace.getDocument(chatId);
+        const messagesChapter = chat.chapters.find(chapter => chapter.name === "Messages");
+        if (!messagesChapter) {
+            throw new Error("Messages chapter not found");
+        }
+        return messagesChapter.paragraphs;
+    }
+    self.getChatContext = async function (chatId) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        return contextChapter.paragraphs;
+    }
+
+    self.createChat = async function (docId) {
+        const chatId = await Workspace.createDocument(docId, "chat");
+        await Promise.all([
+            Workspace.createChapter(chatId, "Messages", {}, [], 0),
+            Workspace.createChapter(chatId, "Context", {}, [], 1)
+        ]);
         return chatId;
     }
-    self.addChatToAgent = async function (agentId, chatId) {
+
+    self.deleteChat = async function (chatId) {
+        return await Workspace.deleteDocument(chatId);
+    }
+
+    self.resetChat = async function (chatId) {
+        const chat = await Workspace.getDocument(chatId);
+        const messagesChapter = chat.chapters.find(chapter => chapter.name === "Messages");
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+
+        await Promise.all([
+            ...messagesChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(messagesChapter.id, paragraph.id)),
+            ...contextChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(contextChapter.id, paragraph.id))
+        ]);
+    }
+    self.resetChatContext = async function (chatId) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        await Promise.all([
+            ...contextChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(contextChapter.id, paragraph.id))
+        ]);
+    }
+    self.resetChatMessages = async function (chatId) {
+        const chat = await Workspace.getDocument(chatId);
+        const messagesChapter = chat.chapters.find(chapter => chapter.name === "Messages");
+        if (!messagesChapter) {
+            throw new Error("Messages chapter not found");
+        }
+        await Promise.all([
+            ...messagesChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(messagesChapter.id, paragraph.id))
+        ]);
+    }
+
+    self.addPreferenceToContext = async function (chatId, message) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        return await Workspace.createParagraph(contextChapter.id, message, {replay: {role: "assistant"}}, {});
+    }
+    self.deletePreferenceFromContext = async function (chatId, messageId) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        return await Workspace.deleteParagraph(contextChapter.id, messageId);
+    }
+
+    self.addMessageToContext = async function (chatId, messageId) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        const messageChapter = chat.chapters.find(chapter => chapter.name === "Messages");
+        if(!contextChapter){
+            throw new Error("Context chapter not found");
+        }
+        if(!messageChapter){
+            throw new Error("Messages chapter not found");
+        }
+
+        const message = messageChapter.paragraphs.find(paragraph => paragraph.id === messageId);
+
+        if(!message){
+            throw new Error("Message not found");
+        }
+
+        message.commands.replay.isContext = true;
+        await Workspace.updateParagraph(messageChapter.id, messageId, message.text, message.commands, message.comments);
+
+        return await Workspace.createParagraph(contextChapter.id, message.text, {replay: {role: "assistant",isContextFor:message.id}}, {});
+    }
+    self.removeMessageFromContext = async function (chatId, messageId) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        const messageChapter = chat.chapters.find(chapter => chapter.name === "Messages");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        if (!messageChapter) {
+            throw new Error("Messages chapter not found");
+        }
+        const contextMessage = contextChapter.paragraphs.find(paragraph => paragraph.id === messageId);
+        const referenceMessage = messageChapter.paragraphs.find(paragraph => paragraph.id === contextMessage.commands.replay.isContextFor);
+
+        referenceMessage.commands.replay.isContext = false;
+        await Workspace.updateParagraph(messageChapter.id, referenceMessage.id, referenceMessage.text, referenceMessage.commands, referenceMessage.comments);
+
+        return await Workspace.deleteParagraph(contextChapter.id, messageId);
+    }
+
+    self.removeChatFromAgent = async function (agentId, chatId) {
         let agent = await AgentPlugin.getAgent(agentId);
-        if (!agent.chats) {
-            agent.chats = [];
-        }
-        agent.chats.push(chatId);
-        agent.selectedChat = chatId;
-        await AgentPlugin.updateAgent(agent.id);
+        agent.chats = agent.chats.filter(c => c !== chatId);
+        agent.selectedChat = agent.chats[0]
+        await AgentPlugin.updateAgent(agent.id, {...agent});
     }
 
-    self.getConversationIds = async function (id) {
-        const agent = await self.getAgent(id)
-        return agent.chats;
+    self.addChatToAgent = async function (agentId, chatId) {
+        return  await AgentPlugin.addChat(agentId,chatId)
     }
 
-    self.ensureAgentChat = async function (id) {
-        const agent = await self.getAgent(id)
-        if (agent.chats === undefined) {
-            let chatId = await self.createChat(id);
-            await self.addChatToAgent(agent.id, chatId);
+    self.sendMessage = async function (chatId, userId, message, role) {
+        const chat = await Workspace.getDocument(chatId);
+        let chapterId;
+
+        if (chat.chapters.length === 0) {
+            [chapterId] = await Promise.all([
+                    Workspace.createChapter(chatId, "Messages", {}, [], 0),
+                    Workspace.createChapter(chatId, "Context", {}, [], 1)
+                ]
+            )
+        } else {
+            chapterId = chat.chapters[0].id;
         }
+        return await Workspace.createParagraph(chapterId, message, {replay: {role, name: userId}}, {});
     }
 
-    self.ensureAgentsChats = async function () {
-        const agents = await AgentPlugin.getAllAgents();
-        for (const agentId of agents) {
-            await self.ensureAgentChat(agentId);
-        }
-    }
+
+
+
     return self;
 }
 
@@ -61,12 +163,12 @@ module.exports = {
     getInstance: async function () {
         return await SpaceInstancePersistence();
     },
-    getAllow: function(){
-        return async function(globalUserId, email, command, ...args){
+    getAllow: function () {
+        return async function (globalUserId, email, command, ...args) {
             return false;
         }
     },
-    getDependencies: function(){
-        return ["DefaultPersistence", "AgentWrapper"];
+    getDependencies: function () {
+        return ["WorkspacePlugin", "AgentWrapper"];
     }
 }
