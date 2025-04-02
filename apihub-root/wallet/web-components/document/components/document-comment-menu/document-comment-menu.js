@@ -18,7 +18,7 @@ export class DocumentCommentMenu {
     beforeRender() {
         let documentElement = assistOS.UI.reverseQuerySelector(this.element, 'document-view-page');
         this.documentPresenter = documentElement.webSkelPresenter;
-        this.documentComment = this.documentPresenter._document.comment;
+        this.documentComments = this.documentPresenter._document.comments;
         this.documentId = this.documentPresenter._document.id;
         this.debouncedUpdateComment = debounce(this.updateDocumentComment, 1000).bind(this);
     }
@@ -47,14 +47,14 @@ export class DocumentCommentMenu {
                 this.element.querySelector('.saveToolTip').style.display = 'none';
             },500);
         }
-        if (this.textArea.value === this.documentComment) return;
+        if (this.textArea.value === this.documentComments) return;
         await documentModule.updateDocumentComment(
             assistOS.space.id,
             this.documentId,
             this.textArea.value
         );
-        this.documentComment = this.textArea.value;
-        this.documentPresenter._document.comment = this.textArea.value;
+        this.documentComments = this.textArea.value;
+        this.documentPresenter._document.comments = this.textArea.value;
         showSaveToolTip();
     }
 }

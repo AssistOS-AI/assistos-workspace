@@ -91,10 +91,10 @@ export class ChapterItem {
         this.chapterFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-        let iterator = 0;
+        let index = this._document.getChapterIndex(this.chapter.id);
+        this.chapterNumber = index + 1;
         this.chapter.paragraphs.forEach((paragraph) => {
-            iterator++;
-            this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
+            this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
         });
     }
 
@@ -121,30 +121,23 @@ export class ChapterItem {
         paragraph.remove();
     }
 
-    swapParagraphs(paragraphId, swapParagraphId, direction) {
+    changeParagraphOrder(paragraphId, position) {
         let paragraphs = this.chapter.paragraphs;
         let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);
-        let adjacentParagraphIndex = this.chapter.getParagraphIndex(swapParagraphId);
+        if (currentParagraphIndex === -1 || position < 0 || position >= paragraphs.length) {
+            throw new Error("Invalid paragraphId or position");
+        }
+        let [paragraph] = paragraphs.splice(currentParagraphIndex, 1);
+        paragraphs.splice(position, 0, paragraph);
 
-        let paragraph1 = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
-        let paragraph2 = this.element.querySelector(`paragraph-item[data-paragraph-id="${swapParagraphId}"]`);
-        if (direction === "up") {
-            if (adjacentParagraphIndex === this.chapter.paragraphs.length - 1) {
-                paragraphs.push(paragraphs.shift());
-                paragraph2.insertAdjacentElement('afterend', paragraph1);
-                return;
-            }
-            [paragraphs[currentParagraphIndex], paragraphs[adjacentParagraphIndex]] = [paragraphs[adjacentParagraphIndex], paragraphs[currentParagraphIndex]];
-            paragraph2.insertAdjacentElement('beforebegin', paragraph1);
+        // Update the DOM
+        let paragraphElement = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
+        let referenceElement = this.element.querySelectorAll("paragraph-item")[position];
+
+        if (referenceElement) {
+            referenceElement.insertAdjacentElement(position > currentParagraphIndex ? 'afterend' : 'beforebegin', paragraphElement);
         } else {
-            // Insert the current paragraph after the adjacent one
-            if (adjacentParagraphIndex === 0) {
-                paragraphs.unshift(paragraphs.pop());
-                paragraph2.insertAdjacentElement('beforebegin', paragraph1);
-                return;
-            }
-            [paragraphs[currentParagraphIndex], paragraphs[adjacentParagraphIndex]] = [paragraphs[adjacentParagraphIndex], paragraphs[currentParagraphIndex]];
-            paragraph2.insertAdjacentElement('afterend', paragraph1);
+            this.element.appendChild(paragraphElement); // If moving to the last position
         }
     }
     async invalidateCompiledVideo(){
@@ -160,7 +153,7 @@ export class ChapterItem {
             }else if (data.operationType === "delete") {
                 this.deleteParagraph(data.paragraphId);
             }else if (data.operationType === "swap") {
-                this.swapParagraphs(data.paragraphId, data.swapParagraphId, data.direction);
+                this.changeParagraphOrder(data.paragraphId, data.swapParagraphId, data.direction);
             }
         } else {
             switch (data) {
@@ -198,7 +191,7 @@ export class ChapterItem {
         let titleText = assistOS.UI.sanitize(titleElement.value);
         if (titleText !== this.chapter.title && titleText !== "") {
             this.chapter.title = titleText;
-            await documentModule.updateChapterTitle(assistOS.space.id, this._document.id, this.chapter.id, titleText);
+            await documentModule.updateChapter(assistOS.space.id, this.chapter.id, titleText, this.chapter.comments, this.chapter.commands);
         }
     }
 
@@ -257,7 +250,8 @@ export class ChapterItem {
                 position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
             }
 
-            assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "");
+            let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
+            assistOS.space.currentParagraphId = paragraph.id;
             await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
             await this.invalidateCompiledVideo();
         }

@@ -54,7 +54,7 @@ export class ParagraphItem {
             this.openPlugin("", "paragraph", this.currentPlugin);
         }
 
-        if(this.paragraph.comment.trim() !== ""){
+        if(this.paragraph.comments.trim() !== ""){
             let commentHighlight = this.element.querySelector(".plugin-circle.comment");
             commentHighlight.classList.add("highlight-attachment");
         }
@@ -140,7 +140,7 @@ export class ParagraphItem {
         }
 
         if (updateCommands) {
-            await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, this.paragraph.text, this.paragraph.commands, this.paragraph.comments);
         }
     }
     showStatusIcon(){
@@ -183,7 +183,7 @@ export class ParagraphItem {
                 let diff = videoDuration - commands.audio.duration;
                 this.showParagraphWarning(`Video is longer than the audio by ${diff} seconds`, async (event) => {
                     commands.video.end = commands.video.start + commands.audio.duration;
-                    await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, commands);
+                    await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, this.paragraph.text, commands, this.paragraph.comments);
                     this.checkVideoAndAudioDuration();
                     if(this.videoPresenter){
                         this.videoPresenter.setVideoPreviewDuration();
@@ -233,7 +233,7 @@ export class ParagraphItem {
 
         let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
 
-        await documentModule.deleteParagraph(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id);
+        await documentModule.deleteParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id);
         if (this.chapter.paragraphs.length > 0) {
             if (currentParagraphIndex === 0) {
                 assistOS.space.currentParagraphId = this.chapter.paragraphs[0].id;
@@ -255,16 +255,16 @@ export class ParagraphItem {
         }
         await this.documentPresenter.stopTimer(false);
         const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
-        const getAdjacentParagraphId = (index, paragraphs) => {
+        const getNewPosition = (index, paragraphs) => {
             if (direction === "up") {
-                return index === 0 ? paragraphs[paragraphs.length - 1].id : paragraphs[index - 1].id;
+                return index === 0 ? paragraphs.length - 1 : index - 1;
             }
-            return index === paragraphs.length - 1 ? paragraphs[0].id : paragraphs[index + 1].id;
+            return index === paragraphs.length - 1 ? 0 : index + 1;
         };
-        const adjacentParagraphId = getAdjacentParagraphId(currentParagraphIndex, this.chapter.paragraphs);
-        await documentModule.swapParagraphs(assistOS.space.id, this._document.id, this.chapter.id, this.paragraph.id, adjacentParagraphId, direction);
+        const position = getNewPosition(currentParagraphIndex, this.chapter.paragraphs);
+        await documentModule.swapParagraphs(assistOS.space.id, this.chapter.id, this.paragraph.id, position);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-        chapterPresenter.swapParagraphs(this.paragraph.id, adjacentParagraphId, direction);
+        chapterPresenter.changeParagraphOrder(this.paragraph.id, position);
         await chapterPresenter.invalidateCompiledVideo();
     }
 
@@ -290,7 +290,7 @@ export class ParagraphItem {
             }
             this.paragraph.text = paragraphText
             this.textIsDifferentFromAudio = true;
-            await documentModule.updateParagraphText(assistOS.space.id, this._document.id, this.paragraph.id, paragraphText);
+            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, paragraphText, this.paragraph.commands, this.paragraph.comments);
         }
     }
 

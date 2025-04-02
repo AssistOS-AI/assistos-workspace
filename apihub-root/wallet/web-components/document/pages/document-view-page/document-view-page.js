@@ -61,7 +61,7 @@ export class DocumentViewPage {
     }
 
     async insertNewChapter(chapterId, position) {
-        let newChapter = await documentModule.getChapter(assistOS.space.id, this._document.id, chapterId);
+        let newChapter = await documentModule.getChapter(assistOS.space.id, chapterId);
         this._document.chapters.splice(position, 0, newChapter);
         let previousChapterIndex = position - 1;
         if (previousChapterIndex < 0) {
@@ -77,38 +77,21 @@ export class DocumentViewPage {
         previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
     }
 
-    swapChapters(chapterId, swapChapterId, direction) {
+    changeChapterOrder(chapterId, position) {
         let chapters = this._document.chapters;
         let currentChapterIndex = this._document.getChapterIndex(chapterId);
-        let adjacentChapterIndex = this._document.getChapterIndex(swapChapterId);
 
-        let chapter1 = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
-        let chapter2 = this.element.querySelector(`chapter-item[data-chapter-id="${swapChapterId}"]`);
-        if (direction === "up") {
-            if (adjacentChapterIndex === this._document.chapters.length - 1) {
-                chapters.push(chapters.shift());
-                let newIndex = this._document.chapters.length;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('afterend', chapter1);
-            } else {
-                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-                let newIndex = adjacentChapterIndex + 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('beforebegin', chapter1);
-            }
+        let [chapter] = chapters.splice(currentChapterIndex, 1);
+        chapters.splice(position, 0, chapter);
+
+        // Update the DOM
+        let chapterElement = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
+        let referenceElement = this.element.querySelectorAll("chapter-item")[position];
+
+        if (referenceElement) {
+            referenceElement.insertAdjacentElement(position > currentChapterIndex ? 'afterend' : 'beforebegin', chapterElement);
         } else {
-            // Insert the current chapter after the adjacent one
-            if (adjacentChapterIndex === 0) {
-                chapters.unshift(chapters.pop());
-                let newIndex = 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('beforebegin', chapter1);
-            } else {
-                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-                let newIndex = adjacentChapterIndex + 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('afterend', chapter1);
-            }
+            this.element.appendChild(chapterElement); // If moving to the last position
         }
         let allChapters = this.element.querySelectorAll("chapter-item");
         for (let chapter of allChapters) {
@@ -129,7 +112,7 @@ export class DocumentViewPage {
             } else if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
             } else if (data.operationType === "swap") {
-                this.swapChapters(data.chapterId, data.swapChapterId, data.direction);
+                this.changeChapterOrder(data.chapterId, data.swapChapterId, data.direction);
             }
         } else {
             switch (data) {
@@ -167,10 +150,8 @@ export class DocumentViewPage {
         this.docTitle = this._document.title;
         this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
         if (this._document.chapters.length > 0) {
-            let iterator = 0;
             this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
+                this.chaptersContainer += `<chapter-item data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
             });
         }
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
@@ -279,17 +260,17 @@ export class DocumentViewPage {
         const currentChapterId = currentChapterElement.getAttribute('data-chapter-id');
         const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
 
-        const getAdjacentChapterId = (index, chapters) => {
+        const getNewPosition = (index, chapters) => {
             if (direction === "up") {
-                return index === 0 ? chapters[chapters.length - 1].id : chapters[index - 1].id;
+                return index === 0 ? chapters.length - 1 : index - 1;
             } else {
-                return index === chapters.length - 1 ? chapters[0].id : chapters[index + 1].id;
+                return index === chapters.length - 1 ? 0 : index + 1;
             }
         };
 
-        const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
-        await documentModule.swapChapters(assistOS.space.id, this._document.id, currentChapterId, adjacentChapterId, direction);
-        this.swapChapters(currentChapterId, adjacentChapterId, direction);
+        const position = getNewPosition(currentChapterIndex, this._document.chapters);
+        await documentModule.changeChapterOrder(assistOS.space.id, this._document.id, currentChapterId, position);
+        this.changeChapterOrder(currentChapterId, position);
     }
 
     async saveAbstract(abstractElement) {
@@ -314,13 +295,12 @@ export class DocumentViewPage {
 
         }
         let chapterTitle = assistOS.UI.sanitize("New Chapter");
-        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterTitle);
+        let chapter = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterTitle, null, null, position);
+        assistOS.space.currentChapterId = chapter.id;
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
-
     async addParagraphTable(targetElement, mode) {
-        // console.log(112);
         let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
         let mockEvent = {
             ctrlKey: true,
