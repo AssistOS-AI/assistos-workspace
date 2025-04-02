@@ -8,7 +8,7 @@ export class SettingsPage {
         this.collaboratorsTab = "";
         this.preferencesTab = "";
         this.getAPIKeys = async () => {
-            this.apiKeys = await spaceModule.getAPIKeysMetadata(assistOS.space.id);
+            this.apiKeys = await spaceModule.getAPIKeysMasked(assistOS.space.id);
         };
         this.invalidate(this.getAPIKeys);
     }
@@ -16,14 +16,14 @@ export class SettingsPage {
     async beforeRender() {
         if(this.spaceSettingsTab === "active"){
             let apiKeys = "";
-            for(let company of Object.keys(this.apiKeys)){
+            for(let provider of Object.keys(this.apiKeys)){
                 apiKeys +=
-                    `<div class="table-line pointer" data-local-action="editKey ${company} ${this.apiKeys[company].hasOwnProperty("userId")}">
-                            <div class="company-name">${company}</div>
-                            <div class="api-key">${this.apiKeys[company].APIKey || "No key set"}</div>`;
-                if(this.apiKeys[company].APIKey){
+                    `<div class="table-line pointer" data-local-action="editKey ${provider} ${this.apiKeys[provider].hasOwnProperty("userId")}">
+                            <div class="provider-name">${provider}</div>
+                            <div class="api-key">${this.apiKeys[provider].APIKey || "No key set"}</div>`;
+                if(this.apiKeys[provider].APIKey){
                     apiKeys += `
-                            <img class="trash-icon black-icon" data-local-action="deleteAPIKey ${company}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
+                            <img class="trash-icon black-icon" data-local-action="deleteAPIKey ${provider}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
                           
                 </div>`
                 } else {
@@ -38,7 +38,7 @@ export class SettingsPage {
                 </div>
                 <div class="table-content">
                     <div class="table-labels">
-                        <div class="table-label company-name">Type</div>
+                        <div class="table-label provider-name">Type</div>
                         <div class="table-label api-key">Value</div>
                         <div class="table-label"></div>
                     </div>
@@ -257,7 +257,7 @@ export class SettingsPage {
     }
 
     async deleteAPIKey(_eventTarget, type) {
-        await userModule.deleteAPIKey(assistOS.space.id, type);
+        await spaceModule.editAPIKey(assistOS.space.id, type);
         this.invalidate(this.getAPIKeys);
     }
 

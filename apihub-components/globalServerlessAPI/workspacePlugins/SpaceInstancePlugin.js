@@ -20,7 +20,7 @@ async function SpaceInstancePlugin(){
         }
         return users;
     }
-    self.addCollaborators = async function(referrerId, collaborators, spaceName) {
+    self.addCollaborators = async function(referrerEmail, collaborators, spaceName) {
         const users = await self.getCollaborators();
         let existingUserEmails = users.map(user => user.email);
         let existingCollaborators = [];
@@ -32,8 +32,8 @@ async function SpaceInstancePlugin(){
             await WorkspaceUser.createUser(collaborator.email, collaborator.email, collaborator.role);
             if (configs.ENABLE_EMAIL_SERVICE) {
                 let subject = "You have been added to a space";
-                let text = `You have been added to the space ${spaceName} by ${referrerId}`;
-                let html = `<p>You have been added to the space ${spaceName} by ${referrerId}</p>`;
+                let text = `You have been added to the space ${spaceName} by ${referrerEmail}`;
+                let html = `<p>You have been added to the space ${spaceName} by ${referrerEmail}</p>`;
                 await EmailPlugin.sendEmail(collaborator.email, process.env.SENDGRID_SENDER_EMAIL, subject, text, html);
             }
         }

@@ -103,7 +103,7 @@ page-body {
     color: var(--light-gray-text);
 }
 
-.company-name{
+.provider-name{
     width: 20%;
 }
 .api-key{

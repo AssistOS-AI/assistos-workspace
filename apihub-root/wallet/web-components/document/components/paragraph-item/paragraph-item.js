@@ -332,7 +332,6 @@ export class ParagraphItem {
     }
 
     async highlightParagraph() {
-
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
         let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');

@@ -1,76 +1,41 @@
 const apihub = require('apihub');
 
 const config = require("../../data-volume/config/config.json");
-const crypto = require("./crypto");
 
 function getSpaceSecretsContainerName(spaceId) {
     return `${spaceId}`
 }
 
 async function createSpaceSecretsContainer(spaceId) {
-    const {getLLMConfigs} = require('../llms/controller.js');
-    let LLMConfigs = await getLLMConfigs();
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     let secretObject = {};
-    for (const companyObj of LLMConfigs) {
-        secretObject[companyObj.company] = {
+    const providers = require("../globalServerlessAPI/AIModels.json")
+    for (const llm of providers) {
+        secretObject[llm.provider] = {
             ownerId: "",
             addedAt: ""
         };
-        for (const key of companyObj.authentication) {
-            secretObject[companyObj.company][key] = "";
+        for (const key of llm.authentication) {
+            secretObject[llm.provider][key] = "";
         }
     }
     await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", secretObject)
 
 }
-
-async function keyAlreadyExists(spaceId, keyType, apiKey) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
-    const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
-    if (!spaceAPIKeyObject[keyType]) {
-        const error = new Error("Key Type not supported")
-        error.statusCode = 400
-        throw error
-    }
-    return Object.values(spaceAPIKeyObject[keyType]).includes(apiKey);
-}
 async function putSpaceKey(spaceId, keyType, apiKeyObj) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
     if (!spaceAPIKeyObject[keyType]) {
-        const error = new Error("Key Type not supported")
-        error.statusCode = 400
-        throw error
+        throw new Error("Key Type not supported")
     }
     spaceAPIKeyObject[keyType] = apiKeyObj;
     try {
         await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
     } catch (e) {
-        const error = new Error("Failed to add key")
-        error.statusCode = 500
-        throw error
+        throw new Error("Failed to add key")
     }
 }
-async function deleteSpaceKey(spaceId, keyType) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
-    const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
-    if (!spaceAPIKeyObject[keyType]) {
-        const error = new Error("Key Type not supported")
-        error.statusCode = 400
-        throw error
-    }
-    for(let key of Object.keys(spaceAPIKeyObject[keyType])){
-        spaceAPIKeyObject[keyType][key] = "";
-    }
-    try {
-        await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", spaceAPIKeyObject)
-    } catch (e) {
-        const error = new Error("Failed to delete key")
-        error.statusCode = 500
-        throw error
-    }
-}
+
 async function getModelAPIKey(spaceId, keyType) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
@@ -102,50 +67,35 @@ async function getAPIKeys(spaceId) {
     //TODO: a better solution needs to be implemented
 
     //opening the settings-page triggers this check
-    const checkForNewCompanies = async (secretsObject) =>{
-        const {getLLMConfigs} = require('../llms/controller.js');
+    const checkForNewModels = async (secretsObject) =>{
         async function addCompanySecretsToSpace(secretsObject, companyObj) {
-            secretsObject[companyObj.company] = {
+            secretsObject[companyObj.provider] = {
                 ownerId: "",
                 addedAt: ""
             };
             for (const key of companyObj.authentication) {
-                secretsObject[companyObj.company][key] = "";
+                secretsObject[companyObj.provider][key] = "";
             }
             await secretsService.putSecretAsync(getSpaceSecretsContainerName(spaceId), "apiKeys", secretsObject)
         }
 
-        let LLMConfigs = await getLLMConfigs();
-        for (const companyObj of LLMConfigs) {
-            if(!secretsObject[companyObj.company]){
-             await addCompanySecretsToSpace(secretsObject, companyObj)
+        const providers = require("../globalServerlessAPI/AIModels.json")
+        for (const llm of providers) {
+            if(!secretsObject[llm.provider]){
+             await addCompanySecretsToSpace(secretsObject, llm)
             }
         }
     }
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const secretsObject= secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
-    await checkForNewCompanies(secretsObject);
+    await checkForNewModels(secretsObject);
     return secretsService.getSecretSync(getSpaceSecretsContainerName(spaceId), "apiKeys")
 }
-async function getApiHubAuthSecret(){
-    const secretName = "ApiHubAuth";
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
-    let authSecret;
-    try {
-        authSecret = secretsService.getSecretSync('JWT', secretName);
-    } catch (error) {
-        authSecret = crypto.generateSecret();
-        await secretsService.putSecretAsync('JWT', secretName, authSecret);
-    }
-    return authSecret;
-}
+
 module.exports = {
     createSpaceSecretsContainer,
-    keyAlreadyExists,
     putSpaceKey,
-    deleteSpaceKey,
     getModelAPIKey,
     getAPIKeys,
-    getApiHubAuthSecret,
     addSecretTypeToSpace
 }

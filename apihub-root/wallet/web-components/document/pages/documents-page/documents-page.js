@@ -4,7 +4,7 @@ export class DocumentsPage {
     constructor(element, invalidate) {
         this.refreshDocuments = async () => {
             this.documents = await documentModule.getDocuments(assistOS.space.id);
-            this.documents = this.documents.filter(document => document.type !== constants.DOCUMENT_CATEGORIES.SNAPSHOT);
+            this.documents = this.documents.filter(document => document.category === constants.DOCUMENT_CATEGORIES.DOCUMENT);
         };
         this.invalidate = invalidate;
         this.id = "documents";
