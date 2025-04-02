@@ -15,7 +15,7 @@ document-view-page {
     overflow: hidden;
     text-overflow: ellipsis;
 }
-.abstract-header-section{
+.infoText-header-section{
     display: flex;
     align-items: center;
 }
@@ -58,7 +58,7 @@ document-view-page::-webkit-scrollbar-track {
     background-color: var(--white);
 }
 
-.abstract-subtitle {
+.infoText-subtitle {
     font-style: normal;
     font-weight: 600;
     line-height: normal;
@@ -66,7 +66,7 @@ document-view-page::-webkit-scrollbar-track {
     padding-right: 10px;
 }
 
-.abstract-section {
+.infoText-section {
     border-radius: 5px;
     margin-bottom: 10px;
 }
@@ -76,7 +76,7 @@ document-view-page::-webkit-scrollbar-track {
     margin-right: 4px;
 }
 
-.document-abstract-container {
+.document-infoText-container {
     position: relative;
     display: flex;
     white-space: pre-line;
@@ -87,7 +87,7 @@ document-view-page::-webkit-scrollbar-track {
     color: var(--user-text);
 }
 
-.document-abstract {
+.document-infoText {
     resize: none;
     border: none;
     display: inline-block;
@@ -101,7 +101,7 @@ document-view-page::-webkit-scrollbar-track {
     word-break: break-word;
 }
 
-.document-abstract:focus {
+.document-infoText:focus {
     outline: none;
     background: var(--white-text);
 }
@@ -206,11 +206,11 @@ document-view-page::-webkit-scrollbar-track {
     display: none;
 }
 
-.abstract-section, .path-button, .chapter-item {
+.infoText-section, .path-button, .chapter-item {
     padding: 10px;
 }
 
-.abstract-section {
+.infoText-section {
     width: 100%;
 }
 
@@ -316,7 +316,7 @@ document-view-page .right-margin {
 }
 
 
-html[theme="dark"] textarea.document-abstract{
+html[theme="dark"] textarea.document-infoText{
     background: var(--white)
 }
 
@@ -379,7 +379,7 @@ html[theme="dark"] input.document-title{
     border-radius: 10px;
 }
 .document-highlight-plugin,
-.abstract-highlight-plugin,
+.infoText-highlight-plugin,
 .chapter-highlight-plugin,
 .paragraph-highlight-plugin{
     border: 3px solid var(--medium-blue);

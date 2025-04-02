@@ -77,13 +77,13 @@ export class ChapterItem {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
     }
-    deleteCompiledVideo(){
+    async deleteCompiledVideo(){
         delete this.chapter.commands.compileVideo;
-        documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
     }
     async compileChapterVideo(){
         this.chapter.commands.compileVideo = {};
-        await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+        await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
         await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
     }
     async beforeRender() {
@@ -143,7 +143,7 @@ export class ChapterItem {
     async invalidateCompiledVideo(){
         if(this.chapter.commands.compileVideo){
             delete this.chapter.commands.compileVideo;
-            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+            await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
         }
     }
     async onChapterUpdate(data) {
@@ -158,9 +158,9 @@ export class ChapterItem {
         } else {
             switch (data) {
                 case "title": {
-                    let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-                    if (title !== this.chapter.title) {
-                        this.chapter.title = title;
+                    let chapter = await documentModule.getChapter(assistOS.space.id, this._document.id, this.chapter.id);
+                    if (chapter.title !== this.chapter.title) {
+                        this.chapter.title = chapter.title;
                         this.renderChapterTitle();
                     }
                     break;
@@ -169,12 +169,9 @@ export class ChapterItem {
                     this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
                     break;
                 }
-                case "visibility": {
-                    //dont do anything
-                    break;
-                }
                 case "commands": {
-                    this.chapter.commands = await documentModule.getChapterCommands(assistOS.space.id, this._document.id, this.chapter.id);
+                    let chapter = await documentModule.getChapter(assistOS.space.id, this._document.id, this.chapter.id);
+                    this.chapter.commands = chapter.commands;
                     break;
                 }
                 default: {
@@ -214,18 +211,7 @@ export class ChapterItem {
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterItem.click();
         }
-        if (this.chapter.visibility === "hide") {
-            this.changeChapterVisibility("hide");
-        }
-
-        // let chapterContainer = this.element.querySelector('.chapter-title-container')
-        // chapterContainer.addEventListener('click', function() {
-        //     if (chapterContainer.classList.contains('highlighted-chapter') === false) {
-        //         chapterContainer.classList.add('highlighted-chapter');
-        //     } else {
-        //         chapterContainer.classList.remove('highlighted-chapter');
-        //     }
-        // });
+        this.changeChapterVisibility(true);
     }
 
     async addParagraphOrChapterOnKeyPress(event) {
@@ -361,17 +347,17 @@ export class ChapterItem {
     async changeChapterDisplay(_target) {
         await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
         await this.highlightChapter(_target);
-        if (this.chapter.visibility === "hide") {
-            this.changeChapterVisibility("show");
+        if (!this.isVisible) {
+            this.changeChapterVisibility(true);
         } else {
-            this.changeChapterVisibility("hide");
+            this.changeChapterVisibility(false);
         }
-        await documentModule.updateChapterVisibility(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.visibility);
+
     }
 
-    changeChapterVisibility(mode) {
-        this.chapter.visibility = mode;
-        if (mode === "hide") {
+    changeChapterVisibility(isVisible) {
+        this.isVisible = isVisible;
+        if (!isVisible) {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.classList.add('hidden');
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
