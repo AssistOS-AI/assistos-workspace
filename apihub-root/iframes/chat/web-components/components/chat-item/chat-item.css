@@ -56,7 +56,7 @@ chat-item {
     min-width: 30px;
     height: 32px;
     padding: 4px 8px;
-    background: linear-gradient(to right, #3478C6, #5a9fe3);
+    background:  var(--bg-secondary);
     color: #ffffff;
     font-weight: bold;
     font-size: 12px;
@@ -68,7 +68,7 @@ chat-item {
 }
 
 .chat-option-button:hover {
-    background: linear-gradient(to right, #1d5a99, #3478C6);
+    background: var(--text);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 }
 

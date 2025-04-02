@@ -370,7 +370,7 @@ chat-page {
 }
 
 .input__button:hover {
-    background-color: var(--bg);
+    background-color: var(--text);
 }
 
 .input__button:active {
