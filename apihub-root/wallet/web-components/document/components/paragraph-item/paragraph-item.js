@@ -262,7 +262,7 @@ export class ParagraphItem {
             return index === paragraphs.length - 1 ? 0 : index + 1;
         };
         const position = getNewPosition(currentParagraphIndex, this.chapter.paragraphs);
-        await documentModule.swapParagraphs(assistOS.space.id, this.chapter.id, this.paragraph.id, position);
+        await documentModule.changeParagraphOrder(assistOS.space.id, this.chapter.id, this.paragraph.id, position);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
         chapterPresenter.changeParagraphOrder(this.paragraph.id, position);
         await chapterPresenter.invalidateCompiledVideo();
@@ -290,7 +290,10 @@ export class ParagraphItem {
             }
             this.paragraph.text = paragraphText
             this.textIsDifferentFromAudio = true;
-            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, paragraphText, this.paragraph.commands, this.paragraph.comments);
+            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+                paragraphText,
+                this.paragraph.commands,
+                this.paragraph.comments);
         }
     }
 
@@ -397,7 +400,10 @@ export class ParagraphItem {
                         commandsChanged = await this.commandsEditor.handleCommand(command, "changed");
                     }
                     if(commandsChanged){
-                        await documentModule.updateParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id, this.paragraph.commands);
+                        await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+                            this.paragraph.text,
+                            this.paragraph.commands,
+                            this.paragraph.comments);
                     }
                     await this.saveParagraph(paragraphText);
                 }
@@ -416,7 +422,7 @@ export class ParagraphItem {
 
     async taskStatusHandler(status) {
         if (status === "completed") {
-            this.paragraph.commands = await documentModule.getParagraphCommands(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.paragraph = await documentModule.getParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             this.invalidate();
             if(this.videoPresenter){
                 this.videoPresenter.refreshVideoPreview();
@@ -439,7 +445,10 @@ export class ParagraphItem {
 
     async pasteParagraph(_target) {
         window.cutParagraph.id = this.paragraph.id;
-        await documentModule.updateParagraph(assistOS.space.id, this._document.id, this.paragraph.id, window.cutParagraph);
+        await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+            window.cutParagraph.text,
+            window.cutParagraph.commands,
+            window.cutParagraph.comments);
         this.invalidate(async () => {
             this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             delete window.cutParagraph;
