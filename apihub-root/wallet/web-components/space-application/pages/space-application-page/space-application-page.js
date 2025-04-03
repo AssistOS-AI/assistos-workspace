@@ -20,7 +20,7 @@ export class SpaceApplicationPage {
     async afterRender() {
         this.sidebar = this.element.querySelector(".right-sidebar");
         this.currentPage = this.element.querySelector(".current-page");
-        this.agentPage = this.element.querySelector("agent-page");
+        this.agentPage = this.element.querySelector("chat-container");
         this.highlightSidebarItem();
     }
 
@@ -38,7 +38,7 @@ export class SpaceApplicationPage {
             await this.toggleChat(undefined,"open",assistOS.UI.chatWidth);
         }else{
             const arrow = this.element.querySelector("#point-arrow-chat");
-            const agentPage = this.element.querySelector("agent-page");
+            const agentPage = this.element.querySelector("chat-container");
             arrow.classList.add("arrow-rotated");
             assistOS.UI.chatState = "fullscreen";
             agentPage.style.display = "flex";
@@ -129,7 +129,7 @@ export class SpaceApplicationPage {
         }
 
         const arrow = this.element.querySelector("#point-arrow-chat");
-        const agentPage = this.element.querySelector("agent-page");
+        const agentPage = this.element.querySelector("chat-container");
 
         if (mode === "open") {
             maximizeChat();

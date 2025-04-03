@@ -1,4 +1,4 @@
-const {getPersonalityData} = require('../globalServerlessAPI/space.js').APIs
+//const {getPersonalityData} = require('../globalServerlessAPI/space.js')
 const Document = require('../document/services/document.js')
 const fsPromises=require('fs').promises;
 const {getTextStreamingResponse, getTextResponse} = require('../llms/controller.js');
@@ -415,16 +415,5 @@ async function getDefaultPersonalityImage() {
 
 module.exports = {
     getDefaultPersonalityImage,
-    getChatMessages,
-    watchChat,
-    sendMessage,
-    sendQuery,
-    resetChat,
-    updateMessage,
-    resetChatContext,
-    addMessageToContext,
-    updateChatContextItem,
-    deleteChatContextItem,
-    getChatContext,
     sendQueryStreaming
 }

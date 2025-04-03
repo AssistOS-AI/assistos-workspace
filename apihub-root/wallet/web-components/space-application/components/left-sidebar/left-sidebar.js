@@ -89,17 +89,16 @@ export class LeftSidebar {
         };
         this.userImage = userImageURL;
         this.userName = assistOS.user.name;
-        for (let application of assistOS.space.installedApplications) {
-            let applicationData = assistOS.applications[application.name];
-            let svgImage = applicationData.svg;
+        for (let application of assistOS.space.applications) {
+            let svgImage = application.svg;
 
             this.applications += `
-        <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+        <div class="feature" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.id}">
             <div class="app-focus hidden"></div>
             <div class="page-logo">
                 ${svgImage}
-                <div class="app-name" id="${applicationData.name.toLowerCase()}">
-                    ${applicationData.name}
+                <div class="app-name" id="${application.name.toLowerCase()}">
+                    ${application.name}
                 </div>
             </div>
         </div>`;

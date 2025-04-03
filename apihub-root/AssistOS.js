@@ -6,7 +6,7 @@ const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const personalityModule = require('assistos').loadModule('agent', {});
 const flowModule = require('assistos').loadModule('flow', {});
-
+const Space = spaceModule.Space;
 
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
@@ -71,36 +71,8 @@ class AssistOS {
     }
 
     async boot(uiConfigsPath) {
-        const initialiseModules = async (configName) => {
-            this[configName] = {};
-            const loadModule = async (obj) => {
-                const module = await import(obj.path);
-                let service = new module[obj.name]();
-                const methodNames = Object.getOwnPropertyNames(module[obj.name].prototype)
-                    .filter(method => method !== 'constructor');
-                return {service, methodNames};
-            };
-
-            const modulePromises = this.configuration[configName].map(obj => loadModule(obj));
-            const modules = await Promise.allSettled(modulePromises);
-
-            modules.forEach(result => {
-                if (result.status === 'fulfilled') {
-                    const {service, methodNames} = result.value;
-                    methodNames.forEach(methodName => {
-                        this[configName][methodName] = service[methodName].bind(service);
-                    });
-                }
-            });
-        };
-
         this.UI = await WebSkel.initialise(uiConfigsPath);
-
-        await initialiseModules("services");
-
-        this.applications = {};
         this.initialisedApplications = new Set();
-
     }
 
     async changeApplicationLocation(appLocation, presenterParams) {
@@ -197,11 +169,9 @@ class AssistOS {
 
     async initSpace(email, spaceId) {
         assistOS.user = await userModule.loadUser(email);
-        assistOS.space = new spaceModule.Space(await spaceModule.getSpaceStatus(spaceId));
-        const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
-        appsData.forEach(application => {
-            assistOS.applications[application.name] = application;
-        });
+        let spaceStatus = await spaceModule.getSpaceStatus(spaceId);
+        assistOS.space = Space.getInstance(spaceStatus);
+        assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         //await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");

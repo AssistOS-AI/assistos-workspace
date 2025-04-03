@@ -2,7 +2,7 @@ import {
     validateOpenAiKey,
 } from "../../../../imports.js";
 
-const userModule = require('assistos').loadModule('user', {});
+const spaceModule = require('assistos').loadModule('space', {});
 
 export class EditApikeyModal {
     constructor(element, invalidate) {
@@ -35,14 +35,7 @@ export class EditApikeyModal {
                         throw Error(keyValidation.error);
                     }
                 }
-                let APIKeyObj = {
-                    type: this.type,
-                    APIKey: apiKey
-                }
-                if(formData.data.userId){
-                    APIKeyObj.userId = formData.data.userId;
-                }
-                await userModule.editAPIKey(APIKeyObj);
+                await spaceModule.editAPIKey(assistOS.space.id, this.type, apiKey);
                 assistOS.UI.closeModal(_target, true);
             } catch (error) {
                 assistOS.UI.closeModal(_target);

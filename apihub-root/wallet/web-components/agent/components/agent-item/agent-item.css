@@ -1,0 +1,22 @@
+agent-item{
+    padding: 20px;
+}
+.agent-image{
+    height: 130px;
+    width: 130px;
+    border-radius: 9px;
+    object-fit: cover;
+}
+.agent-content{
+    width: 130px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.text{
+    text-align: center;
+    width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

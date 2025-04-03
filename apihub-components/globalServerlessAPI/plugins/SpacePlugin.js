@@ -10,19 +10,7 @@ async function SpacePlugin(){
         let spaceData = {
             name: spaceName
         }
-        let space;
-        try {
-            space = await persistence.createSpaceStatus(spaceData);
-        } catch (e) {
-            return {
-                status: "failed",
-                reason: "Space with this name already exists"
-            }
-        }
-        return {
-            status: "success",
-            space: space
-        };
+        return await persistence.createSpaceStatus(spaceData);
     }
     self.deleteSpace = async function (email, authKey, spaceId) {
         // let userFile = await user.loadUser(email, authKey);

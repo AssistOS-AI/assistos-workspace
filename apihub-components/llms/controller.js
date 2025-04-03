@@ -51,15 +51,15 @@ async function constructRequestInitAndURL(url, method, request, response) {
     let LLMConfigs = await getLLMConfigs();
 
     if (request.body?.modelName) {
-        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
-    } else if (request.body?.company) {
-        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
+        companyObj = LLMConfigs.find(provider => provider.models.some(model => model.name === request.body.modelName));
+    } else if (request.body?.provider) {
+        companyObj = LLMConfigs.find((companyObj) => companyObj.provider === request.body.provider);
     }
 
     let body = Object.assign({}, request.body || {});
 
     if (companyObj) {
-        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.provider);
         if (!APIKeyObj) {
             return utils.sendResponse(response, 500, "application/json", {
                 message: "API key not found"

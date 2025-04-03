@@ -1,4 +1,4 @@
-async function SpaceInstancePersistence() {
+async function ChatPlugin() {
     const self = {};
 
     const AgentPlugin = await $$.loadPlugin("AgentWrapper");
@@ -82,12 +82,12 @@ async function SpaceInstancePersistence() {
         return contextChapter.paragraphs;
     }
     self.createChat = async function (docId) {
-        const chatId = await Workspace.createDocument(docId, "chat");
+        const document = await Workspace.createDocument(docId, "chat");
         await Promise.all([
-            Workspace.createChapter(chatId, "Messages", {}, [], 0),
-            Workspace.createChapter(chatId, "Context", {}, [], 1)
+            Workspace.createChapter(document.id, "Messages", {}, [], 0),
+            Workspace.createChapter(document.id, "Context", {}, [], 1)
         ]);
-        return chatId;
+        return document.id;
     }
     self.deleteChat = async function (chatId) {
         return await Workspace.deleteDocument(chatId);
@@ -274,14 +274,17 @@ async function SpaceInstancePersistence() {
     }
     return self;
 }
-
+let singletonInstance;
 module.exports = {
     getInstance: async function () {
-        return await SpaceInstancePersistence();
+        if(!singletonInstance){
+            singletonInstance = await ChatPlugin();
+        }
+        return singletonInstance;
     },
     getAllow: function () {
         return async function (globalUserId, email, command, ...args) {
-            return false;
+            return true;
         }
     },
     getDependencies: function () {

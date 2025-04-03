@@ -1,3 +1,4 @@
+const applicationModule = require("assistos").loadModule("application", {});
 export class ApplicationsMarketplacePage {
     constructor(element, invalidate) {
         this.element = element;
@@ -5,12 +6,10 @@ export class ApplicationsMarketplacePage {
         this.invalidate();
     }
 
-    beforeRender() {
+    async beforeRender() {
         this.applications = "";
-        Object.entries(assistOS.applications).forEach((application) => {
-            if(application[1].name === "Imagify" || application[1].name === "MyWebPage"){
-                return;
-            }
+        this.apps = await applicationModule.getAvailableApps(assistOS.space.id);
+        Object.entries(this.apps).forEach((application) => {
             this.applications +=
                 `<application-item data-name="${application[1].name}" data-presenter="application-item" data-description="${application[1].description}"></application-item>`;
         });

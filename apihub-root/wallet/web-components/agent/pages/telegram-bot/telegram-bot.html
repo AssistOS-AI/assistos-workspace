@@ -1,0 +1,23 @@
+<div class="telegram-bot">
+  <div class="instructions">
+    How to link your agent with Telegram:
+    <ol>
+      <li>Open Telegram and search for <strong>BotFather</strong></li>
+      <li>Type <strong>/newbot</strong></li>
+      <li>Choose a name and a username for your bot(Use agent name).</li>
+      <li>After that copy the bot ID and paste it here and click <strong>Start Bot</strong></li>
+      <li>Search your newly created bot in Telegram and press <strong>start</strong>. Then follow its instructions to link your identity to AssistOS</li>
+    </ol>
+  </div>
+  <div class="form-item">
+    <label class="form-label" for="botId">Bot ID</label>
+    <input type="text" class="form-input" name="botId" id="botId" value="$$botId">
+  </div>
+  $$telegramBotStatus
+  <button class="general-button" data-local-action="startTelegramBot">Start Bot</button>
+
+  <div class="users-table hidden">
+    <div class="table-header">Telegram Users</div>
+    $$usersHTML
+  </div>
+</div>

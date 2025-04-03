@@ -19,7 +19,7 @@ export class ChapterCommentMenu {
     beforeRender() {
         let chapterElement = assistOS.UI.reverseQuerySelector(this.element, 'chapter-item');
         this.chapterPresenter = chapterElement.webSkelPresenter;
-        this.chapterComment = this.chapterPresenter.chapter.comment;
+        this.chapterComment = this.chapterPresenter.chapter.comments;
         this.chapterId=this.chapterPresenter.chapter.id;
         this.documentId = this.chapterPresenter._document.id;
         this.debouncedUpdateComment = debounce(this.updateChapterComment, 1000).bind(this);
@@ -49,16 +49,16 @@ export class ChapterCommentMenu {
                 this.element.querySelector('.saveToolTip').style.display = 'none';
             },500);
         }
-        if (this.textArea.value === this.chapterComment) return;
-        await documentModule.updateChapterComment(
-            assistOS.space.id,
-            this.documentId,
-            this.chapterId,
-            this.textArea.value
-        );
+        if (this.textArea.value === this.chapterComment) {
+            return;
+        }
+        let chapter = this.chapterPresenter.chapter;
         this.chapterComment = this.textArea.value;
-        this.chapterPresenter.chapter.comment = this.textArea.value;
+        chapter.comments = this.textArea.value;
+        await documentModule.updateChapter(assistOS.space.id, chapter.id,
+            chapter.title,
+            chapter.comments,
+            chapter.commands);
         showSaveToolTip();
-
     }
 }

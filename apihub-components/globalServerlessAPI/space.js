@@ -4,38 +4,11 @@ const archiver = require('archiver');
 const enclave = require('opendsu').loadAPI('enclave');
 const crypto = require("../apihub-component-utils/crypto.js");
 const date = require('../apihub-component-utils/date.js');
-const file = require('../apihub-component-utils/file.js');
 const openAI = require('../apihub-component-utils/openAI.js');
 const secrets = require('../apihub-component-utils/secrets.js');
 const fs = require('fs');
-const volumeManager = require('../volumeManager.js');
 const cookie = require("../apihub-component-utils/cookie");
 
-function getSpacePath(spaceId) {
-    return path.join(volumeManager.paths.space, spaceId);
-}
-async function ensureTasksFolderExists(spaceId) {
-    const tasksFolderPath = path.join(getSpacePath(spaceId), 'tasks');
-    try {
-        await file.createDirectory(tasksFolderPath);
-    } catch (error) {
-        if (error.statusCode !== 409) {
-            throw error;
-        }
-    }
-}
-
-async function ensureTaskFolderExists(spaceId, taskId) {
-    await ensureTasksFolderExists(spaceId);
-    const taskFolderPath = path.join(getSpacePath(spaceId), 'tasks', taskId);
-    try {
-        await file.createDirectory(taskFolderPath);
-    } catch (error) {
-        if (error.statusCode !== 409) {
-            throw error;
-        }
-    }
-}
 
 function getDailyLogFileName() {
     const getTaskFileName = (year, month, day) => `logs-${year}-${month}-${day}.log`;
@@ -169,46 +142,6 @@ async function updateSpaceChatMessage(spaceId, chatId, entityId, messageId, mess
     chatDocumentRecord.data.text = message;
     await lightDB.updateRecord(spaceId, documentId, messageId, chatDocumentRecord.data)
 }
-
-async function createSpaceChat(spaceId, personalityId) {
-
-    const personalityData = await getPersonalityData(spaceId, personalityId);
-
-    if (!personalityData.chats) {
-        personalityData.chats = [];
-    }
-
-    const Document = require('../document/services/document.js')
-    const Chapter = require('../document/services/chapter.js')
-
-    const documentData = {
-        title: `chat_${personalityId}`,
-        topic: '',
-        metadata: ["id", "title"]
-    }
-
-    const chatChapterData = {
-        title: `Messages`,
-        position: 0,
-        paragraphs: []
-    }
-
-    const chatContextChapterData = {
-        title: `Context`,
-        position: 1,
-        paragraphs: []
-    }
-
-    const docId = await Document.createDocument(spaceId, documentData);
-    personalityData.chats.push(docId);
-    personalityData.selectedChat = docId;
-    await updatePersonalityData(spaceId, personalityId, personalityData)
-    const chatItemsChapterId = await Chapter.createChapter(spaceId, docId, chatChapterData)
-    const chatContextChapterId = await Chapter.createChapter(spaceId, docId, chatContextChapterData)
-
-    return docId;
-}
-
 async function createDefaultSpaceChats(lightDbClient, spaceId) {
     const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
     for (const personality of spacePersonalities) {
@@ -217,76 +150,20 @@ async function createDefaultSpaceChats(lightDbClient, spaceId) {
     /*await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));*/
 }
 
-
-async function getPersonalityData(spaceId, personalityId) {
-    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
-    try {
-        const personalityData = await fsPromises.readFile(personalityPath, 'utf8');
-        return JSON.parse(personalityData);
-    } catch (error) {
-        error.message = `Personality ${personalityId} not found.`;
-        error.statusCode = 404;
-        throw error;
-    }
-}
-
-async function updatePersonalityData(spaceId, personalityId, personalityData) {
-    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
-    await fsPromises.writeFile(personalityPath, JSON.stringify(personalityData, null, 2), 'utf8');
-}
-
-
-async function getSpacePersonalitiesObject(spaceId) {
-    const personalitiesDirectoryPath = path.join(getSpacePath(spaceId), 'personalities');
-    const personalitiesFiles = await fsPromises.readdir(personalitiesDirectoryPath, {withFileTypes: true});
-    const sortedPersonalitiesFiles = await file.sortFiles(personalitiesFiles, personalitiesDirectoryPath, 'creationDate');
-    let spacePersonalitiesObject = [];
-    for (const fileName of sortedPersonalitiesFiles) {
-        if (!fileName.includes('metadata')) {
-            const personalityJson = await fsPromises.readFile(path.join(personalitiesDirectoryPath, fileName), 'utf8');
-            spacePersonalitiesObject.push(JSON.parse(personalityJson));
-        }
-    }
-    return spacePersonalitiesObject;
-}
-
-async function getSpaceStatusObject(spaceId) {
-    const spaceStatusPath = path.join(getSpacePath(spaceId), 'status', 'status.json');
-    try {
-        const spaceStatusObject = JSON.parse(await fsPromises.readFile(spaceStatusPath, {encoding: 'utf8'}));
-        return spaceStatusObject
-    } catch (error) {
-        error.message = `Space ${spaceId} not found.`;
-        error.statusCode = 404;
-        throw error;
-    }
-}
-
-function getApplicationPath(spaceId, appName) {
-    return path.join(getSpacePath(spaceId), 'applications', appName);
-}
-
-async function updateSpaceStatus(spaceId, spaceStatusObject) {
-    const spacePath = getSpacePath(spaceId)
-    const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
-    await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
-}
-
-async function editAPIKey(spaceId, userId, APIkeyObj) {
-    const {getLLMConfigs} = require('../llms/controller.js');
-    let LLMConfigs = await getLLMConfigs();
-    let companyObj = LLMConfigs.find((companyObj) => companyObj.company === APIkeyObj.type);
+async function editAPIKey(spaceId, userId, type, APIKey) {
+    let providers = require("./AIModels.json")
+    let llm = providers.find((llm) => llm.provider === type);
     let apiKeyObj = {
         ownerId: userId,
         addedDate: date.getCurrentUTCDate()
     }
-    for (let key of companyObj.authentication) {
-        apiKeyObj[key] = APIkeyObj[key];
+    for (let key of llm.authentication) {
+        apiKeyObj[key] = APIKey;
     }
-    await secrets.putSpaceKey(spaceId, APIkeyObj.type, apiKeyObj);
+    await secrets.putSpaceKey(spaceId, type, apiKeyObj);
 }
 
-async function getAPIKeysMetadata(spaceId) {
+async function getAPIKeysMasked(spaceId) {
     let keys = JSON.parse(JSON.stringify(await secrets.getAPIKeys(spaceId)));
     for (let keyType in keys) {
         if (keys[keyType].APIKey) {
@@ -299,89 +176,11 @@ async function getAPIKeysMetadata(spaceId) {
     return keys;
 }
 
-async function deleteAPIKey(spaceId, keyType) {
-    await secrets.deleteSpaceKey(spaceId, keyType);
-}
-
-async function streamToJson(stream) {
-    return new Promise((resolve, reject) => {
-        let data = '';
-        stream.on('data', chunk => data += chunk);
-        stream.on('end', () => resolve(JSON.parse(data)));
-        stream.on('error', err => reject(err));
-    });
-}
-
-async function archivePersonality(spaceId, personalityId) {
-    const personalityData = await getPersonalityData(spaceId, personalityId);
-    const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
-    const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
-
-    const metadata = {
-        name: personalityData.name,
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-        version: "1.0",
-        checksum: checksum,
-        contentFile: "data.json",
-    };
-
-    const archive = archiver('zip', {zlib: {level: 9}});
-    const stream = new require('stream').PassThrough();
-    archive.pipe(stream);
-
-    archive.append(contentBuffer, {name: 'data.json'});
-    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-
-    archive.finalize();
-    return stream;
-}
-
-async function importPersonality(spaceId, extractedPath, request) {
-    const personalityDataPath = path.join(extractedPath, 'data.json');
-
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    let personalityModule = require("assistos").loadModule("agent", securityContext);
-    const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
-
-    const personalityData = await streamToJson(personalityDataStream);
-    const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
-
-    let personalityId, overriden = false, personalityName = personalityData.name;
-    if (existingPersonality) {
-        personalityData.id = existingPersonality.id;
-        personalityId = await personalityModule.updateAgent(spaceId, existingPersonality.id, personalityData);
-        overriden = true;
-    } else {
-        personalityId = await personalityModule.addAgent(spaceId, personalityData);
-    }
-    return {id: personalityId, overriden: overriden, name: personalityName};
-}
-
-async function addApplicationToSpaceObject(spaceId, applicationData, manifest) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    spaceStatusObject.installedApplications.push({
-        name: applicationData.name,
-        description: manifest.description || "No description provided",
-        installationDate: date.getCurrentUnixTimeSeconds(),
-        lastUpdate: applicationData.lastUpdate,
-    });
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-}
-
-async function removeApplicationFromSpaceObject(spaceId, applicationId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== applicationId);
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-}
-
 
 const getApplicationEntry = async function (spaceId, applicationId) {
     const applicationPath = path.join(getSpacePath(spaceId), 'applications', applicationId);
     /* assumption that each application has an index.html where it initialises itself*/
-    const stubHTML = `<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our company. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
+    const stubHTML = `<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Sample Website</title> <style> body { font-family: Arial, sans-serif; margin: 20px; } .container { max-width: 800px; margin: 0 auto; } nav { background-color: #333; padding: 10px; } nav a { color: white; text-decoration: none; margin-right: 15px; } </style> </head> <body> <div class="container"> <nav> <a href="#home">Home</a> <a href="#about">About</a> <a href="#contact">Contact</a> </nav> <h1>Welcome to My Website</h1> <section id="about"> <h2>About Us</h2> <p>This is a sample paragraph about our provider. We're dedicated to providing the best service to our customers.</p> </section> <section id="contact"> <h2>Contact Form</h2> <form action="/submit" method="POST"> <label for="name">Name:</label><br> <input type="text" id="name" name="name"><br> <label for="email">Email:</label><br> <input type="email" id="email" name="email"><br> <label for="message">Message:</label><br> <textarea id="message" name="message" rows="4" cols="50"></textarea><br> <input type="submit" value="Submit"> </form> </section> <footer> <p>© 2023 My Website. All rights reserved.</p> </footer> </div> </body> </html>`;
     return stubHTML;
 }
 
@@ -613,7 +412,6 @@ const getWidget = async function (spaceId, applicationId, widgetId) {
 }
 
 module.exports = {
-    APIs: {
         getWidget,
         getWebAssistantHomePage,
         updateWebChatConfiguration,
@@ -630,26 +428,13 @@ module.exports = {
         getSpaceApplications,
         getApplicationEntry,
         getWebChatConfiguration,
-        addApplicationToSpaceObject,
-        removeApplicationFromSpaceObject,
-        getSpaceStatusObject,
-        updateSpaceStatus,
         getSpaceChat,
         addSpaceChatMessage,
         editAPIKey,
-        deleteAPIKey,
-        getAPIKeysMetadata,
-        getSpacePath,
-        archivePersonality,
-        importPersonality,
-        streamToJson,
+        getAPIKeysMasked,
         getTaskLogFilePath,
-        getSpacePersonalitiesObject,
-        createSpaceChat,
         updateSpaceChatMessage,
         resetSpaceChat,
         storeSpaceChat,
-        getPersonalityData,
-    }
 }
 
