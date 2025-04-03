@@ -68,6 +68,9 @@ async function AgentWrapper() {
     self.getAllAgents = async function() {
         return await AgentPlugin.getAllAgents();
     }
+    self.getAllAgentObjects = async function() {
+        return await AgentPlugin.getAllAgentObjects();
+    }
     self.createAgent = async function (name, description) {
         return await AgentPlugin.createAgent(name, description);
     }

@@ -4,44 +4,44 @@
     "services": [],
     "components": [
         {
-            "name": "personality-video",
-            "directory": "personality",
+            "name": "agent-video",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityVideo"
+            "presenterClassName": "AgentVideo"
         },
         {
-            "name": "personality-image",
-            "directory": "personality",
+            "name": "agent-image",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityImage"
+            "presenterClassName": "AgentImage"
         },
         {
-            "name": "personality-text",
-            "directory": "personality",
+            "name": "agent-text",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityText"
+            "presenterClassName": "AgentText"
         },
         {
-            "name": "personality-description",
-            "directory": "personality",
+            "name": "agent-description",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityDescription"
+            "presenterClassName": "AgentDescription"
         },
         {
-            "name": "personality-audio",
-            "directory": "personality",
+            "name": "agent-audio",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityAudio"
+            "presenterClassName": "AgentAudio"
         },
         {
-            "name": "personality-chat",
-            "directory": "personality",
+            "name": "agent-chat",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalityChat"
+            "presenterClassName": "AgentChat"
         },
         {
             "name": "telegram-bot",
-            "directory": "personality",
+            "directory": "agent",
             "type": "pages",
             "presenterClassName": "TelegramBot"
         },
@@ -323,10 +323,10 @@
             "presenterClassName": "MlIDEPage"
         },
         {
-            "name": "agent-page",
+            "name": "chat-container",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "AgentPage"
+            "presenterClassName": "ChatContainer"
         },
         {
             "name": "llm-playground-page",
@@ -411,15 +411,15 @@
             "type": "modals"
         },
         {
-            "name": "edit-personality-page",
-            "directory": "personality",
+            "name": "edit-agent-page",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "EditPersonalityPage"
+            "presenterClassName": "EditAgentPage"
         },
         {
-            "name": "personality-item",
-            "directory": "personality",
-            "presenterClassName": "PersonalityItem",
+            "name": "agent-item",
+            "directory": "agent",
+            "presenterClassName": "AgentItem",
             "type": "components"
         },
         {
@@ -450,10 +450,10 @@
             "presenterClassName": "AnnouncementsPage"
         },
         {
-            "name": "personalities-page",
-            "directory": "personality",
+            "name": "agents-page",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalitiesPage"
+            "presenterClassName": "AgentsPage"
         },
         {
             "name": "flows-page",
@@ -468,10 +468,10 @@
             "presenterClassName": "AddAnnouncementModal"
         },
         {
-            "name": "add-personality-modal",
-            "directory": "personality",
+            "name": "add-agent",
+            "directory": "agent",
             "type": "modals",
-            "presenterClassName": "AddPersonalityModal"
+            "presenterClassName": "AddAgent"
         },
         {
             "name": "add-flow-modal",

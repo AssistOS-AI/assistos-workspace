@@ -1,0 +1,81 @@
+#name{
+    max-width: 600px;
+}
+.llms{
+    width: 500px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    margin-left: 10px;
+}
+.photo-llms-row{
+    display: flex;
+}
+.agent-photo{
+    border-radius: 8px;
+    object-fit: cover;
+    height: 127px;
+    width: 127px;
+    margin-top: 1px;
+}
+#photo{
+    position: absolute;
+    opacity: 0;
+}
+.input-file-container{
+    position: relative;
+    border-radius: 8px;
+    border: 0.5px dashed var(--lighter-black);
+    width: 130px;
+    margin: 4px 0 8px;
+    background: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 130px;
+    cursor: pointer;
+}
+.input-file-container:hover .shadow {
+    opacity: 1;
+}
+.shadow {
+    opacity: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+.photo-container{
+    height: 100%;
+}
+
+.upload-arrow{
+    position: absolute;
+    top: 30px;
+    left: 50px;
+}
+textarea#description{
+    resize: none;
+    height: 150px;
+}
+
+.upload-photo {
+    top: 80px;
+    left: 10px;
+    position: absolute;
+    border: none;
+    background: none;
+    color: var(--input-file-selector);
+    text-decoration: underline;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+input[type="file"]{
+    pointer-events: none;
+}

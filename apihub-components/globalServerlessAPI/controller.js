@@ -135,12 +135,13 @@ async function createSpace(request, response, server) {
     }
     try {
         let client = await getAPIClient(request, constants.SPACE_PLUGIN);
-
-        let result = await client.createSpace(spaceName);
-        if(result.status === "failed"){
-            return utils.sendResponse(response, 500, "text/plain", result.reason);
+        let space;
+        try {
+            space = await client.createSpace(spaceName);
+        } catch (e) {
+            return utils.sendResponse(response, 500, "text/plain", e.message);
         }
-        let space = result.space;
+
         await secrets.createSpaceSecretsContainer(space.id);
         let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         await appSpecificClient.linkSpaceToUser(email, space.id);
