@@ -150,21 +150,6 @@ async function createDefaultSpaceChats(lightDbClient, spaceId) {
     /*await Promise.all(spacePersonalities.map(personalityData => createSpaceChat(spaceId, personalityData.id)));*/
 }
 
-async function updatePersonalityData(spaceId, personalityId, personalityData) {
-    const personalityPath = path.join(getSpacePath(spaceId), 'personalities', `${personalityId}.json`);
-    await fsPromises.writeFile(personalityPath, JSON.stringify(personalityData, null, 2), 'utf8');
-}
-
-function getApplicationPath(spaceId, appName) {
-    return path.join(getSpacePath(spaceId), 'applications', appName);
-}
-
-async function updateSpaceStatus(spaceId, spaceStatusObject) {
-    const spacePath = getSpacePath(spaceId)
-    const spaceStatusPath = path.join(spacePath, 'status', `status.json`);
-    await fsPromises.writeFile(spaceStatusPath, JSON.stringify(spaceStatusObject, null, 2), {encoding: 'utf8'});
-}
-
 async function editAPIKey(spaceId, userId, type, APIKey) {
     let providers = require("./AIModels.json")
     let llm = providers.find((llm) => llm.provider === type);
@@ -189,80 +174,6 @@ async function getAPIKeysMasked(spaceId) {
         }
     }
     return keys;
-}
-
-async function streamToJson(stream) {
-    return new Promise((resolve, reject) => {
-        let data = '';
-        stream.on('data', chunk => data += chunk);
-        stream.on('end', () => resolve(JSON.parse(data)));
-        stream.on('error', err => reject(err));
-    });
-}
-
-async function archivePersonality(spaceId, personalityId) {
-    const personalityData = await getPersonalityData(spaceId, personalityId);
-    const contentBuffer = Buffer.from(JSON.stringify(personalityData), 'utf-8');
-    const checksum = require('crypto').createHash('sha256').update(contentBuffer).digest('hex');
-
-    const metadata = {
-        name: personalityData.name,
-        created: new Date().toISOString(),
-        modified: new Date().toISOString(),
-        version: "1.0",
-        checksum: checksum,
-        contentFile: "data.json",
-    };
-
-    const archive = archiver('zip', {zlib: {level: 9}});
-    const stream = new require('stream').PassThrough();
-    archive.pipe(stream);
-
-    archive.append(contentBuffer, {name: 'data.json'});
-    archive.append(Buffer.from(JSON.stringify(metadata), 'utf-8'), {name: 'metadata.json'});
-
-    archive.finalize();
-    return stream;
-}
-
-async function importPersonality(spaceId, extractedPath, request) {
-    const personalityDataPath = path.join(extractedPath, 'data.json');
-
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    let personalityModule = require("assistos").loadModule("agent", securityContext);
-    const personalityDataStream = fs.createReadStream(personalityDataPath, 'utf8');
-
-    const personalityData = await streamToJson(personalityDataStream);
-    const spacePersonalities = await getSpacePersonalitiesObject(spaceId);
-    const existingPersonality = spacePersonalities.find(personality => personality.name === personalityData.name);
-
-    let personalityId, overriden = false, personalityName = personalityData.name;
-    if (existingPersonality) {
-        personalityData.id = existingPersonality.id;
-        personalityId = await personalityModule.updateAgent(spaceId, existingPersonality.id, personalityData);
-        overriden = true;
-    } else {
-        personalityId = await personalityModule.addAgent(spaceId, personalityData);
-    }
-    return {id: personalityId, overriden: overriden, name: personalityName};
-}
-
-async function addApplicationToSpaceObject(spaceId, applicationData, manifest) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    spaceStatusObject.installedApplications.push({
-        name: applicationData.name,
-        description: manifest.description || "No description provided",
-        installationDate: date.getCurrentUnixTimeSeconds(),
-        lastUpdate: applicationData.lastUpdate,
-    });
-    await updateSpaceStatus(spaceId, spaceStatusObject);
-}
-
-async function removeApplicationFromSpaceObject(spaceId, applicationId) {
-    const spaceStatusObject = await getSpaceStatusObject(spaceId);
-    spaceStatusObject.installedApplications = spaceStatusObject.installedApplications.filter(application => application.name !== applicationId);
-    await updateSpaceStatus(spaceId, spaceStatusObject);
 }
 
 
@@ -517,16 +428,10 @@ module.exports = {
         getSpaceApplications,
         getApplicationEntry,
         getWebChatConfiguration,
-        addApplicationToSpaceObject,
-        removeApplicationFromSpaceObject,
-        updateSpaceStatus,
         getSpaceChat,
         addSpaceChatMessage,
         editAPIKey,
         getAPIKeysMasked,
-        archivePersonality,
-        importPersonality,
-        streamToJson,
         getTaskLogFilePath,
         updateSpaceChatMessage,
         resetSpaceChat,

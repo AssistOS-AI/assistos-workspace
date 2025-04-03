@@ -2,7 +2,8 @@ const path = require("path");
 const {promises: fsPromises} = require("fs");
 const defaultModels = require("../defaultModels");
 const storage = require("../../apihub-component-utils/storage");
-
+const archiver = require("archiver");
+const fs = require("fs");
 
 async function AgentWrapper() {
     let self = {};
@@ -79,6 +80,36 @@ async function AgentWrapper() {
         const agent = await self.getAgent(id);
         const imageId = agent.imageId;
         return await storage.getDownloadURL("image/png", imageId);
+    }
+    self.exportPersonality = async function(id) {
+        let agent = await self.getAgent(id);
+        const contentBuffer = Buffer.from(JSON.stringify(agent), 'utf-8');
+        const archive = archiver('zip', {zlib: {level: 9}});
+        const stream = new require('stream').PassThrough();
+        archive.pipe(stream);
+        archive.append(contentBuffer, {name: 'data.json'});
+        archive.finalize();
+        return stream;
+    }
+
+    self.importAgent = async function (extractedPath) {
+        const agentPath = path.join(extractedPath, 'data.json');
+        const fileContent = await fsPromises.readFile(agentPath, 'utf8');
+        const agentData = await JSON.parse(fileContent);
+        const agents = await AgentPlugin.getAllAgentObjects();
+        const existingAgent = agents.find(ag => ag.name === agentData.name);
+
+        let agentId, overwritten = false;
+        if (existingAgent) {
+            agentData.id = existingAgent.id;
+            await AgentPlugin.updateAgent(existingAgent.id, agentData);
+            overwritten = true;
+        } else {
+            let agent = await AgentPlugin.createAgent(agentData.name, agentData.description);
+            await AgentPlugin.updateAgent(agent.id, agentData);
+            agentId = agent.id;
+        }
+        return {id: agentId, overwritten: overwritten, name: agentData.name};
     }
     return self;
 }

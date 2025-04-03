@@ -1,4 +1,4 @@
-async function SpaceInstancePersistence() {
+async function ChatPlugin() {
     const self = {};
 
     const AgentPlugin = await $$.loadPlugin("AgentWrapper");
@@ -158,10 +158,13 @@ async function SpaceInstancePersistence() {
 
     return self;
 }
-
+let singletonInstance;
 module.exports = {
     getInstance: async function () {
-        return await SpaceInstancePersistence();
+        if(!singletonInstance){
+            singletonInstance = await ChatPlugin();
+        }
+        return singletonInstance;
     },
     getAllow: function () {
         return async function (globalUserId, email, command, ...args) {

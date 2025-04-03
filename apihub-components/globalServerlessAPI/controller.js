@@ -152,6 +152,8 @@ async function createSpace(request, response, server) {
         await fsPromises.mkdir(pluginsStorage, {recursive: true});
         let persistenceStorage = path.join(serverlessAPIStorage, "persistence");
         await fsPromises.mkdir(persistenceStorage, {recursive: true});
+        let applicationsPath = path.join(serverlessAPIStorage, "applications");
+        await fsPromises.mkdir(applicationsPath, {recursive: true});
 
         await createSpacePlugins(pluginsStorage);
 
@@ -417,15 +419,11 @@ async function importPersonality(request, response) {
     const fileId = crypto.generateSecret(64);
     const tempDir = path.join(__dirname, '../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.persai`);
-
     await fs.promises.mkdir(tempDir, {recursive: true});
-
     const busboy = Busboy({headers: request.headers});
-
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         const writeStream = fs.createWriteStream(filePath);
         file.pipe(writeStream);
-
         writeStream.on('finish', async () => {
             try {
                 const extractedPath = path.join(tempDir, 'extracted');
@@ -464,33 +462,6 @@ async function importPersonality(request, response) {
     });
 
     request.pipe(busboy);
-}
-
-async function exportPersonality(request, response) {
-    const spaceId = request.params.spaceId;
-    const personalityId = request.params.personalityId;
-    try {
-        const archiveStream = await space.APIs.archivePersonality(spaceId, personalityId);
-
-        response.setHeader('Content-Disposition', `attachment; filename=${personalityId}.persai`);
-        response.setHeader('Content-Type', 'application/zip');
-
-        archiveStream.pipe(response);
-
-        archiveStream.on('end', () => {
-            response.end();
-        });
-
-        archiveStream.on('error', err => {
-            utils.sendResponse(response, 500, "application/json", {
-                message: `Error at exporting personality: ${personalityId}. ${err.message}`
-            })
-        });
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode || 500, "application/json", {
-            message: `Error at exporting personality: ${personalityId}. ${error.message}`
-        });
-    }
 }
 
 async function getUploadURL(request, response) {
@@ -845,7 +816,6 @@ module.exports = {
     getAPIKeysMasked,
     getChatTextResponse,
     getChatTextStreamingResponse,
-    exportPersonality,
     importPersonality,
     getSpaceChat,
     resetSpaceChat,

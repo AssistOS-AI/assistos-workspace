@@ -317,12 +317,6 @@
             "presenterClassName": "AddDocumentModal"
         },
         {
-            "name": "ml-ide-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "MlIDEPage"
-        },
-        {
             "name": "chat-container",
             "directory": "space-application",
             "type": "pages",
@@ -357,11 +351,6 @@
             "directory": "application",
             "type": "modals",
             "presenterClassName": "ClientDisconnectModal"
-        },
-        {
-            "name": "action-box-marketplace",
-            "directory": "application",
-            "type": "components"
         },
         {
             "name": "application-page",
@@ -423,11 +412,6 @@
             "type": "components"
         },
         {
-            "name": "flow-item",
-            "directory": "flow",
-            "type": "components"
-        },
-        {
             "name": "announcement-item",
             "directory": "space-application",
             "type": "components"
@@ -456,12 +440,6 @@
             "presenterClassName": "AgentsPage"
         },
         {
-            "name": "flows-page",
-            "directory": "flow",
-            "type": "pages",
-            "presenterClassName": "FlowsPage"
-        },
-        {
             "name": "add-announcement-modal",
             "directory": "space-application",
             "type": "modals",
@@ -474,22 +452,10 @@
             "presenterClassName": "AddAgent"
         },
         {
-            "name": "add-flow-modal",
-            "directory": "flow",
-            "type": "modals",
-            "presenterClassName": "AddFlowModal"
-        },
-        {
             "name": "edit-apikey-modal",
             "directory": "space-application",
             "type": "modals",
             "presenterClassName": "EditApikeyModal"
-        },
-        {
-            "name": "edit-flow-modal",
-            "directory": "flow",
-            "type": "modals",
-            "presenterClassName": "EditFlowModal"
         },
         {
             "name": "edit-announcement-modal",

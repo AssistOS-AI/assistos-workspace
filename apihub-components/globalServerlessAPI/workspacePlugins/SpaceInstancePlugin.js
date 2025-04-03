@@ -3,7 +3,6 @@ const constants = require("../constants");
 
 async function SpaceInstancePlugin(){
     let self = {};
-    let persistence = await $$.loadPlugin("SpaceInstancePersistence");
     let Workspace = await $$.loadPlugin("WorkspacePlugin");
     let WorkspaceUser = await $$.loadPlugin("WorkspaceUser");
     let EmailPlugin = await $$.loadPlugin("EmailPlugin");
@@ -124,6 +123,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpaceInstancePersistence", "WorkspacePlugin", "WorkspaceUser", "EmailPlugin"];
+        return ["WorkspacePlugin", "WorkspaceUser", "EmailPlugin"];
     }
 }

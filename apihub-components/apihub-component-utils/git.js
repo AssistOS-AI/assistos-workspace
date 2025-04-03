@@ -3,10 +3,12 @@ const util = require("util");
 const execAsync = util.promisify(exec);
 const fs = require("fs");
 const path = require("path");
-const secrets = require("./secrets");
 const https = require('https');
 const { URL } = require('url');
-
+function getGitHubToken(){
+    let keys = JSON.parse(process.env.API_KEYS);
+    return keys["GitHub"];
+}
 async function checkGitHubRepoVisibility(repoUrl) {
     try {
         const url = new URL(repoUrl);
@@ -56,7 +58,7 @@ async function checkGitHubRepoVisibility(repoUrl) {
     }
 }
 
-async function clone(repository, folderPath, spaceId) {
+async function clone(repository, folderPath) {
 
     let visibility;
     try {
@@ -67,7 +69,7 @@ async function clone(repository, folderPath, spaceId) {
     }
 
     if(!visibility || visibility === "Private") {
-        const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+        const tokenObj = getGitHubToken();
         const token = tokenObj.APIKey;
         if (!token) {
             throw new Error("GitHub token not set");
@@ -100,7 +102,7 @@ async function checkForUpdates(localPath, remoteUrl, spaceId) {
         throw new Error("The specified path is not a Git repository.");
     }
 
-    const tokenObj = await secrets.getModelAPIKey(spaceId, "GitHub");
+    const tokenObj = getGitHubToken();
     const token = tokenObj.APIKey;
     if (!token) {
         return false;

@@ -4,32 +4,22 @@ export class ApplicationItem {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.pagePresenter = this.element.closest("applications-marketplace-page").webSkelPresenter;
         this.invalidate();
     }
 
     getApp() {
-        for (let name of Object.keys(assistOS.applications)) {
-            if (name === this.appName) {
-                return assistOS.applications[name];
-            }
-        }
-        return null;
+        return this.pagePresenter.apps.find(app => app.name === this.appName);
     }
 
     async beforeRender() {
         this.installed = false;
         this.appName = this.element.getAttribute("data-name");
         this.app = this.getApp();
-        for (let installedApplication of assistOS.space.installedApplications) {
-            if (installedApplication.name === this.appName) {
-                this.installed = true;
-            }
-        }
+        assistOS.space.applications.find(app => app.name === this.appName) ? this.installed = true : this.installed = false;
         if (this.installed) {
             this.requiresUpdate = await applicationModule.requiresUpdate(assistOS.space.id, this.appName);
         }
-        //this.description = this.element.getAttribute("data-description");
-        this.description = this.app.description;
         this.appImage = this.app.image;
         this.applicationButtons = `<div class='application-buttons'>
             ${this.installed ? `
@@ -75,13 +65,5 @@ export class ApplicationItem {
         if (this.installed) {
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/application-page/${this.appName}`);
         }
-    }
-
-    async showActionBox(_target, primaryKey, componentName, insertionMode) {
-        await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
-    }
-
-    async cloneAction() {
-        console.log("to be done");
     }
 }

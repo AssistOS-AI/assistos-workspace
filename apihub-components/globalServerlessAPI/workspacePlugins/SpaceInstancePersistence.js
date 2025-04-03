@@ -1,10 +1,10 @@
-const path = require("path");
 async function SpaceInstancePersistence(){
-    // process.env.process.env.PERSISTENCE_FOLDER = path.join(server.rootFolder, "external-volume", "spaces");
+    //workspacePersistence
     let persistence = await $$.loadPlugin("DefaultPersistence");
     persistence.configureTypes({
         application: {
             name: "string",
+            lastUpdate: "string"
         }
     });
 
