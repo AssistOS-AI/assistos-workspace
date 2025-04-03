@@ -77,15 +77,15 @@ export class ChapterItem {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
     }
+
     async deleteCompiledVideo(){
-        delete this.chapter.commands.compileVideo;
-        await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
+        alert("TO BE DONE")
     }
+
     async compileChapterVideo(){
-        this.chapter.commands.compileVideo = {};
-        await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
-        await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
+        alert("TO BE DONE")
     }
+
     async beforeRender() {
         this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
         this.chapterFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
@@ -99,7 +99,7 @@ export class ChapterItem {
     }
 
     async insertNewParagraph(paragraphId, position) {
-        let newParagraph = await documentModule.getParagraph(assistOS.space.id, this._document.id, paragraphId);
+        let newParagraph = await documentModule.getParagraph(assistOS.space.id, paragraphId);
         this.chapter.paragraphs.splice(position, 0, newParagraph);
         let previousParagraphIndex = position - 1;
         if (previousParagraphIndex < 0) {
@@ -140,12 +140,7 @@ export class ChapterItem {
             this.element.appendChild(paragraphElement); // If moving to the last position
         }
     }
-    async invalidateCompiledVideo(){
-        if(this.chapter.commands.compileVideo){
-            delete this.chapter.commands.compileVideo;
-            await documentModule.updateChapter(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.title, this.chapter.comments, this.chapter.commands);
-        }
-    }
+
     async onChapterUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
@@ -163,10 +158,6 @@ export class ChapterItem {
                         this.chapter.title = chapter.title;
                         this.renderChapterTitle();
                     }
-                    break;
-                }
-                case "backgroundSound": {
-                    this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
                     break;
                 }
                 case "commands": {
@@ -239,7 +230,6 @@ export class ChapterItem {
             let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
             assistOS.space.currentParagraphId = paragraph.id;
             await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
-            await this.invalidateCompiledVideo();
         }
     }
 
@@ -250,12 +240,6 @@ export class ChapterItem {
         let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
         chapterHeaderContainer.classList.add("highlighted-chapter");
         this.switchChapterToolbar("on");
-        // let paragraphText = this.element.querySelector('.paragraph-text');
-        // paragraphText.classList.add("focused");
-        // let paragraphContainer = this.element.querySelector('.paragraph-container');
-        // paragraphContainer.classList.add("highlighted-paragraph");
-        // this.showUnfinishedTasks();
-        // this.checkVideoAndAudioDuration();
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -375,52 +359,13 @@ export class ChapterItem {
     }
 
     async downloadAllAudio() {
-        let i = 1;
-        let hasAudio = false;
-
-        for (let paragraph of this.chapter.paragraphs) {
-            if (paragraph.commands.audio) {
-                hasAudio = true;
-
-                let audioName = `audio${i}.mp3`;
-                let audioId = paragraph.commands.audio.id;
-
-                try {
-                    // Fetch the audio file and trigger download
-                    await this.downloadAudioBlob(audioId, audioName);
-                    i++;
-                } catch (error) {
-                    console.error(`Failed to download ${audioName}:`, error);
-                }
-            }
-        }
-
-        if (!hasAudio) {
-            alert("No audio to download!");
-        }
+        alert("TO BE DONE");
     }
-    async downloadAudioBlob(audioId, filename) {
-        const fileUrl = await spaceModule.getAudioURL(audioId);
 
-        const response = await fetch(fileUrl);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-        const blob = await response.blob();
-
-        const link = document.createElement('a');
-        const blobUrl = URL.createObjectURL(blob);
-        link.href = blobUrl;
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-    }
     async showBackgroundAudio(){
         await assistOS.UI.showModal("chapter-background-audio", {"chapter-id": this.chapter.id});
     }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
