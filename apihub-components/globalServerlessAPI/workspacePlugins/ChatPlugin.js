@@ -102,6 +102,7 @@ async function ChatPlugin() {
             ...contextChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(contextChapter.id, paragraph.id))
         ]);
     }
+
     self.resetChatContext = async function (chatId) {
         const chat = await Workspace.getDocument(chatId);
         const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
@@ -185,15 +186,27 @@ async function ChatPlugin() {
 
         return await Workspace.deleteParagraph(contextChapter.id, messageId);
     }
+    self.updateChatContextItem = async function (chatId, contextItemId, newText) {
+        const chat = await Workspace.getDocument(chatId);
+        const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
+        if (!contextChapter) {
+            throw new Error("Context chapter not found");
+        }
+        const contextItem = contextChapter.paragraphs.find(paragraph => paragraph.id === contextItemId);
+        if (!contextItem) {
+            throw new Error("Context item not found");
+        }
+        return await Workspace.updateParagraph(contextChapter.id, contextItemId, newText, contextItem.commands, contextItem.comments);
+    }
 
+    self.addChatToAgent = async function (agentId, chatId) {
+        return await AgentPlugin.addChat(agentId, chatId)
+    }
     self.removeChatFromAgent = async function (agentId, chatId) {
         let agent = await AgentPlugin.getAgent(agentId);
         agent.chats = agent.chats.filter(c => c !== chatId);
         agent.selectedChat = agent.chats[0]
         await AgentPlugin.updateAgent(agent.id, {...agent});
-    }
-    self.addChatToAgent = async function (agentId, chatId) {
-        return await AgentPlugin.addChat(agentId, chatId)
     }
     self.sendMessage = async function (chatId, userId, message, role) {
         const chat = await Workspace.getDocument(chatId);
@@ -257,7 +270,6 @@ async function ChatPlugin() {
         userPrompt = unSanitize(userPrompt);
         description = unSanitize(description);
 
-
         const context = buildContext(chatId, personalityId);
 
         const combinedQueryPrompt = applyChatPrompt(chatPrompt, userPrompt, context, description);
@@ -268,13 +280,16 @@ async function ChatPlugin() {
 
         await checkApplyContextInstructions(chatId, userPrompt, userId);
     }
-    self.sendStreamingQuery = async function (chatId, personalityId, userId, userPrompt, callback) {
+    self.sendStreamingQuery = async function (chatId, personalityId, userId, userPrompt) {
         /*TODO: TBD when a streaming strategy is implemented */
         return self.sendQuery(chatId, personalityId, userId, userPrompt);
     }
+
     return self;
 }
+
 let singletonInstance;
+
 module.exports = {
     getInstance: async function () {
         if(!singletonInstance){
