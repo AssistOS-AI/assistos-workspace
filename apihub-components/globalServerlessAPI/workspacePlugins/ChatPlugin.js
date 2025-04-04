@@ -81,6 +81,7 @@ async function ChatPlugin() {
         }
         return contextChapter.paragraphs;
     }
+
     self.createChat = async function (docId) {
         const document = await Workspace.createDocument(docId, "chat");
         await Promise.all([
@@ -97,7 +98,7 @@ async function ChatPlugin() {
         const messagesChapter = chat.chapters.find(chapter => chapter.name === "Messages");
         const contextChapter = chat.chapters.find(chapter => chapter.name === "Context");
 
-        await Promise.all([
+        return await Promise.all([
             ...messagesChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(messagesChapter.id, paragraph.id)),
             ...contextChapter.paragraphs.map(paragraph => Workspace.deleteParagraph(contextChapter.id, paragraph.id))
         ]);
@@ -211,7 +212,6 @@ async function ChatPlugin() {
     self.sendMessage = async function (chatId, userId, message, role) {
         const chat = await Workspace.getDocument(chatId);
         let chapterId;
-
         if (chat.chapters.length === 0) {
             [chapterId] = await Promise.all([
                     Workspace.createChapter(chatId, "Messages", {}, [], 0),
@@ -219,8 +219,12 @@ async function ChatPlugin() {
                 ]
             )
         } else {
-            chapterId = chat.chapters[0].id;
+            chapterId = chat.chapters.find(chapter => chapter.name === "Messages")?.id;
         }
+        if(!chapterId) {
+            throw new Error("Messages chapter not found");
+        }
+
         return await Workspace.createParagraph(chapterId, message, {replay: {role, name: userId}}, {});
     }
 
