@@ -1,0 +1,29 @@
+{
+  "name": "openai-binary",
+  "version": "1.0.0",
+  "description": "A OpenAI tool for command line usage",
+  "main": "openai.js",
+  "bin": {
+    "openai": "./bin/openai.js"
+  },
+  "scripts": {
+    "build": "pkg . --targets node18-linux-x64 --output ./bin/openai"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^13.1.0",
+    "openai": "^4.91.1"
+  },
+  "devDependencies": {
+    "pkg": "^5.8.1"
+  },
+  "pkg": {
+    "scripts": "bin/openai.js",
+    "assets": [],
+    "targets": [
+      "node18-linux-x64"
+    ]
+  },
+  "type": "commonjs"
+}

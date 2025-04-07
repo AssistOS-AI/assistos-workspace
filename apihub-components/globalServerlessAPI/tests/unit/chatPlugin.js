@@ -1,19 +1,3 @@
-global.$$ = {};
-
-$$.plugins = {
-    "ChatPlugin": require('../../workspacePlugins/ChatPlugin.js'),
-    "AgentWrapper":{},
-    "WorkspacePlugin":{},
-    "LLM":{}
-}
-
-$$.loadPlugin = async function (pluginName) {
-    if (!$$.plugins[pluginName]) {
-        const error = `Module "${pluginName}" not defined. Available plugins are: ${Object.keys($$.plugins).map(k => `"${k}"`).join(', ')}`
-        throw new Error(error)
-    }
-    return $$.plugins[pluginName]
-}
 
 
 const { getInstance } = require('../../workspacePlugins/ChatPlugin.js');
