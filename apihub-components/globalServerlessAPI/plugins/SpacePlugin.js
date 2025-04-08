@@ -1,5 +1,3 @@
-const {promises: fsPromises} = require("fs");
-
 async function SpacePlugin(){
     let self = {};
     let persistence = await $$.loadPlugin("SpacePersistence");

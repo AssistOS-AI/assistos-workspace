@@ -94,6 +94,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["WorkspacePlugin", "BinariesExecuter"];
+        return ["Workspace", "BinariesExecuter"];
     }
 };

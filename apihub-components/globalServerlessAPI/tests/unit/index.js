@@ -8,7 +8,7 @@ global.$$ = {};
 $$.plugins = {
     "ChatPlugin": require('../../workspacePlugins/ChatPlugin.js'),
     "AgentWrapper": require('../../workspacePlugins/AgentWrapper.js'),
-    "WorkspacePlugin": require('../../workspacePlugins/AgentWrapper.js'),
+    "Workspace": require('../../workspacePlugins/AgentWrapper.js'),
     "LLM": require('../../workspacePlugins/LLM.js'),
     "BinariesExecutor":require('../../workspacePlugins/BinariesExecutor.js'),
 }
