@@ -3,7 +3,6 @@ const {promises: fsPromises} = require("fs");
 const defaultModels = require("../defaultModels");
 const storage = require("../../apihub-component-utils/storage");
 const archiver = require("archiver");
-const fs = require("fs");
 
 async function AgentWrapper() {
     let self = {};

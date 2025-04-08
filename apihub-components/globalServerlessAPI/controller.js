@@ -184,19 +184,39 @@ async function createSpace(request, response, server) {
         });
     }
 }
+function getRedirectCodeESModule(pluginName){
+    return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginName}.js");
+
+module.exports = {
+    getAllow: async (...args) => {
+        const plugin = await pluginPromise;
+        return plugin.getAllow(...args);
+    },
+    getDependencies: async (...args) => {
+        const plugin = await pluginPromise;
+        return plugin.getDependencies(...args);
+    },
+    getInstance: async (...args) => {
+        const plugin = await pluginPromise;
+        return plugin.getInstance(...args);
+    },
+};`
+}
 async function createSpacePlugins(pluginsStorage){
     let workspacePluginsDir = await fsPromises.readdir("../apihub-components/globalServerlessAPI/workspacePlugins");
     for(let plugin of workspacePluginsDir){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["WorkspacePlugin", "AgentPlugin", "WorkspaceUser"];
+    let soplangPlugins = ["AgentPlugin", "WorkspaceUser", "DocumentsPlugin"];
     for(let plugin of soplangPlugins){
-        const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/${plugin}.js")`;
+        const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
-    const pluginRedirect = `module.exports = require("../../../../../apihub-components/soplang/plugins/StandardPersistencePlugin.js")`;
-    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect);
+    const pluginRedirect = getRedirectCodeESModule(`WorkspacePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect);
+    const pluginRedirect2 = getRedirectCodeESModule(`StandardPersistencePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect2);
 
     const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
     await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);

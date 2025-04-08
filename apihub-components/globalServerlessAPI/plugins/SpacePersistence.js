@@ -1,6 +1,5 @@
-const persisto = require("../../Gatekeeper/Persisto");
 async function SpacePersistence(){
-    let persistence = await persisto.initialisePersisto();
+    let persistence = await $$.loadPlugin("StandardPersistence");
     persistence.configureTypes({
         spaceStatus: {
             name: "string"
@@ -24,5 +23,8 @@ module.exports = {
         return async function(globalUserId, email, command, ...args){
             return false;
         }
+    },
+    getDependencies: function(){
+        return ["StandardPersistence"];
     }
 }

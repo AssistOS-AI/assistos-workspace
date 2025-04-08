@@ -3,7 +3,7 @@ const constants = require("../constants");
 
 async function SpaceInstancePlugin(){
     let self = {};
-    let Workspace = await $$.loadPlugin("WorkspacePlugin");
+    let Workspace = await $$.loadPlugin("Workspace");
     let WorkspaceUser = await $$.loadPlugin("WorkspaceUser");
     let EmailPlugin = await $$.loadPlugin("EmailPlugin");
     self.createWorkspace = async function(spaceName, spaceId, ownerId, email) {
@@ -123,6 +123,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["WorkspacePlugin", "WorkspaceUser", "EmailPlugin"];
+        return ["Workspace", "WorkspaceUser", "EmailPlugin"];
     }
 }
