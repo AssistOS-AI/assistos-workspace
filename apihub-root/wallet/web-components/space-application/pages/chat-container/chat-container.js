@@ -6,26 +6,26 @@ export class ChatContainer {
         this.invalidate();
     }
     async beforeRender(){
-        const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[0];
-        this.chatPage =`<chat-page data-chatId="${chatId}" data-agentId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
-        this.agents = await agentModule.getAgents(assistOS.space.id)
-        let agentsHTML = "";
-        for (let agent of this.agents) {
-            agentsHTML += `<list-item data-local-action="swapAgent ${agent.id}" data-name="${agent.name}" data-highlight="light-highlight"></list-item>`;
-        }
-        this.agentsHTML = agentsHTML;
-        this.currentAgentName = assistOS.agent.agentData.name;
-        let llmName = assistOS.agent.agentData.llms.text;
-        let splitLLMName = llmName.split("/");
-        if (splitLLMName.length > 1) {
-            this.agentLLM = splitLLMName[1];
-        } else {
-            this.agentLLM = llmName;
-        }
-        this.agentLLM = this.agentLLM.length > 17 ? this.agentLLM.substring(0, 17) + "..." : this.agentLLM;
-        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
-        this.spaceNameTooltip = assistOS.space.name;
-        this.agentLLMTooltip = llmName;
+        // const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[0];
+        // this.chatPage =`<chat-page data-chatId="${chatId}" data-agentId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
+        // this.agents = await agentModule.getAgents(assistOS.space.id)
+        // let agentsHTML = "";
+        // for (let agent of this.agents) {
+        //     agentsHTML += `<list-item data-local-action="swapAgent ${agent.id}" data-name="${agent.name}" data-highlight="light-highlight"></list-item>`;
+        // }
+        // this.agentsHTML = agentsHTML;
+        // this.currentAgentName = assistOS.agent.agentData.name;
+        // let llmName = assistOS.agent.agentData.llms.text;
+        // let splitLLMName = llmName.split("/");
+        // if (splitLLMName.length > 1) {
+        //     this.agentLLM = splitLLMName[1];
+        // } else {
+        //     this.agentLLM = llmName;
+        // }
+        // this.agentLLM = this.agentLLM.length > 17 ? this.agentLLM.substring(0, 17) + "..." : this.agentLLM;
+        // this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
+        // this.spaceNameTooltip = assistOS.space.name;
+        // this.agentLLMTooltip = llmName;
     }
 
     async afterRender(){}

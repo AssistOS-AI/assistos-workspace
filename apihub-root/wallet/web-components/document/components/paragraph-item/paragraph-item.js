@@ -136,9 +136,7 @@ export class ParagraphItem {
         if (paragraphText !== this.paragraph.text) {
             this.paragraph.text = paragraphText
             await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
-                paragraphText,
-                this.paragraph.commands,
-                this.paragraph.comments);
+                paragraphText);
         }
     }
 
@@ -169,9 +167,10 @@ export class ParagraphItem {
                 this.style.height = this.scrollHeight + 'px';
             });
             let controller = new AbortController();
-            document.addEventListener("click", (event) => {
+            document.addEventListener("click", async (event) => {
                 if (!event.target.closest(".paragraph-commands")) {
-                    this.focusOutHandlerHeader(controller);
+                    await this.focusOutHandlerHeader(controller);
+                    controller.abort();
                 }
             }, {signal: controller.signal});
         }
@@ -222,10 +221,8 @@ export class ParagraphItem {
         await assistOS.loadifyComponent(this.element, async () => {
             let commands = this.element.querySelector('.paragraph-commands');
             this.paragraph.commands = commands.value;
-            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
-                this.paragraph.text,
-                this.paragraph.commands,
-                this.paragraph.comments);
+            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, undefined, this.paragraph.commands);
+            commands.remove();
         });
     }
 

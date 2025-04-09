@@ -208,15 +208,17 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["AgentPlugin", "WorkspaceUser", "DocumentsPlugin"];
+    let soplangPlugins = ["AgentPlugin", "WorkspaceUser"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
-    const pluginRedirect = getRedirectCodeESModule(`WorkspacePlugin`);
-    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect);
-    const pluginRedirect2 = getRedirectCodeESModule(`StandardPersistencePlugin`);
-    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect2);
+    const pluginRedirect = getRedirectCodeESModule(`DocumentsPlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/Documents.js`, pluginRedirect);
+    const pluginRedirect2 = getRedirectCodeESModule(`WorkspacePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect2);
+    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistencePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
     const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
     await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);

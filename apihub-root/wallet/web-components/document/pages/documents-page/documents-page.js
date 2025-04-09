@@ -2,9 +2,14 @@ const documentModule = require("assistos").loadModule("document", {});
 const constants = require("assistos").constants;
 export class DocumentsPage {
     constructor(element, invalidate) {
+        this.selectedCtegory = "";
         this.refreshDocuments = async () => {
-            this.documents = await documentModule.getDocuments(assistOS.space.id);
-            this.documents = this.documents.filter(document => document.category === constants.DOCUMENT_CATEGORIES.DOCUMENT);
+            this.Alldocuments = await documentModule.getDocuments(assistOS.space.id);
+            if(this.selectedCtegory === "") {
+                this.documents = this.Alldocuments;
+            } else {
+                this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
+            }
         };
         this.invalidate = invalidate;
         this.id = "documents";
@@ -16,9 +21,11 @@ export class DocumentsPage {
         });
     }
 
-
-
     beforeRender() {
+        this.documentCategoryOptions = `<option value="">All</option>`;
+        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
+            this.documentCategoryOptions += `<option value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
+        }
         this.tableRows = "";
         this.documents.forEach((document) => {
             this.tableRows += `<document-item data-name="${document.title}" 
@@ -38,6 +45,21 @@ export class DocumentsPage {
 
     afterRender() {
         this.setContext();
+
+        let select = document.querySelector(".documents-select");
+        let selectedOption = select.querySelector(`option[value="${this.selectedCtegory}"]`);
+        if (selectedOption) {
+            selectedOption.selected = true;
+        }
+        select.addEventListener("change", (event)=>{
+        this.selectedCtegory = event.target.value;
+        if(this.selectedCtegory === "") {
+            this.documents = this.Alldocuments;
+        } else {
+            this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
+        }
+        this.invalidate();
+        });
     }
 
 
