@@ -165,6 +165,13 @@ export class DocumentViewPage {
     renderInfoText() {
         let infoText = this.element.querySelector(".document-infoText");
         infoText.innerHTML = this._document.infoText || "This document doesn't have any information about its content";
+        infoText.style.height = "auto";
+        infoText.style.height = infoText.scrollHeight + 'px';
+        infoText.addEventListener("paste", async () => {
+            setTimeout(()=>{
+                infoText.style.height = infoText.scrollHeight + 'px';
+            },0)
+        });
     }
 
     async afterRender() {
@@ -274,9 +281,15 @@ export class DocumentViewPage {
     }
 
     async runCommands(button) {
-       // button.classList.add("disabled");
-        await documentModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText));
+        button.classList.add("disabled");
+        try {
+            await documentModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText));
+        } catch (e) {
+            button.classList.remove("disabled");
+            return assistOS.showToast(`Commands failed: ${e.message}`, "error", 5000);
+        }
         button.classList.remove("disabled");
+        assistOS.showToast("Commands executed", "success");
     }
 
     async saveInfoText(infoTextElement) {
@@ -284,9 +297,11 @@ export class DocumentViewPage {
         if (infoText !== this._document.infoText) {
             this._document.infoText = infoText;
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
-                undefined,
-                undefined,
-                infoText);
+                this._document.title,
+                this._document.category,
+                infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
@@ -327,7 +342,12 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await documentModule.updateDocument(assistOS.space.id, this._document.id, titleText);
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
+                titleText,
+                this._document.category,
+                this._document.infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
