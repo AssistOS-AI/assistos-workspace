@@ -21,14 +21,12 @@ const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
 const space = require("./space");
-
-async function getAPIClient(request, pluginName, serverlessId) {
+async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
 }
-
-async function listUserSpaces(req, res) {
+async function listUserSpaces(req, res){
     let {email} = req.query;
-    if (!email) {
+    if(!email){
         email = req.email;
     }
     email = decodeURIComponent(email);
@@ -240,8 +238,7 @@ async function createSpace(request, response, server) {
         });
     }
 }
-
-function getRedirectCodeESModule(pluginName) {
+function getRedirectCodeESModule(pluginName){
     return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginName}.js");
 
 module.exports = {
@@ -259,22 +256,23 @@ module.exports = {
     },
 };`
 }
-
-async function createSpacePlugins(pluginsStorage) {
+async function createSpacePlugins(pluginsStorage){
     let workspacePluginsDir = await fsPromises.readdir("../apihub-components/globalServerlessAPI/workspacePlugins");
-    for (let plugin of workspacePluginsDir) {
+    for(let plugin of workspacePluginsDir){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["AgentPlugin", "WorkspaceUser", "DocumentsPlugin"];
-    for (let plugin of soplangPlugins) {
+    let soplangPlugins = ["AgentPlugin", "WorkspaceUser"];
+    for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
-    const pluginRedirect = getRedirectCodeESModule(`WorkspacePlugin`);
-    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect);
-    const pluginRedirect2 = getRedirectCodeESModule(`StandardPersistencePlugin`);
-    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect2);
+    const pluginRedirect = getRedirectCodeESModule(`DocumentsPlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/Documents.js`, pluginRedirect);
+    const pluginRedirect2 = getRedirectCodeESModule(`WorkspacePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect2);
+    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistencePlugin`);
+    await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
     const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
     await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
@@ -846,7 +844,6 @@ async function getWidget(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const widgetName = request.params.widgetName;
-
     function convertToPascalCase(str) {
         return str
             .split('-')
@@ -856,13 +853,8 @@ async function getWidget(request, response) {
 
 
     try {
-        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId, widgetName);
-        utils.sendResponse(response, 200, "application/json", {
-            html,
-            css,
-            js,
-            presenterClassName: convertToPascalCase(widgetName)
-        });
+        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId,widgetName);
+        utils.sendResponse(response, 200, "application/json", {html, css, js,presenterClassName:convertToPascalCase(widgetName)});
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message

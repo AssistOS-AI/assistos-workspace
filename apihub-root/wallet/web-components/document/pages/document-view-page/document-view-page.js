@@ -273,17 +273,20 @@ export class DocumentViewPage {
         this.changeChapterOrder(currentChapterId, position);
     }
 
+    async runCommands(button) {
+       // button.classList.add("disabled");
+        await documentModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText));
+        button.classList.remove("disabled");
+    }
+
     async saveInfoText(infoTextElement) {
         let infoText = assistOS.UI.sanitize(infoTextElement.value);
         if (infoText !== this._document.infoText) {
             this._document.infoText = infoText;
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
-                this._document.title,
-                this._document.category,
-                infoText,
-                this._document.commands,
-                this._document.comments,
-                this._document.additionalData);
+                undefined,
+                undefined,
+                infoText);
         }
     }
 
@@ -324,13 +327,7 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await documentModule.updateDocument(assistOS.space.id, this._document.id,
-                titleText,
-                this._document.category,
-                this._document.infoText,
-                this._document.commands,
-                this._document.comments,
-                this._document.additionalData);
+            await documentModule.updateDocument(assistOS.space.id, this._document.id, titleText);
         }
     }
 

@@ -179,7 +179,7 @@ export class ChapterItem {
         let titleText = assistOS.UI.sanitize(titleElement.value);
         if (titleText !== this.chapter.title && titleText !== "") {
             this.chapter.title = titleText;
-            await documentModule.updateChapter(assistOS.space.id, this.chapter.id, titleText, this.chapter.comments, this.chapter.commands);
+            await documentModule.updateChapter(assistOS.space.id, this.chapter.id, titleText);
         }
     }
 

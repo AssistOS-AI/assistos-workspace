@@ -48,11 +48,10 @@ export class DocumentCommentMenu {
             },500);
         }
         if (this.textArea.value === this.documentComments) return;
-        await documentModule.updateDocumentComment(
+        await documentModule.updateDocument(
             assistOS.space.id,
             this.documentId,
-            this.textArea.value
-        );
+            undefined, undefined, undefined, undefined, this.textArea.value);
         this.documentComments = this.textArea.value;
         this.documentPresenter._document.comments = this.textArea.value;
         showSaveToolTip();
