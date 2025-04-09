@@ -154,11 +154,10 @@ export class AddDocumentModal {
                     // Create the main document
                     console.log('Creating AssistOS document...');
                     const startDoc = performance.now();
-                    let docId = await documentModule.addDocument(assistOS.space.id, {
-                        title: textContent.title || file.name,
-                        topic: 'Converted Document',
-                        abstract: JSON.stringify(textContent.document_info || {})
-                    });
+                    let title = textContent.title || file.name;
+                    let docInfo = JSON.stringify(textContent.document_info || {})
+                    let documentObj = await documentModule.addDocument(assistOS.space.id, title, constants.DOCUMENT_CATEGORIES.DOCUMENT, docInfo);
+                    let docId = documentObj.id;
                     lastCreatedDocId = docId;
                     console.log(`Document created in ${((performance.now() - startDoc)/1000).toFixed(2)}s`);
 
@@ -171,9 +170,8 @@ export class AddDocumentModal {
                         
                         // Create chapter
                         console.log(`Creating chapter ${index + 1}/${textContent.chapters.length}: ${chapterTitle}`);
-                        const chapterId = await documentModule.addChapter(assistOS.space.id, docId, {
-                            title: chapterTitle
-                        });
+                        const chapterObj = await documentModule.addChapter(assistOS.space.id, docId, chapterTitle);
+                        let chapterId = chapterObj.id;
 
                         // Add paragraphs to chapter
                         console.log(`Adding ${chapterContent.length} paragraphs to chapter "${chapterTitle}"...`);
@@ -196,34 +194,22 @@ export class AddDocumentModal {
                                         console.log(`Found matching image ID: ${imageId}`);
                                         
                                         // Add paragraph with image command
-                                        await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
-                                            text: paragraphText.replace(`[Image: ${imageName}] `, ''),
-                                            commands: {
-                                                image: {
-                                                    id: imageId
-                                                }
-                                            }
-                                        });
+                                        let text = paragraphText.replace(`[Image: ${imageName}] `, '');
+                                        await documentModule.addParagraph(assistOS.space.id, chapterId, text);
                                         console.log(`Added paragraph with image: ${imageName}`);
                                     } else {
                                         console.log(`No matching image ID found for: ${imageName}`);
                                         // Add regular paragraph without image
-                                        await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
-                                            text: paragraphText
-                                        });
+                                        await documentModule.addParagraph(assistOS.space.id, chapterId, paragraphText);
                                     }
                                 } else {
                                     console.log('Failed to extract image name from tag:', imageTagMatch);
                                     // Add regular paragraph without image
-                                    await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
-                                        text: paragraphText
-                                    });
+                                    await documentModule.addParagraph(assistOS.space.id, chapterId, paragraphText);
                                 }
                             } else {
                                 // Add regular paragraph without image
-                                await documentModule.addParagraph(assistOS.space.id, docId, chapterId, {
-                                    text: paragraphText
-                                });
+                                await documentModule.addParagraph(assistOS.space.id, chapterId, paragraphText);
                             }
                             
                             if ((pIndex + 1) % 5 === 0) {
