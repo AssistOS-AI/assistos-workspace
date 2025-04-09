@@ -5,9 +5,10 @@
     <button id="addWatcher">+</button>
     <div id="monitorControls">
         <button id="downloadLogs" data-local-action="downloadSpaceTaskLogs">&#128229;</button>
+        <button data-local-action="minimizeMonitor">&times;</button>
+        <button id="toggleFullscreen" data-local-action="toggleFullscreen">&lsqb;&nbsp;&rsqb;</button>
     </div>
 </div>
-
 <div id="taskWatchersContainer">
     <llm-observer observingMode="$$observingMode" data-presenter="llm-observer"></llm-observer>
 </div>

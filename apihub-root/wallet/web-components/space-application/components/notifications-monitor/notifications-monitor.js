@@ -50,6 +50,13 @@ export class NotificationsMonitor {
         window.location.href = `/logs/${assistOS.space.id}`;
     }
 
+    toggleFullscreen() {
+        this.element.classList.toggle('fullscreen');
+    }
+
+    toggleMinimize() {
+        this.element.classList.toggle('minimized');
+    }
 
     showFilterLogsOptions() {
         const leaveFilterLogsOptions = (event) => {
