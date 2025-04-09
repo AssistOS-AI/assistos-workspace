@@ -51,9 +51,13 @@ export class AddDocumentModal {
     async addDocument(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
-            let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, constants.DOCUMENT_CATEGORIES.DOCUMENT);
-            assistOS.UI.closeModal(_target);
-            await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
+            try {
+                let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, constants.DOCUMENT_CATEGORIES.DOCUMENT);
+                assistOS.UI.closeModal(_target);
+                await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
+            } catch (e) {
+                assistOS.showToast("Error creating document: " + e.message, "error", 5000);
+            }
         }
     }
 

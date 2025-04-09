@@ -18,6 +18,7 @@ document-view-page {
 .infoText-header-section{
     display: flex;
     align-items: center;
+    padding-bottom: 10px;
 }
 .book-comment-container{
     display: flex;
@@ -353,7 +354,6 @@ html[theme="dark"] input.document-title{
 }
 .toolbar{
     display: none;
-    padding-bottom: 10px;
     align-items: center;
 }
 .plugins-separator{
