@@ -1,7 +1,6 @@
 const {spawn} = require('child_process')
-const path = require('path')
 
-const composeBinaryPath = (binary) =>path.resolve(__dirname, `binaries/${binary}-binary/bin/${binary}`)
+const composeBinaryPath = (binary) =>`../binaries/${binary}/bin/${binary}`
 
 async function BinariesExecutor() {
     const self = {}
@@ -33,8 +32,6 @@ async function BinariesExecutor() {
             })
         })
     }
-
-
 
     return self
 }

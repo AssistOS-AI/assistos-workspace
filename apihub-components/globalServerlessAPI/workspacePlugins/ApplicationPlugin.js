@@ -78,6 +78,31 @@ async function ApplicationPlugin() {
         }
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
+
+        const copyFolder = async (src, dest) => {
+            const entries = await fsPromises.readdir(src, { withFileTypes: true })
+            await fsPromises.mkdir(dest, { recursive: true })
+
+            for (const entry of entries) {
+                const srcPath = path.join(src, entry.name)
+                const destPath = path.join(dest, entry.name)
+
+                if (entry.isDirectory()) {
+                    await copyFolder(srcPath, destPath)
+                } else {
+                    await fsPromises.copyFile(srcPath, destPath)
+                }
+            }
+        }
+
+        try {
+            const binariesPath=path.join(applicationFolderPath, 'binaries')
+            const binariesDest = path.join(applicationFolderPath, '..','..', 'binaries')
+            await copyFolder(binariesPath, binariesDest)
+        } catch (_) {
+            // binaries folder does not exist, ignore
+        }
+
         await persistence.createApplication({
             name: application.name,
             lastUpdate: application.lastUpdate,

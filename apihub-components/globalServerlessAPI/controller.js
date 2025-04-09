@@ -21,12 +21,14 @@ const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
 const space = require("./space");
-async function getAPIClient(request, pluginName, serverlessId){
+
+async function getAPIClient(request, pluginName, serverlessId) {
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
 }
-async function listUserSpaces(req, res){
+
+async function listUserSpaces(req, res) {
     let {email} = req.query;
-    if(!email){
+    if (!email) {
         email = req.email;
     }
     email = decodeURIComponent(email);
@@ -154,6 +156,51 @@ async function createSpace(request, response, server) {
         await fsPromises.mkdir(persistenceStorage, {recursive: true});
         let applicationsPath = path.join(serverlessAPIStorage, "applications");
         await fsPromises.mkdir(applicationsPath, {recursive: true});
+        const binariesPath = path.join(serverlessAPIStorage, "binaries");
+        await fsPromises.mkdir(binariesPath, {recursive: true});
+
+      /*  const copyRepo = async (src, dest) => {
+            const entries = await fsPromises.readdir(src, { withFileTypes: true })
+            await fsPromises.mkdir(dest, { recursive: true })
+
+            for (const entry of entries) {
+                const srcPath = path.join(src, entry.name)
+                const destPath = path.join(dest, entry.name)
+
+                if (entry.isDirectory()) {
+                    await copyRepo(srcPath, destPath)
+                } else {
+                    await fsPromises.copyFile(srcPath, destPath)
+                }
+            }
+        }
+
+        const copyBinariesIfExist = async (repoSrcPath, binariesDest) => {
+            const binariesSrc = path.join(repoSrcPath, 'binaries')
+            try {
+                const stat = await fsPromises.stat(binariesSrc)
+                if (!stat.isDirectory()) return
+                await copyRepo(binariesSrc, binariesDest)
+            } catch (_) {
+                //  ignore
+            }
+        }
+
+        const copyAllRepos = async (sourceRoot, destRoot, binariesDest) => {
+            const repos = await fsPromises.readdir(sourceRoot, { withFileTypes: true })
+            for (const repo of repos) {
+                if (!repo.isDirectory()) continue
+                const srcPath = path.join(sourceRoot, repo.name)
+                const destPath = path.join(destRoot, repo.name)
+
+                await copyRepo(srcPath, destPath)
+                await copyBinariesIfExist(srcPath, binariesDest)
+            }
+        }
+
+        const defaultApplicationsPath = path.join(__dirname, '../defaultApplications')
+
+        await copyAllRepos(defaultApplicationsPath, applicationsPath, binariesPath)*/
 
         await createSpacePlugins(pluginsStorage);
 
@@ -176,6 +223,15 @@ async function createSpace(request, response, server) {
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
+        let applicationsAPIClient = await getAPIClient(request, constants.APPLICATION_PLUGIN, serverlessId);
+
+        /*v2 defaultApplications config file */
+        const defaultApplicationsPath = path.join(__dirname, 'defaultApplications.json');
+        const defaultApplications = JSON.parse(await fsPromises.readFile(defaultApplicationsPath, 'utf-8'));
+
+        for (const application of defaultApplications) {
+            await applicationsAPIClient.installApplication(application)
+        }
 
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
@@ -184,7 +240,8 @@ async function createSpace(request, response, server) {
         });
     }
 }
-function getRedirectCodeESModule(pluginName){
+
+function getRedirectCodeESModule(pluginName) {
     return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginName}.js");
 
 module.exports = {
@@ -202,14 +259,15 @@ module.exports = {
     },
 };`
 }
-async function createSpacePlugins(pluginsStorage){
+
+async function createSpacePlugins(pluginsStorage) {
     let workspacePluginsDir = await fsPromises.readdir("../apihub-components/globalServerlessAPI/workspacePlugins");
-    for(let plugin of workspacePluginsDir){
+    for (let plugin of workspacePluginsDir) {
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
     let soplangPlugins = ["AgentPlugin", "WorkspaceUser", "DocumentsPlugin"];
-    for(let plugin of soplangPlugins){
+    for (let plugin of soplangPlugins) {
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
@@ -788,6 +846,7 @@ async function getWidget(request, response) {
     const spaceId = request.params.spaceId;
     const applicationId = request.params.applicationId;
     const widgetName = request.params.widgetName;
+
     function convertToPascalCase(str) {
         return str
             .split('-')
@@ -797,8 +856,13 @@ async function getWidget(request, response) {
 
 
     try {
-        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId,widgetName);
-        utils.sendResponse(response, 200, "application/json", {html, css, js,presenterClassName:convertToPascalCase(widgetName)});
+        const {html, css, js} = await space.APIs.getWidget(spaceId, applicationId, widgetName);
+        utils.sendResponse(response, 200, "application/json", {
+            html,
+            css,
+            js,
+            presenterClassName: convertToPascalCase(widgetName)
+        });
     } catch (error) {
         utils.sendResponse(response, error.statusCode, "application/json", {
             message: error.message

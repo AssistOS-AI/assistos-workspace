@@ -1,6 +1,6 @@
 async function ChatPlugin() {
     const self = {};
-    const BinariesExecutor = await (await $$.loadPlugin("BinariesExecutor")).getInstance();
+    const BinariesExecutor =  $$.loadPlugin("BinariesExecutor")
 
     const buildArgs = function ({
                                     subcommand,
@@ -94,6 +94,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "BinariesExecuter"];
+        return ["Workspace", "BinariesExecutor"];
     }
 };
