@@ -14,114 +14,6 @@ const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const {Document, Packer, Paragraph, TextRun} = require("docx");
 
-async function getDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    if (!spaceId || !documentId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
-        });
-    }
-    try {
-        const document = await documentService.getDocument(spaceId, documentId, req.query);
-        utils.sendResponse(res, 200, "application/json", document);
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to retrieve document ${documentId}` + error.message || ""
-        });
-    }
-
-}
-
-async function getDocuments(req, res) {
-    const {spaceId} = req.params;
-    if (!spaceId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
-        });
-    }
-    try {
-        const metadata = await documentService.getDocuments(spaceId);
-        utils.sendResponse(res, 200, "application/json", metadata);
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to retrieve document metadata` + error.message
-        });
-    }
-}
-
-async function createDocument(req, res) {
-    const {spaceId} = req.params;
-    const documentData = req.body;
-    if (!spaceId || !documentData) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentData ? "documentData" : ""}`
-        });
-    }
-    try {
-        const documentId = await documentService.createDocument(spaceId, documentData);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        utils.sendResponse(res, 200, "text/plain", documentId);
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: "Failed to create document" + error.message
-        });
-    }
-}
-
-async function updateDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    const documentData = req.body;
-    if (!spaceId || !documentId || !documentData) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""} ${!documentData ? "request body" : ""}`
-        });
-    }
-    try {
-        const updatedFields = req.query.fields;
-        /* TODO remove this jk and make something generic for all notifications */
-        await documentService.updateDocument(spaceId, documentId, documentData, req.query);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        if (updatedFields) {
-            if (Array.isArray(updatedFields)) {
-                updatedFields.forEach(field => {
-                    SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), field);
-                })
-            } else {
-                SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), updatedFields);
-            }
-        }
-        utils.sendResponse(res, 200, "application/json", {
-            message: `Document ${documentId} updated successfully`
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to update document ${documentId}` + error.message
-        });
-    }
-}
-
-async function deleteDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    if (!spaceId || !documentId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
-        });
-    }
-    try {
-        await documentService.deleteDocument(spaceId, documentId);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), "delete");
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        utils.sendResponse(res, 200, "application/json", {
-            message: `Document ${documentId} deleted successfully`
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to delete document ${documentId}` + error.message
-        });
-    }
-
-}
-
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -943,11 +835,6 @@ async function proxyDocumentConversion(req, res) {
 }
 
 module.exports = {
-    getDocument,
-    getDocuments,
-    createDocument,
-    updateDocument,
-    deleteDocument,
     exportDocument,
     importDocument,
     selectDocumentItem,

@@ -125,8 +125,11 @@ async function getSpaceStatus(request, response) {
 }
 
 async function createSpace(request, response, server) {
-    const email = request.email;
     const spaceName = request.body.spaceName;
+    let email = request.body.email;
+    if(!email){
+        email = request.email;
+    }
     if (!spaceName) {
         utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space Name is required",
