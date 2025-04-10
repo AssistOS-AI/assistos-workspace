@@ -1,0 +1,41 @@
+dialog.run-script-dialog {
+    width: 500px;
+    min-height: 300px;
+}
+run-script{
+    display: block;
+
+}
+.modal-body{
+    min-height: 300px;
+}
+.run-script{
+    margin-bottom: 10px;
+}
+.ars-header{
+    margin-top: 5px;
+}
+.args-list{
+    margin-bottom: 10px;
+}
+.arg-item{
+    border: 1px solid gray;
+    display: flex;
+}
+.arg-item > *{
+    border-right: 1px solid gray;
+    padding: 0 7px;
+}
+.arg-label{
+    width: 60px;
+}
+.delete-arg{
+    width: 25px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.arg-input{
+    width: calc(100% - 85px);
+    border: none;
+}

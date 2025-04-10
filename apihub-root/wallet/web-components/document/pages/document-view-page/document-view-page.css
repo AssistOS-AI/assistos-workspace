@@ -348,6 +348,9 @@ html[theme="dark"] input.document-title{
     margin-right: 15px;
     position: relative;
 }
+.script-modal{
+    margin-right: 0;
+}
 .plugin-circle.locked-item{
     background-color: var(--very-light-gray);
     /*pointer-events: none;*/

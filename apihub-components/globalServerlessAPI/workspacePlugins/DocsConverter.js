@@ -56,19 +56,44 @@ async function DocsConverter() {
     }
     self.uploadFileToDisk = async function(){
         //upload Files to disk?
-        let tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
+        let tempDir = path.join(process.env.PERSISTENCE_FOLDER, "Temp", crypto.generateSecret(16));
         await fsPromises.mkdir(tempDir, { recursive: true });
         const tempFilePath = path.join(tempDir, `upload_${Date.now()}.bin`);
         const busboyOptions = { headers: req.headers, limits: { fileSize: 50 * 1024 * 1024 } };
         let busboy = new Busboy(busboyOptions);
-        let uploadedFile = {
-            fieldname,
-            filepath: tempFilePath,
-            filename,
-            mimetype,
-            size: fileSize,
-            ready: true
-        };
+        busboy.on('file', (fieldName, fileStream, fileInfo) => {
+            const writeStream = fs.createWriteStream(tempFilePath);
+            let fileSize = 0;
+            fileStream.on('data', (chunk) => {
+                fileSize += chunk.length;
+            });
+            fileStream.pipe(writeStream);
+            writeStream.on('finish', () => {
+                // Extract filename and mimetype, handling both string and object formats
+                let filename = 'document.bin';
+                let mimetype = 'application/octet-stream';
+                if (typeof fileInfo === 'object' && fileInfo !== null) {
+                    filename = fileInfo.filename || 'document.bin';
+                    mimetype = fileInfo.mimeType || 'application/octet-stream';
+                } else if (typeof fileInfo === 'string') {
+                    filename = fileInfo;
+                }
+
+                let uploadedFile = {
+                    fieldName,
+                    filepath: tempFilePath,
+                    filename,
+                    mimetype,
+                    size: fileSize,
+                    ready: true
+                };
+            });
+
+            writeStream.on('error', (err) => {
+                console.error(`[DocConverter] Error saving file: ${err.message}`);
+            });
+        });
+        req.pipe(busboy);
     }
     self.createChapter = async (index, chapter, docId, imageMap) => {
         const chapterTitle = Object.keys(chapter)[0];
@@ -90,40 +115,28 @@ async function DocsConverter() {
     }
     self.createParagraph = async function (pIndex, paragraph, chapterId, imageMap) {
         const paragraphText = Object.values(paragraph)[0];
-
         // Check if paragraph has image tags
         if (paragraphText.includes('[Image:')) {
             console.log('Found image tag in paragraph:', paragraphText);
-
             // Extract image name from tag
             const imageTagMatch = paragraphText.match(/\[Image:\s*([^\]]+)\]/);
             if (imageTagMatch && imageTagMatch[1]) {
                 const imageName = imageTagMatch[1].trim();
                 console.log(`Extracted image name: "${imageName}"`);
-
                 // Check if we have this image in our map
                 if (imageMap.has(imageName)) {
                     const imageId = imageMap.get(imageName);
                     console.log(`Found matching image ID: ${imageId}`);
-
                     // Add paragraph with image command
                     let text = paragraphText.replace(`[Image: ${imageName}] `, '');
                     await Documents.createParagraph(chapterId, text);
                     console.log(`Added paragraph with image: ${imageName}`);
-                } else {
-                    console.log(`No matching image ID found for: ${imageName}`);
-                    // Add regular paragraph without image
-                    await Documents.createParagraph(chapterId, paragraphText);
+                    return;
                 }
-            } else {
-                console.log('Failed to extract image name from tag:', imageTagMatch);
-                // Add regular paragraph without image
-                await Documents.createParagraph(chapterId, paragraphText);
             }
-        } else {
-            // Add regular paragraph without image
-            await Documents.createParagraph(chapterId, paragraphText);
         }
+        // Add regular paragraph without image
+        await Documents.createParagraph(chapterId, paragraphText);
     }
     self.callConverterServer = async function (formData){
         const init = {
@@ -198,6 +211,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpaceInstancePlugin", "SpaceInstancePersistence"];
+        return ["Documents"];
     }
 }

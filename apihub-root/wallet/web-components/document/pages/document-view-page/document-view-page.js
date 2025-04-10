@@ -197,12 +197,12 @@ export class DocumentViewPage {
         this.redoButton = this.element.querySelector(".redo-button");
         let tasksMenu = this.element.querySelector(".tasks-menu");
         let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
-        let runCommandsButton = this.element.querySelector(".run-commands");
+        let scriptArgs = this.element.querySelector(".script-modal");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
         this.attachTooltip(snapshotsButton, "Snapshots");
-        this.attachTooltip(runCommandsButton, "Run Script");
+        this.attachTooltip(scriptArgs, "Run Script");
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
@@ -280,19 +280,9 @@ export class DocumentViewPage {
         await documentModule.changeChapterOrder(assistOS.space.id, this._document.id, currentChapterId, position);
         this.changeChapterOrder(currentChapterId, position);
     }
-
-    async runCommands(button) {
-        button.classList.add("disabled");
-        try {
-            await documentModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText));
-        } catch (e) {
-            button.classList.remove("disabled");
-            return assistOS.showToast(`Commands failed: ${e.message}`, "error", 5000);
-        }
-        button.classList.remove("disabled");
-        assistOS.showToast("Commands executed", "success");
+    async openScriptModal(){
+        await assistOS.UI.showModal("run-script");
     }
-
     async saveInfoText(infoTextElement) {
         let infoText = assistOS.UI.sanitize(infoTextElement.value);
         if (infoText !== this._document.infoText) {

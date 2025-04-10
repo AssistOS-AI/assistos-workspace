@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "run-script",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "RunScript"
+        },
+        {
             "name": "agent-video",
             "directory": "agent",
             "type": "pages",
