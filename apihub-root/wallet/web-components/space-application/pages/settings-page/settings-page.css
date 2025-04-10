@@ -14,28 +14,60 @@ settings-page {
     color: var(--black)
 }
 
-.line-separator {
-    border: none;
-    background-color: var(--chat-background);
-    width: 100%;
-    height: 2px;
-    margin: 0;
-}
-
 .tabs-section {
     display: flex;
-    background-color: var(--chat-background);
     font-size: 18px;
     font-weight: 400;
 }
 
 .tab {
-    background-color: var(--tab);
-    padding: 10px 20px;
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
 }
-
+.tab-icon{
+    --icon-color: #222222; /* default icon color */
+    width: 24px;
+    height: 24px;
+    background-color: var(--icon-color);
+    margin-right: 10px;
+}
+.collaborators{
+    -webkit-mask: url("./wallet/assets/icons/collaborators.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/collaborators.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.keys{
+    -webkit-mask: url("./wallet/assets/icons/keys.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/keys.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.settings{
+    -webkit-mask: url("./wallet/assets/icons/folder-with-letter.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/folder-with-letter.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.web-assistant{
+    -webkit-mask: url("./wallet/assets/icons/web-assistant.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/web-assistant.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.advanced-settings{
+    -webkit-mask: url("./wallet/assets/icons/advanced-settings.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/advanced-settings.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
 .active {
-    background-color: var(--white);
+    color: var(--blue-button);
+    border-bottom: 2px solid var(--blue-button);
+}
+.active .tab-icon{
+    --settings-icon: var(--blue-button);
 }
 
 .row {

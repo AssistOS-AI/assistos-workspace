@@ -4,6 +4,30 @@
     "services": [],
     "components": [
         {
+            "name": "advanced-settings",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "AdvancedSettings"
+        },
+        {
+            "name": "display-preferences",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "DisplayPreferences"
+        },
+        {
+            "name": "collaborators-tab",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "CollaboratorsTab"
+        },
+        {
+            "name": "keys-tab",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "KeysTab"
+        },
+        {
             "name": "run-script",
             "directory": "document",
             "type": "modals",
