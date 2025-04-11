@@ -1,0 +1,23 @@
+<div class="page-header">Build</div>
+<div class="page-body">
+    <button class="general-button" data-local-action="buildAll">Build All</button>
+    <div class="build-check-container">
+        <label class="form-label" for="automaticBuild">Automatic build</label>
+        <input type="checkbox" name="automaticBuild" id="automaticBuild" data-id="automaticBuild">
+    </div>
+    <div class="build-errors-section">
+        <div class="section-header">Errors from last build</div>
+        <div class="build-errors"></div>
+    </div>
+    <div class="variables-section">
+        <div class="section-header">Variables</div>
+        <div class="variables-table">
+            <div class="table-labels">
+                <div class="table-label variable-name">Name</div>
+                <div class="table-label variable-value">Value</div>
+                <div class="table-label remaining-space"></div>
+            </div>
+            <div class="table-rows">$$variablesHTML</div>
+        </div>
+    </div>
+</div>

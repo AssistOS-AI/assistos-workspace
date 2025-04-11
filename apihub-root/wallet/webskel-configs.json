@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "build-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "BuildPage"
+        },
+        {
             "name": "add-key-modal",
             "directory": "space-application",
             "type": "modals",
