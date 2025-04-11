@@ -30,7 +30,13 @@ async function ChatPlugin() {
         return args;
     }
 
-    self.getTextResponse = async (provider, apiKey, model, prompt, options = {}) => {
+    self.getTextResponse = async ({provider, apiKey, model, prompt, options = {}}) => {
+        if(!apiKey) {
+            apiKey = process.env[provider]
+        }
+        if(!apiKey) {
+            throw new Error("API key is should be given as an argument or set as a space secret");
+        }
         const args = buildArgs({
             subcommand: "generateText",
             apiKey,
@@ -41,7 +47,13 @@ async function ChatPlugin() {
         return await BinariesExecutor.executeBinary(provider, args);
     }
 
-    self.getTextStreamingResponse = async (provider, apiKey, model, prompt, options = {}, onDataChunk) => {
+    self.getTextStreamingResponse = async ({provider, apiKey, model, prompt, options = {}, onDataChunk}) => {
+        if(!apiKey) {
+            apiKey = process.env[provider]
+        }
+        if(!apiKey) {
+            throw new Error("API key is should be given as an argument or set as a space secret");
+        }
         const args = buildArgs({
             subcommand: "generateTextStreaming",
             apiKey,
@@ -53,7 +65,13 @@ async function ChatPlugin() {
         await BinariesExecutor.executeBinaryStreaming(provider, args, onDataChunk);
     }
 
-    self.getChatCompletionResponse = async (provider, apiKey, model, messages, options = {}) => {
+    self.getChatCompletionResponse = async ({provider, apiKey, model, messages, options = {}}) => {
+        if(!apiKey) {
+            apiKey = process.env[provider]
+        }
+        if(!apiKey) {
+            throw new Error("API key is should be given as an argument or set as a space secret");
+        }
         const args = buildArgs({
             subcommand: "getChatCompletion",
             apiKey,
@@ -64,7 +82,13 @@ async function ChatPlugin() {
         return await BinariesExecutor.executeBinary(provider, args);
     }
 
-    self.getChatCompletionStreamingResponse = async (provider, apiKey, model, messages, options = {}, onDataChunk) => {
+    self.getChatCompletionStreamingResponse = async ({provider, apiKey, model, messages, options = {}, onDataChunk}) => {
+        if(!apiKey) {
+            apiKey = process.env[provider]
+        }
+        if(!apiKey) {
+            throw new Error("API key is should be given as an argument or set as a space secret");
+        }
         const args = buildArgs({
             subcommand: "getChatCompletionStreaming",
             apiKey,

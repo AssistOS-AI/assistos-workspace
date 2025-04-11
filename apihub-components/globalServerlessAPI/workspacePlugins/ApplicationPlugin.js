@@ -3,6 +3,9 @@ const fsPromises = require("fs").promises;
 const {paths: dataVolumePaths} = require("../../volumeManager");
 const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/utils");
 const git = require("../../apihub-component-utils/git.js");
+const {execFile} = require('child_process')
+const {promisify} = require('util')
+const execFileAsync = promisify(execFile)
 
 async function ApplicationPlugin() {
     let self = {};
@@ -79,26 +82,63 @@ async function ApplicationPlugin() {
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
 
-        const copyFolder = async (src, dest) => {
-            const entries = await fsPromises.readdir(src, { withFileTypes: true })
+        const installBinariesDependencies = async (binariesPath) => {
+            const entries = await fsPromises.readdir(binariesPath, {withFileTypes: true})
+            const promises = []
+            for (const entry of entries) {
+                if (entry.isDirectory()) {
+                    const dir = path.join(binariesPath, entry.name)
+                    promises.push(execFileAsync('npm', ['install'], {cwd: dir}))
+                }
+            }
+            return Promise.all(promises)
+        }
+
+        const buildBinaries = async (binariesPath) => {
+            const entries = await fsPromises.readdir(binariesPath, { withFileTypes: true })
+            const promises = []
+            for (const entry of entries) {
+                if (entry.isDirectory()) {
+                    const dir = path.join(binariesPath, entry.name)
+                    promises.push(execFileAsync('npm', ['run', 'build'], { cwd: dir, env: { ...process.env, NODE_OPTIONS: '' }}))
+                }
+            }
+            return Promise.all(promises)
+        }
+        const copyDir = async (src, dest) => {
             await fsPromises.mkdir(dest, { recursive: true })
+            const entries = await fsPromises.readdir(src, { withFileTypes: true })
 
             for (const entry of entries) {
                 const srcPath = path.join(src, entry.name)
                 const destPath = path.join(dest, entry.name)
 
                 if (entry.isDirectory()) {
-                    await copyFolder(srcPath, destPath)
+                    await copyDir(srcPath, destPath)
                 } else {
                     await fsPromises.copyFile(srcPath, destPath)
                 }
             }
         }
 
+        const copyBinaries = async (binariesPath, binariesDest) => {
+            const entries = await fsPromises.readdir(binariesPath, { withFileTypes: true })
+            await fsPromises.mkdir(binariesDest, { recursive: true });
+            for (const entry of entries) {
+                if (entry.isDirectory()) {
+                    const srcBin= path.join(binariesPath, entry.name,`${entry.name}.js`)
+                    const outputBin = path.join(binariesPath, entry.name,'bin',entry.name);
+                    await fsPromises.copyFile(srcBin, path.join(binariesDest, `${entry.name}.js`))
+                    await fsPromises.copyFile(outputBin,path.join(binariesDest, `${entry.name}` ));
+                }
+            }
+        }
         try {
-            const binariesPath=path.join(applicationFolderPath, 'binaries')
-            const binariesDest = path.join(applicationFolderPath, '..','..', 'binaries')
-            await copyFolder(binariesPath, binariesDest)
+            const binariesPath = path.join(applicationFolderPath, 'binaries')
+            const binariesDest = path.join(applicationFolderPath, '..', '..', 'binaries')
+            await installBinariesDependencies(binariesPath);
+            //await buildBinaries(binariesPath);
+            await copyBinaries(binariesPath, binariesDest)
         } catch (_) {
             // binaries folder does not exist, ignore
         }
@@ -210,7 +250,7 @@ async function ApplicationPlugin() {
             }
         }
         const assistOsWidgets = await self.getAssistOsWidgets();
-        if(assistOsWidgets.length > 0) {
+        if (assistOsWidgets.length > 0) {
             widgets['assistOS'] = assistOsWidgets;
         }
         return widgets;
@@ -299,7 +339,7 @@ async function ApplicationPlugin() {
         sendResponse(response, 200, "application/json", localData);
     }
 
-    self.loadApplicationFile = async function(request, response) {
+    self.loadApplicationFile = async function (request, response) {
         function handleFileError(response, error) {
             if (error.code === 'ENOENT') {
                 sendResponse(response, 404, "application/json", {
@@ -337,17 +377,17 @@ async function ApplicationPlugin() {
 let singletonInstance;
 module.exports = {
     getInstance: async function () {
-        if(!singletonInstance){
+        if (!singletonInstance) {
             singletonInstance = await ApplicationPlugin();
         }
         return singletonInstance;
     },
-    getAllow: function(){
-        return async function(id, name, command, ...args){
+    getAllow: function () {
+        return async function (id, name, command, ...args) {
             return true;
         }
     },
-    getDependencies: function(){
+    getDependencies: function () {
         return ["SpaceInstancePlugin", "SpaceInstancePersistence"];
     }
 }

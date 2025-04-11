@@ -1,13 +1,14 @@
 const {spawn} = require('child_process')
 
-const composeBinaryPath = (binary) =>`../binaries/${binary}/bin/${binary}`
+const composeBinaryPath = (binary) =>`../binaries/${binary}.js`
 
 async function BinariesExecutor() {
     const self = {}
 
     self.executeBinary = (binary, args = []) => {
         return new Promise((resolve, reject) => {
-            const proc = spawn(composeBinaryPath(binary), args)
+            //const proc = spawn(composeBinaryPath(binary), args)
+            const proc = spawn('node', [composeBinaryPath(binary), ...args])
             let output = ''
             let errorOutput = ''
 
@@ -22,8 +23,8 @@ async function BinariesExecutor() {
     }
     self.executeBinaryStreaming = (binary, args = [], onDataChunk) => {
         return new Promise((resolve, reject) => {
-            const proc = spawn(composeBinaryPath(binary), args)
-
+            //const proc = spawn(composeBinaryPath(binary), args)
+            const proc = spawn('node', [composeBinaryPath(binary), ...args])
             proc.stdout.on('data', data => onDataChunk(data.toString()))
             proc.stderr.on('data', data => reject(new Error(data.toString().trim())))
 
