@@ -51,7 +51,11 @@ export class DocumentCommentMenu {
         await documentModule.updateDocument(
             assistOS.space.id,
             this.documentId,
-            undefined, undefined, undefined, undefined, this.textArea.value);
+            this.documentPresenter._document.title,
+            this.documentPresenter._document.category,
+            this.documentPresenter._document.infoText,
+            this.documentPresenter._document.commands,
+            this.textArea.value);
         this.documentComments = this.textArea.value;
         this.documentPresenter._document.comments = this.textArea.value;
         showSaveToolTip();

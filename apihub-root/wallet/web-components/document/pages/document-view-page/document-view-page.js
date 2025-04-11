@@ -148,7 +148,6 @@ export class DocumentViewPage {
         this.infoTextFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("infoText-font-size") || "16px"];
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
-        this.infoTextText = this._document.infoText || "No infoText has been set or generated for this document";
         if (this._document.chapters.length > 0) {
             this._document.chapters.forEach((item) => {
                 this.chaptersContainer += `<chapter-item data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
@@ -164,7 +163,14 @@ export class DocumentViewPage {
 
     renderInfoText() {
         let infoText = this.element.querySelector(".document-infoText");
-        infoText.innerHTML = this._document.infoText || "This document doesn't have any information about its content";
+        infoText.innerHTML = this._document.infoText || "";
+        infoText.style.height = "auto";
+        infoText.style.height = infoText.scrollHeight + 'px';
+        infoText.addEventListener("paste", async () => {
+            setTimeout(()=>{
+                infoText.style.height = infoText.scrollHeight + 'px';
+            },0)
+        });
     }
 
     async afterRender() {
@@ -191,10 +197,12 @@ export class DocumentViewPage {
         this.redoButton = this.element.querySelector(".redo-button");
         let tasksMenu = this.element.querySelector(".tasks-menu");
         let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
+        let scriptArgs = this.element.querySelector(".script-modal");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
         this.attachTooltip(snapshotsButton, "Snapshots");
+        this.attachTooltip(scriptArgs, "Run Script");
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
@@ -272,21 +280,19 @@ export class DocumentViewPage {
         await documentModule.changeChapterOrder(assistOS.space.id, this._document.id, currentChapterId, position);
         this.changeChapterOrder(currentChapterId, position);
     }
-
-    async runCommands(button) {
-       // button.classList.add("disabled");
-        await documentModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText));
-        button.classList.remove("disabled");
+    async openScriptModal(){
+        await assistOS.UI.showModal("run-script");
     }
-
     async saveInfoText(infoTextElement) {
         let infoText = assistOS.UI.sanitize(infoTextElement.value);
         if (infoText !== this._document.infoText) {
             this._document.infoText = infoText;
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
-                undefined,
-                undefined,
-                infoText);
+                this._document.title,
+                this._document.category,
+                infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
@@ -327,7 +333,12 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await documentModule.updateDocument(assistOS.space.id, this._document.id, titleText);
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
+                titleText,
+                this._document.category,
+                this._document.infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 

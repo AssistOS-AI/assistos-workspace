@@ -56,9 +56,9 @@ export class ChapterCommentMenu {
         this.chapterComment = this.textArea.value;
         chapter.comments = this.textArea.value;
         await documentModule.updateChapter(assistOS.space.id, chapter.id,
-            undefined,
+            chapter.title,
             chapter.comments,
-            undefined);
+            chapter.commands);
         showSaveToolTip();
     }
 }
