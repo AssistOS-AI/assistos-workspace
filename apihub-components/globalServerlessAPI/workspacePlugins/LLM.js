@@ -1,6 +1,15 @@
-async function ChatPlugin() {
+async function LLM() {
     const self = {};
-    const BinariesExecutor =  $$.loadPlugin("BinariesExecutor")
+    const BinariesExecutor = $$.loadPlugin("BinariesExecutor")
+
+    const getApiKey = async (provider) => {
+        const service = {
+            getApiKeys: () => {
+                return {key1: "key1", key2: "key2"}
+            }
+        };
+        return service.getApiKeys(provider);
+    }
 
     const buildArgs = function ({
                                     subcommand,
@@ -31,11 +40,11 @@ async function ChatPlugin() {
     }
 
     self.getTextResponse = async ({provider, apiKey, model, prompt, options = {}}) => {
-        if(!apiKey) {
-            apiKey = process.env[provider]
+        if (!apiKey) {
+            apiKey = await getApiKey(provider);
         }
-        if(!apiKey) {
-            throw new Error("API key is should be given as an argument or set as a space secret");
+        if (!apiKey) {
+            throw new Error("API key should be given as an argument or set as a space secret");
         }
         const args = buildArgs({
             subcommand: "generateText",
@@ -48,11 +57,11 @@ async function ChatPlugin() {
     }
 
     self.getTextStreamingResponse = async ({provider, apiKey, model, prompt, options = {}, onDataChunk}) => {
-        if(!apiKey) {
-            apiKey = process.env[provider]
+        if (!apiKey) {
+            apiKey = await getApiKey(provider);
         }
-        if(!apiKey) {
-            throw new Error("API key is should be given as an argument or set as a space secret");
+        if (!apiKey) {
+            throw new Error("API key should be given as an argument or set as a space secret");
         }
         const args = buildArgs({
             subcommand: "generateTextStreaming",
@@ -66,11 +75,11 @@ async function ChatPlugin() {
     }
 
     self.getChatCompletionResponse = async ({provider, apiKey, model, messages, options = {}}) => {
-        if(!apiKey) {
-            apiKey = process.env[provider]
+        if (!apiKey) {
+            apiKey = await getApiKey(provider);
         }
-        if(!apiKey) {
-            throw new Error("API key is should be given as an argument or set as a space secret");
+        if (!apiKey) {
+            throw new Error("API key should be given as an argument or set as a space secret");
         }
         const args = buildArgs({
             subcommand: "getChatCompletion",
@@ -82,12 +91,19 @@ async function ChatPlugin() {
         return await BinariesExecutor.executeBinary(provider, args);
     }
 
-    self.getChatCompletionStreamingResponse = async ({provider, apiKey, model, messages, options = {}, onDataChunk}) => {
-        if(!apiKey) {
-            apiKey = process.env[provider]
+    self.getChatCompletionStreamingResponse = async ({
+                                                         provider,
+                                                         apiKey,
+                                                         model,
+                                                         messages,
+                                                         options = {},
+                                                         onDataChunk
+                                                     }) => {
+        if (!apiKey) {
+            apiKey = await getApiKey(provider);
         }
-        if(!apiKey) {
-            throw new Error("API key is should be given as an argument or set as a space secret");
+        if (!apiKey) {
+            throw new Error("API key should be given as an argument or set as a space secret");
         }
         const args = buildArgs({
             subcommand: "getChatCompletionStreaming",
@@ -108,7 +124,7 @@ let singletonInstance;
 module.exports = {
     getInstance: async function () {
         if (!singletonInstance) {
-            singletonInstance = await ChatPlugin();
+            singletonInstance = await LLM();
         }
         return singletonInstance;
     },
