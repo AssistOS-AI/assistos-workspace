@@ -18,13 +18,11 @@ const {
 } = require("./controller.js");
 
 const bodyReader = require("../apihub-component-middlewares/bodyReader");
-const authorization = require("../apihub-component-middlewares/authorization");
 const {getTextResponseAdvanced} = require("./controller");
 
 function LLMStorage(server) {
     server.use("/apis/v1/spaces/:spaceId/llms/*", bodyReader);
     server.get("/apis/v1/llms/defaults", getDefaultModels);
-    server.use("/apis/v1/spaces/:spaceId/llms/*", authorization);
 
     server.get("/apis/v1/spaces/:spaceId/llms/configs", sendLLMConfigs);
     server.post("/apis/v1/spaces/:spaceId/llms/languages", getModelLanguages);

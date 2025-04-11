@@ -1,4 +1,3 @@
-const space = require("../../globalServerlessAPI/space");
 const utils = require("../../apihub-component-utils/utils");
 const crypto = require("../../apihub-component-utils/crypto");
 const path = require("path");

@@ -2,8 +2,10 @@ const {
     getSpaceStatus,
     createSpace,
     listUserSpaces,
-    editAPIKey,
-    getAPIKeysMasked,
+    getSecretsMasked,
+    addSecret,
+    editSecret,
+    deleteSecret,
     getUploadURL,
     getDownloadURL,
     headFile,
@@ -67,8 +69,10 @@ function Space(server) {
     server.delete("/spaces/:spaceId", deleteSpace);
 
     /*API Keys*/
-    server.get("/spaces/:spaceId/secrets/keys", getAPIKeysMasked);
-    server.post("/spaces/:spaceId/secrets/keys", editAPIKey);
+    server.get("/spaces/:spaceId/secrets", getSecretsMasked);
+    server.post("/spaces/:spaceId/secrets", addSecret);
+    server.put("/spaces/:spaceId/secrets", editSecret);
+    server.put("/spaces/:spaceId/secrets/delete", deleteSecret);
 }
 
 module.exports = Space;

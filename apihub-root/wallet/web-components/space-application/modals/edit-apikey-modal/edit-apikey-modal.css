@@ -1,6 +1,5 @@
-dialog{
-    font-family: Poppins, serif;
-    width: 300px;
+#secretKey{
+    text-transform: uppercase;
 }
 edit-apikey-modal{
     display: flex;
@@ -13,12 +12,5 @@ edit-apikey-modal{
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-}
-.form-input:focus {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 18px;
-    letter-spacing: 0;
 }
 

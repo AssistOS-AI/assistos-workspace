@@ -4,41 +4,50 @@ export class KeysTab {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.getAPIKeys = async () => {
-            this.apiKeys = await spaceModule.getAPIKeysMasked(assistOS.space.id);
+        this.getSecrets = async () => {
+            this.secrets = await spaceModule.getSecretsMasked(assistOS.space.id);
         };
-        this.invalidate(this.getAPIKeys);
+        this.invalidate(this.getSecrets);
     }
     beforeRender() {
-        let apiKeys = "";
-        for (let provider of Object.keys(this.apiKeys)) {
-            apiKeys +=
-                `<div class="table-line pointer" data-local-action="editKey ${provider} ${this.apiKeys[provider].hasOwnProperty("userId")}">
-                            <div class="provider-name">${provider}</div>
-                            <div class="api-key">${this.apiKeys[provider].APIKey || "No key set"}</div>`;
-            if (this.apiKeys[provider].APIKey) {
-                apiKeys += `
-                            <img class="trash-icon black-icon" data-local-action="deleteAPIKey ${provider}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
-                          
-                </div>`
-            } else {
-                apiKeys += `<div></div></div>`;
-            }
+        let secretsHTML = "";
+        for (let secretKey of Object.keys(this.secrets)) {
+            let secret = this.secrets[secretKey];
+            secretsHTML +=
+                `<div class="table-line pointer" data-local-action="editKey ${secret.name} ${secretKey}">
+                            <div class="secret-name">${secret.name}</div>
+                            <div class="key">${secretKey}</div>
+                            <div class="value">${secret.value || "No value set"}</div>
+                            <div class="remaining-space">
+                                <img class="trash-icon black-icon" data-local-action="deleteAPIKey ${secretKey}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
+                            </div>
+                </div>`;
         }
-        this.apiKeys = apiKeys;
+        this.secretsHTML = secretsHTML;
     }
-    async deleteAPIKey(_eventTarget, type) {
-        await spaceModule.editAPIKey(assistOS.space.id, type);
-        this.invalidate(this.getAPIKeys);
+    async deleteAPIKey(_eventTarget, secretKey) {
+        try {
+            await spaceModule.deleteSecret(assistOS.space.id, secretKey);
+            this.invalidate(this.getSecrets);
+        } catch (e) {
+            let jsonMessage = JSON.parse(e.message);
+            assistOS.showToast(jsonMessage.message, "error", 5000);
+        }
     }
 
-    async editKey(_eventTarget, type, hasUserId) {
+    async editKey(_eventTarget, name, key) {
         let confirmation = await assistOS.UI.showModal("edit-apikey-modal", {
-            type: type,
-            ["has-user-id"]: hasUserId
+            name: name,
+            key: key
         }, true);
         if (confirmation) {
-            this.invalidate(this.getAPIKeys);
+            this.invalidate(this.getSecrets);
+        }
+    }
+    async addSecret(){
+        let confirmation = await assistOS.UI.showModal("add-key-modal", {}, true);
+        if (confirmation) {
+            this.invalidate(this.getSecrets);
         }
     }
 }

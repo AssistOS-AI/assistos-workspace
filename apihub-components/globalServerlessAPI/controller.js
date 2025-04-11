@@ -20,7 +20,6 @@ const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
-const space = require("./space");
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
 }
@@ -298,21 +297,49 @@ async function deleteSpace(request, response) {
     }
 }
 
-async function editAPIKey(request, response) {
+async function getSecretsMasked(request, response) {
+    const spaceId = request.params.spaceId;
+    try {
+        let keys = await secrets.getSecretsMasked(spaceId);
+        return sendResponse(response, 200, "application/json", keys);
+    } catch (e) {
+        return sendResponse(response, 500, "application/json", {
+            message: e.message
+        });
+    }
+}
+async function addSecret(request, response){
+    const spaceId = request.params.spaceId;
+    try {
+        await secrets.addSecret(spaceId, request.userId, request.body.name, request.body.secretKey, request.body.value);
+        utils.sendResponse(response, 200, "application/json", {});
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+        });
+    }
+}
+async function deleteSecret(request, response){
+    const spaceId = request.params.spaceId;
+    try {
+        await secrets.deleteSecret(spaceId, request.body.secretKey);
+        utils.sendResponse(response, 200, "application/json", {});
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+        });
+    }
+}
+async function editSecret(request, response) {
     const spaceId = request.params.spaceId;
     if (!spaceId) {
         return utils.sendResponse(response, 400, "application/json", {
             message: "Bad Request: Space ID or a valid currentSpaceId cookie is required",
         });
     }
-    if (!request.body.keyType) {
-        return utils.sendResponse(response, 400, "application/json", {
-            message: "Bad Request: Key Type and is required in the request body",
-        });
-    }
     const userId = request.userId;
     try {
-        await space.editAPIKey(spaceId, userId, request.body.keyType, request.body.APIKey);
+        await secrets.putSpaceKey(spaceId, userId, request.body.secretKey, request.body.name, request.body.value);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -321,17 +348,7 @@ async function editAPIKey(request, response) {
     }
 }
 
-async function getAPIKeysMasked(request, response) {
-    const spaceId = request.params.spaceId;
-    try {
-        let keys = await space.getAPIKeysMasked(spaceId);
-        return sendResponse(response, 200, "application/json", keys);
-    } catch (e) {
-        return sendResponse(response, 500, "application/json", {
-            message: e.message
-        });
-    }
-}
+
 
 async function getChatTextResponse(request, response) {
     const spaceId = request.params.spaceId;
@@ -891,8 +908,10 @@ module.exports = {
     addSpaceChatMessage,
     createSpace,
     deleteSpace,
-    editAPIKey,
-    getAPIKeysMasked,
+    addSecret,
+    editSecret,
+    getSecretsMasked,
+    deleteSecret,
     getChatTextResponse,
     getChatTextStreamingResponse,
     importPersonality,

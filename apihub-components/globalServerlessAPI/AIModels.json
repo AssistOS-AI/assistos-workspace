@@ -1,9 +1,7 @@
 [
     {
         "provider": "OpenAI",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "OPEN_AI",
         "models": [
             {
                 "name": "tts-1",
@@ -90,10 +88,7 @@
     },
     {
         "provider": "PlayHT",
-        "authentication": [
-            "APIKey",
-            "userId"
-        ],
+        "keyName": "PLAY_HT",
         "models": [
             {
                 "name": "PlayHT2.0",
@@ -103,10 +98,13 @@
         ]
     },
     {
+        "provider": "PlayHT",
+        "keyName": "PLAY_HT_USER_ID",
+        "models": []
+    },
+    {
         "provider": "MidJourney",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "MID_JOURNEY",
         "models": [
             {
                 "name": "MidJourney",
@@ -144,9 +142,7 @@
     },
     {
         "provider": "Synclabs",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "SYNC_LABS",
         "models": [
             {
                 "name": "sync-1.6.0",
@@ -164,9 +160,7 @@
     },
     {
         "provider": "HuggingFace",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "HUGGING_FACE",
         "models": [
             {
                 "name": "Qwen/Qwen2.5-72B-Instruct",
@@ -208,9 +202,7 @@
     },
     {
         "provider": "OpenRouter",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "OPEN_ROUTER",
         "models": [
             {
                 "name": "deepseek/deepseek-r1",
@@ -228,9 +220,7 @@
     },
     {
         "provider": "GitHub",
-        "authentication": [
-            "APIKey"
-        ],
+        "keyName": "GITHUB",
         "models": []
     }
 ]

@@ -1,15 +1,12 @@
-<div class="apikeys-table">
-  <div class="table-header">
-    <div class="table-name">
-      API Keys
-    </div>
-  </div>
-  <div class="table-content">
+<div class="keys-tab-header">
+    <button class="general-button" data-local-action="addSecret">+ Add Secret</button>
+</div>
+<div class="table-content">
     <div class="table-labels">
-      <div class="table-label provider-name">Type</div>
-      <div class="table-label api-key">Value</div>
-      <div class="table-label"></div>
+        <div class="table-label secret-name">Name</div>
+        <div class="table-label key">Key</div>
+        <div class="table-label value">Value</div>
+        <div class="table-label remaining-space"></div>
     </div>
-    <div class="table-rows">$$apiKeys</div>
-  </div>
+    <div class="table-rows">$$secretsHTML</div>
 </div>

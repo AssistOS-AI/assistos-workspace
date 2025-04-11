@@ -59,7 +59,7 @@ async function constructRequestInitAndURL(url, method, request, response) {
     let body = Object.assign({}, request.body || {});
 
     if (companyObj) {
-        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.provider);
+        const APIKeyObj = await secrets.getSecret(spaceId, companyObj.provider);
         if (!APIKeyObj) {
             return utils.sendResponse(response, 500, "application/json", {
                 message: "API key not found"

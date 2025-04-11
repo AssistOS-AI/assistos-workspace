@@ -3,7 +3,6 @@ const fs = require('fs');
 const Task = require('./Task');
 const path = require('path');
 const fsPromises = fs.promises;
-const space = require('../globalServerlessAPI/space');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
