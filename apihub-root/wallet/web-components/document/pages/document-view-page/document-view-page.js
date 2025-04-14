@@ -61,12 +61,12 @@ export class DocumentViewPage {
             tocContainer.appendChild(tocContent);
 
             const titleElement = this.element.querySelector(".document-title-container");
-            const abstractElement = this.element.querySelector(".document-abstract-container");
+            const infoText = this.element.querySelector(".document-infoText-container");
 
-            if (titleElement && abstractElement) {
-                titleElement.parentNode.insertBefore(tocContainer, abstractElement);
+            if (titleElement && infoText) {
+                titleElement.parentNode.insertBefore(tocContainer, infoText);
             } else {
-                console.error("Cannot find title or abstract containers");
+                console.error("Cannot find title or infoText containers");
                 return;
             }
         }
@@ -89,19 +89,19 @@ export class DocumentViewPage {
             tocContent.appendChild(titleItem);
         }
 
-        if (this._document.abstract) {
-            const abstractItem = document.createElement("a");
-            abstractItem.className = "toc-item toc-abstract";
-            abstractItem.href = "#document-abstract";
-            abstractItem.textContent = "Document Info";
-            abstractItem.addEventListener("click", (e) => {
+        if (this._document.infoText) {
+            const infoTextItem = document.createElement("a");
+            infoTextItem.className = "toc-item toc-infoText";
+            infoTextItem.href = "#document-infoText";
+            infoTextItem.textContent = "Document Info";
+            infoTextItem.addEventListener("click", (e) => {
                 e.preventDefault();
-                document.querySelector(".document-abstract").scrollIntoView({
+                document.querySelector(".document-infoText").scrollIntoView({
                     behavior: "smooth",
                     block: "start"
                 });
             });
-            tocContent.appendChild(abstractItem);
+            tocContent.appendChild(infoTextItem);
         }
 
         if (this._document.chapters && this._document.chapters.length > 0) {
@@ -137,7 +137,7 @@ export class DocumentViewPage {
             true
         );
 
-        console.log("Table of Contents added as standalone element between title and abstract");
+        console.log("Table of Contents added as standalone element between title and infoText");
     }
     async removeTableOfContents() {
         const tocContainer = this.element.querySelector(".toc-container");
@@ -155,7 +155,7 @@ export class DocumentViewPage {
         }
     }
 
-    async initTitleAbstractSelection() {
+    async initTitleInfoTextSelection() {
         this.infoTextClass = "document-infoText";
         this.titleClass = "document-title";
         this.infoTextId = "infoText";

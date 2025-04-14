@@ -47,6 +47,7 @@ space-application-page {
 }
 
 .current-page {
+    display: block;
     width: 100%;
 }
 .highlighted{
