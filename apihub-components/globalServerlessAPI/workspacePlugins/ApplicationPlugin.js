@@ -50,6 +50,11 @@ async function ApplicationPlugin() {
         return await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
     }
 
+    self.getApplicationManifest = async function (applicationName) {
+        const manifestPath = self.getApplicationManifestPath(applicationName);
+        let manifestContent =await fsPromises.readFile(manifestPath, 'utf8');
+        return JSON.parse(manifestContent);
+    }
 
     self.installApplication = async function (name) {
         const applications = self.getAvailableApps();
@@ -79,12 +84,6 @@ async function ApplicationPlugin() {
             manifest = JSON.parse(manifestContent);
         } catch (error) {
             throw new Error("Failed to read or parse Application manifest", error);
-        }
-
-        const applicationSecrets = manifest.secrets;
-
-        if (applicationSecrets && Array.isArray(applicationSecrets)) {
-            // ?
         }
 
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);

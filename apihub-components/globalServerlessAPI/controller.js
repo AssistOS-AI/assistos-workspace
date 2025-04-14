@@ -13,6 +13,7 @@ const {
 } = require('../llms/controller.js');
 let assistOSSDK = require('assistos');
 const constants = assistOSSDK.constants;
+
 const getAPIClientSDK = assistOSSDK.utils.getAPIClient;
 
 const fs = require("fs");
@@ -20,6 +21,7 @@ const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
+const ServerSideSecurityContext = require("../../assistos-sdk/modules/user/models/ServerSideSecurityContext");
 
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
@@ -126,16 +128,20 @@ async function createSpace(request, response, server) {
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
-        let applicationsAPIClient = await getAPIClient(request, constants.APPLICATION_PLUGIN, serverlessId);
+
+        //let applicationsAPIClient = await getAPIClient(request, constants.APPLICATION_PLUGIN, serverlessId);
 
         /*v2 defaultApplications config file */
         const defaultApplicationsPath = path.join(__dirname, 'defaultApplications.json');
         const defaultApplications = JSON.parse(await fsPromises.readFile(defaultApplicationsPath, 'utf-8'));
 
-        for (const application of defaultApplications) {
-            await applicationsAPIClient.installApplication(application)
-        }
+        const serverSideSecurityContext = assistOSSDK.ServerSideSecurityContext;
+        const securityContext = new serverSideSecurityContext(request);
+        const ApplicationModule=assistOSSDK.loadModule("application",securityContext);
 
+        for (const application of defaultApplications) {
+            await ApplicationModule.installApplication(space.id,application)
+        }
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
