@@ -1,8 +1,10 @@
+import {changeSelectedPageFromSidebar} from "../../../../imports.js";
+
 export class SpaceApplicationPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.configPage = location.hash.split("/")[2] || "documents-page";
+        this.currentPage = location.hash.split("/")[2] || "documents-page";
         this.invalidate();
     }
 
@@ -15,20 +17,10 @@ export class SpaceApplicationPage {
         this.sidebar = this.element.querySelector(".right-sidebar");
         this.currentPage = this.element.querySelector(".current-page");
         this.spacePageContainer = this.element.querySelector("#space-page-container");
-        this.highlightSidebarItem();
-    }
-
-    highlightSidebarItem() {
-        let sidebarItems = this.element.querySelectorAll(".sidebar-item");
-        sidebarItems.forEach((item) => {
-            if (item.getAttribute("data-local-action").split(" ")[1] === this.currentPage.componentName) {
-                item.classList.add("highlighted");
-            }
-        });
     }
 
     async changePage(pageName) {
-        this.spacePageContainer.innerHTML = `<${pageName} data-presenter="${pageName}"></${pageName}>`;
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${pageName}`);
     }
 
 

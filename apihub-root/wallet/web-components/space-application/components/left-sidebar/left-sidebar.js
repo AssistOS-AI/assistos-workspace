@@ -1,6 +1,5 @@
 import {changeSelectedPageFromSidebar} from "../../../../imports.js";
 const spaceModule = require("assistos").loadModule("space", {});
-const utilModule = require("assistos").loadModule("util", {});
 const userModule = require("assistos").loadModule("user", {});
 export class LeftSidebar {
     constructor(element, invalidate) {
@@ -118,7 +117,6 @@ export class LeftSidebar {
             const now = new Date();
             const hours = now.getHours();
             const minutes = now.getMinutes();
-
             clock.innerText = `${hours}:${minutes < 10 ? '0' : ''}${minutes}`;
         }
 
