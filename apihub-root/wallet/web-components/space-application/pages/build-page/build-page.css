@@ -8,6 +8,85 @@ build-page {
     font-weight: 600;
     color: var(--black)
 }
+.build-all-section{
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.build-check-container{
+    margin-left: 10px;
+}
+.section-header{
+    margin-bottom: 10px;
+    font-weight: bold;
+    font-size: 16px;
+}
 .page-body{
     padding: 0 30px;
+}
+.top-section{
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.build-errors,
+.space-graph{
+    overflow: auto;
+    padding: 5px;
+    min-height: 200px;
+    border: 1px solid var(--very-light-gray);
+    border-radius: 10px;
+}
+.graph-section{
+    margin-right: 10px;
+    width: 49%;
+}
+.build-errors-section{
+    width: 49%;
+}
+.variables-section{
+    color: var(--light-gray-text);
+}
+.table-labels{
+    display: flex;
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: 16px;
+    border-bottom: 0.5px solid var(--light-gray-text);
+}
+.variables-table-container{
+    overflow: auto;
+    height: calc(100vh - 410px);
+}
+.variables-table-container::-webkit-scrollbar {
+    display: block;
+}
+.variables-table-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+.variables-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+.variables-table{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.table-row{
+    margin: 10px 0;
+    padding: 10px 0;
+    display: flex;
+    border-bottom: 0.5px solid var(--light-gray-text);
+}
+.cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 10px;
+    border-bottom: 0.5px solid var(--light-gray-text);
+}
+.details{
+    text-decoration: underline;
 }
