@@ -72,6 +72,7 @@ async function ApplicationPlugin() {
             throw new Error("Failed to clone application repository " + error.message);
         }
         const manifestPath = self.getApplicationManifestPath(application.name);
+
         let manifestContent, manifest;
         try {
             manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
@@ -79,9 +80,15 @@ async function ApplicationPlugin() {
         } catch (error) {
             throw new Error("Failed to read or parse Application manifest", error);
         }
+
+        const applicationSecrets = manifest.secrets;
+
+        if (applicationSecrets && Array.isArray(applicationSecrets)) {
+            // ?
+        }
+
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
-
         const installBinariesDependencies = async (binariesPath) => {
             const entries = await fsPromises.readdir(binariesPath, {withFileTypes: true})
             const promises = []
@@ -89,18 +96,6 @@ async function ApplicationPlugin() {
                 if (entry.isDirectory()) {
                     const dir = path.join(binariesPath, entry.name)
                     promises.push(execFileAsync('npm', ['install'], {cwd: dir}))
-                }
-            }
-            return Promise.all(promises)
-        }
-
-        const buildBinaries = async (binariesPath) => {
-            const entries = await fsPromises.readdir(binariesPath, { withFileTypes: true })
-            const promises = []
-            for (const entry of entries) {
-                if (entry.isDirectory()) {
-                    const dir = path.join(binariesPath, entry.name)
-                    promises.push(execFileAsync('npm', ['run', 'build'], { cwd: dir, env: { ...process.env, NODE_OPTIONS: '' }}))
                 }
             }
             return Promise.all(promises)
@@ -120,7 +115,6 @@ async function ApplicationPlugin() {
                 }
             }
         }
-
         const copyBinaries = async (binariesPath, binariesDest) => {
             const entries = await fsPromises.readdir(binariesPath, { withFileTypes: true })
             await fsPromises.mkdir(binariesDest, { recursive: true });
@@ -137,7 +131,6 @@ async function ApplicationPlugin() {
             const binariesPath = path.join(applicationFolderPath, 'binaries')
             const binariesDest = path.join(applicationFolderPath, '..', '..', 'binaries')
             await installBinariesDependencies(binariesPath);
-            //await buildBinaries(binariesPath);
             await copyBinaries(binariesPath, binariesDest)
         } catch (_) {
             // binaries folder does not exist, ignore

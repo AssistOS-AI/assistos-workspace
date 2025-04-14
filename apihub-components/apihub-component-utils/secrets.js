@@ -5,10 +5,11 @@ function getContainerName(spaceId) {
     return `${spaceId}`
 }
 const spaceSecretName = "spaceSecrets";
+
 async function createSpaceSecretsContainer(spaceId) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     let secretObject = {};
-    const providers = require("../globalServerlessAPI/AIModels.json")
+    const providers = require("../globalServerlessAPI/defaultSecrets.json")
     for (const llm of providers) {
         secretObject[llm.keyName] = {
             ownerId: "",
@@ -18,8 +19,9 @@ async function createSpaceSecretsContainer(spaceId) {
         };
     }
     await secretsService.putSecretAsync(getContainerName(spaceId), spaceSecretName, secretObject)
-
 }
+
+
 async function putSpaceKey(spaceId, userId, secretKey, name, value) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const secrets = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
@@ -68,7 +70,7 @@ async function addSecret(spaceId, userId, secretName, secretKey, value) {
 async function deleteSecret(spaceId, secretKey) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
-    const providers = require("../globalServerlessAPI/AIModels.json")
+    const providers = require("../globalServerlessAPI/defaultSecrets.json")
     if(!spaceAPIKeyObject[secretKey]){
         return;
     }

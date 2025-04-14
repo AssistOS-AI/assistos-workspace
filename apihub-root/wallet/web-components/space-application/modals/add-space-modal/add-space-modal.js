@@ -1,7 +1,3 @@
-import {
-    validateOpenAiKey,
-} from "../../../../imports.js";
-
 export class AddSpaceModal {
     constructor(element, invalidate) {
         this.invalidate = invalidate;

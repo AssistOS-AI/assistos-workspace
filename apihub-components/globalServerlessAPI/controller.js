@@ -20,6 +20,7 @@ const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
+
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
 }
@@ -103,49 +104,6 @@ async function createSpace(request, response, server) {
         await fsPromises.mkdir(applicationsPath, {recursive: true});
         const binariesPath = path.join(serverlessAPIStorage, "binaries");
         await fsPromises.mkdir(binariesPath, {recursive: true});
-
-      /*  const copyRepo = async (src, dest) => {
-            const entries = await fsPromises.readdir(src, { withFileTypes: true })
-            await fsPromises.mkdir(dest, { recursive: true })
-
-            for (const entry of entries) {
-                const srcPath = path.join(src, entry.name)
-                const destPath = path.join(dest, entry.name)
-
-                if (entry.isDirectory()) {
-                    await copyRepo(srcPath, destPath)
-                } else {
-                    await fsPromises.copyFile(srcPath, destPath)
-                }
-            }
-        }
-
-        const copyBinariesIfExist = async (repoSrcPath, binariesDest) => {
-            const binariesSrc = path.join(repoSrcPath, 'binaries')
-            try {
-                const stat = await fsPromises.stat(binariesSrc)
-                if (!stat.isDirectory()) return
-                await copyRepo(binariesSrc, binariesDest)
-            } catch (_) {
-                //  ignore
-            }
-        }
-
-        const copyAllRepos = async (sourceRoot, destRoot, binariesDest) => {
-            const repos = await fsPromises.readdir(sourceRoot, { withFileTypes: true })
-            for (const repo of repos) {
-                if (!repo.isDirectory()) continue
-                const srcPath = path.join(sourceRoot, repo.name)
-                const destPath = path.join(destRoot, repo.name)
-
-                await copyRepo(srcPath, destPath)
-                await copyBinariesIfExist(srcPath, binariesDest)
-            }
-        }
-
-        const defaultApplicationsPath = path.join(__dirname, '../defaultApplications')
-
-        await copyAllRepos(defaultApplicationsPath, applicationsPath, binariesPath)*/
 
         await createSpacePlugins(pluginsStorage);
 
