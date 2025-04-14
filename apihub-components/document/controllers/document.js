@@ -1,4 +1,3 @@
-const space = require("../../spaces-storage/space");
 const utils = require("../../apihub-component-utils/utils");
 const crypto = require("../../apihub-component-utils/crypto");
 const path = require("path");
@@ -6,7 +5,6 @@ const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
-const ffmpeg = require("../../apihub-component-utils/ffmpeg");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");
@@ -14,8 +12,6 @@ const ExportDocument = require("../../tasks/ExportDocument");
 const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const { Document, Packer, TextRun, Paragraph, AlignmentType, Footer, BorderStyle, PageBorderDisplay, PageBorderOffsetFrom, PageBorderZOrder, PageNumber, PageOrientation, WidthType } = require("docx");
-const lightDB = require("../../apihub-component-utils/lightDB");
-const paragraphService = require("../services/paragraph");
 
 async function getDocument(req, res) {
     const {spaceId, documentId} = req.params;
