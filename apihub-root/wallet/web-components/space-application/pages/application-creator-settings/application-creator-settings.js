@@ -1,4 +1,4 @@
-const personalityModule = require('assistos').loadModule('personality', {});
+const personalityModule = require('assistos').loadModule('agent', {});
 const applicationModule = require('assistos').loadModule('application', {});
 const spaceModule = require('assistos').loadModule('space', {});
 
@@ -8,7 +8,7 @@ const getWidgets = async function (spaceId) {
 }
 
 const getPersonalities = async function (spaceId) {
-    const personalities = await personalityModule.getPersonalities(spaceId);
+    const personalities = await personalityModule.getAgents(spaceId);
     return personalities;
 }
 

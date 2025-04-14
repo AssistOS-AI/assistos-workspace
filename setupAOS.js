@@ -2,17 +2,13 @@ const fs = require('fs');
 const path = require('path');
 const directoriesToCreate = [
     "spaces",
-    "users",
     "Temp",
     "assets",
 ];
 const mainDir = "data-volume";
 const filesToCreate = [
     "[MAP]Spaces.json",
-    "[MAP]Users.json",
     "SpacesPendingInvitations.json",
-    "user-credentials.json",
-    "UsersPendingActivation.json"
 ];
 (async () => {
     try {

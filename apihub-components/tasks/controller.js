@@ -22,9 +22,7 @@ async function translateDocument(request, response){
         let task = new TranslateDocument(spaceId, userId, {documentId, language, personalityId});
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
-        sendResponse(response, 200, "application/json", {
-            data: task.id
-        });
+        sendResponse(response, 200, "text/plain", task.id);
         TaskManager.runTask(task.id);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
@@ -41,9 +39,7 @@ async function compileVideoFromDocument(request, response) {
         let task = new DocumentToVideo(spaceId, userId, {documentId});
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
-        sendResponse(response, 200, "application/json", {
-            data: task.id
-        });
+        sendResponse(response, 200, "text/plain", task.id);
         setTimeout(() => {
             TaskManager.runTask(task.id);
         }, 1000);
@@ -65,9 +61,7 @@ async function compileVideoFromChapter(request, response) {
         let task = new ChapterToVideo(spaceId, userId, {documentId, chapterId});
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
-        sendResponse(response, 200, "application/json", {
-            data: task.id
-        });
+        sendResponse(response, 200, "text/plain", task.id);
         setTimeout(() => {
             TaskManager.runTask(task.id);
         }, 1000);
@@ -88,9 +82,7 @@ async function compileVideoFromParagraph(request, response) {
         let task = new ParagraphToVideo(spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
-        sendResponse(response, 200, "application/json", {
-            data: task.id
-        });
+        sendResponse(response, 200, "text/plain", task.id);
         TaskManager.runTask(task.id);
     } catch (e) {
         utils.sendResponse(response, 500, "application/json", {
@@ -119,10 +111,7 @@ async function textToSpeechParagraph(request, response) {
         });
         await TaskManager.addTask(task);
         notifyTasksListUpdate(sessionId, spaceId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: task.id,
-            message: "Task added to the queue"
-        });
+        utils.sendResponse(response, 200, "text/plain", task.id);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -140,10 +129,7 @@ async function lipSyncParagraph(request, response) {
         let task = new LipSync(spaceId, userId, {documentId, paragraphId});
         await TaskManager.addTask(task);
         notifyTasksListUpdate(request.sessionId, documentId);
-        utils.sendResponse(response, 200, "application/json", {
-            data: task.id,
-            message: "Task added to the queue"
-        });
+        utils.sendResponse(response, 200, "text/plain", task.id);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error
@@ -197,9 +183,7 @@ function getTasks(request, response) {
     let spaceId = request.params.spaceId;
     try {
         let tasks = TaskManager.serializeTasks(spaceId);
-        sendResponse(response, 200, "application/json", {
-            data: tasks
-        });
+        sendResponse(response, 200, "application/json", tasks);
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: e.message
@@ -218,9 +202,7 @@ async function getTaskRelevantInfo(request, response) {
         } else {
             taskInfo = await task.getRelevantInfo();
         }
-        sendResponse(response, 200, "application/json", {
-            data: taskInfo
-        });
+        sendResponse(response, 200, "application/json", taskInfo);
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: e.message
@@ -252,9 +234,7 @@ function getDocumentTasks(request, response) {
             }
             return task.configs.documentId === documentId
         });
-        sendResponse(response, 200, "application/json", {
-            data: tasks
-        });
+        sendResponse(response, 200, "application/json", tasks);
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: e.message
@@ -266,9 +246,7 @@ async function getTask(request, response) {
     let taskId = request.params.taskId;
     try {
         let task = TaskManager.getTask(taskId);
-        sendResponse(response, 200, "application/json", {
-            data: task.serialize()
-        });
+        sendResponse(response, 200, "application/json", task.serialize());
     } catch (e) {
         sendResponse(response, 500, "application/json", {
             message: e.message

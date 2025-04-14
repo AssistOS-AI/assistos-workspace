@@ -1,8 +1,5 @@
 const documentHandler = require("./controllers/document.js");
-const chapterHandler = require("./controllers/chapter.js");
-const paragraphHandler = require("./controllers/paragraph.js");
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const authentication = require('../apihub-component-middlewares/authentication.js')
 function document(server) {
     // Register the document conversion endpoint before applying bodyReader middleware
     // This endpoint needs to handle the raw request for multipart/form-data
@@ -45,23 +42,6 @@ function document(server) {
 
     //Video
     server.get("/documents/video/:spaceId/:fileName", documentHandler.downloadDocumentVideo);
-    server.get("/documents/video/estimate/:spaceId/:documentId", documentHandler.estimateDocumentVideoLength);
-
-    //Chapter
-    server.get("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.getChapter);
-    server.post("/documents/chapters/:spaceId/:documentId", chapterHandler.createChapter);
-    server.put("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.updateChapter);
-    server.put("/documents/chapters/swap/:spaceId/:documentId/:chapterId1/:chapterId2", chapterHandler.swapChapters);
-    server.delete("/documents/chapters/:spaceId/:documentId/:chapterId", chapterHandler.deleteChapter);
-
-    //Paragraph
-    server.get("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.getParagraph);
-    server.post("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId", paragraphHandler.createParagraph);
-    server.put("/documents/chapters/paragraphs/:spaceId/:documentId/:paragraphId", paragraphHandler.updateParagraph);
-    server.put("/documents/chapters/paragraphs/swap/:spaceId/:documentId/:chapterId/:paragraphId1/:paragraphId2", paragraphHandler.swapParagraphs);
-    server.delete("/documents/chapters/paragraphs/:spaceId/:documentId/:chapterId/:paragraphId", paragraphHandler.deleteParagraph);
-
-
 }
 
 module.exports = document;

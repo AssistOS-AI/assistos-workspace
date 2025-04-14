@@ -2,7 +2,6 @@ const Task = require('./Task');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
-const ffmpeg = require('../apihub-component-utils/ffmpeg');
 const Storage = require('../apihub-component-utils/storage');
 class TextToSpeech extends Task {
     constructor(spaceId, userId, configs) {
@@ -16,7 +15,7 @@ class TextToSpeech extends Task {
             const llmModule = await this.loadModule('llm');
             const documentModule = await this.loadModule('document');
             const spaceModule = await this.loadModule('space');
-            const personalityModule = await this.loadModule('personality');
+            const personalityModule = await this.loadModule('agent');
             const utilModule = await this.loadModule('util');
             const constants = require("assistos").constants;
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
@@ -24,7 +23,7 @@ class TextToSpeech extends Task {
             await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
 
             const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
-            const personalityData = await personalityModule.getPersonalityByName(this.spaceId, utilModule.unsanitize(paragraphCommands.speech.personality));
+            const personalityData = await personalityModule.getAgent(this.spaceId, utilModule.unsanitize(paragraphCommands.speech.personality));
 
             const arrayBuffer = await llmModule.textToSpeech(this.spaceId, {
                 prompt: utilModule.unsanitize(paragraph.text),

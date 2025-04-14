@@ -77,29 +77,29 @@ export class ChapterItem {
         document.body.removeChild(link);
         URL.revokeObjectURL(blobUrl);
     }
-    deleteCompiledVideo(){
-        delete this.chapter.commands.compileVideo;
-        documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
+
+    async deleteCompiledVideo(){
+        alert("TO BE DONE")
     }
+
     async compileChapterVideo(){
-        this.chapter.commands.compileVideo = {};
-        await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
-        await documentModule.compileChapterVideo(assistOS.space.id, this._document.id, this.chapter.id);
+        alert("TO BE DONE")
     }
+
     async beforeRender() {
         this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
         this.chapterFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-        let iterator = 0;
+        let index = this._document.getChapterIndex(this.chapter.id);
+        this.chapterNumber = index + 1;
         this.chapter.paragraphs.forEach((paragraph) => {
-            iterator++;
-            this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-metadata="paragraph nr. ${iterator} with id ${paragraph.id}" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
+            this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
         });
     }
 
     async insertNewParagraph(paragraphId, position) {
-        let newParagraph = await documentModule.getParagraph(assistOS.space.id, this._document.id, paragraphId);
+        let newParagraph = await documentModule.getParagraph(assistOS.space.id, paragraphId);
         this.chapter.paragraphs.splice(position, 0, newParagraph);
         let previousParagraphIndex = position - 1;
         if (previousParagraphIndex < 0) {
@@ -121,38 +121,26 @@ export class ChapterItem {
         paragraph.remove();
     }
 
-    swapParagraphs(paragraphId, swapParagraphId, direction) {
+    changeParagraphOrder(paragraphId, position) {
         let paragraphs = this.chapter.paragraphs;
         let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);
-        let adjacentParagraphIndex = this.chapter.getParagraphIndex(swapParagraphId);
+        if (currentParagraphIndex === -1 || position < 0 || position >= paragraphs.length) {
+            throw new Error("Invalid paragraphId or position");
+        }
+        let [paragraph] = paragraphs.splice(currentParagraphIndex, 1);
+        paragraphs.splice(position, 0, paragraph);
 
-        let paragraph1 = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
-        let paragraph2 = this.element.querySelector(`paragraph-item[data-paragraph-id="${swapParagraphId}"]`);
-        if (direction === "up") {
-            if (adjacentParagraphIndex === this.chapter.paragraphs.length - 1) {
-                paragraphs.push(paragraphs.shift());
-                paragraph2.insertAdjacentElement('afterend', paragraph1);
-                return;
-            }
-            [paragraphs[currentParagraphIndex], paragraphs[adjacentParagraphIndex]] = [paragraphs[adjacentParagraphIndex], paragraphs[currentParagraphIndex]];
-            paragraph2.insertAdjacentElement('beforebegin', paragraph1);
+        // Update the DOM
+        let paragraphElement = this.element.querySelector(`paragraph-item[data-paragraph-id="${paragraphId}"]`);
+        let referenceElement = this.element.querySelectorAll("paragraph-item")[position];
+
+        if (referenceElement) {
+            referenceElement.insertAdjacentElement(position > currentParagraphIndex ? 'afterend' : 'beforebegin', paragraphElement);
         } else {
-            // Insert the current paragraph after the adjacent one
-            if (adjacentParagraphIndex === 0) {
-                paragraphs.unshift(paragraphs.pop());
-                paragraph2.insertAdjacentElement('beforebegin', paragraph1);
-                return;
-            }
-            [paragraphs[currentParagraphIndex], paragraphs[adjacentParagraphIndex]] = [paragraphs[adjacentParagraphIndex], paragraphs[currentParagraphIndex]];
-            paragraph2.insertAdjacentElement('afterend', paragraph1);
+            this.element.appendChild(paragraphElement); // If moving to the last position
         }
     }
-    async invalidateCompiledVideo(){
-        if(this.chapter.commands.compileVideo){
-            delete this.chapter.commands.compileVideo;
-            await documentModule.updateChapterCommands(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.commands);
-        }
-    }
+
     async onChapterUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
@@ -160,28 +148,21 @@ export class ChapterItem {
             }else if (data.operationType === "delete") {
                 this.deleteParagraph(data.paragraphId);
             }else if (data.operationType === "swap") {
-                this.swapParagraphs(data.paragraphId, data.swapParagraphId, data.direction);
+                this.changeParagraphOrder(data.paragraphId, data.swapParagraphId, data.direction);
             }
         } else {
             switch (data) {
                 case "title": {
-                    let title = await documentModule.getChapterTitle(assistOS.space.id, this._document.id, this.chapter.id);
-                    if (title !== this.chapter.title) {
-                        this.chapter.title = title;
+                    let chapter = await documentModule.getChapter(assistOS.space.id, this._document.id, this.chapter.id);
+                    if (chapter.title !== this.chapter.title) {
+                        this.chapter.title = chapter.title;
                         this.renderChapterTitle();
                     }
                     break;
                 }
-                case "backgroundSound": {
-                    this.chapter.backgroundSound = await documentModule.getChapterBackgroundSound(assistOS.space.id, this._document.id, this.chapter.id);
-                    break;
-                }
-                case "visibility": {
-                    //dont do anything
-                    break;
-                }
                 case "commands": {
-                    this.chapter.commands = await documentModule.getChapterCommands(assistOS.space.id, this._document.id, this.chapter.id);
+                    let chapter = await documentModule.getChapter(assistOS.space.id, this._document.id, this.chapter.id);
+                    this.chapter.commands = chapter.commands;
                     break;
                 }
                 default: {
@@ -198,7 +179,8 @@ export class ChapterItem {
         let titleText = assistOS.UI.sanitize(titleElement.value);
         if (titleText !== this.chapter.title && titleText !== "") {
             this.chapter.title = titleText;
-            await documentModule.updateChapterTitle(assistOS.space.id, this._document.id, this.chapter.id, titleText);
+            await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+                titleText,  this.chapter.comments , this.chapter.commands);
         }
     }
 
@@ -221,9 +203,7 @@ export class ChapterItem {
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.chapterItem.click();
         }
-        if (this.chapter.visibility === "hide") {
-            this.changeChapterVisibility("hide");
-        }
+        this.changeChapterVisibility(true);
 
         let moveChapterUp = this.element.querySelector(".move-chapter-up");
         this.documentPresenter.attachTooltip(moveChapterUp,"Move Chapter Up");
@@ -273,15 +253,10 @@ export class ChapterItem {
             if (assistOS.space.currentParagraphId) {
                 position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
             }
-            let paragraphObj = {
-                text:"",
-                position:position,
-                commands:{},
-            }
 
-            assistOS.space.currentParagraphId = await documentModule.addParagraph(assistOS.space.id, this._document.id, this.chapter.id, paragraphObj);
+            let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
+            assistOS.space.currentParagraphId = paragraph.id;
             await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
-            await this.invalidateCompiledVideo();
         }
     }
 
@@ -292,12 +267,6 @@ export class ChapterItem {
         let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
         chapterHeaderContainer.classList.add("highlighted-chapter");
         this.switchChapterToolbar("on");
-        // let paragraphText = this.element.querySelector('.paragraph-text');
-        // paragraphText.classList.add("focused");
-        // let paragraphContainer = this.element.querySelector('.paragraph-container');
-        // paragraphContainer.classList.add("highlighted-paragraph");
-        // this.showUnfinishedTasks();
-        // this.checkVideoAndAudioDuration();
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -389,17 +358,17 @@ export class ChapterItem {
     async changeChapterDisplay(_target) {
         await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
         await this.highlightChapter(_target);
-        if (this.chapter.visibility === "hide") {
-            this.changeChapterVisibility("show");
+        if (!this.isVisible) {
+            this.changeChapterVisibility(true);
         } else {
-            this.changeChapterVisibility("hide");
+            this.changeChapterVisibility(false);
         }
-        await documentModule.updateChapterVisibility(assistOS.space.id, this._document.id, this.chapter.id, this.chapter.visibility);
+
     }
 
-    changeChapterVisibility(mode) {
-        this.chapter.visibility = mode;
-        if (mode === "hide") {
+    changeChapterVisibility(isVisible) {
+        this.isVisible = isVisible;
+        if (!isVisible) {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.classList.add('hidden');
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
@@ -417,52 +386,13 @@ export class ChapterItem {
     }
 
     async downloadAllAudio() {
-        let i = 1;
-        let hasAudio = false;
-
-        for (let paragraph of this.chapter.paragraphs) {
-            if (paragraph.commands.audio) {
-                hasAudio = true;
-
-                let audioName = `audio${i}.mp3`;
-                let audioId = paragraph.commands.audio.id;
-
-                try {
-                    // Fetch the audio file and trigger download
-                    await this.downloadAudioBlob(audioId, audioName);
-                    i++;
-                } catch (error) {
-                    console.error(`Failed to download ${audioName}:`, error);
-                }
-            }
-        }
-
-        if (!hasAudio) {
-            alert("No audio to download!");
-        }
+        alert("TO BE DONE");
     }
-    async downloadAudioBlob(audioId, filename) {
-        const fileUrl = await spaceModule.getAudioURL(audioId);
 
-        const response = await fetch(fileUrl);
-        if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
-
-        const blob = await response.blob();
-
-        const link = document.createElement('a');
-        const blobUrl = URL.createObjectURL(blob);
-        link.href = blobUrl;
-        link.download = filename;
-
-        document.body.appendChild(link);
-        link.click();
-
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-    }
     async showBackgroundAudio(){
         await assistOS.UI.showModal("chapter-background-audio", {"chapter-id": this.chapter.id});
     }
+
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

@@ -1,14 +1,24 @@
-const jwt = require("./jwt");
-const secrets = require("./secrets");
-function createSessionCookie(sessionId) {
-    return createCookieString('sessionId', sessionId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: "/"
+function parseResponseCookies(response) {
+    let cookies = response.headers.get('set-cookie');
+    let parsedCookies = {};
+    let cookieSplit = cookies.split(',');
+    cookieSplit.forEach(function (cookie) {
+        const parts = cookie.split('=');
+        let name = parts.shift().trim();
+        parsedCookies[name] = {};
+        cookie.split(';').forEach(function (values) {
+            const parts = values.split('=');
+            let key = parts.shift().trim();
+            if(key === name){
+                parsedCookies[name].value = decodeURIComponent(parts.join('='));
+            } else {
+                parsedCookies[name][key] = decodeURIComponent(parts.join('='));
+            }
+        });
     });
+    return parsedCookies;
 }
-function parseCookies(request) {
+function parseRequestCookies(request) {
     const list = {};
     const cookieHeader = request.headers.cookie;
 
@@ -50,44 +60,6 @@ function createCookieString(name, value, options = {}) {
     return cookieString;
 }
 
-async function createAuthCookie(userData) {
-    const accessToken = await jwt.createUserAccessJWT(userData)
-    return createCookieString('authToken', accessToken, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 15,
-        path: '/'
-    });
-}
-
-function deleteAuthCookie() {
-    return createCookieString('authToken', '', {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 0,
-        path: '/'
-    });
-}
-
-async function createRefreshAuthCookie(userData) {
-    const refreshToken = await jwt.createUserRefreshAccessJWT(userData)
-    return createCookieString('refreshAuthToken', refreshToken, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7,
-        path: '/'
-    });
-}
-
-function deleteRefreshAuthCookie() {
-    return createCookieString('refreshAuthToken', '', {
-        httpOnly: true,
-        sameSite: 'Strict',
-        maxAge: 0,
-        path: '/'
-    });
-}
-
 function createCurrentSpaceCookie(currentSpaceId) {
     return createCookieString('currentSpaceId', currentSpaceId, {
         httpOnly: true,
@@ -106,52 +78,10 @@ function deleteCurrentSpaceCookie() {
     });
 }
 
-function createDemoUserCookie(email, password) {
-    return createCookieString("demoCredentials", JSON.stringify({
-            email: email,
-            password: password
-        }
-    ), {
-        path: "/",
-        sameSite: 'Strict',
-        maxAge: 60 * 60 * 24 * 7
-    });
-}
-function deleteDemoUserCookie() {
-    return createCookieString("demoCredentials", "", {
-        path: "/",
-        sameSite: 'Strict',
-        maxAge: 0
-    });
-
-}
-function createApiHubAuthCookies(apiHubAuthSecret, userId, spaceId) {
-    let apiHubSecretCookie = createCookieString('ApiHubAuth', apiHubAuthSecret, {
-        httpOnly: true,
-        sameSite: 'Strict',
-        path: "/"});
-    let userIdCookie = createCookieString('userId', userId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-    });
-    let spaceIdCookie = createCookieString('spaceId', spaceId, {
-        httpOnly: true,
-        sameSite: 'Strict',
-    });
-    return apiHubSecretCookie + " " + userIdCookie + " " + spaceIdCookie;
-}
-
 module.exports = {
-    createSessionCookie,
-    parseCookies,
+    parseRequestCookies,
+    parseResponseCookies,
     createCookieString,
-    createAuthCookie,
     createCurrentSpaceCookie,
-    createRefreshAuthCookie,
-    createDemoUserCookie,
-    deleteDemoUserCookie,
-    deleteAuthCookie,
-    deleteRefreshAuthCookie,
     deleteCurrentSpaceCookie,
-    createApiHubAuthCookies
 }

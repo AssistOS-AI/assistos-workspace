@@ -41,9 +41,7 @@ async function getLLMConfigs() {
 
 async function sendLLMConfigs(request, response) {
     let configs = await getLLMConfigs();
-    return utils.sendResponse(response, 200, "application/json", {
-        data: configs
-    });
+    return utils.sendResponse(response, 200, "application/json", configs);
 }
 
 async function constructRequestInitAndURL(url, method, request, response) {
@@ -53,15 +51,15 @@ async function constructRequestInitAndURL(url, method, request, response) {
     let LLMConfigs = await getLLMConfigs();
 
     if (request.body?.modelName) {
-        companyObj = LLMConfigs.find(company => company.models.some(model => model.name === request.body.modelName));
-    } else if (request.body?.company) {
-        companyObj = LLMConfigs.find((companyObj) => companyObj.company === request.body.company);
+        companyObj = LLMConfigs.find(provider => provider.models.some(model => model.name === request.body.modelName));
+    } else if (request.body?.provider) {
+        companyObj = LLMConfigs.find((companyObj) => companyObj.provider === request.body.provider);
     }
 
     let body = Object.assign({}, request.body || {});
 
     if (companyObj) {
-        const APIKeyObj = await secrets.getModelAPIKey(spaceId, companyObj.company);
+        const APIKeyObj = await secrets.getSecret(spaceId, companyObj.provider);
         if (!APIKeyObj) {
             return utils.sendResponse(response, 500, "application/json", {
                 message: "API key not found"
@@ -116,9 +114,7 @@ async function getTextResponse(request, response, callResponse) {
         Logger.createLog(spaceId, {message: prompt, type: "INFO"});
         const modelResponse = await sendRequest(`/apis/v1/text/generate`, "POST", request, response);
         if (callResponse) {
-            utils.sendResponse(response, 200, "application/json", {
-                data: modelResponse
-            });
+            utils.sendResponse(response, 200, "application/json", modelResponse);
         }
         return {success: true, data: modelResponse};
     } catch (error) {
@@ -148,7 +144,7 @@ async function getTextResponseAdvanced(request, response) {
     }
     try {
         const llmResponse = await Handler.processTextAdvancedRequest(request, response, sendRequest, initiator, target, text, outputFormat);
-        return utils.sendResponse(response, 200, "application/json", {data: llmResponse});
+        return utils.sendResponse(response, 200, "application/json", llmResponse);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -353,9 +349,7 @@ async function getChatStreamingResponse(request, response) {
 async function getChatResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/chat/generate`, "POST", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
-        });
+        return utils.sendResponse(response, 200, "application/json", modelResponse);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -369,9 +363,7 @@ async function getImageResponse(request, response) {
         request.body.spaceId = request.params.spaceId;
         request.body.userId = request.userId;
         let imagesIds = await sendRequest(`/apis/v1/image/generate`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: imagesIds
-        });
+        utils.sendResponse(response, 200, "application/json", imagesIds);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -385,9 +377,7 @@ async function editImage(request, response) {
         request.body.spaceId = request.params.spaceId;
         request.body.userId = request.userId;
         const modelResponse = await sendRequest(`/apis/v1/image/edit`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
-        });
+        utils.sendResponse(response, 200, "application/json", modelResponse);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -398,9 +388,7 @@ async function editImage(request, response) {
 async function getImageVariants(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/image/variants`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
-        });
+        utils.sendResponse(response, 200, "application/json", modelResponse);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -411,9 +399,7 @@ async function getImageVariants(request, response) {
 async function getVideoResponse(request, response) {
     try {
         const modelResponse = await sendRequest(`/apis/v1/video/generate`, "POST", request, response);
-        utils.sendResponse(response, 200, "application/json", {
-            data: modelResponse
-        });
+        utils.sendResponse(response, 200, "application/json", modelResponse);
         modelResponse.body.pipe(response);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
@@ -441,9 +427,7 @@ async function getAudioResponse(request, response) {
 async function listVoices(request, response) {
     try {
         let result = await sendRequest(`/apis/v1/audio/listVoices`, "POST", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: result
-        });
+        return utils.sendResponse(response, 200, "application/json", result);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -481,9 +465,7 @@ async function listEmotions(request, response) {
                 message: responseJSON.message
             });
         }
-        return utils.sendResponse(response, 200, "application/json", {
-            data: responseJSON.data
-        });
+        return utils.sendResponse(response, 200, "application/json", responseJSON.data);
     } catch (error) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -514,9 +496,7 @@ async function lipsync(request, response) {
 async function listLlms(request, response) {
     try {
         let result = await sendRequest(`/apis/v1/llms`, "GET", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: result
-        });
+        return utils.sendResponse(response, 200, "application/json", result);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -527,9 +507,7 @@ async function listLlms(request, response) {
 async function getDefaultModels(request, response) {
     try {
         let result = await sendRequest(`/apis/v1/llms/defaults`, "GET", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: result
-        });
+        return utils.sendResponse(response, 200, "application/json", result);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message
@@ -540,9 +518,7 @@ async function getDefaultModels(request, response) {
 async function getModelLanguages(request, response) {
     try {
         let result = await sendRequest(`/apis/v1/llms/languages`, "POST", request, response);
-        return utils.sendResponse(response, 200, "application/json", {
-            data: result
-        });
+        return utils.sendResponse(response, 200, "application/json", result);
     } catch (error) {
         return utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: error.message

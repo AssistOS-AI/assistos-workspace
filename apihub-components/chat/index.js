@@ -1,13 +1,12 @@
 const Chat = require('./controller')
 const bodyReader = require("../apihub-component-middlewares/bodyReader.js");
-const authentication = require("../apihub-component-middlewares/authentication.js");
 const publicAuthentication = require("../apihub-component-middlewares/publicAuthentication.js");
+
 
 function ChatComponent(server) {
     server.use("/chats/*", bodyReader);
     server.use("/public/chats/*", bodyReader);
 
-    server.use("/chats/*", authentication);
     server.use("/public/chats/*", publicAuthentication);
 
     /* Soft Auth (requires only userId cookie, not a valid authentication JWT) */
@@ -25,7 +24,6 @@ function ChatComponent(server) {
     server.post("/public/chats/reset/context/:spaceId/:chatId", Chat.resetChatContext)
     server.put("/public/chats/context/:spaceId/:chatId/:contextItemId", Chat.updateChatContextItem)
     server.delete("/public/chats/context/:spaceId/:chatId/:contextItemId", Chat.deleteChatContextItem)
-
 
     server.get("/chats/:spaceId/:chatId", Chat.getChatMessages)
     server.post("/chats/:spaceId/:personalityId", Chat.createChat)

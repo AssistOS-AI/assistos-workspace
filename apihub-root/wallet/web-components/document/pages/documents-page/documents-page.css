@@ -94,3 +94,10 @@ documents-page{
     line-height: normal;
     padding: 20px 40px 20px 0;
 }
+.filter-container{
+    display: flex;
+    align-items: center;
+}
+.documents-select{
+    margin-left: 10px;
+}

@@ -24,14 +24,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PharmaLedger-IMI/epi-workspace.git"
+    "url": "git+https://github.com/AssistOS-AI/assistos-workspace.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/PharmaLedger-IMI/epi-workspace/issues"
+    "url": "https://github.com/AssistOS-AI/assistos-workspace/issues"
   },
-  "homepage": "https://github.com/PharmaLedger-IMI/epi-workspace#readme",
+  "homepage": "https://github.com/AssistOS-AI/assistos-workspace#readme",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.9",
     "@google/generative-ai": "^0.11.1",

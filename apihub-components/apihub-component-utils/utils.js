@@ -69,7 +69,7 @@ async function sendFileToClient(response, resource, fileType,statusCode) {
 
 function sendResponse(response, statusCode, contentType, message, cookies, ...headers) {
     response.statusCode = statusCode;
-    response.setHeader("Content-Type", contentType);
+    response.setHeader("Content-Type", contentType || "text/plain");
     headers.forEach(header => {
         response.setHeader(header.key, header.value);
     });
@@ -83,9 +83,7 @@ function sendResponse(response, statusCode, contentType, message, cookies, ...he
         const cookiesArray = Array.isArray(cookies) ? cookies : [cookies];
         response.setHeader('Set-Cookie', cookiesArray);
     }
-
-    response.write(message);
-    response.end();
+    response.end(message);
 }
 
 function setCacheControl(response, options = {}) {

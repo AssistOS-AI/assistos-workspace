@@ -1,5 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
-const personalityModule = require("assistos").loadModule("personality", {});
+const agentModule = require("assistos").loadModule("agent", {});
 const spaceModule = require("assistos").loadModule("space", {});
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
@@ -11,14 +11,14 @@ export class DocumentViewPage {
         this.invalidate = invalidate;
         this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
-            this._document = await documentModule.getDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
             assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
-            this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
-            this.boundRefreshPersonalitiesMetadata = this.refreshPersonalitiesMetadata.bind(this);
-            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundRefreshPersonalitiesMetadata);
+            this.agents = await agentModule.getAgents(assistOS.space.id);
+            this.boundrefreshAgents = this.refreshAgents.bind(this);
+            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundrefreshAgents);
             this.selectedParagraphs = await documentModule.getSelectedDocumentItems(assistOS.space.id, this._document.id);
-            await this.initTitleAbstractSelection();
+            await this.initTitleInfoTextSelection();
         });
     }
 
@@ -156,22 +156,22 @@ export class DocumentViewPage {
     }
 
     async initTitleAbstractSelection() {
-        this.abstractClass = "document-abstract";
+        this.infoTextClass = "document-infoText";
         this.titleClass = "document-title";
-        this.abstractId = "abstract";
+        this.infoTextId = "infoText";
         this.titleId = "title";
-        this.boundSelectAbstractHandler = this.handleUserSelection.bind(this, this.abstractClass);
+        this.boundSelectInfoTextHandler = this.handleUserSelection.bind(this, this.infoTextClass);
         this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.abstractId, this.boundSelectAbstractHandler);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextId, this.boundSelectInfoTextHandler);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
     }
 
     async getPersonalityName(personalityId){
-        let personality = this.personalitiesMetadata.find(personality => personality.id === personalityId);
+        let personality = this.agents.find(personality => personality.id === personalityId);
         return personality.name;
     }
     async getPersonalityImageByName(personalityName) {
-        let personality = this.personalitiesMetadata.find(personality => personality.name === personalityName);
+        let personality = this.agents.find(personality => personality.name === personalityName);
         let personalityImageId;
         if (personality) {
             personalityImageId = personality.imageId;
@@ -185,12 +185,12 @@ export class DocumentViewPage {
         return "./wallet/assets/images/default-personality.png"
     }
 
-    async refreshPersonalitiesMetadata() {
-        this.personalitiesMetadata = await personalityModule.getPersonalitiesMetadata(assistOS.space.id);
+    async refreshAgents() {
+        this.agents = await agentModule.getAgents(assistOS.space.id);
     }
 
     async insertNewChapter(chapterId, position) {
-        let newChapter = await documentModule.getChapter(assistOS.space.id, this._document.id, chapterId);
+        let newChapter = await documentModule.getChapter(assistOS.space.id, chapterId);
         this._document.chapters.splice(position, 0, newChapter);
         let previousChapterIndex = position - 1;
         if (previousChapterIndex < 0) {
@@ -206,38 +206,21 @@ export class DocumentViewPage {
         previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
     }
 
-    swapChapters(chapterId, swapChapterId, direction) {
+    changeChapterOrder(chapterId, position) {
         let chapters = this._document.chapters;
         let currentChapterIndex = this._document.getChapterIndex(chapterId);
-        let adjacentChapterIndex = this._document.getChapterIndex(swapChapterId);
 
-        let chapter1 = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
-        let chapter2 = this.element.querySelector(`chapter-item[data-chapter-id="${swapChapterId}"]`);
-        if (direction === "up") {
-            if (adjacentChapterIndex === this._document.chapters.length - 1) {
-                chapters.push(chapters.shift());
-                let newIndex = this._document.chapters.length;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('afterend', chapter1);
-            } else {
-                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-                let newIndex = adjacentChapterIndex + 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('beforebegin', chapter1);
-            }
+        let [chapter] = chapters.splice(currentChapterIndex, 1);
+        chapters.splice(position, 0, chapter);
+
+        // Update the DOM
+        let chapterElement = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
+        let referenceElement = this.element.querySelectorAll("chapter-item")[position];
+
+        if (referenceElement) {
+            referenceElement.insertAdjacentElement(position > currentChapterIndex ? 'afterend' : 'beforebegin', chapterElement);
         } else {
-            // Insert the current chapter after the adjacent one
-            if (adjacentChapterIndex === 0) {
-                chapters.unshift(chapters.pop());
-                let newIndex = 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('beforebegin', chapter1);
-            } else {
-                [chapters[currentChapterIndex], chapters[adjacentChapterIndex]] = [chapters[adjacentChapterIndex], chapters[currentChapterIndex]];
-                let newIndex = adjacentChapterIndex + 1;
-                chapter1.setAttribute("data-chapter-number", newIndex);
-                chapter2.insertAdjacentElement('afterend', chapter1);
-            }
+            this.element.appendChild(chapterElement); // If moving to the last position
         }
         let allChapters = this.element.querySelectorAll("chapter-item");
         for (let chapter of allChapters) {
@@ -258,7 +241,7 @@ export class DocumentViewPage {
             } else if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
             } else if (data.operationType === "swap") {
-                this.swapChapters(data.chapterId, data.swapChapterId, data.direction);
+                this.changeChapterOrder(data.chapterId, data.swapChapterId, data.direction);
             }
         } else {
             switch (data) {
@@ -267,14 +250,14 @@ export class DocumentViewPage {
                     alert("The document has been deleted");
                     break;
                 case "title":
-                    let title = await documentModule.getDocumentTitle(assistOS.space.id, this._document.id);
-                    this._document.title = title;
+                    let document = await documentModule.getDocument(assistOS.space.id, this._document.id);
+                    this._document.title = document.title;
                     this.renderDocumentTitle();
                     break;
-                case "abstract":
-                    let abstract = await documentModule.getDocumentAbstract(assistOS.space.id, this._document.id);
-                    this._document.abstract = abstract;
-                    this.renderAbstract();
+                case "infoText":
+                    let documentUpdated = await documentModule.getDocument(assistOS.space.id, this._document.id);
+                    this._document.infoText = documentUpdated.infoText;
+                    this.renderInfoText();
                     break;
                 case "snapshots":
                     this._document.snapshots = await documentModule.getDocumentSnapshots(assistOS.space.id, this._document.id);
@@ -290,16 +273,13 @@ export class DocumentViewPage {
     async beforeRender() {
         this.documentFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("document-title-font-size") || "24px"];
         this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
-        this.abstractFontFamily = this.documentFontFamily
-        this.abstractFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("abstract-font-size") || "16px"];
+        this.infoTextFontFamily = this.documentFontFamily
+        this.infoTextFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("infoText-font-size") || "16px"];
         this.chaptersContainer = "";
         this.docTitle = this._document.title;
-        this.abstractText = this._document.abstract || "No abstract has been set or generated for this document";
         if (this._document.chapters.length > 0) {
-            let iterator = 0;
             this._document.chapters.forEach((item) => {
-                iterator++;
-                this.chaptersContainer += `<chapter-item data-chapter-number="${iterator}" data-chapter-id="${item.id}" data-metadata="chapter nr. ${iterator} with title ${item.title} and id ${item.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`;
+                this.chaptersContainer += `<chapter-item data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
             });
         }
         this.hasTableOfContents = this._document.hasTableOfContents || false;
@@ -311,18 +291,25 @@ export class DocumentViewPage {
         documentTitle.value = unescapeHtmlEntities(this._document.title);
     }
 
-    renderAbstract() {
-        let abstract = this.element.querySelector(".document-abstract");
-        abstract.innerHTML = this._document.abstract || "This document doesn't have any information about its content";
+    renderInfoText() {
+        let infoText = this.element.querySelector(".document-infoText");
+        infoText.innerHTML = this._document.infoText || "";
+        infoText.style.height = "auto";
+        infoText.style.height = infoText.scrollHeight + 'px';
+        infoText.addEventListener("paste", async () => {
+            setTimeout(()=>{
+                infoText.style.height = infoText.scrollHeight + 'px';
+            },0)
+        });
     }
 
     async afterRender() {
         let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
         await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
-        let abstractPluginsContainer = this.element.querySelector(".abstract-plugins-container");
-        await pluginUtils.renderPluginIcons(abstractPluginsContainer, "abstract");
+        let infoTextPluginsContainer = this.element.querySelector(".infoText-plugins-container");
+        await pluginUtils.renderPluginIcons(infoTextPluginsContainer, "infoText");
         this.renderDocumentTitle();
-        this.renderAbstract();
+        this.renderInfoText();
         if (assistOS.space.currentChapterId) {
             let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
             if (chapter) {
@@ -340,10 +327,12 @@ export class DocumentViewPage {
         this.redoButton = this.element.querySelector(".redo-button");
         let tasksMenu = this.element.querySelector(".tasks-menu");
         let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
+        let scriptArgs = this.element.querySelector(".script-modal");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
         this.attachTooltip(snapshotsButton, "Snapshots");
+        this.attachTooltip(scriptArgs, "Run Script");
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
@@ -399,7 +388,7 @@ export class DocumentViewPage {
         }
 
         assistOS.context = {
-            "location and available actions": `You are in the document editor page. The current document is ${this._document.title} with id ${this._document.id} and its about ${this._document.abstract}.`,
+            "location and available actions": `You are in the document editor page. The current document is ${this._document.title} with id ${this._document.id} and its about ${this._document.infoText}.`,
             "focused element": focusedElement
         }
     }
@@ -409,24 +398,31 @@ export class DocumentViewPage {
         const currentChapterId = currentChapterElement.getAttribute('data-chapter-id');
         const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
 
-        const getAdjacentChapterId = (index, chapters) => {
+        const getNewPosition = (index, chapters) => {
             if (direction === "up") {
-                return index === 0 ? chapters[chapters.length - 1].id : chapters[index - 1].id;
+                return index === 0 ? chapters.length - 1 : index - 1;
             } else {
-                return index === chapters.length - 1 ? chapters[0].id : chapters[index + 1].id;
+                return index === chapters.length - 1 ? 0 : index + 1;
             }
         };
 
-        const adjacentChapterId = getAdjacentChapterId(currentChapterIndex, this._document.chapters);
-        await documentModule.swapChapters(assistOS.space.id, this._document.id, currentChapterId, adjacentChapterId, direction);
-        this.swapChapters(currentChapterId, adjacentChapterId, direction);
+        const position = getNewPosition(currentChapterIndex, this._document.chapters);
+        await documentModule.changeChapterOrder(assistOS.space.id, this._document.id, currentChapterId, position);
+        this.changeChapterOrder(currentChapterId, position);
     }
-
-    async saveAbstract(abstractElement) {
-        let abstractText = assistOS.UI.sanitize(abstractElement.value);
-        if (abstractText !== this._document.abstract) {
-            this._document.abstract = abstractText;
-            await documentModule.updateDocumentAbstract(assistOS.space.id, this._document.id, abstractText);
+    async openScriptModal(){
+        await assistOS.UI.showModal("run-script");
+    }
+    async saveInfoText(infoTextElement) {
+        let infoText = assistOS.UI.sanitize(infoTextElement.value);
+        if (infoText !== this._document.infoText) {
+            this._document.infoText = infoText;
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
+                this._document.title,
+                this._document.category,
+                infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
@@ -444,22 +440,12 @@ export class DocumentViewPage {
 
         }
         let chapterTitle = assistOS.UI.sanitize("New Chapter");
-        let chapterData = {title: chapterTitle, commands: {}, paragraphs: [
-                {
-                    text: "",
-                    position: 0,
-                    commands: {}
-                }
-            ]};
-        chapterData.position = position;
-        assistOS.space.currentChapterId = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterData);
-
+        let chapter = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterTitle, null, null, position);
+        assistOS.space.currentChapterId = chapter.id;
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
     }
 
-
     async addParagraphTable(targetElement, mode) {
-        // console.log(112);
         let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
         let mockEvent = {
             ctrlKey: true,
@@ -477,7 +463,12 @@ export class DocumentViewPage {
         let titleText = assistOS.UI.sanitize(textElement.value);
         if (titleText !== this._document.title && titleText !== "") {
             this._document.title = titleText;
-            await documentModule.updateDocumentTitle(assistOS.space.id, this._document.id, titleText);
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
+                titleText,
+                this._document.category,
+                this._document.infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
@@ -516,7 +507,7 @@ export class DocumentViewPage {
         let container = element.closest(".container-element");
         container.classList.remove("focused");
         element.removeEventListener('keydown', this.titleKeyDownHandler);
-        element.removeEventListener('keydown', this.boundControlAbstractHeight);
+        element.removeEventListener('keydown', this.boundControlInfoTextHeight);
         element.classList.remove("focused");
 
         this.stopTimer.bind(this, true);
@@ -525,9 +516,9 @@ export class DocumentViewPage {
         this.changeToolbarView(element, "off");
     }
 
-    async controlAbstractHeight(abstract) {
-        abstract.style.height = "auto";
-        abstract.style.height = abstract.scrollHeight + 'px';
+    async controlInfoTextHeight(infoText) {
+        infoText.style.height = "auto";
+        infoText.style.height = infoText.scrollHeight + 'px';
     }
     changeToolbarView(targetElement, mode) {
         let containerElement = targetElement.closest(".container-element");
@@ -537,16 +528,16 @@ export class DocumentViewPage {
         }
         mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
     }
-    async highlightAbstract(targetElement) {
-        if (!this.boundControlAbstractHeight) {
-            this.boundControlAbstractHeight = this.controlAbstractHeight.bind(this, targetElement);
+    async highlightInfoText(targetElement) {
+        if (!this.boundControlInfoTextHeight) {
+            this.boundControlInfoTextHeight = this.controlInfoTextHeight.bind(this, targetElement);
         }
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        targetElement.addEventListener('keydown', this.boundControlAbstractHeight);
-        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.abstractId));
-        await selectionUtils.selectItem(true, this.abstractId, this.abstractClass, this);
+        targetElement.addEventListener('keydown', this.boundControlInfoTextHeight);
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextId));
+        await selectionUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
         this.currentSelectItem = this.titleId;
         this.changeToolbarView(targetElement, "on");
     }
@@ -576,9 +567,9 @@ export class DocumentViewPage {
             saveFunction = this.saveTitle.bind(this, targetElement);
             await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
             this.currentSelectItem = this.titleId;
-        } else if (type === "abstract") {
-            await this.highlightAbstract(targetElement);
-            saveFunction = this.saveAbstract.bind(this, targetElement);
+        } else if (type === "infoText") {
+            await this.highlightInfoText(targetElement);
+            saveFunction = this.saveInfoText.bind(this, targetElement);
         } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
@@ -738,12 +729,12 @@ export class DocumentViewPage {
                 documentId: this._document.id
             }
             await pluginUtils.openPlugin(pluginName, "document", context, this);
-        } else if(type === "abstract"){
-            let itemId = `${this.abstractId}_${pluginName}`;
+        } else if(type === "infoText"){
+            let itemId = `${this.infoTextId}_${pluginName}`;
             let context = {
-                abstract: ""
+                infoText: ""
             }
-            await pluginUtils.openPlugin(pluginName, "abstract", context, this, itemId);
+            await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId);
         }
     }
     async undoOperation(targetElement){

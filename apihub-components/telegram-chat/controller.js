@@ -1,8 +1,6 @@
 const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
-const {promises: fsPromises} = require("fs");
-const User = require("../users-storage/user");
 const configs = require("../../data-volume/config/config.json");
 const Email = require("../email/index.js").instance;
 const chatHandler = require("../chat/handler");
@@ -43,7 +41,7 @@ async function startBot(req, res){
         let botData = await result.json();
         let SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(req);
-        let personalityModule = require("assistos").loadModule("personality", securityContext);
+        let personalityModule = require("assistos").loadModule("agent", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot = {
             username: botData.result.username,
@@ -52,13 +50,11 @@ async function startBot(req, res){
             users: [],
             public: false
         }
-        await personalityModule.updatePersonality(spaceId, personalityId, personality);
+        await personalityModule.updateAgent(spaceId, personalityId, personality);
         let baseURL = process.env.BASE_URL;
         let webhookURL = `${baseURL}/telegram/${spaceId}/${personalityId}`;
         await fetch(`https://api.telegram.org/bot${botId}/setWebhook?url=${webhookURL}`)
-        utils.sendResponse(res, 200, "application/json", {
-            data: `Registered bot with id ${botId}, webhook URL: ${webhookURL}`
-        });
+        utils.sendResponse(res, 200, "text/plain", `Registered bot with id ${botId}, webhook URL: ${webhookURL}`);
     } catch (e) {
         utils.sendResponse(res, 500, "application/json", {
             message: e.message
@@ -204,7 +200,7 @@ async function authenticateUser(req, res){
             lastName: pendingUser.lastName,
             chatId: chatId
         })
-        await personalityModule.updatePersonality(spaceId, personalityId, personality);
+        await personalityModule.updateAgent(spaceId, personalityId, personality);
 
 
         pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
@@ -228,10 +224,10 @@ async function removeUser(req, res){
     try {
         let SecurityContext = require("assistos").ServerSideSecurityContext;
         let securityContext = new SecurityContext(req);
-        let personalityModule = require("assistos").loadModule("personality", securityContext);
+        let personalityModule = require("assistos").loadModule("agent", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot.users = personality.telegramBot.users.filter(user => user.id !== telegramUserId);
-        await personalityModule.updatePersonality(spaceId, personalityId, personality);
+        await personalityModule.updateAgent(spaceId, personalityId, personality);
         utils.sendResponse(res, 200, "application/json", {});
     } catch (e) {
         utils.sendResponse(res, 500, "application/json", {

@@ -4,44 +4,86 @@
     "services": [],
     "components": [
         {
-            "name": "personality-video",
-            "directory": "personality",
+            "name": "build-page",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "PersonalityVideo"
+            "presenterClassName": "BuildPage"
         },
         {
-            "name": "personality-image",
-            "directory": "personality",
-            "type": "pages",
-            "presenterClassName": "PersonalityImage"
+            "name": "add-key-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "AddKeyModal"
         },
         {
-            "name": "personality-text",
-            "directory": "personality",
+            "name": "advanced-settings",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "PersonalityText"
+            "presenterClassName": "AdvancedSettings"
         },
         {
-            "name": "personality-description",
-            "directory": "personality",
+            "name": "display-preferences",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "PersonalityDescription"
+            "presenterClassName": "DisplayPreferences"
         },
         {
-            "name": "personality-audio",
-            "directory": "personality",
+            "name": "collaborators-tab",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "PersonalityAudio"
+            "presenterClassName": "CollaboratorsTab"
         },
         {
-            "name": "personality-chat",
-            "directory": "personality",
+            "name": "keys-tab",
+            "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "PersonalityChat"
+            "presenterClassName": "KeysTab"
+        },
+        {
+            "name": "run-script",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "RunScript"
+        },
+        {
+            "name": "agent-video",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentVideo"
+        },
+        {
+            "name": "agent-image",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentImage"
+        },
+        {
+            "name": "agent-text",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentText"
+        },
+        {
+            "name": "agent-description",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentDescription"
+        },
+        {
+            "name": "agent-audio",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentAudio"
+        },
+        {
+            "name": "agent-chat",
+            "directory": "agent",
+            "type": "pages",
+            "presenterClassName": "AgentChat"
         },
         {
             "name": "telegram-bot",
-            "directory": "personality",
+            "directory": "agent",
             "type": "pages",
             "presenterClassName": "TelegramBot"
         },
@@ -323,12 +365,6 @@
             "presenterClassName": "AddDocumentModal"
         },
         {
-            "name": "ml-ide-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "MlIDEPage"
-        },
-        {
             "name": "llm-playground-page",
             "directory": "space-application",
             "type": "pages",
@@ -357,11 +393,6 @@
             "directory": "application",
             "type": "modals",
             "presenterClassName": "ClientDisconnectModal"
-        },
-        {
-            "name": "action-box-marketplace",
-            "directory": "application",
-            "type": "components"
         },
         {
             "name": "application-page",
@@ -411,20 +442,15 @@
             "type": "modals"
         },
         {
-            "name": "edit-personality-page",
-            "directory": "personality",
+            "name": "edit-agent-page",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "EditPersonalityPage"
+            "presenterClassName": "EditAgentPage"
         },
         {
-            "name": "personality-item",
-            "directory": "personality",
-            "presenterClassName": "PersonalityItem",
-            "type": "components"
-        },
-        {
-            "name": "flow-item",
-            "directory": "flow",
+            "name": "agent-item",
+            "directory": "agent",
+            "presenterClassName": "AgentItem",
             "type": "components"
         },
         {
@@ -450,16 +476,10 @@
             "presenterClassName": "AnnouncementsPage"
         },
         {
-            "name": "personalities-page",
-            "directory": "personality",
+            "name": "agents-page",
+            "directory": "agent",
             "type": "pages",
-            "presenterClassName": "PersonalitiesPage"
-        },
-        {
-            "name": "flows-page",
-            "directory": "flow",
-            "type": "pages",
-            "presenterClassName": "FlowsPage"
+            "presenterClassName": "AgentsPage"
         },
         {
             "name": "add-announcement-modal",
@@ -468,28 +488,16 @@
             "presenterClassName": "AddAnnouncementModal"
         },
         {
-            "name": "add-personality-modal",
-            "directory": "personality",
+            "name": "add-agent",
+            "directory": "agent",
             "type": "modals",
-            "presenterClassName": "AddPersonalityModal"
-        },
-        {
-            "name": "add-flow-modal",
-            "directory": "flow",
-            "type": "modals",
-            "presenterClassName": "AddFlowModal"
+            "presenterClassName": "AddAgent"
         },
         {
             "name": "edit-apikey-modal",
             "directory": "space-application",
             "type": "modals",
             "presenterClassName": "EditApikeyModal"
-        },
-        {
-            "name": "edit-flow-modal",
-            "directory": "flow",
-            "type": "modals",
-            "presenterClassName": "EditFlowModal"
         },
         {
             "name": "edit-announcement-modal",

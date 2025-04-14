@@ -3,8 +3,6 @@ const fs = require('fs');
 const Task = require('./Task');
 const path = require('path');
 const fsPromises = fs.promises;
-const space = require('../spaces-storage/space');
-const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
@@ -59,6 +57,7 @@ class DocumentToVideo extends Task {
         try {
             this.logInfo(`Combining chapter videos`);
             let videoPath = path.join(spacePath, "temp", `${this.id}.mp4`);
+            const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
             await ffmpegUtils.combineVideos(
                 tempVideoDir,
                 chapterVideos,

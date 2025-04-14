@@ -1,48 +1,29 @@
-import {
-    validateOpenAiKey,
-} from "../../../../imports.js";
-
-const userModule = require('assistos').loadModule('user', {});
-
+const spaceModule = require('assistos').loadModule('space', {});
 export class EditApikeyModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.type = this.element.variables["data-type"];
-        this.hasUserId = this.element.variables["data-has-user-id"];
+        this.name = this.element.getAttribute('data-name');
+        this.key = this.element.getAttribute('data-key');
         this.invalidate();
     }
-    stringToBool(str) {
-        return str.toLowerCase() === 'true';
-    }
     beforeRender() {
-        if(this.stringToBool(this.hasUserId)){
-            this.userIdInput = `<div class="form-item">
-                <label class="form-label" for="userId">User ID</label>
-                <input type="text" class="form-input" name="userId" data-id="userId" id="userId" style="-webkit-text-security: disc;" required>
-        </div>`
-        }
+    }
+    afterRender() {
+        let nameInput = this.element.querySelector('#name');
+        nameInput.value = this.name;
+        let keyInput = this.element.querySelector('#secretKey');
+        keyInput.value = this.key;
     }
 
-    async SaveChanges(_target) {
+    async saveChanges(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
-            const apiKey = formData.data.apiKey
+            const name = formData.data.name;
+            const secretKey = formData.data.secretKey.toUpperCase();
+            const value = formData.data.value;
             try {
-                if (this.type === "OpenAI") {
-                    const keyValidation = await validateOpenAiKey(apiKey);
-                    if (!keyValidation.success) {
-                        throw Error(keyValidation.error);
-                    }
-                }
-                let APIKeyObj = {
-                    type: this.type,
-                    APIKey: apiKey
-                }
-                if(formData.data.userId){
-                    APIKeyObj.userId = formData.data.userId;
-                }
-                await userModule.editAPIKey(APIKeyObj);
+                await spaceModule.editSecret(assistOS.space.id, name, secretKey, value);
                 assistOS.UI.closeModal(_target, true);
             } catch (error) {
                 assistOS.UI.closeModal(_target);

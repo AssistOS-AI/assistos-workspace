@@ -13,19 +13,16 @@
         "mq",
         "secrets",
         "versionlessDSU",
+        "Gatekeeper",
+        "proxy",
+        "globalServerlessAPI",
         "llms",
-        "users-storage",
         "document",
-        "spaces-storage",
         "knowledge-storage",
-        "applications-storage",
-        "server-flow-apis",
-        "personalities-storage",
         "chat",
         "subscribers",
         "tasks",
         "logger",
-        "flows",
         "telegram-chat",
         "lightDBEnclave",
         "staticServer"
@@ -42,32 +39,17 @@
         "llms": {
             "module": "./../../apihub-components/llms"
         },
-        "users-storage": {
-            "module": "./../../apihub-components/users-storage"
-        },
         "document": {
             "module": "./../../apihub-components/document"
         },
-        "spaces-storage": {
-            "module": "./../../apihub-components/spaces-storage"
+        "globalServerlessAPI": {
+            "module": "./../../apihub-components/globalServerlessAPI"
         },
         "chat": {
             "module": "./../../apihub-components/chat"
         },
-        "personalities-storage": {
-            "module": "./../../apihub-components/personalities-storage"
-        },
-        "applications-storage": {
-            "module": "./../../apihub-components/applications-storage"
-        },
-        "server-flow-apis": {
-            "module": "./../../apihub-components/applications-storage"
-        },
         "subscribers": {
             "module": "./../../apihub-components/subscribers"
-        },
-        "flows": {
-            "module": "./../../apihub-components/flows"
         },
         "tasks": {
             "module": "./../../apihub-components/tasks"
@@ -77,6 +59,9 @@
         },
         "telegram-chat": {
             "module": "./../../apihub-components/telegram-chat"
+        },
+        "Gatekeeper": {
+            "module": "./../../apihub-components/Gatekeeper"
         }
     },
     "responseHeaders": {

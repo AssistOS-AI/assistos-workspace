@@ -2,6 +2,36 @@
     "workDir": ".",
     "dependencies": [
         {
+            "name": "Gatekeeper",
+            "src": "https://github.com/OpenDSU/Gatekeeper.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "./apihub-components/",
+                    "collectLog": false
+                },
+                {
+                     "type": "execute",
+                      "cmd": "cd ./apihub-components/Gatekeeper && npm install"
+                }
+            ]
+        },
+        {
+            "name": "soplang",
+            "src": "https://github.com/AssistOS-AI/soplang.git",
+            "actions": [
+                {
+                    "type": "smartClone",
+                    "target": "./apihub-components/",
+                    "collectLog": false
+                },
+                {
+                    "type": "execute",
+                    "cmd": "cd ./apihub-components/soplang && npm install"
+                }
+            ]
+        },
+        {
             "name": "ffmpeg",
             "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
             "actions": [
@@ -59,30 +89,6 @@
             "type": "smartClone",
             "target": "./apihub-root/",
             "collectLog": false
-          }
-        ]
-      },
-      {
-        "name": "temp",
-        "src": "https://github.com/AssistOS-AI/CreditManager.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          },
-          {
-            "type": "copy",
-            "src": "./temp",
-            "target": "./creditManager",
-            "options": {
-              "overwrite": true,
-              "ignoreErrors": true
-            }
-          },
-          {
-            "type": "remove",
-            "target": "./temp"
           }
         ]
       },

@@ -4,9 +4,9 @@ import NotificationManager from "./wallet/core/NotificationManager.js";
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
-const personalityModule = require('assistos').loadModule('personality', {});
+const personalityModule = require('assistos').loadModule('agent', {});
 const flowModule = require('assistos').loadModule('flow', {});
-
+const Space = spaceModule.Space;
 
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
@@ -71,36 +71,8 @@ class AssistOS {
     }
 
     async boot(uiConfigsPath) {
-        const initialiseModules = async (configName) => {
-            this[configName] = {};
-            const loadModule = async (obj) => {
-                const module = await import(obj.path);
-                let service = new module[obj.name]();
-                const methodNames = Object.getOwnPropertyNames(module[obj.name].prototype)
-                    .filter(method => method !== 'constructor');
-                return {service, methodNames};
-            };
-
-            const modulePromises = this.configuration[configName].map(obj => loadModule(obj));
-            const modules = await Promise.allSettled(modulePromises);
-
-            modules.forEach(result => {
-                if (result.status === 'fulfilled') {
-                    const {service, methodNames} = result.value;
-                    methodNames.forEach(methodName => {
-                        this[configName][methodName] = service[methodName].bind(service);
-                    });
-                }
-            });
-        };
-
         this.UI = await WebSkel.initialise(uiConfigsPath);
-
-        await initialiseModules("services");
-
-        this.applications = {};
         this.initialisedApplications = new Set();
-
     }
 
     async changeApplicationLocation(appLocation, presenterParams) {
@@ -195,41 +167,41 @@ class AssistOS {
         window.location = "/";
     }
 
-    async initUser(spaceId) {
-        assistOS.user = await userModule.loadUser();
-        assistOS.space = new spaceModule.Space(await spaceModule.loadSpace(spaceId));
-        const appsData = await applicationModule.loadApplicationsMetadata(assistOS.space.id);
-        appsData.forEach(application => {
-            assistOS.applications[application.name] = application;
-        });
+    async initSpace(email, spaceId) {
+        assistOS.user = await userModule.loadUser(email);
+        let spaceStatus = await spaceModule.getSpaceStatus(spaceId);
+        assistOS.space = Space.getInstance(spaceStatus);
+        assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
-        await assistOS.space.loadFlows();
-        await assistOS.loadAgent(assistOS.space.id);
+        //await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
 
         defaultPlugins = await defaultPlugins.json();
         assistOS.space.plugins = defaultPlugins;
-        let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
-        for (let pluginType in applicationPlugins) {
-            if (!assistOS.space.plugins[pluginType]) {
-                assistOS.space.plugins[pluginType] = [];
-            }
-            assistOS.space.plugins[pluginType] = assistOS.space.plugins[pluginType].concat(applicationPlugins[pluginType]);
-        }
+        // let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
+        // for (let pluginType in applicationPlugins) {
+        //     if (!assistOS.space.plugins[pluginType]) {
+        //         assistOS.space.plugins[pluginType] = [];
+        //     }
+        //     assistOS.space.plugins[pluginType] = assistOS.space.plugins[pluginType].concat(applicationPlugins[pluginType]);
+        // }
     }
 
     async loadAgent(spaceId, agentId) {
         if (!agentId) {
-            agentId = localStorage.getItem("agent") ?? undefined;
+            agentId = localStorage.getItem("agent");
+            if(agentId === "undefined"){
+                agentId = undefined;
+            }
         }
-        let personalityData;
+        let agent;
         try {
-            personalityData = await personalityModule.getAgent(spaceId, agentId);
+            agent = await personalityModule.getAgent(spaceId, agentId);
         } catch (error) {
-            personalityData = await personalityModule.getAgent(spaceId);
+            agent = personalityModule.getDefaultAgent(spaceId);
         }
-        localStorage.setItem("agent", personalityData.id);
-        assistOS.agent = new personalityModule.models.agent(personalityData);
+        localStorage.setItem("agent", agent.id);
+        assistOS.agent = agent;
     }
 
     async changeAgent(agentId) {
@@ -260,8 +232,8 @@ class AssistOS {
     }
 
     async createSpace(spaceName) {
-        await spaceModule.createSpace(spaceName);
-        await this.loadPage(false, true);
+        let spaceId = await spaceModule.createSpace(spaceName);
+        await this.loadPage(assistOS.user.email, spaceId);
     }
 
     async initPage(applicationName, applicationLocation) {
@@ -282,23 +254,22 @@ class AssistOS {
         }
     }
 
-    async loadPage(skipAuth = false, skipSpace = false, spaceId) {
+    async loadPage(email, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
-        spaceId = spaceId ? spaceId : spaceIdURL;
-        if (spaceId === authPage && skipAuth) {
+
+        spaceId = spaceId || spaceIdURL;
+
+        if (spaceId === authPage && email) {
             spaceId = undefined;
         }
 
         if (spaceId === authPage) {
             hidePlaceholders();
-            if (applicationName === "inviteToken") {
-                return assistOS.UI.changeToDynamicPage(spaceId, `${spaceId}/${applicationName}/${applicationLocation}`);
-            }
             return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
         }
 
         try {
-            await (spaceId ? skipSpace ? assistOS.initUser() : assistOS.initUser(spaceId) : assistOS.initUser());
+            await assistOS.initSpace(email, spaceId);
             try {
                 this.NotificationRouter.createSSEConnection();
                 this.NotificationRouter.getEventSource().onopen = async () => {
@@ -325,7 +296,7 @@ class AssistOS {
     }
 
     async inviteCollaborators(collaboratorEmails) {
-        return await this.loadifyFunction(spaceModule.inviteSpaceCollaborators, assistOS.space.id, collaboratorEmails);
+        return await this.loadifyFunction(spaceModule.addCollaborators, assistOS.user.email, assistOS.space.id, collaboratorEmails, assistOS.space.name);
     }
 
     async callFlow(flowName, context, personalityId) {
@@ -374,7 +345,7 @@ class AssistOS {
             case "user":
                 return require("assistos").loadModule("user", {});
             case "personality":
-                return require("assistos").loadModule("personality", {});
+                return require("assistos").loadModule("agent", {});
             case "document":
                 return require("assistos").loadModule("document", {});
             case "application":
@@ -542,7 +513,7 @@ function closeDefaultLoader() {
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
-    const chatState= getCookie("chatState");
+    const chatState = getCookie("chatState");
     assistOS.UI.chatState = chatState || "open";
     defineActions();
     closeDefaultLoader()

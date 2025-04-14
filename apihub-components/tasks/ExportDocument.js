@@ -1,7 +1,6 @@
 const fs = require('fs');
 const Task = require('./Task');
 const path = require('path');
-const space = require('../spaces-storage/space');
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const archiver = require("archiver");

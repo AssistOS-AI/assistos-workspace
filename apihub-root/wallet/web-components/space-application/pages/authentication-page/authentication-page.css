@@ -19,36 +19,8 @@ authentication-page{
     width:100%;
     position: relative;
 }
-#successful-activation{
-    margin-block-start:12px;
-    margin-block-end:12px;
-}
-#verificationToken{
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
-#verificationToken:focus{
-    border-color: #007bff;
-    outline: none;
-}
-#activateButton{
-    margin-block-start:20px;
-    padding: 12px;
-    background: #007bff;
-    border: none;
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    border-radius: 4px;
-    cursor: pointer;
-}
-#activateButton:hover{
-    background: #0056b3;
-}
+
+/*image carousel*/
 .slideshow-container {
     width: 66%;
     position: relative;
@@ -85,7 +57,7 @@ authentication-page{
 }
 .woman{
     bottom: -213px;
-   width: 1250px;
+    width: 1250px;
 }
 .chat{
     width: 1440px;
@@ -147,7 +119,7 @@ authentication-page{
     border-radius: 5px;
 }
 
-
+/*login form*/
 .form-container {
     width: 34%;
     position: absolute;
@@ -156,30 +128,6 @@ authentication-page{
     background-color: var(--white);
     height: 100%;
 }
-
-.form-title {
-    padding: 20px 0 20px 0;
-    font-weight: bold;
-}
-
-.form-label {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid var(--lighter-black);
-    width: 100%;
-    margin: 8px 0 16px;
-    padding: 8px;
-}
-
-.item-has-focus {
-    --full-highlight-height: none;
-    --inset-highlight-height: none;
-}
-
 .form-footer {
     display: flex;
     justify-content: center;
@@ -187,74 +135,12 @@ authentication-page{
 .general-button{
     margin: 16px 0;
 }
+
 .logo-container {
     display: flex;
     justify-content: center;
 }
 
-/*Login page/ Landing page*/
-.suggest-registration {
-    margin-bottom: 20px;
-    display: flex;
-    justify-content: center;
-    font-size: 12px;
-    margin-top: -5px;
-}
-
-.forgot-password {
-    display: flex;
-    justify-content: flex-end;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--medium-blue);
-    padding-bottom: 20px;
-    margin-top: -5px;
-}
-
-.forgot-password:hover {
-    cursor: pointer;
-}
-
-.sign-up {
-    padding-left: 3px;
-    font-weight: 700;
-    color: var(--medium-blue);
-}
-
-.sign-up:hover {
-    cursor: pointer;
-}
-
-/*Register confirmation, Password recovery confirmation */
-.development-mode {
-    display: flex;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--medium-blue);
-}
-
-.development-mode:hover {
-    cursor: pointer;
-}
-
-/*Password recovery*/
-.form-description {
-    margin-top: -10px;
-    padding-bottom: 20px;
-}
-#hidden{
-    display: none;
-}
-.spaced-buttons{
-    display: flex;
-    justify-content: space-between;
-}
-#regenerate-verification-code:disabled{
-    background-color: grey;
-    cursor: not-allowed;
-}
-#reset-password-button:disabled{
-    background-color: grey;
-    cursor: not-allowed;
+.log-in-form{
+    margin-top: 20px;
 }

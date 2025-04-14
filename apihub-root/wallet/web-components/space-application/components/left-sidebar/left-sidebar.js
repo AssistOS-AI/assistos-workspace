@@ -17,7 +17,8 @@ export class LeftSidebar {
             this.themeIcon = "wallet/assets/icons/moon.svg";
         }
         this.invalidate(async ()=>{
-            this.tasks = await utilModule.getTasks(assistOS.space.id);
+            //this.tasks = await utilModule.getTasks(assistOS.space.id);
+            this.tasks = []
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
@@ -31,7 +32,7 @@ export class LeftSidebar {
         img.onerror = async () => {
             let uint8Array = await this.generateUserAvatar(assistOS.user.email);
             assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-            await userModule.updateUserImage(assistOS.user.id, assistOS.user.imageId);
+            await userModule.updateUserImage(assistOS.user.email, assistOS.user.imageId);
         };
         img.src = userImageURL;
         img.onload = () => {
@@ -39,23 +40,23 @@ export class LeftSidebar {
         };
         this.userImage = userImageURL;
         this.userName = assistOS.user.name;
-        for (let application of assistOS.space.installedApplications) {
-            let applicationData = assistOS.applications[application.name];
-            let svgImage = applicationData.svg;
+        for (let application of assistOS.space.applications) {
+            let svgImage = application.svg;
 
             this.applications += `
-        <div class="feature" data-id="${applicationData.name.toLowerCase()}" data-local-action="startApplication ${applicationData.id}">
+        <div class="feature" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.id}">
             <div class="app-focus hidden"></div>
             <div class="page-logo">
                 ${svgImage}
-                <div class="app-name" id="${applicationData.name.toLowerCase()}">
-                    ${applicationData.name}
+                <div class="app-name" id="${application.name.toLowerCase()}">
+                    ${application.name}
                 </div>
             </div>
         </div>`;
         }
         let stringHTML = "";
-        for(let space of assistOS.user.spaces){
+        let spaces = await userModule.listUserSpaces(assistOS.user.email);
+        for(let space of spaces){
             stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
         }
         this.spaces = stringHTML;

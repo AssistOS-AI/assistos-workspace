@@ -3,7 +3,6 @@ const Task = require('./Task');
 const path = require('path');
 const fsPromises = fs.promises;
 const fileSys = require('../apihub-component-utils/fileSys');
-const ffmpegUtils = require("../apihub-component-utils/ffmpeg");
 const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
@@ -12,7 +11,6 @@ const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
 const TaskManager = require("./TaskManager");
-const space = require("../spaces-storage/space");
 class ChapterToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);

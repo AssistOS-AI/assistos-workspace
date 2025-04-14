@@ -63,7 +63,7 @@ notifications-monitor {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-.tab {
+notifications-monitor .tab {
     padding: 10px 16px;
     cursor: pointer;
     position: relative;
@@ -74,11 +74,11 @@ notifications-monitor {
     flex-shrink: 0;
 }
 
-.tab.active {
+notifications-monitor .tab.active {
     background: rgba(255, 255, 255, 0.1);
 }
 
-.tab:hover {
+notifications-monitor .tab:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 

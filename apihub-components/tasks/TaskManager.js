@@ -2,7 +2,6 @@ const Task = require('./Task');
 const Logger=require('../logger/Logger.js')
 const enclave = require("opendsu").loadAPI("enclave");
 const fsPromises = require('fs').promises;
-const space = require('../spaces-storage/space');
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
@@ -192,9 +191,4 @@ class TaskManager {
     }
 }
 
-const taskManager = new TaskManager();
-(async () => {
-    await taskManager.initialize();
-})();
-
-module.exports = taskManager;
+module.exports = TaskManager;

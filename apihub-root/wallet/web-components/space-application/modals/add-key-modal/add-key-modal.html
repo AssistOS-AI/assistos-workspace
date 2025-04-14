@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <div>Add Secret</div>
+  <button type="button" class="close" data-local-action="closeModal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form class="edit-apikey-form modal-body">
+  <div class="form-item">
+    <label class="form-label" for="name">Secret Name</label>
+    <input type="text" class="form-input" name="name" data-id="name" id="name" required>
+  </div>
+  <div class="form-item">
+    <label class="form-label" for="secretKey">Key</label>
+    <input type="text" class="form-input" name="secretKey" data-id="secretKey" id="secretKey" required>
+  </div>
+  <div class="form-item">
+    <label class="form-label" for="value">Value</label>
+    <input type="text" class="form-input" name="value" data-id="value" id="value"
+           style="-webkit-text-security: disc;" required>
+  </div>
+
+  <div class="modal-footer">
+    <button type="button" class="general-button" data-local-action="addSecret">Add Secret</button>
+  </div>
+</form>

@@ -1,4 +1,3 @@
-const CustomError = require('../apihub-component-utils/CustomError');
 
 const Handler = require('./handler');
 const Request = require('../apihub-component-utils/utils.js');
@@ -52,9 +51,7 @@ async function getLog(request, response) {
     const {spaceId, logId} = request.params;
     try {
         const log = await Handler.getLog(spaceId, logId);
-        return Request.sendResponse(response, 200, "application/json", {
-            data: log
-        });
+        return Request.sendResponse(response, 200, "application/json", log);
     } catch (error) {
         return Request.sendResponse(response, error.statusCode || 500, "application/json", {
             message: "Failed to get log" + error.message,

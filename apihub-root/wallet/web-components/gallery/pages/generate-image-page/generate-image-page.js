@@ -17,11 +17,11 @@ export class GenerateImagePage {
         this.invalidate(async () => {
             this.personalities = await assistOS.space.getPersonalitiesMetadata();
             this.models = [];
-            let configs = await llmModule.getLLMConfigs(assistOS.space.id);
+            let configs = [];
             for (let companyObj of configs) {
                 for (let model of companyObj.models) {
                     if (model.type === "image") {
-                        model.companyName = companyObj.company;
+                        model.companyName = companyObj.provider;
                         this.models.push(model);
                     }
                 }

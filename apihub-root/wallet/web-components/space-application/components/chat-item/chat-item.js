@@ -89,7 +89,8 @@ export class ChatItem {
             let imageSrc = "";
             if (this.role === "user") {
                 try {
-                    imageSrc = await getUserProfileImage(this.user);
+                    //TODO : use email instead of user id
+                    //imageSrc = await getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = await getDefaultUserImage();
                 }

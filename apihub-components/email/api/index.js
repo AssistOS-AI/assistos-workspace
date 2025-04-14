@@ -112,23 +112,21 @@ class Email {
 
         await this.sendEmail(this.emailConfig.email, email, `You have been added to ${spaceName}`, emailHtml);
     }
-    async sendPasswordResetCode(email, resetToken) {
-        const data = require('../../apihub-component-utils/data.js')
-        const passwordResetTemplatePath = path.join(__dirname, '..', 'templates', 'passwordResetTemplate.html');
-        const passwordResetTemplate = await fsPromises.readFile(passwordResetTemplatePath, 'utf8')
-        const emailHtml = data.fillTemplate(passwordResetTemplate, {
-            companyLogoURL: this.emailConfig.companyLogoURL,
-            passwordResetCode: resetToken,
-            companyName: this.emailConfig.companyName,
-            streetAddress: this.emailConfig.streetAddress,
-            city: this.emailConfig.city,
-            country: this.emailConfig.country,
-            zipCode: this.emailConfig.zipCode,
-            supportEmail: this.emailConfig.supportEmail,
-            phoneNumber: this.emailConfig.phoneNumber,
-        });
+    async getActivationSuccessHTML() {
+        const activationSuccessTemplate = await require('../index').getTemplate('activationSuccessTemplate')
+        const baseURL = process.env.BASE_URL;
+        return data.fillTemplate(activationSuccessTemplate, {
+            loginRedirectURL: baseURL
+        })
+    }
 
-        await this.sendEmail(this.emailConfig.email, email, 'Password Reset', emailHtml);
+    async getActivationFailHTML(failReason) {
+        const activationFailTemplate = await require('../index').getTemplate('activationFailTemplate')
+        const baseURL = process.env.BASE_URL;
+        return data.fillTemplate(activationFailTemplate, {
+            redirectURL: baseURL,
+            failReason: failReason
+        })
     }
 }
 
