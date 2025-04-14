@@ -6,7 +6,8 @@ export class BuildPage {
         this.invalidate();
     }
     async beforeRender(){
-        this.graph = await spaceModule.getGraph();
+        this.graph = await spaceModule.getGraph(assistOS.space.id);
+        this.variables = await spaceModule.getVariables(assistOS.space.id);
     }
     afterRender(){
         let buildCheckbox = this.element.querySelector("#automaticBuild");
