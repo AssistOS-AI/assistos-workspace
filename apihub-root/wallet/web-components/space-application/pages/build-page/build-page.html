@@ -1,32 +1,11 @@
-<div class="page-header">Build</div>
+<div class="page-header">
+    <div>Build</div>
+    <button class="general-button" data-local-action="buildAll">Rebuild</button>
+</div>
+<div class="tabs">
+    <div class="tab build-errors pointer" data-local-action="changeTab build-errors">Build Errors</div>
+    <div class="tab variables-tab pointer" data-local-action="changeTab variables-tab">Variables</div>
+</div>
 <div class="page-body">
-    <div class="build-all-section">
-        <button class="general-button" data-local-action="buildAll">Build All</button>
-        <div class="build-check-container">
-            <label class="form-label" for="automaticBuild">Automatic build</label>
-            <input type="checkbox" name="automaticBuild" id="automaticBuild" data-id="automaticBuild">
-        </div>
-    </div>
-    <div class="top-section">
-        <div class="graph-section">
-            <div class="section-header">Graph</div>
-            <div class="space-graph">$$spaceGraph</div>
-        </div>
-        <div class="build-errors-section">
-            <div class="section-header">Errors from last build</div>
-            <div class="build-errors">$$buildErrors</div>
-        </div>
-    </div>
-    <div class="variables-section">
-        <div class="section-header">Variables</div>
-        <div class="variables-table-container">
-            <div class="variables-table">
-                <div class="cell table-label">Name</div>
-                <div class="cell table-label">Id</div>
-                <div class="cell table-label">Value</div>
-                <div class="cell table-label">Details</div>
-                $$variablesHTML
-            </div>
-        </div>
-    </div>
+    $$currentTab
 </div>
