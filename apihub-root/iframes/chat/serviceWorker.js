@@ -25,17 +25,21 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
+    const request = event.request;
+
+    if (request.method !== 'GET' || url.pathname.includes('/public/chats')) {
+        event.respondWith(fetch(request));
+        return;
+    }
 
     if (url.pathname.includes(`${WEB_COMPONENTS_ROOT}/virtual/widgets`)) {
         event.respondWith(
-            caches.match(event.request).then((response) => {
-                return response || fetch(event.request);
-            })
+            caches.match(request).then(response => response || fetch(request))
         );
         return;
     }
 
     event.respondWith(
-        fetch(event.request).catch(() => caches.match(event.request))
+        fetch(request).catch(() => caches.match(request))
     );
 });

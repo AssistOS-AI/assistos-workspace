@@ -204,6 +204,32 @@ export class ChapterItem {
             this.chapterItem.click();
         }
         this.changeChapterVisibility(true);
+
+        let moveChapterUp = this.element.querySelector(".move-chapter-up");
+        this.documentPresenter.attachTooltip(moveChapterUp,"Move Chapter Up");
+
+        let moveChapterDown = this.element.querySelector(".move-chapter-down");
+        this.documentPresenter.attachTooltip(moveChapterDown,"Move Chapter Down");
+
+        let insertElements = this.element.querySelector(".add-elements");
+        this.documentPresenter.attachTooltip(insertElements,"Insert Elements");
+
+        let downloadAudio = this.element.querySelector(".download-audio");
+        this.documentPresenter.attachTooltip(downloadAudio,"Download Audio");
+
+        let downloadVideo = this.element.querySelector(".download-compiled-video");
+        this.documentPresenter.attachTooltip(downloadVideo,"Download Compiled Video");
+
+        let compileVideo = this.element.querySelector(".compile-chapter-video");
+        this.documentPresenter.attachTooltip(compileVideo,"Compile Chapter Video");
+
+        let deleteVideo = this.element.querySelector(".delete-compiled-video");
+        this.documentPresenter.attachTooltip(deleteVideo,"Delete Compiled Video");
+
+        let deleteChapter = this.element.querySelector(".delete-chapter");
+        this.documentPresenter.attachTooltip(deleteChapter,"Delete Chapter");
+
+
     }
 
     async addParagraphOrChapterOnKeyPress(event) {

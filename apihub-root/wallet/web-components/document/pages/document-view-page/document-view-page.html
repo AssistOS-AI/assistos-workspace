@@ -28,6 +28,8 @@
             <div class="document-menu-dropdown" id="actions-menu">
                 <list-item data-local-action="addChapter" data-name="Add Chapter"
                            data-highlight="light-highlight"></list-item>
+                <list-item data-local-action="addTableOfContents" data-name="Add Table of Contents"
+                           data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="exportDocument" data-name="Export Document"
                            data-highlight="light-highlight"></list-item>
                 <list-item data-local-action="documentToVideo" data-name="Create Video"
@@ -44,9 +46,9 @@
         <div class="disabled-mask"></div>
         <div class="document-title-container container-element" data-metadata="title of the document">
             <input type="text" class="document-title focusable $$documentFontSize $$documentFontFamily font-color" data-local-action="editItem title"/>
-               <div class="book-comment-container pointer" data-local-action="openDocumentComment">
-                  <img class="book-comment-icon black-icon" src="./wallet/assets/icons/comment.svg" alt="comment">
-                </div>
+            <div class="book-comment-container pointer" data-local-action="openDocumentComment">
+                <img class="book-comment-icon black-icon" src="./wallet/assets/icons/comment.svg" alt="comment">
+            </div>
         </div>
         <div class="infoText-section container-element" data-metadata="infoText of the document">
             <div class="infoText-header-section">
@@ -73,6 +75,5 @@
     </div>
 </div>
 <div class="document-plugin-container"></div>
-
 
 

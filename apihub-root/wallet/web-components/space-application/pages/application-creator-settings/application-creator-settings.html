@@ -15,10 +15,21 @@
                 <div class="form-two-column">
                     <div class="form-left">
                         <div class="application-form-item">
+                            <label for="selectedFooter">Footer</label>
+                            <select class="application-form-item-select" name="selectedFooter" id="selectedFooter">
+                                $$footers
+                            </select>
+                        </div>
+                        <div class="application-form-item">
                             <label for="selectedHeader">Header</label>
                             <select class="application-form-item-select" name="selectedHeader" id="selectedHeader">
                                 $$widgets
                             </select>
+                        </div>
+                        <div class="application-form-item">
+                            <label for="chat-indications">Chat Indications</label>
+                            <textarea class="no-resize" id="chat-indications"
+                                      placeholder="Be short, precise, suggest the relevant page that could help the user resolve his requests">$$chatIndications</textarea>
                         </div>
                         <div class="application-form-item">
                             <label for="initial-prompt">Initial Prompt</label>
@@ -37,23 +48,8 @@
                                 $$themes
                             </select>
                         </div>
-                    </div>
-                    <div class="form-right">
-                        <div class="application-form-item">
-                            <label for="chat-indications">Chat Indications</label>
-                            <textarea class="no-resize" id="chat-indications"
-                                      placeholder="Be short, precise, suggest the relevant page that could help the user resolve his requests">$$chatIndications</textarea>
-                        </div>
-                        <div class="application-form-item">
-                            <label for="color">Primary Color</label>
-                            <input type="color" id="color" name="color" value="$$color">
-                        </div>
-                        <div class="application-form-item">
-                            <label for="text-color">Text Color</label>
-                            <input type="color" id="text-color" name="text-color" value="$$textColor">
-                        </div>
-                    </div>
 
+                    </div>
                 </div>
             </div>
             <div class="application-form-footer">

@@ -1,7 +1,11 @@
+application-creator-landing{
+    width:100%;
+    height:100%;
+}
 #application-root-container {
     display: flex;
     width: 100%;
-    height: 100vh;
+    height: 100%;
     font-family: 'Inter', sans-serif;
 }
 
@@ -411,7 +415,7 @@
 
 .table-container { overflow-x: auto; width: 100%; height: 100%; border-radius: 12px;}
 
-.modern-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+.modern-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; overflow:scroll;}
 
 .modern-table thead { color: #1a365d; }
 

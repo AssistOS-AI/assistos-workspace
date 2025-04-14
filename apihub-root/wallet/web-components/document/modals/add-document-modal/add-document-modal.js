@@ -177,22 +177,22 @@ export class AddDocumentModal {
                         console.log(`Adding ${chapterContent.length} paragraphs to chapter "${chapterTitle}"...`);
                         for (const [pIndex, paragraph] of chapterContent.entries()) {
                             const paragraphText = Object.values(paragraph)[0];
-                            
+
                             // Check if paragraph has image tags
                             if (paragraphText.includes('[Image:')) {
                                 console.log('Found image tag in paragraph:', paragraphText);
-                                
+
                                 // Extract image name from tag
                                 const imageTagMatch = paragraphText.match(/\[Image:\s*([^\]]+)\]/);
                                 if (imageTagMatch && imageTagMatch[1]) {
                                     const imageName = imageTagMatch[1].trim();
                                     console.log(`Extracted image name: "${imageName}"`);
-                                    
+
                                     // Check if we have this image in our map
                                     if (imageMap.has(imageName)) {
                                         const imageId = imageMap.get(imageName);
                                         console.log(`Found matching image ID: ${imageId}`);
-                                        
+
                                         // Add paragraph with image command
                                         let text = paragraphText.replace(`[Image: ${imageName}] `, '');
                                         await documentModule.addParagraph(assistOS.space.id, chapterId, text);

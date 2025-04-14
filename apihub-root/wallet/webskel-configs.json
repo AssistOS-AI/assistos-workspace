@@ -165,6 +165,12 @@
             "presenterClassName": "ConfirmActionModal"
         },
         {
+            "name": "application-preview-page-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ApplicationPreviewPageModal"
+        },
+        {
             "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",
@@ -357,12 +363,6 @@
             "directory": "document",
             "type": "modals",
             "presenterClassName": "AddDocumentModal"
-        },
-        {
-            "name": "chat-container",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "ChatContainer"
         },
         {
             "name": "llm-playground-page",
@@ -560,6 +560,12 @@
             "type": "pages"
         },
         {
+            "name": "application-creator-themes",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationCreatorThemes",
+            "type": "pages"
+        },
+        {
             "name": "application-creator-pages",
             "directory": "space-application",
             "presenterClassName": "ApplicationCreatorPages",
@@ -584,6 +590,18 @@
             "type": "modals"
         },
         {
+            "name": "application-edit-theme-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationEditThemeModal",
+            "type": "modals"
+        },
+        {
+            "name": "application-generate-theme-modal",
+            "directory": "space-application",
+            "presenterClassName": "ApplicationGenerateThemeModal",
+            "type": "modals"
+        },
+        {
             "name": "application-edit-menu-modal",
             "directory": "space-application",
             "presenterClassName": "ApplicationEditMenuModal",
@@ -605,6 +623,36 @@
             "name":"text-widget",
             "directory":"widgets",
             "presenterClassName":"TextWidget",
+            "type":"widget"
+        },
+        {
+            "name":"about-us",
+            "directory":"widgets",
+            "presenterClassName":"AboutUs",
+            "type":"widget"
+        },
+        {
+            "name":"blog-widget",
+            "directory":"widgets",
+            "presenterClassName":"BlogWidget",
+            "type":"widget"
+        },
+        {
+            "name":"contact-widget",
+            "directory":"widgets",
+            "presenterClassName":"ContactWidget",
+            "type":"widget"
+        },
+        {
+            "name":"pricing-widget",
+            "directory":"widgets",
+            "presenterClassName":"PricingWidget",
+            "type":"widget"
+        },
+        {
+            "name":"privacy-widget",
+            "directory":"widgets",
+            "presenterClassName":"PrivacyWidget",
             "type":"widget"
         }
     ]

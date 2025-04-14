@@ -16,7 +16,6 @@ list-item.disabled .list-item{
     width: calc(100% - 10px);
     padding: 5px 0;
     border-radius: 5px;
-    margin: 0 5px;
     display: flex;
     align-items: center;
 }
@@ -24,6 +23,4 @@ list-item.disabled .list-item{
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-left: 10px;
-    margin-right: 10px;
 }

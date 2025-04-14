@@ -125,7 +125,7 @@ class AssistOS {
         }
         if (appName === assistOS.configuration.defaultApplicationName) {
             if (!applicationLocation) {
-                applicationLocation = ["announcements-page"];
+                applicationLocation = ["documents-page  "];
             }
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
             return;
@@ -503,7 +503,13 @@ function closeDefaultLoader() {
     window.assistOS = new AssistOS(configuration);
     await assistOS.boot(UI_CONFIGS_PATH);
 
-
+    assistOS.navigateToPage = function(page){
+        if(location.hash.split("/")[1] !== "Space"){
+            assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
+        }else{
+            document.querySelector("space-application-page").webSkelPresenter.changePage(page);
+        }
+    }
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
     assistOS.UI.sidebarState = "closed";
@@ -513,5 +519,6 @@ function closeDefaultLoader() {
     closeDefaultLoader()
     await assistOS.loadPage();
     assistOS.changeSelectedPageFromSidebar = changeSelectedPageFromSidebar;
+
 
 })();

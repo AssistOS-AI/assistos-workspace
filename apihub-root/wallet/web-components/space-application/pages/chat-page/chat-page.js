@@ -198,6 +198,24 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
+        this.personalities = await assistOS.space.getPersonalitiesMetadata();
+        let personalitiesHTML = "";
+        for (let personality of this.personalities) {
+            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
+        }
+        this.personalitiesHTML = personalitiesHTML;
+        this.currentPersonalityName = assistOS.agent.agentData.name;
+        let llmName = assistOS.agent.agentData.llms.text;
+        let splitLLMName = llmName.split("/");
+        if (splitLLMName.length > 1) {
+            this.personalityLLM = splitLLMName[1];
+        } else {
+            this.personalityLLM = llmName;
+        }
+        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
+        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
+        this.spaceNameTooltip = assistOS.space.name;
+        this.personalityLLMTooltip = llmName;
         this.chatOptions = IFrameChatOptions;
         this.chatId = this.element.getAttribute('data-chatId');
         this.personalityId = this.element.getAttribute('data-personalityId');
@@ -517,7 +535,7 @@ class BaseChatFrame {
 
     async newConversation(target) {
         const chatId = await createNewChat(this.spaceId, this.personalityId);
-        if(IFrameContext){
+        if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
@@ -594,23 +612,87 @@ if (IFrameContext) {
             this.toggleAgentResponseButton = `
                 <button type="button" id="toggleAgentResponse" class="${this.agentOn ? "agent-on" : "agent-off"}"
                         data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
+            this.checked = this.agentOn ? "checked" : "";
         }
 
         async afterRender() {
             await super.afterRender()
-            await document.querySelector('space-application-page')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
+
+            await document.querySelector('left-sidebar')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
+            const agentToggleCheckbox = this.element.querySelector('#chat-toggle')
+            agentToggleCheckbox.addEventListener('change', this.toggleAgentResponse.bind(this));
+        }
+        setSpaceContainer() {
+            if(!this.spaceContainer){
+                this.spaceContainer = document.getElementById("space-page-container");
+            }
+            return this.spaceContainer;
         }
 
-        async toggleAgentResponse(_target) {
-            if (this.agentOn) {
-                this.toggleAgentButton.classList.remove("agent-on");
-                this.toggleAgentButton.classList.add("agent-off");
-                this.toggleAgentButton.innerHTML = "Agent:OFF";
-            } else {
-                this.toggleAgentButton.classList.remove("agent-off");
-                this.toggleAgentButton.classList.add("agent-on");
-                this.toggleAgentButton.innerHTML = "Agent:ON";
+        async toggleFullScreen(_target) {
+            this.setSpaceContainer();
+            const agentPage = this.element
+            agentPage.style.display = "flex";
+            agentPage.style.width = "calc(100vw - 75px)";
+            agentPage.style.minWidth = "calc(100vw - 75px)";
+            this.spaceContainer.style.display = "none";
+        }
+
+        async toggleHalfScreen(_target) {
+            this.setSpaceContainer();
+            const agentPage = this.element
+            agentPage.style.display = "flex";
+            this.spaceContainer.style.display = "flex";
+            agentPage.style.width = "calc(50vw - 37.5px)";
+            agentPage.style.minWidth = "calc(50vw - 37.5px)";
+            this.spaceContainer.style.width="calc(50vw - 37.5px)";
+            this.spaceContainer.style.minWidth="calc(50vw - 37.5px)";
+        }
+
+        async toggleThirdScreen(_target) {
+            this.setSpaceContainer();
+            const agentPage = this.element
+            agentPage.style.display = "flex";
+            this.spaceContainer.style.display = "flex";
+            agentPage.style.width = "calc(30vw - 37.5px)";
+            agentPage.style.minWidth = "calc(30vw - 37.5px)";
+            this.spaceContainer.style.width="calc(70vw - 37.5px)";
+            this.spaceContainer.style.minWidth="calc(70vw - 37.5px)";
+        }
+
+        async toggleMinimizeScreen(_target) {
+            this.setSpaceContainer();
+            const agentPage = this.element
+            assistOS.UI.chatState = "minimized";
+            agentPage.style.display = "none";
+            agentPage.style.width = "0px";
+            agentPage.style.minWidth="0px";
+            this.spaceContainer.style.display = "flex";
+            this.spaceContainer.style.width="calc(100vw - 75px)";
+            this.spaceContainer.style.minWidth="calc(100vw - 75px)";
+        }
+        async swapPersonality(_target, id) {
+            await assistOS.changeAgent(id);
+            this.invalidate();
+        }
+
+        async hidePersonalities(controller, arrow, event) {
+            arrow.setAttribute("data-local-action", "showPersonalities off");
+            let target = this.element.querySelector(".personalities-list");
+            target.style.display = "none";
+            controller.abort();
+        }
+
+        async showPersonalities(_target, mode) {
+            if (mode === "off") {
+                let list = this.element.querySelector(".personalities-list");
+                list.style.display = "flex";
+                let controller = new AbortController();
+                document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
+                _target.setAttribute("data-local-action", "showPersonalities on");
             }
+        }
+        async toggleAgentResponse(_target) {
             this.agentOn = !this.agentOn;
             localStorage.setItem("agentOn", this.agentOn);
         }

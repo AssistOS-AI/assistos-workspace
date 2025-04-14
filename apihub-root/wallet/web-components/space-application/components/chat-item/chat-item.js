@@ -10,7 +10,6 @@ const getPersonalityImageUrl = async (spaceId, personalityId) => {
 
 const getDefaultUserImage = async () => {
     try {
-        debugger;
         const response = await fetch(`${window.location.origin}/assets/images/default-personality`);
         const imgBuffer = await response.arrayBuffer();
         const blob = new Blob([imgBuffer], { type: response.headers.get('Content-Type') || 'image/png' });

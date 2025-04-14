@@ -1,6 +1,8 @@
 const TaskManager = require('../../tasks/TaskManager');
 //const crypto = require("../../apihub-component-utils/crypto");
 const SubscriptionManager = require("../../subscribers/SubscriptionManager");
+const indexer = require('./indexer');
+
 function constructDocumentURI(documentId, property) {
     return `${documentId}${property ? `/${property}` : ''}`
 }
@@ -18,8 +20,12 @@ async function getDocumentTasks(spaceId, documentId) {
         .map(result => result.value)
         .flat();
 }
+
 async function deleteDocument(spaceId, documentId) {
-        const documentTasks = await getDocumentTasks(spaceId, documentId);
+    // Delete from SOLR index first
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'delete', 'document', getDocument);
+    
+    const documentTasks = await getDocumentTasks(spaceId, documentId);
     await Promise.allSettled(documentTasks.map(async taskId => {
         return TaskManager.cancelTaskAndRemove(taskId);
     }));
@@ -32,6 +38,7 @@ async function deleteDocument(spaceId, documentId) {
     for(let snapshot of snapshots){
         await lightDB.deleteContainerObject(spaceId, snapshot.documentId);
     }
+    console.log(`AssistOS document ${documentId} deleted.`);
     return await lightDB.deleteContainerObject(spaceId, documentId);
 }
 
@@ -61,6 +68,11 @@ async function createDocument(spaceId, documentData) {
     await lightDB.insertRecord(spaceId, documentId, getOperationsId(documentId),{
         count: 0
     });
+    
+    // Index the newly created document
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'create', 'document', getDocument);
+    
+    console.log(`AssistOS document ${documentId} created.`);
     return documentId;
 }
 
@@ -81,6 +93,7 @@ async function updateDocument(spaceId, documentId, documentData, queryParams) {
             oldData = await getDocument(spaceId, documentId, queryParams);
             await lightDB.updateEmbeddedObject(spaceId, documentURI, documentData)
         }
+
     }
     await addOperation(spaceId, documentId, {
         type: "update",
@@ -92,6 +105,11 @@ async function updateDocument(spaceId, documentId, documentData, queryParams) {
             eventData: queryParams.fields
         }
     });
+    
+    // Index the updated document
+    await indexer.indexDocumentInSolr(spaceId, documentId, 'update', 'document', getDocument);
+    
+    console.log(`AssistOS document ${documentId} updated.`);
 }
 //must be over 2
 let maxOperations = 50;

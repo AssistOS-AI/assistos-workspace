@@ -1,27 +1,16 @@
+
 <div id="monitor">
-    <div id="monitorHeader">
-        <span id="monitorTitle">Space Monitor</span>
-        <div id="monitorControls">
-            <button id="filterLogs" data-local-action="showFilterLogsOptions">&#128269;</button>
-            <div id="filterLogsOptions">
-                <div class="log-filter-option-container">
-                    <label for="debugCheckbox"> Debug</label>
-                    <input type="checkbox" id="debugCheckbox" name="debugCheckbox" $$debugChecked>
-                </div>
-            </div>
-            <button id="downloadLogs" data-local-action="downloadSpaceTaskLogs">&#128229;</button>
-            <button id="minimizeMonitor" data-local-action="minimizeMonitor">&lowbar;</button>
-            <button id="toggleFullscreen" data-local-action="toggleFullscreen">&lsqb;&nbsp;&rsqb;</button>
-            <button data-local-action="minimizeMonitor">&times;</button>
-        </div>
-    </div>
 
-    <div id="tabsContainer">
-        <button id="addWatcher">+</button>
+<div id="tabsContainer">
+    <button id="addWatcher">+</button>
+    <div id="monitorControls">
+        <button id="downloadLogs" data-local-action="downloadSpaceTaskLogs">&#128229;</button>
+        <button data-local-action="minimizeMonitor">&times;</button>
+        <button id="toggleFullscreen" data-local-action="toggleFullscreen">&lsqb;&nbsp;&rsqb;</button>
     </div>
-
-    <div id="taskWatchersContainer">
-        <llm-observer observingMode="$$observingMode" data-presenter="llm-observer"></llm-observer>
-    </div>
+</div>
+<div id="taskWatchersContainer">
+    <llm-observer observingMode="$$observingMode" data-presenter="llm-observer"></llm-observer>
+</div>
 
 </div>

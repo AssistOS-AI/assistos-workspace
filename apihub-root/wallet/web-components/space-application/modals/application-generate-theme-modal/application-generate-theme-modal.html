@@ -1,0 +1,37 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <div class="modal-left-header">
+            <span>$$modalName</span>
+        </div>
+        <div class="modal-right-header">
+            <button class="button-close" data-local-action="closeModal"></button>
+        </div>
+    </div>
+    <div class="modal-content">
+        <form class="application-form">
+            <div class="application-form-content">
+                <div class="application-form-item">
+                    <label for="theme-name">Theme Name</label>
+                    <input type="text" id="theme-name" name="theme-name" value="$$name">
+                </div>
+                <div class="application-form-item">
+                    <label for=description>Description</label>
+                    <textarea class="no-resize" id="description" placeholder="">$$description</textarea>
+                </div>
+            </div>
+
+        </form>
+    </div>
+    <div class="modal-footer">
+        <div class="modal-footer-left">
+        </div>
+        <div class="modal-footer-right">
+            <div class="application-form-footer">
+                <button type="button" class="application-form-button" data-local-action="$$actionFn">$$actionButton
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+

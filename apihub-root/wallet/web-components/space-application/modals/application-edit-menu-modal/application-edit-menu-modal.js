@@ -3,8 +3,8 @@ const spaceModule = require('assistos').loadModule('space', {});
 const getPageRows = async function (spaceId) {
     return await spaceModule.getWebAssistantConfigurationPages(spaceId);
 }
-const getPageMenuItem = async function (spaceId, pageId, menuItemId) {
-    return await spaceModule.getWebAssistantConfigurationPageMenuItem(spaceId, pageId, menuItemId);
+const getMenuItem = async function (spaceId,menuItemId) {
+    return await spaceModule.getWebAssistantConfigurationPageMenuItem(spaceId,  menuItemId);
 }
 const getPage = async function (spaceId, pageId) {
     const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
@@ -34,15 +34,6 @@ export class ApplicationEditMenuModal {
         this.actionButton = "Add";
         this.actionFn = `addMenuItem`;
         const pages = await getPageRows(this.spaceId);
-        this.pages = `
-<select class="application-form-item-select" data-name="selectedPage" id="selectedPage">
-${pages.map(pageData => {
-            return `<option value="${pageData.id}" data-name="${pageData.name}">${pageData.name}</option>`
-        })
-            .join('')}
-        </select>`
-
-
         this.targetPages = `
         <select class="application-form-item-select" data-name="targetPage" id="targetPage">
         ${pages.map(pageData => {
@@ -51,14 +42,18 @@ ${pages.map(pageData => {
             .join('')}
         </select>
         `
-        this.currentPage = pages[0].id || null;
+        this.menuTypes = `
+        <select class="application-form-item-select" data-name="itemLocation" id="itemLocation">
+            <option value="chat">Chat</option>
+            <option value="assistant">Assistant</option>
+            <option value="page">Page</option>
+        </select>`
     }
 
     async handleEditRender() {
         this.modalName = "Edit Menu Item";
         this.actionButton = "Save";
         this.actionFn = `editMenuItem`;
-        const page = await getPage(this.spaceId, this.pageId);
         const pages = await getPageRows(this.spaceId);
         this.targetPages = `
         <select class="application-form-item-select" data-name="targetPage" id="targetPage"
@@ -67,9 +62,15 @@ ${pages.map(pageData => {
         })
             .join('')}
         </select>`
-        const pageMenu = await getPageMenuItem(this.spaceId, this.pageId, this.id);
-        this.pages = `<input type="text" class="application-form-item-input" id="selectedPage" name="selectedPage" value="${page.name}" disabled>`
 
+        this.menuTypes = `
+        <select class="application-form-item-select" data-name="itemLocation" id="itemLocation">
+            <option value="chat">Chat</option>
+            <option value="assistant">Assistant</option>
+            <option value="page">Page</option>
+        </select>`
+
+        const pageMenu = await getMenuItem(this.spaceId,  this.id);
         this.name = pageMenu.name;
         this.icon = pageMenu.icon;
     }
@@ -77,22 +78,12 @@ ${pages.map(pageData => {
     async afterRender() {
         const fileInput = this.element.querySelector('#customFile');
         const fileLabel = this.element.querySelector('.file-input-label span:last-child');
-        const selectedPageSelectElement = this.element.querySelector('#selectedPage');
         const targetPageSelectElement = this.element.querySelector('#targetPage');
         this.lastTargetPage = targetPageSelectElement.value;
         targetPageSelectElement.addEventListener('change', (e) => {
             this.lastTargetPage = e.target.value;
         })
-        const nameInput = this.element.querySelector('#display-name');
-        this.lastSelectedPage = selectedPageSelectElement.value;
-        nameInput.value = this.lastSelectedPage;
-        selectedPageSelectElement.addEventListener('change', (e) => {
-            if (nameInput.value === '' || nameInput.value === this.lastSelectedPage) {
-                nameInput.value = e.target.value;
-                this.lastSelectedPage = e.target.value;
-            }
-            this.currentPage = e.target.value;
-        })
+
         const iconContainer = this.element.querySelector('.file-input-label span:first-child');
 
         if (this.icon) {
@@ -128,13 +119,15 @@ ${pages.map(pageData => {
     }
 
     async addMenuItem() {
+        const locationSelect = this.element.querySelector('#itemLocation');
         const form = this.element.querySelector('.application-form');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid && this.currentPage !== null) {
             const menuItem = {
                 icon: this.icon,
                 name: formData.data["display-name"],
-                targetPage: this.lastTargetPage
+                targetPage: this.lastTargetPage,
+                itemLocation: locationSelect.value
             }
             await spaceModule.addWebAssistantConfigurationPageMenuItem(this.spaceId, this.currentPage, menuItem)
             this.shouldInvalidate = true;

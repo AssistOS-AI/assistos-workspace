@@ -25,28 +25,32 @@ const generateId = () => {
     return `${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
 };
 
+
 const urlParams = new URLSearchParams(window.location.search);
 
-let chatId = urlParams.get("chatId") || null;
 const personalityId = urlParams.get("personalityId") || null;
 const spaceId = urlParams.get("spaceId") || null;
-
+const pageId= urlParams.get("pageId") || null;
 const appContainer = document.getElementById('app-container');
 
-const initializeChat = async function () {
-    let {userId = null} = parseCookies(document.cookie)
+let {userId = null} = parseCookies(document.cookie)
 
-    if (userId === null) {
-        userId = generateId()
-        setCookie("userId", userId)
-    }
+if (userId === null) {
+    userId = generateId()
+    setCookie("userId", userId)
+}
 
+
+const cacheNames = await caches.keys();
+await Promise.all(cacheNames.map(name => caches.delete(name)));
+
+async function getChatId(spaceId, personalityId) {
+    let chatId = urlParams.get("chatId") || null;
     if (!chatId) {
         let cookies = parseCookies(document.cookie)
         chatId = cookies.chatId
     }
-
-    if (!chatId) {
+    if (!chatId || chatId === "null") {
         try {
             const response = await fetch(`/public/chats/${spaceId}/${personalityId}`, {
                 method: "POST",
@@ -59,12 +63,18 @@ const initializeChat = async function () {
             setCookie("chatId", null)
         }
     }
-
-    appContainer.innerHTML = `<chat-page data-chatId="${chatId}" data-personalityId="${personalityId}" data-spaceId="${spaceId}" data-userId="${userId}" data-presenter="chat-page"></chat-page>`
+    return chatId;
 }
 
 if ('serviceWorker' in navigator) {
-    await navigator.serviceWorker.register('./serviceWorker.js');
+    navigator.serviceWorker.register('./serviceWorker.js')
+        .then(reg => {
+            reg.active.addEventListener('statechange', e => {
+                if (e.target.state === 'activated') {
+                    window.location.reload();
+                }
+            });
+        });
 }
 
 const webComponentsRootDir = './web-components';
@@ -86,10 +96,57 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
         directory: 'virtual',
         presenterClassName: data.presenterClassName,
     }
+
     await UI.defineComponent(component);
+
     return component;
 }
 
+let chatId = await getChatId(spaceId, personalityId);
+const component = window.UI.createElement(
+    'chat-page',
+    appContainer,
+    {chatId, personalityId, spaceId, userId, pageId},
+    {
+        "data-chatId": chatId,
+        "data-personalityId": personalityId,
+        "data-spaceId": spaceId,
+        "data-userId": userId,
+        "data-pageId": pageId
+    },
+    true
+);
 
+/* Example usage
+    component.chatId = "newId" // triggers re-render if set to observeProps -> better developer experience and less code
+    component.fetchChatMessages = (postId) =>fetch(postId) // dependency injection for better testing, modularity and reusability of components
 
-await initializeChat();
+    faster TTI -> component creation is no longer dependent on the html insertion of the component (after beforeRender)
+             -> tho even more performance is achieved by having the html template inserted into the dom pre beforeRender and after replace the placeholder variables with the actual values
+    component.addEventListener('click', (e) => {}) // adding event listeners to components
+
+ */
+
+/* new way of inserting components into DOM
+   UI.createElement('chat-item', '#conversation', {
+       role,
+       spaceId,
+       ownMessage,
+       id,
+       isContext,
+       messageIndex,
+       user,
+       dataLastItem
+   })
+   UI.createElement(previewWidgetName, '#preview-content-header');
+   UI.createElement(widgetName, '#preview-content-right', {
+            generalSettings: this.page.generalSettings,
+            data: this.page.data
+        });
+
+   old way of inserting components into DOM
+
+   this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+   this.previewContentRight = `<${widgetName} data-presenter="${widgetName}"></${widgetName}>`;
+   this.previewContentHeader = `<${previewWidgetName} data-presenter="${previewWidgetName}"></${previewWidgetName}>`;
+   */

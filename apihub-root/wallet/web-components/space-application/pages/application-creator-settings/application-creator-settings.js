@@ -17,6 +17,11 @@ const getConfiguration = async function (spaceId) {
     return configuration;
 }
 
+const getThemes = async function (spaceId) {
+    const themes = await spaceModule.getWebAssistantThemes(spaceId);
+    return themes;
+}
+
 export class ApplicationCreatorSettings {
     constructor(element, invalidate) {
         this.element = element;
@@ -35,16 +40,28 @@ export class ApplicationCreatorSettings {
         this.chatIndications = settings.chatIndications;
         this.theme = settings.theme;
         this.personality = settings.personality;
+
         this.header = settings.header;
+        this.footer = settings.footer;
+
+        const widgets = await getWidgets(this.spaceId);
 
         this.widgets = Object.entries(
-            (await getWidgets(this.spaceId)))
+            widgets)
             .map(([app, widgets]) =>
                 widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}`===this.header?"selected":""}>${app}/${widget.name}</option>`))
             .flat(2)
             .join('');
+
+        this.footers=Object.entries(
+            widgets)
+            .map(([app, widgets]) =>
+                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}`===this.footer?"selected":""}>${app}/${widget.name}</option>`))
+            .flat(2)
+            .join('');
+
         this.personalitiesOptions = (await getPersonalities(this.spaceId)).map(personality => `<option value="${personality.id}" ${this.personality === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
-        this.themes = `<option value="light" ${this.theme==="light"?"selected":""}>Light</option><option value="dark" ${this.theme==="dark"?"selected":""}>Dark</option>`;
+        this.themes = (await getThemes(this.spaceId)).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
     }
 
     async afterRender() {
@@ -63,6 +80,7 @@ export class ApplicationCreatorSettings {
                 theme: formData.data.selectedTheme,
                 personality: formData.data.selectedPersonality,
                 header: formData.data.selectedHeader,
+                footer: formData.data.selectedFooter,
                 chatIndications: chatIndications,
                 initialPrompt: initialPrompt
             }
@@ -70,4 +88,5 @@ export class ApplicationCreatorSettings {
             this.invalidate();
         }
     }
+
 }

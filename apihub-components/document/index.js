@@ -8,6 +8,15 @@ function document(server) {
     });
 
     server.use("/documents/*", bodyReader);
+    server.use("/documents/*", authentication);
+
+    server.put("/documents/upload/:spaceId", documentHandler.uploadDoc);
+    // Document
+    server.get("/documents/metadata/:spaceId", documentHandler.getDocumentsMetadata);
+    server.get("/documents/:spaceId/:documentId", documentHandler.getDocument);
+    server.post("/documents/:spaceId", documentHandler.createDocument);
+    server.put("/documents/:spaceId/:documentId", documentHandler.updateDocument);
+    server.delete("/documents/:spaceId/:documentId", documentHandler.deleteDocument);
 
     //Undo & Redo
     server.put("/documents/undo/:spaceId/:documentId", documentHandler.undoOperation);
@@ -29,6 +38,7 @@ function document(server) {
     server.get("/documents/export/:spaceId/:fileName", documentHandler.downloadDocumentArchive);
     server.post("/documents/import/:spaceId", documentHandler.importDocument);
     server.post("/documents/export/docx/:spaceId/:documentId", documentHandler.exportDocumentAsDocx);
+    server.post("/documents/export/html/:spaceId/:documentId", documentHandler.exportDocumentAsHTML);
 
     //Video
     server.get("/documents/video/:spaceId/:fileName", documentHandler.downloadDocumentVideo);

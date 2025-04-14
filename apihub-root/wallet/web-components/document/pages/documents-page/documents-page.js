@@ -88,6 +88,7 @@ export class DocumentsPage {
 
     async editAction(_target) {
         let documentId = this.getDocumentId(_target);
+        await assistOS
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
 
