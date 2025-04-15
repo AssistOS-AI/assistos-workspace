@@ -56,7 +56,7 @@ async function addSecret(spaceId, userId, secretName, secretKey, value) {
     const spaceAPIKeyObject = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
 
     if(spaceAPIKeyObject[secretKey]){
-        throw new Error("Secret Type already exists")
+        return
     }
     spaceAPIKeyObject[secretKey] = {
         ownerId: userId,
