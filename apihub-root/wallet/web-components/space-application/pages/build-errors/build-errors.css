@@ -1,10 +1,12 @@
 .build-errors-text{
     overflow: auto;
     padding: 5px;
-    min-height: 200px;
+    height: calc(100% - 20px);
+    width: 100%;
     border: 1px solid var(--very-light-gray);
     border-radius: 10px;
 }
 .build-errors-section{
-    width: 49%;
+    width: 100%;
+    height: calc(100% - 40px);
 }

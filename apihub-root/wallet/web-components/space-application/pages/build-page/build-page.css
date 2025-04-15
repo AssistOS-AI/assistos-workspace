@@ -8,10 +8,11 @@ build-page {
     font-weight: 600;
     color: var(--black);
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
-
+.build-page-title{
+    margin-right: 20px;
+}
 .build-check-container{
     margin-left: 10px;
 }
@@ -22,6 +23,7 @@ build-page {
 }
 .page-body{
     padding: 20px 30px 0 30px;
+    height: calc(100% - 133px);
 }
 
 .tabs{

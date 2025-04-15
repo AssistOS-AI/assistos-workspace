@@ -24,6 +24,7 @@ export class VariablesTab{
             categoryOptions += `<option value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
         }
         this.categoryOptions = categoryOptions;
+        this.docIdOptions = `<option value="">All</option>`;
     }
     renderVariables(){
         let variablesTable = this.element.querySelector(".variables-table");
@@ -32,7 +33,13 @@ export class VariablesTab{
         if(this.selectedDocument){
             variables = this.variables.filter(variable => variable.docId === this.selectedDocument);
         } else {
-            let documents = this.documents.filter(doc => doc.category === this.selectedCategory);
+            let documents;
+            if(this.selectedCategory === ""){
+                documents = this.documents;
+            } else {
+                documents = this.documents.filter(doc => doc.category === this.selectedCategory);
+            }
+
             let docIds = documents.map(doc => doc.docId);
             variables = this.variables.filter(variable => docIds.includes(variable.docId));
         }
@@ -52,9 +59,15 @@ export class VariablesTab{
         categorySelect.addEventListener("change", (event) => {
             let category = event.target.value;
             this.selectedCategory = category;
+            this.selectedDocument = "";
             let docIdOptions = `<option value="">All</option>`;
             this.renderVariables();
-            let documents = this.documents.filter(doc => doc.category === category);
+            let documents;
+            if(category === ""){
+                documents = [];
+            } else {
+                documents = this.documents.filter(doc => doc.category === category);
+            }
             for(let document of documents){
                 docIdOptions += `<option value="${document.docId}">${document.docId}</option>`;
             }
