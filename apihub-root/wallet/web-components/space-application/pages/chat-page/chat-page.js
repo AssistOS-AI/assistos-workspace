@@ -198,15 +198,15 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.personalities = await assistOS.space.getPersonalitiesMetadata();
+        /*this.personalities = await assistOS.space.getPersonalitiesMetadata();
         let personalitiesHTML = "";
         for (let personality of this.personalities) {
             personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
         }
-        this.personalitiesHTML = personalitiesHTML;
-        this.currentPersonalityName = assistOS.agent.agentData.name;
-        let llmName = assistOS.agent.agentData.llms.text;
-        let splitLLMName = llmName.split("/");
+        this.personalitiesHTML = personalitiesHTML;*/
+        this.currentPersonalityName = assistOS.agent.name;
+        let llmName = assistOS.agent.llms.text;
+        let splitLLMName = llmName?.split("/")||"No LLM Configured";
         if (splitLLMName.length > 1) {
             this.personalityLLM = splitLLMName[1];
         } else {

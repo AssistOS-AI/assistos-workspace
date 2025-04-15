@@ -7,6 +7,7 @@ const archiver = require("archiver");
 async function AgentWrapper() {
     let self = {};
     let AgentPlugin = await $$.loadPlugin("AgentPlugin");
+    let ChatPlugin = await $$.loadPlugin("ChatPlugin");
     self.copyDefaultAgents = async function (spacePath, spaceId) {
         let agentsFolder = '../apihub-components/globalServerlessAPI/default-agents';
         const files = await fsPromises.readdir(agentsFolder, {withFileTypes: true});
@@ -46,10 +47,11 @@ async function AgentWrapper() {
         let imageBuffer = await fsPromises.readFile(path.join(imagesPath, `${agent.imageId}.png`));
 
         //personality.imageId = await spaceModule.putImage(imageBuffer);
-        await AgentPlugin.createAgent(agent.name, agent.description, agent);
+        const chatId = await ChatPlugin.createChat(agent.name);
+
+        await AgentPlugin.createAgent(agent.name, agent.description,chatId);
     }
     self.getAgent = async function(id) {
-        //id can be name
         return await AgentPlugin.getAgent(id);
     }
 
@@ -72,7 +74,8 @@ async function AgentWrapper() {
         return await AgentPlugin.getAllAgentObjects();
     }
     self.createAgent = async function (name, description) {
-        return await AgentPlugin.createAgent(name, description);
+        const chatId = await ChatPlugin.createChat(agent.name);
+        return await AgentPlugin.createAgent(name, description,chatId);
     }
 
     self.getPersonalityImageUrl = async function (id) {
@@ -104,7 +107,8 @@ async function AgentWrapper() {
             await AgentPlugin.updateAgent(existingAgent.id, agentData);
             overwritten = true;
         } else {
-            let agent = await AgentPlugin.createAgent(agentData.name, agentData.description);
+            const chatId = await ChatPlugin.createChat(agentData.name);
+            let agent = await AgentPlugin.createAgent(agentData.name, agentData.description,chatId);
             await AgentPlugin.updateAgent(agent.id, agentData);
             agentId = agent.id;
         }
@@ -127,6 +131,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["AgentPlugin"];
+        return ["AgentPlugin","ChatPlugin"];
     }
 }

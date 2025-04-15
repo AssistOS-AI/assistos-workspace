@@ -1,8 +1,7 @@
 async function ChatPlugin() {
     const self = {};
 
-    const AgentPlugin = await $$.loadPlugin("AgentWrapper");
-    const Workspace = await $$.loadPlugin("Workspace");
+    const Workspace = await $$.loadPlugin("Documents");
     const Llm = await $$.loadPlugin("LLM");
 
     const checkApplyContextInstructions = async function (chatId, prompt) {
@@ -307,6 +306,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "AgentWrapper", "LLM"];
+        return ["Documents",  "LLM"];
     }
 }

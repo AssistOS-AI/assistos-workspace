@@ -9,8 +9,8 @@ export class SpaceApplicationPage {
     }
 
     async beforeRender() {
-        //const chatId = assistOS.agent.agentData.selectedChat || assistOS.agent.agentData.chats[0];
-        //this.chatPage = `<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
+        const chatId = assistOS.agent.selectedChat || assistOS.agent.chats[0];
+        this.chatPage = `<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
     }
 
     async afterRender() {

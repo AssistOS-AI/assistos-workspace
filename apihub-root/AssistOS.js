@@ -178,6 +178,7 @@ class AssistOS {
 
         defaultPlugins = await defaultPlugins.json();
         assistOS.space.plugins = defaultPlugins;
+        await this.loadAgent(assistOS.space.id);
         // let applicationPlugins = await applicationModule.getApplicationsPlugins(assistOS.space.id);
         // for (let pluginType in applicationPlugins) {
         //     if (!assistOS.space.plugins[pluginType]) {
@@ -195,10 +196,11 @@ class AssistOS {
             }
         }
         let agent;
+
         try {
             agent = await personalityModule.getAgent(spaceId, agentId);
         } catch (error) {
-            agent = personalityModule.getDefaultAgent(spaceId);
+            agent = await  personalityModule.getDefaultAgent(spaceId);
         }
         localStorage.setItem("agent", agent.id);
         assistOS.agent = agent;
