@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "variables-tab",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "VariablesTab"
+        },
+        {
+            "name": "build-errors",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "BuildErrors"
+        },
+        {
             "name": "build-page",
             "directory": "space-application",
             "type": "pages",
