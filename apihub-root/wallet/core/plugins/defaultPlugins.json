@@ -1,6 +1,30 @@
 {
     "document": [],
-    "infoText": [],
-    "chapter": [],
-    "paragraph": []
+    "infoText": [
+        {
+            "tooltip": "Edit Variables",
+            "component": "edit-variables",
+            "icon": "./wallet/assets/icons/variable.svg",
+            "presenter": "EditVariables",
+            "type": "embedded"
+        }
+    ],
+    "chapter": [
+        {
+            "tooltip": "Edit Variables",
+            "component": "edit-variables",
+            "icon": "./wallet/assets/icons/variable.svg",
+            "presenter": "EditVariables",
+            "type": "embedded"
+        }
+    ],
+    "paragraph": [
+        {
+            "tooltip": "Edit Variables",
+            "component": "edit-variables",
+            "icon": "./wallet/assets/icons/variable.svg",
+            "presenter": "EditVariables",
+            "type": "embedded"
+        }
+    ]
 }

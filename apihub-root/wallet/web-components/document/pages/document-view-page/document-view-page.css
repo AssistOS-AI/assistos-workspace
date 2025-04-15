@@ -339,8 +339,8 @@ html[theme="dark"] input.document-title{
 }
 /*plugins*/
 .plugin-circle{
-    width: 35px;
-    height: 35px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;

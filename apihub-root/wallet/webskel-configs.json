@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "variable-details",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "VariableDetails"
+        },
+        {
             "name": "variables-tab",
             "directory": "space-application",
             "type": "pages",

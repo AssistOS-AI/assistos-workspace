@@ -13,8 +13,8 @@ export class VariablesTab{
         let variablesHTML = "";
         for (let variable of this.variables) {
             variablesHTML +=
-                `<div class="cell">${variable.varName}</div>
-                 <div class="cell">${variable.varId}</div>
+                 `<div class="cell">${variable.varId}</div>
+                 <div class="cell">${variable.varName}</div>
                  <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                  <div class="cell pointer details" data-local-action="showDetails ${variable.id}">.........</div>`;
         }
@@ -88,8 +88,11 @@ export class VariablesTab{
     }
 
     async showDetails(_eventTarget, variableId) {
-        // await showModal("variable-details", {
-        //     "variable-id": variableId
-        // })
+        await assistOS.UI.showModal("variable-details", {
+             "variable-id": variableId
+         })
+    }
+    getVariable(id){
+        return this.variables.find(variable => variable.id === id);
     }
 }
