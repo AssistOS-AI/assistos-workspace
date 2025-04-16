@@ -1,15 +1,24 @@
 async function LLM() {
     const self = {};
     const BinariesExecutor = $$.loadPlugin("BinariesExecutor")
+    const persistence = await $$.loadPlugin("SpaceInstancePersistence");
 
-    const getApiKey = async (provider) => {
-        const service = {
-            getApiKeys: () => {
-                return {key1: "key1", key2: "key2"}
-            }
-        };
-        return service.getApiKeys(provider);
-    }
+    await persistence.configureTypes({
+        llm:{
+            id: "random",
+            name: "string",
+            provider: "string",
+            type: "string",
+            capabilities:"array string",
+            description: "string",
+            pricing:"object",
+            contextWindow: "integer",
+            knowledgeCuttoff: "date"
+        }
+    })
+    await persistence.createIndex("llm", "id");
+
+
 
     const buildArgs = function ({
                                     subcommand,
@@ -39,13 +48,27 @@ async function LLM() {
         return args;
     }
 
+    self.getRandomLlm = async function(){
+        const llms  = await persistence.getEveryLlmObject();
+        if (llms.length === 0) {
+            return null;
+        }
+        const randomIndex = Math.floor(Math.random() * llms.length);
+        return llms[randomIndex];
+    }
+    self.getLlmById = async function(id){
+        return await persistence.getLlm(id);
+    }
+
+    self.getLlmByName = async function(){
+        const llms  = persistence.getEveryLlmObject();
+        for (const llm of llms) {
+            if (llm.name === name) {
+                return llm;
+            }
+        }
+    }
     self.getTextResponse = async ({provider, apiKey, model, prompt, options = {}}) => {
-        if (!apiKey) {
-            apiKey = await getApiKey(provider);
-        }
-        if (!apiKey) {
-            throw new Error("API key should be given as an argument or set as a space secret");
-        }
         const args = buildArgs({
             subcommand: "generateText",
             apiKey,
@@ -57,12 +80,7 @@ async function LLM() {
     }
 
     self.getTextStreamingResponse = async ({provider, apiKey, model, prompt, options = {}, onDataChunk}) => {
-        if (!apiKey) {
-            apiKey = await getApiKey(provider);
-        }
-        if (!apiKey) {
-            throw new Error("API key should be given as an argument or set as a space secret");
-        }
+
         const args = buildArgs({
             subcommand: "generateTextStreaming",
             apiKey,
@@ -75,12 +93,7 @@ async function LLM() {
     }
 
     self.getChatCompletionResponse = async ({provider, apiKey, model, messages, options = {}}) => {
-        if (!apiKey) {
-            apiKey = await getApiKey(provider);
-        }
-        if (!apiKey) {
-            throw new Error("API key should be given as an argument or set as a space secret");
-        }
+
         const args = buildArgs({
             subcommand: "getChatCompletion",
             apiKey,
@@ -99,12 +112,7 @@ async function LLM() {
                                                          options = {},
                                                          onDataChunk
                                                      }) => {
-        if (!apiKey) {
-            apiKey = await getApiKey(provider);
-        }
-        if (!apiKey) {
-            throw new Error("API key should be given as an argument or set as a space secret");
-        }
+
         const args = buildArgs({
             subcommand: "getChatCompletionStreaming",
             apiKey,
@@ -134,6 +142,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "BinariesExecutor"];
+        return ["Workspace", "BinariesExecutor","SpaceInstancePersistence"];
     }
 };

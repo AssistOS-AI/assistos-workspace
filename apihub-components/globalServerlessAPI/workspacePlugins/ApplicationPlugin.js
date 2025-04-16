@@ -99,6 +99,16 @@ async function ApplicationPlugin() {
             }
             return Promise.all(promises)
         }
+        if (manifest.objects) {
+            const promises = Object.entries(manifest.objects).flatMap(([type, value]) => {
+                type= type.charAt(0).toUpperCase() + type.slice(1);
+                const fn = persistence[`create${type}`];
+                return Array.isArray(value) ? value.map(fn) : [fn(value)];
+            });
+            await Promise.all(promises);
+        }
+
+
         const copyDir = async (src, dest) => {
             await fsPromises.mkdir(dest, { recursive: true })
             const entries = await fsPromises.readdir(src, { withFileTypes: true })
@@ -120,9 +130,7 @@ async function ApplicationPlugin() {
             for (const entry of entries) {
                 if (entry.isDirectory()) {
                     const srcBin= path.join(binariesPath, entry.name,`${entry.name}.js`)
-                    const outputBin = path.join(binariesPath, entry.name,'bin',entry.name);
                     await fsPromises.copyFile(srcBin, path.join(binariesDest, `${entry.name}.js`))
-                    await fsPromises.copyFile(outputBin,path.join(binariesDest, `${entry.name}` ));
                 }
             }
         }

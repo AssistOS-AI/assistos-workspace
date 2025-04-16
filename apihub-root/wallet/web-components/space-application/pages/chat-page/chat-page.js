@@ -1,3 +1,6 @@
+const agentModule = require("assistos").loadModule("agent", {});
+const chatModule = require("assistos").loadModule("chat", {});
+
 const generateRequest = function (method, headers = {}, body = null) {
     return async function (url) {
         const response = await fetch(url, {
@@ -18,17 +21,6 @@ const createNewChat = async (spaceId, personalityId) => {
     const response = await request(`/chats/${spaceId}/${personalityId}`);
     return response.data.chatId;
 };
-const getChatMessages = async (spaceId, chatId) => {
-    const request = generateRequest("GET");
-    const response = await request(`/chats/${spaceId}/${chatId}`);
-    return response.data;
-
-};
-const getChatContext = async (spaceId, chatId) => {
-    const request = generateRequest("GET");
-    const response = await request(`/chats/context/${spaceId}/${chatId}`);
-    return response.data;
-}
 
 const sendMessage = async (spaceId, chatId, message) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
@@ -36,11 +28,6 @@ const sendMessage = async (spaceId, chatId, message) => {
     return response.data.messageId;
 };
 
-const getPersonality = async (spaceId, personalityId) => {
-    const request = generateRequest("GET", {"Content-Type": "application/json"});
-    const response = await request(`/personalities/${spaceId}/${personalityId}`)
-    return response.data;
-}
 
 const resetChat = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
@@ -50,32 +37,6 @@ const resetChat = (spaceId, chatId) => {
 const resetChatContext = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
     return request(`/chats/reset/context/${spaceId}/${chatId}`)
-}
-
-function unsanitize(value) {
-    if (value != null && typeof value === "string") {
-        return value.replace(/&nbsp;/g, ' ')
-            .replace(/&#13;/g, '\n')
-            .replace(/&amp;/g, '&')
-            .replace(/&#39;/g, "'")
-            .replace(/&quot;/g, '"')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>');
-    }
-    return '';
-}
-
-function sanitize(value) {
-    if (value != null && typeof value === "string") {
-        return value.replace(/&/g, '&amp;')
-            .replace(/'/g, '&#39;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\r\n/g, '&#13;')
-            .replace(/[\r\n]/g, '&#13;').replace(/\s/g, '&nbsp;');
-    }
-    return value;
 }
 
 const sendMessageActionButtonHTML = `  
@@ -150,10 +111,110 @@ class BaseChatFrame {
         this.agentOn = true;
         this.ongoingStreams = new Map();
         this.observedElement = null;
+        this.spaceId = this.element.getAttribute('data-spaceId');
+        this.agent = assistOS.agent;
         this.userHasScrolledManually = false;
         if (IFrameContext) {
             this.invalidate();
         }
+    }
+
+    async beforeRender() {
+        this.personalities = await agentModule.getAgents(this.spaceId);
+
+        let personalitiesHTML = "";
+        for (let personality of this.personalities) {
+            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
+        }
+
+        this.personalitiesHTML = personalitiesHTML;
+
+        this.currentPersonalityName = this.agent.name;
+
+        let llmName = this.agent.selectedChat;
+        let splitLLMName = llmName?.split("/") || "No LLM Configured";
+        if (splitLLMName.length > 1) {
+            this.personalityLLM = splitLLMName[1];
+        } else {
+            this.personalityLLM = llmName;
+        }
+
+        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
+        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
+        this.spaceNameTooltip = assistOS.space.name;
+        this.personalityLLMTooltip = llmName;
+        this.chatOptions = IFrameChatOptions;
+
+        this.chatId = this.element.getAttribute('data-chatId');
+        this.personalityId = this.element.getAttribute('data-personalityId');
+        this.spaceId = this.element.getAttribute('data-spaceId');
+        this.userId = this.element.getAttribute('data-userId');
+
+        try {
+            this.chatMessages = await chatModule.getChatMessages(this.spaceId, this.chatId)
+        } catch (error) {
+            this.errorState = true;
+        }
+
+        this.chatActionButton = sendMessageActionButtonHTML
+
+        this.stringHTML = "";
+        for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
+            const chatMessage = this.chatMessages[messageIndex]
+            let role = getChatItemRole(chatMessage)
+
+            if (!role) {
+                continue;
+            }
+
+            const user = getChatItemUser(chatMessage);
+            let ownMessage = false;
+
+            if (user === this.userId || role === "user" && IFrameContext) {
+                ownMessage = true;
+            }
+            let isContext = chatMessage.commands?.replay?.isContext || "false";
+
+            if (messageIndex === this.chatMessages.length - 1) {
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+            } else {
+                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+            }
+        }
+        this.spaceConversation = this.stringHTML;
+
+
+    }
+
+    async afterRender() {
+        this.conversation = this.element.querySelector(".conversation");
+        this.userInput = this.element.querySelector("#input");
+        this.form = this.element.querySelector(".chat-input-container");
+
+        this.userInput.addEventListener("keydown", this.preventRefreshOnEnter.bind(this, this.form));
+        this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
+        this.conversation.addEventListener('scroll', () => {
+            const threshold = 300;
+            const distanceFromBottom =
+                this.conversation.scrollHeight
+                - this.conversation.scrollTop
+                - this.conversation.clientHeight;
+            this.userHasScrolledManually = distanceFromBottom > threshold;
+        });
+        this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
+        this.maxHeight = 500;
+        const maxHeight = 500;
+        const form = this.form;
+        this.userInput.addEventListener('input', function (event) {
+            this.style.height = "auto";
+            this.style.height = Math.min(this.scrollHeight, maxHeight) + "px";
+            this.style.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
+            form.height = "auto";
+            form.height = Math.min(this.scrollHeight, maxHeight) + "px";
+            form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
+        });
+
+        this.initObservers();
     }
 
     async handleChatEvent(eventData) {
@@ -197,98 +258,6 @@ class BaseChatFrame {
         }
     }
 
-    async beforeRender() {
-        /*this.personalities = await assistOS.space.getPersonalitiesMetadata();
-        let personalitiesHTML = "";
-        for (let personality of this.personalities) {
-            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
-        }
-        this.personalitiesHTML = personalitiesHTML;*/
-        this.currentPersonalityName = assistOS.agent.name;
-        let llmName = assistOS.agent.llms.text;
-        let splitLLMName = llmName?.split("/")||"No LLM Configured";
-        if (splitLLMName.length > 1) {
-            this.personalityLLM = splitLLMName[1];
-        } else {
-            this.personalityLLM = llmName;
-        }
-        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
-        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
-        this.spaceNameTooltip = assistOS.space.name;
-        this.personalityLLMTooltip = llmName;
-        this.chatOptions = IFrameChatOptions;
-        this.chatId = this.element.getAttribute('data-chatId');
-        this.personalityId = this.element.getAttribute('data-personalityId');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
-
-        try {
-            this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
-        } catch (error) {
-            this.errorState = true;
-        }
-
-        this.chatActionButton = sendMessageActionButtonHTML
-
-
-        this.stringHTML = "";
-        for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
-            const chatMessage = this.chatMessages[messageIndex]
-            let role = getChatItemRole(chatMessage)
-
-            if (!role) {
-                continue;
-            }
-
-            const user = getChatItemUser(chatMessage);
-            let ownMessage = false;
-
-            if (user === this.userId || role === "user" && IFrameContext) {
-                ownMessage = true;
-            }
-            let isContext = chatMessage.commands?.replay?.isContext || "false";
-
-            if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-            } else {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
-            }
-        }
-        this.spaceConversation = this.stringHTML;
-
-
-    }
-
-    async afterRender() {
-
-        this.conversation = this.element.querySelector(".conversation");
-        this.userInput = this.element.querySelector("#input");
-        this.form = this.element.querySelector(".chat-input-container");
-        this.userInput.addEventListener("keydown", this.preventRefreshOnEnter.bind(this, this.form));
-        this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
-        this.conversation.addEventListener('scroll', () => {
-            const threshold = 300;
-            const distanceFromBottom =
-                this.conversation.scrollHeight
-                - this.conversation.scrollTop
-                - this.conversation.clientHeight;
-            this.userHasScrolledManually = distanceFromBottom > threshold;
-        });
-        this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
-        this.maxHeight = 500;
-        const maxHeight = 500;
-        const form = this.form;
-        this.userInput.addEventListener('input', function (event) {
-            this.style.height = "auto";
-            this.style.height = Math.min(this.scrollHeight, maxHeight) + "px";
-            this.style.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
-            form.height = "auto";
-            form.height = Math.min(this.scrollHeight, maxHeight) + "px";
-            form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
-        });
-        this.initObservers();
-    }
-
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -303,27 +272,27 @@ class BaseChatFrame {
     }
 
     async sendQuery(spaceId, chatId, personalityId, prompt, responseContainerLocation) {
-        const controller = new AbortController();
-        const requestData = {prompt}
-        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            signal: controller.signal,
-            body: JSON.stringify(requestData),
-        });
-        if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-            return;
-        }
-        const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
-        const {
-            userMessageId,
-            responseMessageId
-        } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
-        return {userMessageId, responseMessageId};
+         const controller = new AbortController();
+         const requestData={prompt}
+         const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
+               method: 'POST',
+               headers: {
+                   'Content-Type': 'application/json',
+               },
+               signal: controller.signal,
+               body: JSON.stringify(requestData),
+           });
+           if (!response.ok) {
+               const error = await response.json();
+               alert(`Error: ${error.message}`);
+               return;
+           }
+           const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
+           const {
+               userMessageId,
+               responseMessageId
+           } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
+           return {userMessageId, responseMessageId};
     };
 
     async sendMessage(_target) {
@@ -356,7 +325,12 @@ class BaseChatFrame {
 
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
-            const {
+            const llmResponse = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.personalityId,assistOS.user.id,userRequestMessage);
+            const responseElement = streamLocationElement.closest('chat-item');
+            responseElement.setAttribute(`id`, responseMessageId);
+            responseElement.webSkelPresenter.invalidate();
+
+         /*   const {
                 userMessageId,
                 responseMessageId
             } = await this.sendQuery(this.spaceId, this.chatId, this.personalityId, userRequestMessage, streamLocationElement)
@@ -364,9 +338,9 @@ class BaseChatFrame {
             element.webSkelPresenter.invalidate();
             const responseElement = streamLocationElement.closest('chat-item');
             responseElement.setAttribute(`id`, responseMessageId);
-            responseElement.webSkelPresenter.invalidate();
+            responseElement.webSkelPresenter.invalidate();*/
         } else {
-            messageId = await sendMessage(this.spaceId, this.chatId, userRequestMessage)
+            messageId = await chatModule.sendMessage(this.spaceId, this.chatId, assistOS.user.id, userRequestMessage, "user")
             element.setAttribute(`id`, messageId);
             element.webSkelPresenter.invalidate();
         }
@@ -473,6 +447,7 @@ class BaseChatFrame {
     async dataStreamContainer(response, responseContainerLocation, controller, trackedValuesSet) {
         const responseContainerPresenter = responseContainerLocation.closest("[data-presenter]")?.webSkelPresenter;
         const reader = response.body.getReader();
+
         await responseContainerPresenter.handleStartStream(controller);
 
         const decoder = new TextDecoder("utf-8");
@@ -606,7 +581,6 @@ if (IFrameContext) {
             await super.beforeRender();
             if (this.isSubscribed === undefined) {
                 this.isSubscribed = true;
-                await assistOS.NotificationRouter.subscribeToDocument(this.chatId, "chat", this.handleChatEvent.bind(this));
             }
             this.chatOptions = chatOptions;
             this.toggleAgentResponseButton = `
@@ -617,13 +591,13 @@ if (IFrameContext) {
 
         async afterRender() {
             await super.afterRender()
-
-            await document.querySelector('left-sidebar')?.webSkelPresenter?.toggleChat(undefined, assistOS.UI.chatState, assistOS.UI.chatWidth);
+            await document.querySelector('left-sidebar')?.webSkelPresenter?.toggleChat(undefined, UI.chatState, UI.chatWidth);
             const agentToggleCheckbox = this.element.querySelector('#chat-toggle')
             agentToggleCheckbox.addEventListener('change', this.toggleAgentResponse.bind(this));
         }
+
         setSpaceContainer() {
-            if(!this.spaceContainer){
+            if (!this.spaceContainer) {
                 this.spaceContainer = document.getElementById("space-page-container");
             }
             return this.spaceContainer;
@@ -645,8 +619,8 @@ if (IFrameContext) {
             this.spaceContainer.style.display = "flex";
             agentPage.style.width = "calc(50vw - 37.5px)";
             agentPage.style.minWidth = "calc(50vw - 37.5px)";
-            this.spaceContainer.style.width="calc(50vw - 37.5px)";
-            this.spaceContainer.style.minWidth="calc(50vw - 37.5px)";
+            this.spaceContainer.style.width = "calc(50vw - 37.5px)";
+            this.spaceContainer.style.minWidth = "calc(50vw - 37.5px)";
         }
 
         async toggleThirdScreen(_target) {
@@ -656,21 +630,22 @@ if (IFrameContext) {
             this.spaceContainer.style.display = "flex";
             agentPage.style.width = "calc(30vw - 37.5px)";
             agentPage.style.minWidth = "calc(30vw - 37.5px)";
-            this.spaceContainer.style.width="calc(70vw - 37.5px)";
-            this.spaceContainer.style.minWidth="calc(70vw - 37.5px)";
+            this.spaceContainer.style.width = "calc(70vw - 37.5px)";
+            this.spaceContainer.style.minWidth = "calc(70vw - 37.5px)";
         }
 
         async toggleMinimizeScreen(_target) {
             this.setSpaceContainer();
             const agentPage = this.element
-            assistOS.UI.chatState = "minimized";
+            UI.chatState = "minimized";
             agentPage.style.display = "none";
             agentPage.style.width = "0px";
-            agentPage.style.minWidth="0px";
+            agentPage.style.minWidth = "0px";
             this.spaceContainer.style.display = "flex";
-            this.spaceContainer.style.width="calc(100vw - 75px)";
-            this.spaceContainer.style.minWidth="calc(100vw - 75px)";
+            this.spaceContainer.style.width = "calc(100vw - 75px)";
+            this.spaceContainer.style.minWidth = "calc(100vw - 75px)";
         }
+
         async swapPersonality(_target, id) {
             await assistOS.changeAgent(id);
             this.invalidate();
@@ -692,6 +667,7 @@ if (IFrameContext) {
                 _target.setAttribute("data-local-action", "showPersonalities on");
             }
         }
+
         async toggleAgentResponse(_target) {
             this.agentOn = !this.agentOn;
             localStorage.setItem("agentOn", this.agentOn);
