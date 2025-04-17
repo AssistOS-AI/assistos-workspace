@@ -7,9 +7,28 @@ const archiver = require("archiver");
 async function AgentWrapper() {
     let self = {};
 
-    let AgentPlugin = await $$.loadPlugin("AgentPlugin");
-    let ChatPlugin = await $$.loadPlugin("ChatPlugin");
+    const AgentPlugin = await $$.loadPlugin("AgentPlugin");
+    const ChatPlugin = await $$.loadPlugin("ChatPlugin");
     const Llm = await $$.loadPlugin("LLM");
+    const persistence = await $$.loadPlugin("SpaceInstancePersistence");
+
+    await persistence.configureTypes({
+            agent: {
+                id: "random",
+                name: "string",
+                description: "string",
+                imageId: "string",
+                chatPrompt: "string",
+                chats: "array document",
+                contextSize: "integer",
+                voiceId: "string",
+                selectedChat: "string",
+                selectedTextLlm: "llm",
+                selectedChatLlm: "llm",
+                telegramBot: "any",
+            }
+        }
+    )
 
     self.copyDefaultAgents = async function (spacePath, spaceId) {
         let agentsFolder = '../apihub-components/globalServerlessAPI/default-agents';
@@ -35,15 +54,12 @@ async function AgentWrapper() {
         if (!agent.chats) {
             agent.chats = [];
         }
-
         agent.chats.push(chatId);
         agent.selectedChat = chatId;
 
         await self.updateAgent(agent.id, {...agent});
     }
-    self.addChatToAgent = async function (agentId, chatId) {
-        return await self.addChat(agentId, chatId)
-    }
+
     self.removeChatFromAgent = async function (agentId, chatId) {
         let agent = await self.getAgent(agentId);
         agent.chats = agent.chats.filter(c => c !== chatId);
@@ -104,7 +120,6 @@ async function AgentWrapper() {
         archive.finalize();
         return stream;
     }
-
     self.importAgent = async function (extractedPath) {
         const agentPath = path.join(extractedPath, 'data.json');
         const fileContent = await fsPromises.readFile(agentPath, 'utf8');
@@ -125,6 +140,23 @@ async function AgentWrapper() {
         }
         return {id: agentId, overwritten: overwritten, name: agentData.name};
     }
+
+    const getApiKey = async function (provider) {
+        const API_KEYS = JSON.parse(process.env.API_KEYS)
+        const keyTypes = Object.values(API_KEYS)
+        const apiKey = keyTypes.find(obj => {
+            return obj.name === provider;
+        })
+        return apiKey.value;
+    }
+    const getCurrentAgentChatLlm = async function (agentId) {
+        const agent = await AgentPlugin.getAgent(agentId);
+        if (!agent) {
+            throw new Error("Agent not found");
+        }
+        return await Llm.getRandomLlm(agent.selectedChatLlm);
+    }
+
     self.sendQuery = async function (chatId, personalityId, userId, userPrompt) {
         const checkApplyContextInstructions = async function (chatId, prompt) {
             const generateMemoizationPrompt = (prompt) => `
@@ -183,18 +215,6 @@ async function AgentWrapper() {
             }
         }
 
-        const unSanitize = function (value) {
-            if (value != null && typeof value === "string") {
-                return value.replace(/&nbsp;/g, ' ')
-                    .replace(/&#13;/g, '\n')
-                    .replace(/&amp;/g, '&')
-                    .replace(/&#39;/g, "'")
-                    .replace(/&quot;/g, '"')
-                    .replace(/&lt;/g, '<')
-                    .replace(/&gt;/g, '>');
-            }
-            return '';
-        }
         const applyChatPrompt = function (chatPrompt, userPrompt, context, personalityDescription) {
             return `${chatPrompt}
             **Your Identity**
@@ -207,10 +227,11 @@ async function AgentWrapper() {
             ${userPrompt}
     `;
         }
-        const buildContext = async function (chatId, agentId) {
-            const chat = await Workspace.getDocument(chatId);
-            const {chatPrompt, contextSize} = await AgentWrapper.getAgent(agentId);
 
+        const buildContext = async function (chatId, agentId) {
+            const chat = await ChatPlugin.getChat(chatId);
+
+            const {chatPrompt, contextSize} = await self.getAgent(agentId);
 
             const contextChapter = chat.chapters.find(chapter => chapter.title === "Context");
             const messagesChapter = chat.chapters.find(chapter => chapter.title === "Messages");
@@ -224,10 +245,6 @@ async function AgentWrapper() {
 
         let {chatPrompt, description} = await AgentWrapper.getAgent(personalityId);
 
-        chatPrompt = unSanitize(chatPrompt);
-        userPrompt = unSanitize(userPrompt);
-        description = unSanitize(description);
-
         const context = buildContext(chatId, personalityId);
 
         const combinedQueryPrompt = applyChatPrompt(chatPrompt, userPrompt, context, description);
@@ -239,44 +256,32 @@ async function AgentWrapper() {
         await checkApplyContextInstructions(chatId, userPrompt, userId);
         return message;
     }
-
     self.sendStreamingQuery = async function (chatId, personalityId, userId, userPrompt) {
-        /*TODO: TBD when a streaming strategy is implemented */
         return self.sendQuery(chatId, personalityId, userId, userPrompt);
     }
 
-    const getCurrentAgentChatLlm = async function (agentId) {
-        const agent = await AgentPlugin.getAgent(agentId);
-        if (!agent) {
-            throw new Error("Agent not found");
-        }
-        return await Llm.getRandomLlm(agent.selectedChatLlm);
-    }
 
-    const getApiKey = async function (provider) {
-        const API_KEYS = JSON.parse(process.env.API_KEYS)
-        const keyTypes = Object.values(API_KEYS)
-        const apiKey= keyTypes.find(obj => {
-            return obj.name === provider;
-        })
-        return apiKey.value;
-    }
     self.sendChatQuery = async function (chatId, agentId, userId, prompt) {
+        const userMessage = await ChatPlugin.sendMessage(chatId, userId, prompt, "user");
+
         const model = await getCurrentAgentChatLlm(agentId);
         const apiKey = await getApiKey(model.provider);
+
         const llmResponse = await Llm.getChatCompletionResponse({
             provider: model.provider,
             model: model.name,
             apiKey,
-            prompt
+            messages:prompt
         })
-        const message = await ChatPlugin.sendMessage(chatId, userId, llmResponse, "assistant");
-        return message;
+        const message = await ChatPlugin.sendMessage(chatId, agentId, llmResponse, "assistant");
+        return {
+            id: message.id
+        };
     }
-
     self.sendChatStreamingQuery = async function (chatId, personalityId, userId, userPrompt) {
         return await self.sendChatQuery(chatId, personalityId, userId, userPrompt);
     }
+
     return self;
 }
 

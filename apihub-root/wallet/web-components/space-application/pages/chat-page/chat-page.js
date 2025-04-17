@@ -22,11 +22,7 @@ const createNewChat = async (spaceId, personalityId) => {
     return response.data.chatId;
 };
 
-const sendMessage = async (spaceId, chatId, message) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
-    const response = await request(`/chats/message/${spaceId}/${chatId}`);
-    return response.data.messageId;
-};
+
 
 
 const resetChat = (spaceId, chatId) => {
@@ -146,7 +142,7 @@ class BaseChatFrame {
         this.chatOptions = IFrameChatOptions;
 
         this.chatId = this.element.getAttribute('data-chatId');
-        this.personalityId = this.element.getAttribute('data-personalityId');
+        this.agentId = this.element.getAttribute('data-personalityId');
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
@@ -169,7 +165,6 @@ class BaseChatFrame {
 
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
-
             if (user === this.userId || role === "user" && IFrameContext) {
                 ownMessage = true;
             }
@@ -325,15 +320,16 @@ class BaseChatFrame {
 
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
-            const llmResponse = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.personalityId,assistOS.user.id,userRequestMessage);
+            let currentMessageIndex = this.chatMessages.length - 1;
+            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId,assistOS.user.id,userRequestMessage);
+            this.chatMessages[currentMessageIndex]= await chatModule.getChatMessage(this.spaceId, this.chatId, id);
             const responseElement = streamLocationElement.closest('chat-item');
-            responseElement.setAttribute(`id`, responseMessageId);
+            responseElement.setAttribute(`id`, id);
             responseElement.webSkelPresenter.invalidate();
-
          /*   const {
                 userMessageId,
                 responseMessageId
-            } = await this.sendQuery(this.spaceId, this.chatId, this.personalityId, userRequestMessage, streamLocationElement)
+            } = await this.sendQuery(this.spaceId, this.chatId, this.agentId, userRequestMessage, streamLocationElement)
             element.setAttribute(`id`, userMessageId);
             element.webSkelPresenter.invalidate();
             const responseElement = streamLocationElement.closest('chat-item');
@@ -427,22 +423,21 @@ class BaseChatFrame {
     async createChatUnitResponse() {
         this.chatMessages.push(
             {
-                text: "Thinking ...",
+                text: "Processing Request ... ",
                 commands: {
                     replay: {
                         role: "assistant",
-                        name: this.personalityId
+                        name: this.agentId
                     }
                 }
             }
         )
 
-        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
+        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.agentId}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
 
         return await waitForElement(this.conversation.lastElementChild, '.message');
     }
-
 
     async dataStreamContainer(response, responseContainerLocation, controller, trackedValuesSet) {
         const responseContainerPresenter = responseContainerLocation.closest("[data-presenter]")?.webSkelPresenter;
@@ -509,7 +504,7 @@ class BaseChatFrame {
     }
 
     async newConversation(target) {
-        const chatId = await createNewChat(this.spaceId, this.personalityId);
+        const chatId = await createNewChat(this.spaceId, this.agentId);
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;

@@ -1,24 +1,23 @@
 async function LLM() {
     const self = {};
+
     const BinariesExecutor = $$.loadPlugin("BinariesExecutor")
     const persistence = await $$.loadPlugin("SpaceInstancePersistence");
 
     await persistence.configureTypes({
-        llm:{
+        llm: {
             id: "random",
             name: "string",
             provider: "string",
             type: "string",
-            capabilities:"array string",
+            capabilities: "array string",
             description: "string",
-            pricing:"object",
+            pricing: "object",
             contextWindow: "integer",
             knowledgeCuttoff: "date"
         }
     })
     await persistence.createIndex("llm", "id");
-
-
 
     const buildArgs = function ({
                                     subcommand,
@@ -48,26 +47,39 @@ async function LLM() {
         return args;
     }
 
-    self.getRandomLlm = async function(){
-        const llms  = await persistence.getEveryLlmObject();
+    self.getRandomLlm = async function () {
+        const llms = await persistence.getEveryLlmObject();
         if (llms.length === 0) {
             return null;
         }
-        const randomIndex = Math.floor(Math.random() * llms.length);
-        return llms[randomIndex];
+        for(let llm of llms){
+            if(llm.provider=== "OpenAI" && llm.name === "gpt-4o"){
+                return llm;
+            }
+        }
     }
-    self.getLlmById = async function(id){
+
+    self.getModels= async function () {
+        return await persistence.getEveryLlmObject();
+    }
+    self.getProviderModels = async function (provider) {
+        const llms = await persistence.getEveryLlmObject();
+        return llms.filter(llm => llm.provider === provider);
+    }
+
+    self.getLlmById = async function (id) {
         return await persistence.getLlm(id);
     }
 
-    self.getLlmByName = async function(){
-        const llms  = persistence.getEveryLlmObject();
+    self.getLlmByName = async function (name) {
+        const llms = persistence.getEveryLlmObject();
         for (const llm of llms) {
             if (llm.name === name) {
                 return llm;
             }
         }
     }
+
     self.getTextResponse = async ({provider, apiKey, model, prompt, options = {}}) => {
         const args = buildArgs({
             subcommand: "generateText",
@@ -117,7 +129,7 @@ async function LLM() {
             subcommand: "getChatCompletionStreaming",
             apiKey,
             model,
-            promptOrMessages: messages,
+            prompt: messages,
             options,
             streaming: true
         });
@@ -142,6 +154,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "BinariesExecutor","SpaceInstancePersistence"];
+        return ["Workspace", "BinariesExecutor", "SpaceInstancePersistence"];
     }
 };

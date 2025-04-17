@@ -2,11 +2,12 @@ async function ChatPlugin() {
     const self = {};
 
     const Document = await $$.loadPlugin("Documents");
-    const Llm = await $$.loadPlugin("LLM");
-
 
     self.getChat = async function (chatId) {
         return await Document.getDocument(chatId);
+    }
+    self.getChatMessage = async function (chatId, messageId){
+        return await Document.getParagraph(messageId);
     }
     self.getChatMessages = async function (chatId) {
         const chat = await Document.getDocument(chatId);
@@ -38,6 +39,7 @@ async function ChatPlugin() {
     self.deleteChat = async function (chatId) {
         return await Document.deleteDocument(chatId);
     }
+
     self.resetChat = async function (chatId) {
         const chat = await Document.getDocument(chatId);
         const chapters = await Promise.all(chat.chapters.map(chapter => Document.getChapter(chapter)));
@@ -49,7 +51,6 @@ async function ChatPlugin() {
             ...contextChapter.paragraphs.map(paragraph => Document.deleteParagraph(contextChapter.id, paragraph.id))
         ]);
     }
-
     self.resetChatContext = async function (chatId) {
         const chat = await Document.getDocument(chatId);
         const chapters = await Promise.all(chat.chapters.map(chapter => Document.getChapter(chapter)));
@@ -151,7 +152,6 @@ async function ChatPlugin() {
         return await Document.updateParagraph(contextChapter.id, contextItemId, newText, contextItem.commands, contextItem.comments);
     }
 
-
     self.sendMessage = async function (chatId, userId, message, role) {
         const chat = await Document.getDocument(chatId);
         let chapterId;
@@ -176,7 +176,6 @@ async function ChatPlugin() {
 
 
     }
-
     self.sendStreamingQuery = async function (chatId, personalityId, userId, userPrompt) {
         return self.sendQuery(chatId, personalityId, userId, userPrompt);
     }

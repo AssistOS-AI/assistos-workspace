@@ -1,7 +1,3 @@
-const getUserProfileImage = async (userId) => {
-    const response = await fetch(`/users/profileImage/${userId}`);
-    return (await response.json()).data.downloadURL;
-}
 const getPersonalityImageUrl = async (spaceId, personalityId) => {
     const response = await fetch(`/spaces/${spaceId}/personalities/${personalityId}/image`);
     const jsonResponse = await response.json();
@@ -76,6 +72,7 @@ export class ChatItem {
         let messageIndex = this.element.getAttribute("messageIndex");
         this.message = this.chatPagePresenter.getMessage(messageIndex);
         this.chatMessage = this.message.text;
+
         this.ownMessage = this.element.getAttribute("ownMessage");
         this.user = this.element.getAttribute("user");
         this.role = this.element.getAttribute("role");

@@ -1,4 +1,5 @@
 const agentModule = require("assistos").loadModule("agent", {});
+const llmModule = require("assistos").loadModule("llm", {});
 const spaceModule = require("assistos").loadModule("space", {});
 const constants = require("assistos").constants;
 
@@ -7,36 +8,38 @@ export class EditAgentPage {
         this.element = element;
         this.invalidate = invalidate;
         let urlParts = window.location.hash.split("/");
-        this.refreshAgent = async () => {
-            this.agent = await agentModule.getAgent(assistOS.space.id, urlParts[3]);
-        }
-        this.currentTab = urlParts[4];
-        if(!this.currentTab){
+        this.spaceId = assistOS.space.id;
+        this.agentId = urlParts[urlParts.length - 1];
+        if (!this.currentTab) {
             this.currentTab = "agent-description";
         }
-        this.invalidate(async () => {
-            await this.refreshAgent();
-            this.initialAgent = JSON.parse(JSON.stringify(this.agent));
-            this.agentName = this.agent.name;
-            this.boundOnAgentUpdate = this.onAgentUpdate.bind(this);
-            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.agent.id, this.boundOnAgentUpdate);
-        });
-    }
-
-    async onAgentUpdate(type) {
-        if (type === "delete") {
-            await this.openAgentsPage();
-            alert("The agent has been deleted");
-        } else {
-            this.invalidate(this.refreshAgent);
-        }
+        this.invalidate();
     }
 
     async beforeRender() {
-        this.deleteAgentButton=`<div class="delete-agent" data-local-action="deleteAgent">Delete agent</div>`;
+        this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
+        const llms = await llmModule.getModels({spaceId: this.spaceId});
+        this.llmTabs = this.getLlmTabsHtml(llms);
+        this.deleteAgentButton = `<div class="delete-agent" data-local-action="deleteAgent">Delete agent</div>`;
         if (this.agent.name === constants.DEFAULT_AGENT_NAME) {
-            this.deleteAgentButton="";
+            this.deleteAgentButton = "";
         }
+
+    }
+
+    getLlmTabsHtml(llms) {
+        const llmsByType = {}
+        llms.forEach(llm => {
+            if (!llmsByType[llm.type]) {
+                llmsByType[llm.type] = [];
+            }
+            llmsByType[llm.type].push(llm);
+        })
+        let llmTabsHtml = "";
+        Object.keys(llmsByType).forEach(llmType => {
+            llmTabsHtml +=  `<div class="tab-header" data-local-action="openTab agent-${llmType}">${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}</div>`
+        });
+        return llmTabsHtml;
     }
 
     async afterRender() {
@@ -44,6 +47,7 @@ export class EditAgentPage {
         currentTab.classList.add("selected");
         this.checkSaveButtonState();
     }
+
     constructLlmOptions(llmModels, llmType) {
         let options = [];
         if (this.agent.llms[llmType]) {
@@ -52,12 +56,13 @@ export class EditAgentPage {
             options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
         }
         llmModels.forEach(llm => {
-            if(this.agent.llms[llmType] !== llm) {
+            if (this.agent.llms[llmType] !== llm) {
                 options.push(`<option value="${llm}">${llm}</option>`);
             }
         });
         return options.join('');
     };
+
     generateLlmSelectHtml(llmModels, llmType) {
         return `<div class="form-item">
             <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
@@ -66,6 +71,7 @@ export class EditAgentPage {
             </select>
         </div>`
     }
+
     async deleteAgent() {
         let message = "Are you sure you want to delete this agent?";
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
@@ -73,13 +79,6 @@ export class EditAgentPage {
             return;
         }
         await agentModule.deleteAgent(assistOS.space.id, this.agent.id);
-        // if(this.agent.id === assistOS.agent.agentData.id){
-        //     if(localStorage.getItem("agent") === this.agent.id) {
-        //         localStorage.removeItem("agent");
-        //     }
-        //     await assistOS.changeAgent();
-        //     document.querySelector('chat-container').webSkelPresenter.invalidate();
-        // }
         await this.openAgentsPage();
     }
 
@@ -110,11 +109,13 @@ export class EditAgentPage {
             alert("Exporting agent failed");
         }
     }
+
     async openTab(targetElement, tabName) {
         this.currentTab = tabName;
         this.invalidate();
     }
-    uploadImage(){
+
+    uploadImage() {
         return new Promise((resolve, reject) => {
             let reader = new FileReader();
             reader.onload = async (e) => {
@@ -132,25 +133,24 @@ export class EditAgentPage {
             reader.readAsArrayBuffer(this.photoAsFile);
         });
     }
+
     async saveChanges(_target) {
-        //assistOS.agent.agentData.selectedChat = this.agent.selectedChat
-        //hardcoded dependency due to no state binding
         if (this.photoAsFile) {
             await this.uploadImage();
         }
         await agentModule.updateAgent(assistOS.space.id, this.agent.id, this.agent);
         this.initialAgent = JSON.parse(JSON.stringify(this.agent));
         this.checkSaveButtonState();
-        if(this.agent.name === assistOS.agent.agentData.name){
+        if (this.agent.name === assistOS.agent.agentData.name) {
             await assistOS.changeAgent(this.agent.id);
             document.querySelector('chat-page').webSkelPresenter.invalidate();
         }
-        await assistOS.showToast("Agent updated","success");
+        await assistOS.showToast("Agent updated", "success");
     }
 
-    checkSaveButtonState(){
+    checkSaveButtonState() {
         let saveButton = this.element.querySelector(".save-button");
-        if(JSON.stringify(this.initialAgent) === JSON.stringify(this.agent) && !this.photoAsFile){
+        if (JSON.stringify(this.initialAgent) === JSON.stringify(this.agent) && !this.photoAsFile) {
             saveButton.classList.add("disabled");
         } else {
             saveButton.classList.remove("disabled");
