@@ -284,8 +284,11 @@ export class DocumentViewPage {
         }
         this.hasTableOfContents = this._document.hasTableOfContents || false;
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
+        await this.refreshVariables();
     }
-
+    async refreshVariables(){
+        this.variables = await documentModule.getDocumentVariables(assistOS.space.id, this._document.docId);
+    }
     renderDocumentTitle() {
         let documentTitle = this.element.querySelector(".document-title");
         documentTitle.value = unescapeHtmlEntities(this._document.title);

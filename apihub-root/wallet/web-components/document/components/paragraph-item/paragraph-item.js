@@ -334,6 +334,12 @@ export class ParagraphItem {
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
+    async closePlugin(targetElement) {
+        let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        pluginElement.remove();
+        pluginUtils.removeHighlightPlugin("paragraph", this);
+    }
 
     openMenu(targetElement, menuName) {
         let menuOpen = this.element.querySelector(`.toolbar-menu.${menuName}`);

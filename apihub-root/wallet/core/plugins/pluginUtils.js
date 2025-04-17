@@ -15,15 +15,15 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
         await assistOS.UI.showModal(componentName, {
             context: encodeURIComponent(JSON.stringify(context)),
         }, true);
-        removeHighlightPlugin(type, componentName, presenter);
+        removeHighlightPlugin(type, presenter);
     }
     if(selectionItemId){
         await selectionUtils.deselectItem(selectionItemId, presenter);
     }
 }
-function removeHighlightPlugin(type, componentName, presenter) {
+function removeHighlightPlugin(type, presenter) {
     let highlightPluginClass = `${type}-highlight-plugin`;
-    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${componentName}`);
+    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${highlightPluginClass}`);
     pluginIcon.classList.remove(highlightPluginClass);
 }
 function highlightPlugin(type, componentName, presenter) {
@@ -105,5 +105,6 @@ export default {
     openPlugin,
     getContext,
     renderPluginIcons,
-    loadPluginComponent
+    loadPluginComponent,
+    removeHighlightPlugin
 }

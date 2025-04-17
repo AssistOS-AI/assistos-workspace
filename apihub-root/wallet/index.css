@@ -71,8 +71,11 @@
     --modal-background: #f9f9f9;
     --selected-chat-outline: #0000000D;
     --tab: #ECECEC;
-    --action-box-text: #114C59;
     --document-font-color: #000000;
+    /* New Impl */
+    --gray-button-border: #CCCCCC;
+    --gray-button-text: #4A4A4B;
+    --gray-button-background: #EDEDED;
 }
 
 * {
@@ -374,6 +377,19 @@ dialog {
     gap: 5px;
     cursor: pointer;
     border-radius: 5px;
+}
+.gray-button{
+    cursor: pointer;
+    padding: 6px 11px 6px 11px;
+    height: 36px;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 24px;
+    text-align: center;
+    background-color: var(--gray-button-background);
+    border-radius: 5px;
+    border: 1px solid var(--gray-button-border);
+    color: var(--gray-button-text);
 }
 .cancel-button{
     background: var(--white-text);
