@@ -16,48 +16,53 @@ export class EditVariables {
         }
         this.invalidate();
     }
-    attachVarExpressions(){
+    splitCommands(){
         let splitCommands = this.commands.split("\n");
-        let commands = {};
+        let commands = [];
         for(let command of splitCommands){
             const match = command.match(/^(@\S+)\s+(.+)$/);
             if(!match){
                 continue;
             }
             const varName = match[1].slice(1);
-            commands[varName] = command;
+            commands.push({
+                varName: varName,
+                expression: match[2]
+            });
         }
-        this.variables.forEach(obj => {
-            if (commands[obj.varName] !== undefined) {
-                obj.expression = commands[obj.varName];
-            }
-        });
+        return commands;
     }
     initVariables(){
         if(this.context.paragraphId){
-            this.variables = this.documentPresenter.variables.filter(variable => variable.paragraphId === this.context.paragraphId);
             this.commands = this.paragraph.commands;
-            this.attachVarExpressions();
         } else if(this.context.chapterId){
-            this.variables = this.documentPresenter.variables.filter(variable => variable.chapterId === this.context.chapterId);
             this.commands = this.chapter.commands;
-            this.attachVarExpressions();
         } else {
-            this.variables = this.documentPresenter.variables;
             this.commands = this.document.commands;
-            this.attachVarExpressions();
+            this.splitCommands();
         }
     }
     beforeRender(){
         this.initVariables();
+        let splitCommands = this.splitCommands();
         let variablesHTML = "";
-        for(let variable of this.variables){
+        this.tableLabels = "";
+        if(splitCommands.length > 0){
+            this.tableLabels = `
+                        <div class="table-labels">
+                              <div class="cell table-label">Name</div>
+                              <div class="cell table-label">Expression</div>
+                              <div class="cell table-label"></div>
+                        </div>`;
+        }
+        for(let variable of splitCommands){
             variablesHTML += `
                 <div class="cell">${variable.varName}</div>
-                <div class="cell" data-name="${variable.varName}" contenteditable="false">${variable.expression}</div>
+                <div class="cell" data-name="${variable.varName}">${variable.expression}</div>
                 <div class="cell actions-cell">
-                    <img src="./wallet/assets/icons/edit.svg" data-local-action="editVariable ${variable.varName}" class="pointer" alt="delete">
-                    <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="edit">
+                    <img src="./wallet/assets/icons/eye-closed.svg" data-local-action="showVarValue ${variable.varName}" class="pointer" alt="value">
+                    <img src="./wallet/assets/icons/edit.svg" data-local-action="openEditor ${variable.varName}" class="pointer" alt="edit">
+                    <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="delete">
                 </div>`
         }
         this.variablesHTML = variablesHTML;
@@ -69,7 +74,6 @@ export class EditVariables {
             "paragraph-id": this.context.paragraphId
         }, true);
         if(confirmation){
-            await this.documentPresenter.refreshVariables();
             this.invalidate();
         }
     }
@@ -79,9 +83,9 @@ export class EditVariables {
         splitCommands.splice(commandIndex, 1);
         this.commands = splitCommands.join("\n");
         await this.updateCommands(this.commands);
-        await this.documentPresenter.refreshVariables();
         this.invalidate();
     }
+
     async updateCommands(commands){
         if(this.paragraph){
             this.paragraph.commands = commands;
@@ -106,28 +110,40 @@ export class EditVariables {
                 this.document.comments);
         }
     }
-    editVariable(targetElement, varName){
-        let expressionField = this.element.querySelector(`.cell[data-name="${varName}"]`);
-        if(expressionField.contentEditable === "true"){
-            expressionField.contentEditable = false;
-            expressionField.classList.remove("focused-field");
-            expressionField.removeEventListener("focusout", this.boundSaveVariable);
-            return;
+
+    async openEditor(targetElement, varName){
+        let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
+        if(variable.customType){
+            if(variable.customType === "Table"){
+                //targetElement.insertAdjacentHTML("beforeend", `<table-editor data-presenter="table-editor" data-document-id="${this.document.docId}" data-chapter-id="${this.context.chapterId}" data-paragraph-id="${this.context.paragraphId}" data-var-name="${varName}"></table-editor>`);
+                return;
+            }
         }
-        expressionField.contentEditable = true;
-        expressionField.classList.add("focused-field")
-        expressionField.click();
-        this.boundSaveVariable = this.saveVariable.bind(this, varName, expressionField);
-        expressionField.addEventListener("focusout", this.boundSaveVariable, {once: true});
+        let expressionField = this.element.querySelector(`.cell[data-name="${varName}"]`);
+        let expression = encodeURIComponent(expressionField.innerText);
+        let inputs = await assistOS.UI.showModal("edit-basic-variable", { name: varName, expression: expression }, true);
+        if(inputs){
+            await this.saveVariable(varName, inputs.varName, inputs.expression);
+            this.invalidate();
+        }
     }
-    async saveVariable(varName, expressionField){
-        expressionField.classList.remove("focused-field");
-        expressionField.contentEditable = false;
+
+    async saveVariable(varName, newName, newExpression){
         let splitCommands = this.commands.split("\n");
         let commandIndex= splitCommands.findIndex(command => command.includes(`@${varName}`));
-        splitCommands[commandIndex] = expressionField.innerText;
+        splitCommands[commandIndex] = `@${newName} ${newExpression}`;
         this.commands = splitCommands.join("\n");
         await this.updateCommands(this.commands);
         await this.documentPresenter.refreshVariables();
+    }
+    async showVarValue(targetElement, varName){
+        if(targetElement.src.includes("eye-closed")){
+            targetElement.src = "./wallet/assets/icons/eye.svg";
+            let varValue = await documentModule.getVarValue(assistOS.space.id, this.document.docId, varName);
+            targetElement.insertAdjacentHTML("afterend", `<div class="var-value">value: ${typeof varValue === "object" ? "Object": varValue}</div>`);
+        } else {
+            targetElement.src = "./wallet/assets/icons/eye-closed.svg";
+            targetElement.parentElement.querySelector(".var-value").remove();
+        }
     }
 }

@@ -116,67 +116,67 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.personalities = await agentModule.getAgents(this.spaceId);
-
-        let personalitiesHTML = "";
-        for (let personality of this.personalities) {
-            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
-        }
-
-        this.personalitiesHTML = personalitiesHTML;
-
-        this.currentPersonalityName = this.agent.name;
-
-        let llmName = this.agent.selectedChat;
-        let splitLLMName = llmName?.split("/") || "No LLM Configured";
-        if (splitLLMName.length > 1) {
-            this.personalityLLM = splitLLMName[1];
-        } else {
-            this.personalityLLM = llmName;
-        }
-
-        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
-        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
-        this.spaceNameTooltip = assistOS.space.name;
-        this.personalityLLMTooltip = llmName;
-        this.chatOptions = IFrameChatOptions;
-
-        this.chatId = this.element.getAttribute('data-chatId');
-        this.agentId = this.element.getAttribute('data-personalityId');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
-
-        try {
-            this.chatMessages = await chatModule.getChatMessages(this.spaceId, this.chatId)
-        } catch (error) {
-            this.errorState = true;
-        }
-
-        this.chatActionButton = sendMessageActionButtonHTML
-
-        this.stringHTML = "";
-        for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
-            const chatMessage = this.chatMessages[messageIndex]
-            let role = getChatItemRole(chatMessage)
-
-            if (!role) {
-                continue;
-            }
-
-            const user = getChatItemUser(chatMessage);
-            let ownMessage = false;
-            if (user === this.userId || role === "user" && IFrameContext) {
-                ownMessage = true;
-            }
-            let isContext = chatMessage.commands?.replay?.isContext || "false";
-
-            if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-            } else {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
-            }
-        }
-        this.spaceConversation = this.stringHTML;
+        // this.personalities = await agentModule.getAgents(this.spaceId);
+        //
+        // let personalitiesHTML = "";
+        // for (let personality of this.personalities) {
+        //     personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
+        // }
+        //
+        // this.personalitiesHTML = personalitiesHTML;
+        //
+        // this.currentPersonalityName = this.agent.name;
+        //
+        // let llmName = this.agent.selectedChat;
+        // let splitLLMName = llmName?.split("/") || "No LLM Configured";
+        // if (splitLLMName.length > 1) {
+        //     this.personalityLLM = splitLLMName[1];
+        // } else {
+        //     this.personalityLLM = llmName;
+        // }
+        //
+        // this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
+        // this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
+        // this.spaceNameTooltip = assistOS.space.name;
+        // this.personalityLLMTooltip = llmName;
+        // this.chatOptions = IFrameChatOptions;
+        //
+        // this.chatId = this.element.getAttribute('data-chatId');
+        // this.agentId = this.element.getAttribute('data-personalityId');
+        // this.spaceId = this.element.getAttribute('data-spaceId');
+        // this.userId = this.element.getAttribute('data-userId');
+        //
+        // try {
+        //     this.chatMessages = await chatModule.getChatMessages(this.spaceId, this.chatId)
+        // } catch (error) {
+        //     this.errorState = true;
+        // }
+        //
+        // this.chatActionButton = sendMessageActionButtonHTML
+        //
+        // this.stringHTML = "";
+        // for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
+        //     const chatMessage = this.chatMessages[messageIndex]
+        //     let role = getChatItemRole(chatMessage)
+        //
+        //     if (!role) {
+        //         continue;
+        //     }
+        //
+        //     const user = getChatItemUser(chatMessage);
+        //     let ownMessage = false;
+        //     if (user === this.userId || role === "user" && IFrameContext) {
+        //         ownMessage = true;
+        //     }
+        //     let isContext = chatMessage.commands?.replay?.isContext || "false";
+        //
+        //     if (messageIndex === this.chatMessages.length - 1) {
+        //         this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
+        //     } else {
+        //         this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
+        //     }
+        // }
+        // this.spaceConversation = this.stringHTML;
 
 
     }

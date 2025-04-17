@@ -11,10 +11,11 @@
     margin-right: 10px;
 }
 .table-labels{
-    display: flex;
     padding: 10px 0;
     font-weight: bold;
     font-size: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
 }
 .right-margin{
     margin-right: 10px;
@@ -34,10 +35,7 @@
     background: #f1f1f1;
     border-radius: 10px;
 }
-.table-labels{
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-}
+
 .variables-table{
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -63,4 +61,11 @@
 }
 edit-variables .focused-field{
     background-color: var(--white);
+}
+.actions-cell{
+    position: relative;
+}
+.var-value{
+    position: absolute;
+    left: 0;
 }
