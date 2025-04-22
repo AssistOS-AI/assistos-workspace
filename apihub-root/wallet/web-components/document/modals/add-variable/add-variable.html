@@ -1,0 +1,27 @@
+<div class="modal-header">
+    <div>Add Variable</div>
+    <div class="close" data-local-action="closeModal">
+        <span aria-hidden="true">&times;</span>
+    </div>
+</div>
+<form class="modal-body">
+    <div class="form-item">
+        <label class="form-label" for="name">Name</label>
+        <input class="form-input" pattern="^\S+$" title="No spaces allowed" id="name" type="text" name="name" required>
+    </div>
+    <div class="form-item">
+        <label class="form-label" for="type">Select type</label>
+        <select class="form-input" id="type" name="type">
+            $$variableTypeOptions
+        </select>
+    </div>
+    <div class="form-item command">
+        <label class="form-label" for="command">Expression</label>
+        <input class="form-input" id="command" type="text" name="command">
+    </div>
+    <div class="form-item columns hidden">
+        <label class="form-label" for="columns">Nr. of columns</label>
+        <input class="form-input" id="columns" type="number" name="columns" min="1" max="99" value="1">
+    </div>
+    <button class="general-button" data-local-action="addVariable">Add Variable</button>
+</form>

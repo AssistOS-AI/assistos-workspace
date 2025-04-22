@@ -1,0 +1,71 @@
+.plugin-header{
+    display: flex;
+    justify-content: space-between;
+}
+.header-left-section{
+    display: flex;
+}
+.plugin-title{
+    font-weight: bold;
+    font-size: 16px;
+    margin-right: 10px;
+}
+.table-labels{
+    padding: 10px 0;
+    font-weight: bold;
+    font-size: 16px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+.right-margin{
+    margin-right: 10px;
+}
+.variables-table-container{
+    overflow: auto;
+    max-height: calc(100vh - 450px);
+}
+.variables-table-container::-webkit-scrollbar {
+    display: block;
+}
+.variables-table-container::-webkit-scrollbar-thumb {
+    background-color: #888;
+    border-radius: 10px;
+}
+.variables-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.variables-table{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.table-row{
+    margin: 10px 0;
+    padding: 10px 0;
+    display: flex;
+    border-bottom: 0.5px solid var(--light-gray-text);
+}
+.cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 10px;
+    border-bottom: 0.5px solid var(--light-gray-text);
+}
+.actions-cell{
+    display: flex;
+    align-items: center;
+    justify-content: end;
+}
+edit-variables .focused-field{
+    background-color: var(--white);
+}
+.actions-cell{
+    position: relative;
+}
+.var-value{
+    position: absolute;
+    left: 0;
+}

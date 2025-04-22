@@ -4,6 +4,30 @@
     "services": [],
     "components": [
         {
+            "name": "table-editor",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "TableEditor"
+        },
+        {
+            "name": "edit-basic-variable",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "EditBasicVariable"
+        },
+        {
+            "name": "add-variable",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "AddVariable"
+        },
+        {
+            "name": "edit-variables",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "EditVariables"
+        },
+        {
             "name": "variable-details",
             "directory": "space-application",
             "type": "modals",

@@ -1,10 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<div class="plugin-header">
+    <div class="header-left-section">
+        <div class="plugin-title">Edit Variables</div>
+        <button class="gray-button" data-local-action="openAddVariableModal">+ Add Variable</button>
+    </div>
+    <div class="close" data-local-action="closePlugin">
+        <span aria-hidden="true">&times;</span>
+    </div>
+</div>
 
-</body>
-</html>
+<div class="variables-table-container">
+    $$tableLabels
+    <div class="variables-table">
+        $$variablesHTML
+    </div>
+</div>
