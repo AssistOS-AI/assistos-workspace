@@ -1,4 +1,5 @@
 const llmModule = require("assistos").loadModule("llm", {});
+const agentModule= require("assistos").loadModule("agent",{});
 
 export class AgentChat {
     constructor(element, invalidate) {
@@ -12,12 +13,11 @@ export class AgentChat {
         let availableLlms = await llmModule.getModels({spaceId:assistOS.space.id});
 
         const chatModels = availableLlms.reduce((acc, llm) => {
-            if(llm.type === "chat"){
+            if(llm.type === "text"){
                 acc.push(llm);
             }
             return acc;
         },[])
-
         this.chatLLMSection = this.agentPagePresenter.generateLlmSelectHtml(chatModels, "chat");
         this.contextSize = this.agent.contextSize||3;
         const iFrameURL = `${window.location.origin}/iframes/chat?spaceId=${assistOS.space.id}&agentId=${this.agent.id}`
@@ -31,11 +31,11 @@ export class AgentChat {
 
         this.chatPrompt = this.agent.chatPrompt;
 
-     /*   let agentChats = await agentModule.getAgentsConversations(assistOS.space.id,assistOS.agent.agentData.id)
-
+      let agentChats = await agentModule.getAgentsConversations(assistOS.space.id,assistOS.agent.id)
+    debugger
         this.chatOptions = agentChats.map((chatId, index) => {
-            return `<option value="${chatId}" ${assistOS.agent.agentData.selectedChat === chatId ? "selected" : ""}>${chatId}</option>`;
-        });*/
+            return `<option value="${chatId}" ${assistOS.agent.selectedChat === chatId ? "selected" : ""}>${chatId}</option>`;
+        });
 
     }
     afterRender(){

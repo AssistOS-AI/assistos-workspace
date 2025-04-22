@@ -1,6 +1,6 @@
 const path = require("path");
 const {promises: fsPromises} = require("fs");
-const defaultModels = require("../defaultModels");
+
 const storage = require("../../apihub-component-utils/storage");
 const archiver = require("archiver");
 
@@ -21,7 +21,6 @@ async function AgentWrapper() {
                 chatPrompt: "string",
                 chats: "array document",
                 contextSize: "integer",
-                voiceId: "string",
                 selectedChat: "string",
                 selectedTextLlm: "llm",
                 selectedChatLlm: "llm",
@@ -29,6 +28,17 @@ async function AgentWrapper() {
             }
         }
     )
+
+    self.getAgent = async function (id) {
+        return await persistence.getAgent(id);
+    }
+
+    self.getAllAgents = async function () {
+        return await persistence.getEveryAgent();
+    }
+    self.getAllAgentObjects = async function () {
+        return await persistence.getEveryAgentObject();
+    }
 
     self.copyDefaultAgents = async function (spacePath, spaceId) {
         let agentsFolder = '../apihub-components/globalServerlessAPI/default-agents';
@@ -44,10 +54,8 @@ async function AgentWrapper() {
     }
 
     self.updateAgent = async function (id, values) {
-        return await AgentPlugin.updateAgent(id, values);
+        return await  persistence.updateAgent(id, values);
     }
-
-    // TODO:  Using function expressions inside a factory pattern causes ordering issues when methods reference each other. Isn't it better to use classes, or at least function declarations for hoisting?
 
     self.addChat = async function (id, chatId) {
         const agent = await self.getAgent(id);
@@ -66,24 +74,34 @@ async function AgentWrapper() {
         agent.selectedChat = agent.chats[0]
         await self.updateAgent(agent.id, {...agent});
     }
+    self.createAgent = async function (name, description, chatPrompt) {
+        const chatId = await ChatPlugin.createChat(name);
+        return await persistence.createAgent({
+            name: name,
+            description: description,
+            chats: [chatId],
+            selectedChat: chatId,
+            selectedChatLlm: null,
+            selectedTextLlm: null,
+            contextSize: 3,
+            chatPrompt: chatPrompt || "You will be given instructions in the form of a string from a user and you need to execute them",
+            telegramBot: null,
+        });
+
+    }
     self.createAgentFromFile = async function (agentsFolder, entry) {
         const filePath = path.join(agentsFolder, entry.name);
         let agent = JSON.parse(await fsPromises.readFile(filePath, 'utf8'));
-        agent.llms = defaultModels;
+        agent.configuredLlms = [];
         let imagesPath = path.join(agentsFolder, 'images');
         let imageBuffer = await fsPromises.readFile(path.join(imagesPath, `${agent.imageId}.png`));
 
         //personality.imageId = await spaceModule.putImage(imageBuffer);
-        const chatId = await ChatPlugin.createChat(agent.name);
-
-        await AgentPlugin.createAgent(agent.name, agent.description, chatId);
-    }
-    self.getAgent = async function (id) {
-        return await AgentPlugin.getAgent(id);
+        return await self.createAgent(agent.name, agent.description, agent.chatPrompt)
     }
 
     self.deleteAgent = async function (id) {
-        return await AgentPlugin.deleteAgent(id);
+        return await persistence.deleteAgent(id);
     }
 
     self.getConversationIds = async function (id) {
@@ -91,19 +109,7 @@ async function AgentWrapper() {
         return agent.chats;
     }
 
-    self.getAllAgentObjects = async function () {
-        return await AgentPlugin.getAllAgentObjects();
-    }
-    self.getAllAgents = async function () {
-        return await AgentPlugin.getAllAgents();
-    }
-    self.getAllAgentObjects = async function () {
-        return await AgentPlugin.getAllAgentObjects();
-    }
-    self.createAgent = async function (name, description) {
-        const chatId = await ChatPlugin.createChat(agent.name);
-        return await AgentPlugin.createAgent(name, description, chatId);
-    }
+
 
     self.getPersonalityImageUrl = async function (id) {
         const agent = await self.getAgent(id);
@@ -124,18 +130,18 @@ async function AgentWrapper() {
         const agentPath = path.join(extractedPath, 'data.json');
         const fileContent = await fsPromises.readFile(agentPath, 'utf8');
         const agentData = await JSON.parse(fileContent);
-        const agents = await AgentPlugin.getAllAgentObjects();
+        const agents = await self.getAllAgentObjects();
         const existingAgent = agents.find(ag => ag.name === agentData.name);
 
         let agentId, overwritten = false;
         if (existingAgent) {
             agentData.id = existingAgent.id;
-            await AgentPlugin.updateAgent(existingAgent.id, agentData);
+            await self.updateAgent(existingAgent.id, agentData);
             overwritten = true;
         } else {
             const chatId = await ChatPlugin.createChat(agentData.name);
-            let agent = await AgentPlugin.createAgent(agentData.name, agentData.description, chatId);
-            await AgentPlugin.updateAgent(agent.id, agentData);
+            let agent = await self.createAgent(agentData.name, agentData.description, chatId);
+            await self.updateAgent(agent.id, agentData);
             agentId = agent.id;
         }
         return {id: agentId, overwritten: overwritten, name: agentData.name};
@@ -150,7 +156,7 @@ async function AgentWrapper() {
         return apiKey.value;
     }
     const getCurrentAgentChatLlm = async function (agentId) {
-        const agent = await AgentPlugin.getAgent(agentId);
+        const agent = await self.getAgent(agentId);
         if (!agent) {
             throw new Error("Agent not found");
         }
@@ -243,7 +249,7 @@ async function AgentWrapper() {
             return context;
         }
 
-        let {chatPrompt, description} = await AgentWrapper.getAgent(personalityId);
+        let {chatPrompt, description} = await self.getAgent(personalityId);
 
         const context = buildContext(chatId, personalityId);
 
@@ -271,7 +277,7 @@ async function AgentWrapper() {
             provider: model.provider,
             model: model.name,
             apiKey,
-            messages:prompt
+            messages: prompt
         })
         const message = await ChatPlugin.sendMessage(chatId, agentId, llmResponse, "assistant");
         return {
@@ -299,6 +305,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["AgentPlugin", "ChatPlugin", 'LLM'];
+        return ["ChatPlugin", 'LLM'];
     }
 }

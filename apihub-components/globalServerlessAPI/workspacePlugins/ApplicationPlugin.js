@@ -11,6 +11,16 @@ async function ApplicationPlugin() {
     let self = {};
     let SpaceInstancePlugin = await $$.loadPlugin("SpaceInstancePlugin");
     let persistence = await $$.loadPlugin("SpaceInstancePersistence");
+
+    persistence.configureTypes({
+        application: {
+            name: "string",
+            lastUpdate: "string"
+        }
+    });
+
+    await persistence.createIndex("application", "name");
+
     self.getApplicationPath = function (applicationName) {
         return path.join(process.env.PERSISTENCE_FOLDER, "../", `applications/${applicationName}`);
     }

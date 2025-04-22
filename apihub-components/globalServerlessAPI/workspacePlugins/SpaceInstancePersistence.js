@@ -1,14 +1,7 @@
 async function SpaceInstancePersistence(){
     //workspacePersistence
     let persistence = await $$.loadPlugin("DefaultPersistence");
-    persistence.configureTypes({
-        application: {
-            name: "string",
-            lastUpdate: "string"
-        }
-    });
 
-    await persistence.createIndex("application", "name");
     return persistence;
 }
 

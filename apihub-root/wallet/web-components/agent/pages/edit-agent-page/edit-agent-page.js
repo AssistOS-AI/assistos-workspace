@@ -50,14 +50,15 @@ export class EditAgentPage {
 
     constructLlmOptions(llmModels, llmType) {
         let options = [];
-        if (this.agent.llms[llmType]) {
-            options.push(`<option value="${this.agent.llms[llmType]}" selected>${this.agent.llms[llmType]}</option>`);
+        const agentLlmField = `selected${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}Llm`
+        if (this.agent[agentLlmField]) {
+            options.push(`<option value="${this.agent.llms[llmType]}" selected>${this.agent[agentLlmField]}</option>`);
         } else {
             options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
         }
         llmModels.forEach(llm => {
-            if (this.agent.llms[llmType] !== llm) {
-                options.push(`<option value="${llm}">${llm}</option>`);
+            if (this.agent[agentLlmField] !== llm) {
+                options.push(`<option value="${llm.id}">${llm.name}</option>`);
             }
         });
         return options.join('');

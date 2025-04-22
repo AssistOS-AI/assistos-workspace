@@ -9,8 +9,16 @@ export class AgentText {
         this.invalidate();
     }
     async beforeRender(){
-        let availableLlms = await llmModule.listLlms(assistOS.space.id);
-        this.textLLMSection = this.agentPagePresenter.generateLlmSelectHtml(availableLlms["text"], "text");
+        let availableLlms = await llmModule.getModels({spaceId:assistOS.space.id});
+        const textLlms = availableLlms.reduce((acc,val)=>{
+
+            if(val.type==="text"){
+                acc.push(val);
+            }
+            return acc;
+        },[])
+
+        this.textLLMSection = this.agentPagePresenter.generateLlmSelectHtml(textLlms, "text");
     }
     async afterRender(){
         let textSelect = this.element.querySelector(`#textLLM`);

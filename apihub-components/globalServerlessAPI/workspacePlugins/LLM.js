@@ -1,7 +1,10 @@
+const path = require("path");
+const composeBinaryPath = (binary) => path.resolve(process.env.PERSISTENCE_FOLDER, `../binaries/${binary}.js`);
+const Binaries = require('../../apihub-component-utils/binaries.js')
+
 async function LLM() {
     const self = {};
 
-    const BinariesExecutor = $$.loadPlugin("BinariesExecutor")
     const persistence = await $$.loadPlugin("SpaceInstancePersistence");
 
     await persistence.configureTypes({
@@ -17,6 +20,7 @@ async function LLM() {
             knowledgeCuttoff: "date"
         }
     })
+
     await persistence.createIndex("llm", "id");
 
     const buildArgs = function ({
@@ -52,14 +56,14 @@ async function LLM() {
         if (llms.length === 0) {
             return null;
         }
-        for(let llm of llms){
-            if(llm.provider=== "OpenAI" && llm.name === "gpt-4o"){
+        for (let llm of llms) {
+            if (llm.provider === "OpenAI" && llm.name === "gpt-4o") {
                 return llm;
             }
         }
     }
 
-    self.getModels= async function () {
+    self.getModels = async function () {
         return await persistence.getEveryLlmObject();
     }
     self.getProviderModels = async function (provider) {
@@ -88,11 +92,11 @@ async function LLM() {
             promptOrMessages: prompt,
             options
         });
-        return await BinariesExecutor.executeBinary(provider, args);
+        let binariesPath = composeBinaryPath(provider);
+        return await Binaries.executeBinary(provider, binariesPath, args);
     }
 
     self.getTextStreamingResponse = async ({provider, apiKey, model, prompt, options = {}, onDataChunk}) => {
-
         const args = buildArgs({
             subcommand: "generateTextStreaming",
             apiKey,
@@ -101,11 +105,11 @@ async function LLM() {
             options,
             streaming: true
         });
-        await BinariesExecutor.executeBinaryStreaming(provider, args, onDataChunk);
+        let binariesPath = composeBinaryPath(provider);
+        return await Binaries.executeBinaryStreaming(provider, binariesPath, args, onDataChunk);
     }
 
     self.getChatCompletionResponse = async ({provider, apiKey, model, messages, options = {}}) => {
-
         const args = buildArgs({
             subcommand: "getChatCompletion",
             apiKey,
@@ -113,7 +117,8 @@ async function LLM() {
             promptOrMessages: messages,
             options
         });
-        return await BinariesExecutor.executeBinary(provider, args);
+        let binariesPath = composeBinaryPath(provider);
+        return await Binaries.executeBinary(provider, binariesPath, args);
     }
 
     self.getChatCompletionStreamingResponse = async ({
@@ -133,7 +138,8 @@ async function LLM() {
             options,
             streaming: true
         });
-        await BinariesExecutor.executeBinaryStreaming(provider, args, onDataChunk);
+        const binariesPath = composeBinaryPath(provider);
+        return await Binaries.executeBinaryStreaming(provider,binariesPath,args,onDataChunk);
     }
 
     return self;
@@ -154,6 +160,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "BinariesExecutor", "SpaceInstancePersistence"];
+        return ["SpaceInstancePersistence"];
     }
 };

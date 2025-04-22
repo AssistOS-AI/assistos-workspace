@@ -17,9 +17,7 @@ const addToLocalContext = async (spaceId, chatId, messageId) => {
     const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
 }
 const createNewChat = async (spaceId, personalityId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"});
-    const response = await request(`/chats/${spaceId}/${personalityId}`);
-    return response.data.chatId;
+ await chatModule.create
 };
 
 
