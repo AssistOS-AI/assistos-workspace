@@ -6,9 +6,9 @@ const readline = require('readline').createInterface({
 global.$$ = {};
 
 $$.plugins = {
-    "ChatPlugin": require('../../workspacePlugins/ChatPlugin.js'),
-    "AgentWrapper": require('../../workspacePlugins/AgentWrapper.js'),
-    "Workspace": require('../../workspacePlugins/AgentWrapper.js'),
+    "ChatPlugin": require('../../workspacePlugins/Chat.js'),
+    "AgentWrapper": require('../../workspacePlugins/Agent.js'),
+    "Workspace": require('../../workspacePlugins/Agent.js'),
     "LLM": require('../../workspacePlugins/LLM.js'),
     "BinariesExecutor":require('../../workspacePlugins/BinariesExecutor.js'),
 }

@@ -1,6 +1,6 @@
 async function AppSpecificPlugin() {
     let self = {};
-    let spacePersistence = await $$.loadPlugin("SpacePersistence");
+    let spacePersistence = await $$.loadPlugin("StandardPersistence");
     self.rewardUser = async function(user, referrerId){
         return true;
     }
@@ -89,7 +89,7 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence"];
+        return ["StandardPersistence"];
     }
 }
 

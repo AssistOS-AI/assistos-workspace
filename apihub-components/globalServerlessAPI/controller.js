@@ -129,9 +129,6 @@ async function createSpace(request, response, server) {
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
 
-        //let applicationsAPIClient = await getAPIClient(request, constants.APPLICATION_PLUGIN, serverlessId);
-
-        /*v2 defaultApplications config file */
         const defaultApplicationsPath = path.join(__dirname, 'defaultApplications.json');
         const defaultApplications = JSON.parse(await fsPromises.readFile(defaultApplicationsPath, 'utf-8'));
 
@@ -173,7 +170,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["AgentPlugin", "WorkspaceUser"];
+    let soplangPlugins = ["Agent", "WorkspaceUser"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
@@ -185,8 +182,8 @@ async function createSpacePlugins(pluginsStorage){
     const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistencePlugin`);
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
-    const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
-    await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
+    const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/Email.js")`;
+    await fsPromises.writeFile(`${pluginsStorage}/Email.js`, emailPluginRedirect);
 }
 
 async function deleteSpace(request, response) {

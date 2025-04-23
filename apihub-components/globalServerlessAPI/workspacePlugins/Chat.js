@@ -1,4 +1,4 @@
-async function ChatPlugin() {
+async function Chat() {
     const self = {};
 
     const Document = await $$.loadPlugin("Documents");
@@ -188,7 +188,7 @@ let singletonInstance;
 module.exports = {
     getInstance: async function () {
         if (!singletonInstance) {
-            singletonInstance = await ChatPlugin();
+            singletonInstance = await Chat();
         }
         return singletonInstance;
     },

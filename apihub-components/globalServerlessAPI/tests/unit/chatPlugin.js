@@ -1,6 +1,6 @@
 
 
-const { getInstance } = require('../../workspacePlugins/ChatPlugin.js');
+const { getInstance } = require('../../workspacePlugins/Chat.js');
 
 async function test(name, fn) {
     try {

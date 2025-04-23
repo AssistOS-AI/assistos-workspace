@@ -7,10 +7,10 @@ const {execFile} = require('child_process')
 const {promisify} = require('util')
 const execFileAsync = promisify(execFile)
 
-async function ApplicationPlugin() {
+async function Application() {
     let self = {};
-    let SpaceInstancePlugin = await $$.loadPlugin("SpaceInstancePlugin");
-    let persistence = await $$.loadPlugin("SpaceInstancePersistence");
+    let WorkspacePlugin = await $$.loadPlugin("WorkspacePlugin");
+    let persistence = await $$.loadPlugin("defaultPersistence");
 
     persistence.configureTypes({
         application: {
@@ -251,7 +251,7 @@ async function ApplicationPlugin() {
     }
 
     self.getWidgets = async function () {
-        const installedSpaceApplications = await SpaceInstancePlugin.getSpaceApplications();
+        const installedSpaceApplications = await WorkspacePlugin.getSpaceApplications();
         const widgets = {}
         for (const application of installedSpaceApplications) {
             const applicationWidgets = await self.getApplicationWidget(application.name);
@@ -345,7 +345,6 @@ async function ApplicationPlugin() {
                 message: JSON.stringify(e),
             });
         }
-
         sendResponse(response, 200, "application/json", localData);
     }
 
@@ -361,7 +360,6 @@ async function ApplicationPlugin() {
                 });
             }
         }
-
         try {
             let {spaceId, applicationId} = request.params;
 
@@ -388,7 +386,7 @@ let singletonInstance;
 module.exports = {
     getInstance: async function () {
         if (!singletonInstance) {
-            singletonInstance = await ApplicationPlugin();
+            singletonInstance = await Application();
         }
         return singletonInstance;
     },
@@ -398,7 +396,7 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["SpaceInstancePlugin", "SpaceInstancePersistence"];
+        return ["WorkspacePlugin", "defaultPersistence"];
     }
 }
 

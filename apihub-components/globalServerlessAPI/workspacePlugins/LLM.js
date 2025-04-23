@@ -5,7 +5,7 @@ const Binaries = require('../../apihub-component-utils/binaries.js')
 async function LLM() {
     const self = {};
 
-    const persistence = await $$.loadPlugin("SpaceInstancePersistence");
+    const persistence = await $$.loadPlugin("defaultPersistence");
 
     await persistence.configureTypes({
         llm: {
@@ -160,6 +160,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["SpaceInstancePersistence"];
+        return ["defaultPersistence"];
     }
 };

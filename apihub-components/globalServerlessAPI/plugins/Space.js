@@ -1,6 +1,15 @@
-async function SpacePlugin(){
+async function Space(){
     let self = {};
-    let persistence = await $$.loadPlugin("SpacePersistence");
+
+    let persistence = await $$.loadPlugin("StandardPersistence");
+    persistence.configureTypes({
+        spaceStatus: {
+            name: "string"
+        }
+    });
+
+    await persistence.createIndex("spaceStatus", "name");
+
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
@@ -64,7 +73,7 @@ let singletonInstance = undefined;
 module.exports = {
     getInstance: async function () {
         if(!singletonInstance){
-            singletonInstance = await SpacePlugin();
+            singletonInstance = await Space();
         }
         return singletonInstance;
     },
@@ -74,6 +83,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["SpacePersistence"];
+        return ["StandardPersistence"];
     }
 }
