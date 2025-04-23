@@ -123,8 +123,8 @@ async function createSpace(request, response, server) {
         let serverUrl = serverlessAPI.getUrl();
         server.registerServerlessProcessUrl(serverlessId, serverUrl);
 
-        let spaceInstanceClient = await getAPIClient(request, constants.SPACE_INSTANCE_PLUGIN, space.id);
-        await spaceInstanceClient.createWorkspace(space.name, space.id, request.userId, email);
+        let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
+        await workspaceClient.createWorkspace(space.name, space.id, request.userId, email);
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
