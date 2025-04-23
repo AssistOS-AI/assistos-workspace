@@ -22,7 +22,7 @@
       "actions": [
         {
           "type": "smartClone",
-          "target": "./Gatekeeper",
+          "target": "./apihub-components/Gatekeeper",
           "collectLog": false
         }
       ]
