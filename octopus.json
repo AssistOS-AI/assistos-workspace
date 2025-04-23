@@ -1,279 +1,290 @@
 {
-    "workDir": ".",
-    "dependencies": [
+  "workDir": ".",
+  "dependencies": [
+    {
+      "name": "Gatekeeper",
+      "src": "https://github.com/OpenDSU/Gatekeeper.git",
+      "actions": [
         {
-            "name": "Gatekeeper",
-            "src": "https://github.com/OpenDSU/Gatekeeper.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": "./apihub-components/",
-                    "collectLog": false
-                },
-                {
-                     "type": "execute",
-                      "cmd": "cd ./apihub-components/Gatekeeper && npm install"
-                }
-            ]
+          "type": "smartClone",
+          "target": "./apihub-components/",
+          "collectLog": false
         },
         {
-            "name": "soplang",
-            "src": "https://github.com/AssistOS-AI/soplang.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": "./apihub-components/",
-                    "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ./apihub-components/soplang && npm install"
-                }
-            ]
+          "type": "execute",
+          "cmd": "cd ./apihub-components/Gatekeeper && npm install"
+        }
+      ]
+    },
+    {
+      "name": "EmailPlugin",
+      "src": "https://github.com/AssistOS-AI/EmailPlugin.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": "./Gatekeeper",
+          "collectLog": false
+        }
+      ]
+    },
+    {
+      "name": "soplang",
+      "src": "https://github.com/AssistOS-AI/soplang.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": "./apihub-components/",
+          "collectLog": false
         },
         {
-            "name": "ffmpeg",
-            "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": ".",
-                    "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg && npm install"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg && npm run build"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg/packages/ffmpeg-static && npm run install"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg/packages/ffprobe-static && npm run install"
-                }
-            ]
+          "type": "execute",
+          "cmd": "cd ./apihub-components/soplang && npm install"
+        }
+      ]
+    },
+    {
+      "name": "ffmpeg",
+      "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": ".",
+          "collectLog": false
         },
         {
-            "name": "opendsu-sdk",
-            "src": "http://github.com/opendsu/opendsu-sdk.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": ".",
-                    "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd opendsu-sdk && npm install"
-                },
-                {
-                    "type": "copy",
-                    "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
-                    "target": "./apihub-root/wallet/scripts/bundles/versionLessBoot.js",
-                    "options": {
-                        "overwrite": true
-                    }
-                }
-            ]
+          "type": "execute",
+          "cmd": "cd ffmpeg && npm install"
         },
-      {
-        "name": "WebSkel",
-        "src": "https://github.com/OutfinityResearch/WebSkel.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": "./apihub-root/",
-            "collectLog": false
+        {
+          "type": "execute",
+          "cmd": "cd ffmpeg && npm run build"
+        },
+        {
+          "type": "execute",
+          "cmd": "cd ffmpeg/packages/ffmpeg-static && npm run install"
+        },
+        {
+          "type": "execute",
+          "cmd": "cd ffmpeg/packages/ffprobe-static && npm run install"
+        }
+      ]
+    },
+    {
+      "name": "opendsu-sdk",
+      "src": "http://github.com/opendsu/opendsu-sdk.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": ".",
+          "collectLog": false
+        },
+        {
+          "type": "execute",
+          "cmd": "cd opendsu-sdk && npm install"
+        },
+        {
+          "type": "copy",
+          "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
+          "target": "./apihub-root/wallet/scripts/bundles/versionLessBoot.js",
+          "options": {
+            "overwrite": true
           }
-        ]
-      },
-      {
-        "name": "assistos-sdk",
-        "src":"https://github.com/AssistOS-AI/assistos-sdk.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": ".",
-            "collectLog": false
-          },
-          {
-            "type": "execute",
-            "cmd": "cd assistos-sdk && npm install"
+        }
+      ]
+    },
+    {
+      "name": "WebSkel",
+      "src": "https://github.com/OutfinityResearch/WebSkel.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": "./apihub-root/",
+          "collectLog": false
+        }
+      ]
+    },
+    {
+      "name": "assistos-sdk",
+      "src": "https://github.com/AssistOS-AI/assistos-sdk.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": ".",
+          "collectLog": false
+        },
+        {
+          "type": "execute",
+          "cmd": "cd assistos-sdk && npm install"
+        }
+      ]
+    },
+    {
+      "name": "dompurify",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install dompurify --no-save"
+        },
+        {
+          "type": "copy",
+          "src": "node_modules/dompurify/dist",
+          "target": "apihub-root/wallet/lib/dompurify"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall dompurify"
+        }
+      ]
+    },
+    {
+      "name": "jspdf",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install jspdf --no-save"
+        },
+        {
+          "type": "copy",
+          "src": "node_modules/jspdf/dist",
+          "target": "apihub-root/wallet/lib/jspdf"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall jspdf"
+        }
+      ]
+    },
+    {
+      "name": "mermaid",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install mermaid --no-save"
+        },
+        {
+          "type": "copy",
+          "src": "node_modules/mermaid/dist",
+          "target": "apihub-root/wallet/lib/mermaid"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall mermaid"
+        }
+      ]
+    },
+    {
+      "name": "html2canvas",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install html2canvas --no-save"
+        },
+        {
+          "type": "copy",
+          "src": "node_modules/html2canvas/dist",
+          "target": "apihub-root/wallet/lib/html2canvas"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall html2canvas"
+        }
+      ]
+    },
+    {
+      "name": "html2pdf",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install html2pdf.js --no-save"
+        },
+        {
+          "type": "execute",
+          "cmd": "mkdir -p apihub-root/wallet/lib/html2pdf"
+        },
+        {
+          "type": "execute",
+          "cmd": "curl -L -o apihub-root/wallet/lib/html2pdf/html2pdf.bundle.js https://raw.githubusercontent.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.min.js"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall html2pdf.js"
+        }
+      ]
+    },
+    {
+      "name": "marked",
+      "actions": [
+        {
+          "type": "execute",
+          "cmd": "npm install marked"
+        },
+        {
+          "type": "copy",
+          "src": "node_modules/marked/marked.min.js",
+          "target": "apihub-root/"
+        },
+        {
+          "type": "execute",
+          "cmd": "npm uninstall marked"
+        }
+      ]
+    },
+    {
+      "name": "Git",
+      "src": "https://github.com/AssistOS-AI/git-core.git",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": "./apihub-components/serverless/cores/",
+          "collectLog": false
+        }
+      ]
+    }
+  ],
+  "postinstall": [
+    {
+      "name": "copy-bundles",
+      "actions": [
+        {
+          "type": "copy",
+          "src": "./opendsu-sdk/builds/output/webshims.js",
+          "target": "./apihub-root/bundles/webshims.js",
+          "options": {
+            "overwrite": true
           }
-        ]
-      },
-      {
-        "name": "dompurify",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install dompurify --no-save"
-          },
-          {
-            "type": "copy",
-            "src": "node_modules/dompurify/dist",
-            "target": "apihub-root/wallet/lib/dompurify"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall dompurify"
+        },
+        {
+          "type": "copy",
+          "src": "./opendsu-sdk/builds/output/loaderBoot.js",
+          "target": "./apihub-root/bundles/loaderBoot.js",
+          "options": {
+            "overwrite": true
           }
-        ]
-      },
-      {
-        "name": "jspdf",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install jspdf --no-save"
-          },
-          {
-            "type": "copy",
-            "src": "node_modules/jspdf/dist",
-            "target": "apihub-root/wallet/lib/jspdf"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall jspdf"
+        }
+      ]
+    }
+  ],
+  "build": [
+    {
+      "name": "build-all",
+      "actions": [
+        {
+          "type": "copy",
+          "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
+          "target": "./apihub-root/wallet/bundles/versionLessBoot.js",
+          "options": {
+            "overwrite": true
           }
-        ]
-      },
-      {
-        "name": "mermaid",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install mermaid --no-save"
-          },
-          {
-            "type": "copy",
-            "src": "node_modules/mermaid/dist",
-            "target": "apihub-root/wallet/lib/mermaid"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall mermaid"
+        },
+        {
+          "type": "copy",
+          "src": "./assistos-sdk/build/bundles/assistos_sdk.js",
+          "target": "./apihub-root/wallet/bundles/assistos_sdk.js",
+          "options": {
+            "overwrite": true
           }
-        ]
-      },
-      {
-        "name": "html2canvas",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install html2canvas --no-save"
-          },
-          {
-            "type": "copy",
-            "src": "node_modules/html2canvas/dist",
-            "target": "apihub-root/wallet/lib/html2canvas"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall html2canvas"
-          }
-        ]
-      },
-      {
-        "name": "html2pdf",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install html2pdf.js --no-save"
-          },
-          {
-            "type": "execute",
-            "cmd": "mkdir -p apihub-root/wallet/lib/html2pdf"
-          },
-          {
-            "type": "execute",
-            "cmd": "curl -L -o apihub-root/wallet/lib/html2pdf/html2pdf.bundle.js https://raw.githubusercontent.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.min.js"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall html2pdf.js"
-          }
-        ]
-      },
-      {
-        "name": "marked",
-        "actions": [
-          {
-            "type": "execute",
-            "cmd": "npm install marked"
-          },
-          {
-            "type": "copy",
-            "src": "node_modules/marked/marked.min.js",
-            "target": "apihub-root/"
-          },
-          {
-            "type": "execute",
-            "cmd": "npm uninstall marked"
-          }
-        ]
-      },
-      {
-        "name": "Git",
-        "src": "https://github.com/AssistOS-AI/git-core.git",
-        "actions": [
-          {
-            "type": "smartClone",
-            "target": "./apihub-components/serverless/cores/",
-            "collectLog": false
-          }
-        ]
-      }
-    ],
-    "postinstall": [
-      {
-        "name": "copy-bundles",
-        "actions": [
-          {
-            "type": "copy",
-            "src": "./opendsu-sdk/builds/output/webshims.js",
-            "target": "./apihub-root/bundles/webshims.js",
-            "options": {
-              "overwrite": true
-            }
-          },
-          {
-            "type": "copy",
-            "src": "./opendsu-sdk/builds/output/loaderBoot.js",
-            "target": "./apihub-root/bundles/loaderBoot.js",
-            "options": {
-              "overwrite": true
-            }
-          }
-        ]
-      }
-    ],
-    "build": [
-      {
-        "name": "build-all",
-        "actions": [
-          {
-            "type": "copy",
-            "src": "./opendsu-sdk/builds/output/versionLessBoot.js",
-            "target": "./apihub-root/wallet/bundles/versionLessBoot.js",
-            "options": {
-              "overwrite": true
-            }
-          },
-            {
-                "type": "copy",
-                "src": "./assistos-sdk/build/bundles/assistos_sdk.js",
-                "target": "./apihub-root/wallet/bundles/assistos_sdk.js",
-                "options": {
-                    "overwrite": true
-                }
-            }
-        ]
-      }
-    ]
-  }
+        }
+      ]
+    }
+  ]
+}
