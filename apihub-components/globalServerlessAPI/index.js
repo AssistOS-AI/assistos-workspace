@@ -37,8 +37,7 @@ function Space(server) {
                     API_KEYS: JSON.stringify(apiKeys),
                 }
             }).then((serverlessAPI) => {
-                let serverUrl = serverlessAPI.getUrl();
-                server.registerServerlessProcessUrl(spaceId, serverUrl);
+                server.registerServerlessProcess(spaceId, serverlessAPI);
             });
         }
     },0);

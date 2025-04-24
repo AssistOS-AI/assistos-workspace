@@ -160,8 +160,7 @@ async function createSpace(request, response, server) {
                 SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL
             }
         });
-        let serverUrl = serverlessAPI.getUrl();
-        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+        server.registerServerlessProcess(serverlessId, serverlessAPI);
 
         let spaceInstanceClient = await getAPIClient(request, constants.SPACE_INSTANCE_PLUGIN, space.id);
         await spaceInstanceClient.createWorkspace(space.name, space.id, request.userId, email);
