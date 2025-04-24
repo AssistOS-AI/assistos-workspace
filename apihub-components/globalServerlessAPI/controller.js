@@ -33,7 +33,7 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = await getAPIClient(req, constants.APP_SPECIFIC_PLUGIN);
+        const appSpecificClient = await getAPIClient(req, constants.WORKSPACE_PLUGIN);
         const user = await appSpecificClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {
@@ -45,8 +45,8 @@ async function listUserSpaces(req, res){
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
-        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
+        let appSpecificClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
@@ -84,7 +84,7 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
         let space;
         try {
             space = await client.createSpace(spaceName);
@@ -93,7 +93,7 @@ async function createSpace(request, response, server) {
         }
 
         await secrets.createSpaceSecretsContainer(space.id);
-        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let appSpecificClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
         await appSpecificClient.linkSpaceToUser(email, space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
@@ -175,11 +175,11 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
-    const pluginRedirect = getRedirectCodeESModule(`DocumentsPlugin`);
+    const pluginRedirect = getRedirectCodeESModule(`Documents`);
     await fsPromises.writeFile(`${pluginsStorage}/Documents.js`, pluginRedirect);
-    const pluginRedirect2 = getRedirectCodeESModule(`WorkspacePlugin`);
+    const pluginRedirect2 = getRedirectCodeESModule(`Workspace`);
     await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect2);
-    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistencePlugin`);
+    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistence`);
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
     const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/Email.js")`;
@@ -190,7 +190,7 @@ async function deleteSpace(request, response) {
     const spaceId = request.params.spaceId;
     let email = request.email;
     try {
-        let client = await getAPIClient(request, constants.SPACE_PLUGIN);
+        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
         let message = await client.deleteSpace(email, request.authKey, spaceId);
         if (!message) {
             //space deleted
