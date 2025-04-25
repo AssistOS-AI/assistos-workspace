@@ -1,145 +1,71 @@
-const path = require("path");
-const composeBinaryPath = (binary) => path.resolve(process.env.PERSISTENCE_FOLDER, `../binaries/${binary}.js`);
-const Binaries = require('../../apihub-component-utils/binaries.js')
-
-async function LLM() {
+async function LLM(Provider) {
     const self = {};
 
-    const persistence = await $$.loadPlugin("defaultPersistence");
+    const persistence = await $$.loadPlugin("DefaultPersistence");
 
     await persistence.configureTypes({
         llm: {
             id: "random",
             name: "string",
-            provider: "string",
+            provider: "provider",
             type: "string",
             capabilities: "array string",
             description: "string",
             pricing: "object",
             contextWindow: "integer",
             knowledgeCuttoff: "date"
+        },
+        provider: {
+            id: "random",
+            name: "string",
+            models: "array llm"
         }
     })
 
-    await persistence.createIndex("llm", "id");
+    await persistence.createIndex("llm", "name");
+    await persistence.createIndex("provider", "name");
 
-    const buildArgs = function ({
-                                    subcommand,
-                                    apiKey,
-                                    model,
-                                    promptOrMessages,
-                                    options = {},
-                                    streaming = false
-                                }) {
-        const args = [subcommand, "-k", apiKey, "-m", model];
-
-        if (typeof promptOrMessages === 'string') {
-            args.push("-p", promptOrMessages);
-        } else {
-            args.push("-p", JSON.stringify(promptOrMessages));
+    const getProvider = async function (providerName) {
+        const provider = await persistence.getProviderByName(providerName);
+        if (!provider) {
+            throw new Error(`Provider ${providerName} not found`);
         }
-
-        if (streaming) args.push("--stream");
-
-        if (options.temperature !== undefined) args.push("--temperature", options.temperature)
-        if (options.top_p !== undefined) args.push("--top_p", options.top_p)
-        if (options.frequency_penalty !== undefined) args.push("--frequency_penalty", options.frequency_penalty)
-        if (options.presence_penalty !== undefined) args.push("--presence_penalty", options.presence_penalty)
-        if (options.stop !== undefined) args.push("--stop", options.stop)
-        if (options.max_tokens !== undefined) args.push("--max_tokens", options.max_tokens)
-
-        return args;
+        return new Provider(provider.name, provider.models);
     }
-
-    self.getRandomLlm = async function () {
-        const llms = await persistence.getEveryLlmObject();
-        if (llms.length === 0) {
-            return null;
-        }
-        for (let llm of llms) {
-            if (llm.provider === "OpenAI" && llm.name === "gpt-4o") {
-                return llm;
-            }
-        }
+    self.getProvider= async function (providerName) {
+        return await getProvider(providerName);
     }
-
     self.getModels = async function () {
         return await persistence.getEveryLlmObject();
     }
-    self.getProviderModels = async function (provider) {
-        const llms = await persistence.getEveryLlmObject();
-        return llms.filter(llm => llm.provider === provider);
-    }
 
-    self.getLlmById = async function (id) {
-        return await persistence.getLlm(id);
+    self.getProviderModels = async function (providerName) {
+        const provider = await getProvider(providerName);
+        return provider.models;
     }
 
     self.getLlmByName = async function (name) {
-        const llms = persistence.getEveryLlmObject();
-        for (const llm of llms) {
-            if (llm.name === name) {
-                return llm;
-            }
-        }
+        return await persistence.getLlmByName(name);
     }
 
-    self.getTextResponse = async ({provider, apiKey, model, prompt, options = {}}) => {
-        const args = buildArgs({
-            subcommand: "generateText",
-            apiKey,
-            model,
-            promptOrMessages: prompt,
-            options
-        });
-        let binariesPath = composeBinaryPath(provider);
-        return await Binaries.executeBinary(provider, binariesPath, args);
+    self.getTextResponse = async (provider, model, prompt, options = {}) => {
+        const Provider = await getProvider(provider)
+        return await Provider.getTextResponse(model, prompt, options);
     }
 
-    self.getTextStreamingResponse = async ({provider, apiKey, model, prompt, options = {}, onDataChunk}) => {
-        const args = buildArgs({
-            subcommand: "generateTextStreaming",
-            apiKey,
-            model,
-            promptOrMessages: prompt,
-            options,
-            streaming: true
-        });
-        let binariesPath = composeBinaryPath(provider);
-        return await Binaries.executeBinaryStreaming(provider, binariesPath, args, onDataChunk);
+    self.getTextStreamingResponse = async (provider, model, prompt, options = {}, onDataChunk) => {
+        const Provider = await getProvider(provider)
+        return await Provider.getTextStreamingResponse(model, prompt, options, onDataChunk);
     }
 
-    self.getChatCompletionResponse = async ({provider, apiKey, model, messages, options = {}}) => {
-        const args = buildArgs({
-            subcommand: "getChatCompletion",
-            apiKey,
-            model,
-            promptOrMessages: messages,
-            options
-        });
-        let binariesPath = composeBinaryPath(provider);
-        return await Binaries.executeBinary(provider, binariesPath, args);
+    self.getChatCompletionResponse = async (provider, model, messages, options = {}) => {
+        const Provider = await getProvider(provider)
+        return await Provider.getChatCompletionResponse(model, messages, options);
     }
 
-    self.getChatCompletionStreamingResponse = async ({
-                                                         provider,
-                                                         apiKey,
-                                                         model,
-                                                         messages,
-                                                         options = {},
-                                                         onDataChunk
-                                                     }) => {
-
-        const args = buildArgs({
-            subcommand: "getChatCompletionStreaming",
-            apiKey,
-            model,
-            prompt: messages,
-            options,
-            streaming: true
-        });
-        const binariesPath = composeBinaryPath(provider);
-        return await Binaries.executeBinaryStreaming(provider,binariesPath,args,onDataChunk);
+    self.getChatCompletionStreamingResponse = async (provider, model, messages, options = {}, onDataChunk) => {
+        const Provider = getProvider(provider)
+        return await Provider.getChatCompletionResponse(model, messages, options, onDataChunk);
     }
 
     return self;
@@ -148,9 +74,12 @@ async function LLM() {
 let singletonInstance;
 
 module.exports = {
-    getInstance: async function () {
+    getInstance: async function (Provider) {
+        if(!Provider) {
+            Provider = require('../../apihub-component-utils/provider.js')
+        }
         if (!singletonInstance) {
-            singletonInstance = await LLM();
+            singletonInstance = await LLM(Provider);
         }
         return singletonInstance;
     },
@@ -160,6 +89,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["defaultPersistence"];
+        return ["DefaultPersistence"];
     }
 };
