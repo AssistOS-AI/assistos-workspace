@@ -32,7 +32,7 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = await getAPIClient(req, constants.WORKSPACE_PLUGIN);
+        const appSpecificClient = await getAPIClient(req, constants.APP_SPECIFIC_PLUGIN);
         const user = await appSpecificClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {

@@ -175,7 +175,9 @@ export class AuthenticationPage {
         }
         if(this.createSpace){
             let spaceName = this.email.split('@')[0];
+            await assistOS.UI.showLoading();
             await spaceModule.createSpace(spaceName);
+            await assistOS.UI.hideLoading();
         }
         await assistOS.UI.showLoading();
         await assistOS.loadPage(this.email);
