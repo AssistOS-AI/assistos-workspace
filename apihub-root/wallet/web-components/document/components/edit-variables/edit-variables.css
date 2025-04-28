@@ -15,7 +15,7 @@
     font-weight: bold;
     font-size: 16px;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 }
 .right-margin{
     margin-right: 10px;
@@ -38,7 +38,7 @@
 
 .variables-table{
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
 }
 
 .table-row{

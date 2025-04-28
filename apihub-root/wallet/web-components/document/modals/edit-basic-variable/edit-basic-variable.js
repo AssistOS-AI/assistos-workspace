@@ -16,6 +16,8 @@ export class EditBasicVariable {
     }
 
     afterRender(){
+        let valueInput = this.element.querySelector("#command");
+        valueInput.value = this.expression;
     }
     async editVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);

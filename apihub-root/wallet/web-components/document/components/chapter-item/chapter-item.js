@@ -199,9 +199,8 @@ export class ChapterItem {
 
         this.element.setAttribute("data-local-action", "highlightChapter");
         this.renderChapterTitle();
-        this.chapterItem = this.element.querySelector(".chapter-item");
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
-            this.chapterItem.click();
+            this.element.click();
         }
         this.changeChapterVisibility(true);
 
@@ -353,7 +352,7 @@ export class ChapterItem {
     }
 
     async changeChapterDisplay(_target) {
-        await this.documentPresenter.changeCurrentElement(this.chapterItem, this.focusOutHandler.bind(this));
+        await this.documentPresenter.changeCurrentElement(this.element, this.focusOutHandler.bind(this));
         await this.highlightChapter(_target);
         if (!this.isVisible) {
             this.changeChapterVisibility(true);

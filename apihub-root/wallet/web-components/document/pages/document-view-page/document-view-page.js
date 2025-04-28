@@ -331,11 +331,13 @@ export class DocumentViewPage {
         let tasksMenu = this.element.querySelector(".tasks-menu");
         let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
         let scriptArgs = this.element.querySelector(".script-modal");
+        let buildIcon = this.element.querySelector(".build-document");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
         this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
+        this.attachTooltip(buildIcon, "Build Document");
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
@@ -766,6 +768,18 @@ export class DocumentViewPage {
         } else {
             assistOS.showToast("Nothing to redo.", "info");
             this.toggleEditingState(true);
+        }
+    }
+    async buildForDocument(button){
+        button.classList.add("disabled");
+        try {
+            await spaceModule.buildForDocument(assistOS.space.id, this._document.id);
+            await assistOS.showToast("Build successful", "success", 5000);
+        } catch (e) {
+            await assistOS.showToast("Build failed", "error", 5000);
+        } finally {
+            button.classList.remove("disabled");
+            await this.refreshVariables();
         }
     }
 }

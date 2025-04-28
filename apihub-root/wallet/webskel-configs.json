@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "variable-value",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "VariableValue"
+        },
+        {
             "name": "table-editor",
             "directory": "document",
             "type": "components",

@@ -53,6 +53,7 @@ export class EditVariables {
                         <div class="table-labels">
                               <div class="cell table-label">Name</div>
                               <div class="cell table-label">Expression</div>
+                              <div class="cell table-label">Value</div>
                               <div class="cell table-label"></div>
                         </div>`;
         }
@@ -60,8 +61,9 @@ export class EditVariables {
             variablesHTML += `
                 <div class="cell">${variable.varName}</div>
                 <div class="cell" data-name="${variable.varName}">${variable.expression}</div>
+                <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                 <div class="cell actions-cell">
-                    <img src="./wallet/assets/icons/eye-closed.svg" data-local-action="showVarValue ${variable.varName}" class="pointer" alt="value">
+                    <img src="./wallet/assets/icons/eye.svg" data-local-action="showVarValue ${variable.varName}" class="pointer" alt="value">
                     <img src="./wallet/assets/icons/edit.svg" data-local-action="openEditor ${variable.varName}" class="pointer" alt="edit">
                     <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="delete">
                 </div>`
@@ -138,14 +140,10 @@ export class EditVariables {
         await this.updateCommands(this.commands);
         await this.documentPresenter.refreshVariables();
     }
-    async showVarValue(targetElement, varName){
-        if(targetElement.src.includes("eye-closed")){
-            targetElement.src = "./wallet/assets/icons/eye.svg";
-            let varValue = await documentModule.getVarValue(assistOS.space.id, this.document.docId, varName);
-            targetElement.insertAdjacentHTML("afterend", `<div class="var-value">value: ${typeof varValue === "object" ? "Object": varValue}</div>`);
-        } else {
-            targetElement.src = "./wallet/assets/icons/eye-closed.svg";
-            targetElement.parentElement.querySelector(".var-value").remove();
-        }
+
+    async showVarValue(_eventTarget, varName) {
+        await assistOS.UI.showModal("variable-value", {
+            "var-name": varName
+        })
     }
 }
