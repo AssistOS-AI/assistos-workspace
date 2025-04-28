@@ -1,7 +1,13 @@
 async function AppSpecificPlugin() {
     let self = {};
+
+    let persistence = await $$.loadPlugin("StandardPersistence");
+
     self.rewardUser = async function (user, referrerId) {
         return true;
+    }
+    self.listAllSpaces = async function(){
+        return await persistence.getEverySpaceStatus();
     }
     return self;
 }
@@ -21,6 +27,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return [];
+        return ["StandardPersistence"];
     }
 }
