@@ -64,7 +64,7 @@ async function LLM(Provider) {
     }
 
     self.getChatCompletionStreamingResponse = async (provider, model, messages, options = {}, onDataChunk) => {
-        const Provider = getProvider(provider)
+        const Provider = await getProvider(provider)
         return await Provider.getChatCompletionResponse(model, messages, options, onDataChunk);
     }
 
