@@ -21,7 +21,6 @@ const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
-const ServerSideSecurityContext = require("../../assistos-sdk/modules/user/models/ServerSideSecurityContext");
 
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
@@ -45,24 +44,18 @@ async function listUserSpaces(req, res){
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
-        let appSpecificClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
+        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         const email = request.email;
         if (request.params.spaceId) {
             spaceId = request.params.spaceId;
         } else if (request.currentSpaceId) {
             spaceId = request.currentSpaceId;
         } else {
-            spaceId = await appSpecificClient.getDefaultSpaceId(email);
-        }
-        try {
-            await ensurePersonalityChats(spaceId);
-        } catch (error) {
-
+            spaceId = await client.getDefaultSpaceId(email);
         }
 
         let spaceStatus = await client.getSpaceStatus(spaceId);
-        await appSpecificClient.setUserCurrentSpace(email, spaceId);
+        await client.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -84,7 +77,7 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
+        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         let space;
         try {
             space = await client.createSpace(spaceName);
@@ -93,7 +86,7 @@ async function createSpace(request, response, server) {
         }
 
         await secrets.createSpaceSecretsContainer(space.id);
-        let appSpecificClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
+        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         await appSpecificClient.linkSpaceToUser(email, space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
@@ -120,8 +113,7 @@ async function createSpace(request, response, server) {
                 SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL
             }
         });
-        let serverUrl = serverlessAPI.getUrl();
-        server.registerServerlessProcessUrl(serverlessId, serverUrl);
+        server.registerServerlessProcess(serverlessId, serverlessAPI);
 
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
         await workspaceClient.createWorkspace(space.name, space.id, request.userId, email);
@@ -170,15 +162,11 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
     }
-    const pluginRedirect = getRedirectCodeESModule(`Documents`);
-    await fsPromises.writeFile(`${pluginsStorage}/Documents.js`, pluginRedirect);
-    const pluginRedirect2 = getRedirectCodeESModule(`Workspace`);
-    await fsPromises.writeFile(`${pluginsStorage}/Workspace.js`, pluginRedirect2);
     const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistence`);
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
@@ -218,7 +206,7 @@ async function addSecret(request, response){
     const spaceId = request.params.spaceId;
     try {
         await secrets.addSecret(spaceId, request.userId, request.body.name, request.body.secretKey, request.body.value);
-        await restartServerless(spaceId, request.sessionId);
+        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -226,12 +214,27 @@ async function addSecret(request, response){
         });
     }
 }
-
+async function addSecrets(request, response){
+    const spaceId = request.params.spaceId;
+    try
+    {
+        let secretsArr = request.body;
+        for(let secret of secretsArr){
+            await secrets.addSecret(spaceId, request.userId, secret.name, secret.secretKey, secret.value);
+        }
+        await setServerlessEnv(spaceId, request.sessionId);
+        utils.sendResponse(response, 200, "application/json", {});
+    } catch (error) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+        });
+    }
+}
 async function deleteSecret(request, response){
     const spaceId = request.params.spaceId;
     try {
         await secrets.deleteSecret(spaceId, request.body.secretKey);
-        await restartServerless(spaceId, request.sessionId);
+        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -249,7 +252,7 @@ async function editSecret(request, response) {
     const userId = request.userId;
     try {
         await secrets.putSpaceKey(spaceId, userId, request.body.secretKey, request.body.name, request.body.value);
-        await restartServerless(spaceId, request.sessionId);
+        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -258,9 +261,9 @@ async function editSecret(request, response) {
     }
 }
 
-async function restartServerless(serverlessId, sessionId){
+async function setServerlessEnv(serverlessId, sessionId){
     const baseURL = process.env.BASE_URL;
-    let response = await fetch(`${baseURL}/proxy/restart/${serverlessId}`, {
+    let response = await fetch(`${baseURL}/proxy/setEnv/${serverlessId}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
@@ -611,6 +614,7 @@ module.exports = {
     createSpace,
     deleteSpace,
     addSecret,
+    addSecrets,
     editSecret,
     getSecretsMasked,
     deleteSecret,

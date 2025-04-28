@@ -4,6 +4,7 @@ const {
     listUserSpaces,
     getSecretsMasked,
     addSecret,
+    addSecrets,
     editSecret,
     deleteSecret,
     getUploadURL,
@@ -22,7 +23,7 @@ const process = require("process");
 const secrets = require("../apihub-component-utils/secrets");
 function Space(server) {
     setTimeout(async ()=> {
-        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.WORKSPACE_PLUGIN, "",{authToken: process.env.SSO_SECRETS_ENCRYPTION_KEY});
+        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "",{authToken: process.env.SSO_SECRETS_ENCRYPTION_KEY});
         let spaces = await client.listAllSpaces();
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
@@ -37,8 +38,7 @@ function Space(server) {
                     API_KEYS: JSON.stringify(apiKeys),
                 }
             }).then((serverlessAPI) => {
-                let serverUrl = serverlessAPI.getUrl();
-                server.registerServerlessProcessUrl(spaceId, serverUrl);
+                server.registerServerlessProcess(spaceId, serverlessAPI);
             });
         }
     },0);
@@ -71,6 +71,7 @@ function Space(server) {
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets", getSecretsMasked);
     server.post("/spaces/:spaceId/secrets", addSecret);
+    server.post("/spaces/:spaceId/secrets/multiple", addSecrets);
     server.put("/spaces/:spaceId/secrets", editSecret);
     server.put("/spaces/:spaceId/secrets/delete", deleteSecret);
 }
