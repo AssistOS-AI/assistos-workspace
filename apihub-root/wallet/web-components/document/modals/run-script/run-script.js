@@ -52,7 +52,7 @@ export class RunScript {
             args.push(input.value);
         }
         try {
-            await spaceModule.runCommands(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText), args);
+            await spaceModule.runCode(assistOS.space.id, assistOS.UI.unsanitize(this._document.infoText), args);
         } catch (e) {
             button.classList.remove("disabled");
             assistOS.UI.closeModal(this.element);

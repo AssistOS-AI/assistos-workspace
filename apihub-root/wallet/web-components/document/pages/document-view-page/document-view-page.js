@@ -740,6 +740,14 @@ export class DocumentViewPage {
             await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId);
         }
     }
+
+    async closePlugin(targetElement) {
+        let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        pluginElement.remove();
+        pluginUtils.removeHighlightPlugin("infoText", this);
+    }
+
     async undoOperation(targetElement){
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);

@@ -69,8 +69,8 @@ export class AddVariable {
             this.chapter.commands += `\n`;
             await documentModule.updateChapter(assistOS.space.id, this.chapterId,
                 this.chapter.title,
-                this.chapter.comments,
-                this.chapter.commands);
+                this.chapter.commands,
+                this.chapter.comments);
         } else {
             this.document.commands += fullCommand;
             this.document.commands += `\n`;

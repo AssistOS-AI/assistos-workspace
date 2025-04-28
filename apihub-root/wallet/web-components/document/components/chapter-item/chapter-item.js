@@ -180,7 +180,7 @@ export class ChapterItem {
         if (titleText !== this.chapter.title && titleText !== "") {
             this.chapter.title = titleText;
             await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
-                titleText,  this.chapter.comments , this.chapter.commands);
+                titleText,  this.chapter.commands, this.chapter.comments);
         }
     }
 
@@ -263,9 +263,7 @@ export class ChapterItem {
 
     async highlightChapter() {
         assistOS.space.currentChapterId = this.chapter.id;
-        this.switchButtonsDisplay(this.chapterItem, "on");
-        let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
-        chapterHeaderContainer.classList.add("highlighted-chapter");
+        this.element.classList.add("highlighted-chapter");
         this.switchChapterToolbar("on");
     }
 
@@ -276,6 +274,12 @@ export class ChapterItem {
             chapterId: this.chapter.id,
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
+    }
+    async closePlugin(targetElement) {
+        let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        pluginElement.remove();
+        pluginUtils.removeHighlightPlugin("chapter", this);
     }
 
     async focusOutHandlerTitle(chapterTitle){
@@ -344,15 +348,8 @@ export class ChapterItem {
 
     focusOutHandler() {
         assistOS.space.currentChapterId = null;
-        this.switchButtonsDisplay(this.chapterItem, "off");
         this.switchChapterToolbar("off");
-        let chapterHeaderContainer = this.element.querySelector('.chapter-title-container');
-        chapterHeaderContainer.classList.remove("highlighted-chapter");
-    }
-
-    switchButtonsDisplay(targetElement, mode) {
-        let chapterIcons = this.element.querySelector('.chapter-icons');
-        mode === "on" ? chapterIcons.style.visibility = "visible" : chapterIcons.style.visibility = "hidden";
+        this.element.classList.remove("highlighted-chapter");
     }
 
     async changeChapterDisplay(_target) {

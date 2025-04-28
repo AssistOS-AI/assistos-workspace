@@ -8,6 +8,9 @@
     line-height: normal;
     overflow: visible;
 }
+.chapter-plugin-container{
+    padding: 10px;
+}
 
 .highlight-chapter-header {
     background: var(--white-blue-tint) !important;
@@ -119,13 +122,14 @@ html[theme="dark"] .arrow svg {
     margin-left: 10px;
 }
 
-.chapter-item {
+chapter-item {
+    width: 100%;
     cursor: default;
     border-radius: 5px;
     display: flex;
     flex-direction: column;
     min-width: 0;
-    width: 100%;
+    position: relative;
 }
 
 .chapter-content {
@@ -164,15 +168,6 @@ html[theme="dark"] .arrow svg {
     display: inline-block;
     font-weight: 600;
     margin-right: 10px;
-}
-
-.chapter-text {
-    width: 100%;
-    position: relative;
-}
-
-.chapter-item {
-    width: 100%;
 }
 
 .chapter-paragraphs {

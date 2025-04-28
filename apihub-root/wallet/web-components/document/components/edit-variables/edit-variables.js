@@ -14,6 +14,7 @@ export class EditVariables {
         if(this.context.paragraphId){
             this.paragraph = this.chapter.paragraphs.find(paragraph => paragraph.id === this.context.paragraphId);
         }
+        this.element.classList.add("maintain-focus");
         this.invalidate();
     }
     splitCommands(){
@@ -70,11 +71,12 @@ export class EditVariables {
     async openAddVariableModal(){
         let confirmation = await assistOS.UI.showModal("add-variable", {
             "document-id": this.document.docId,
-            "chapter-id": this.context.chapterId,
-            "paragraph-id": this.context.paragraphId
+            "chapter-id": this.context.chapterId || "",
+            "paragraph-id": this.context.paragraphId || "",
         }, true);
         if(confirmation){
             this.invalidate();
+            await this.documentPresenter.refreshVariables();
         }
     }
     async deleteVariable(targetElement, varName){
