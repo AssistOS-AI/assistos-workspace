@@ -7,6 +7,7 @@ export class EditVariables {
         this.invalidate = invalidate;
         this.context = pluginUtils.getContext(this.element);
         this.documentPresenter = this.element.closest("document-view-page").webSkelPresenter;
+        this.documentPresenter.observeChange("variables", this.invalidate);
         this.document = this.documentPresenter._document;
         if(this.context.chapterId){
             this.chapter = this.document.chapters.find(chapter => chapter.id === this.context.chapterId);
@@ -26,9 +27,11 @@ export class EditVariables {
                 continue;
             }
             const varName = match[1].slice(1);
+            let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
             commands.push({
                 varName: varName,
-                expression: match[2]
+                expression: match[2],
+                value: variable ? variable.value : undefined,
             });
         }
         return commands;
@@ -54,19 +57,21 @@ export class EditVariables {
                               <div class="cell table-label">Name</div>
                               <div class="cell table-label">Expression</div>
                               <div class="cell table-label">Value</div>
+                              <div class="cell table-label">Build Error</div>
                               <div class="cell table-label"></div>
                         </div>`;
         }
         for(let variable of splitCommands){
             variablesHTML += `
-                <div class="cell">${variable.varName}</div>
-                <div class="cell" data-name="${variable.varName}">${variable.expression}</div>
-                <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
-                <div class="cell actions-cell">
-                    <img src="./wallet/assets/icons/eye.svg" data-local-action="showVarValue ${variable.varName}" class="pointer" alt="value">
-                    <img src="./wallet/assets/icons/edit.svg" data-local-action="openEditor ${variable.varName}" class="pointer" alt="edit">
-                    <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="delete">
-                </div>`
+                <div class="table-row" data-local-action="openEditor ${variable.varName}">
+                    <div class="cell">${variable.varName}</div>
+                    <div class="cell" data-name="${variable.varName}">${variable.expression}</div>
+                    <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
+                    <div class="cell">${variable.buildError || "......."}</div>
+                    <div class="cell actions-cell">
+                        <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="delete">
+                    </div>
+                </div>`;
         }
         this.variablesHTML = variablesHTML;
     }
@@ -135,15 +140,11 @@ export class EditVariables {
     async saveVariable(varName, newName, newExpression){
         let splitCommands = this.commands.split("\n");
         let commandIndex= splitCommands.findIndex(command => command.includes(`@${varName}`));
+        newExpression = assistOS.UI.unsanitize(newExpression);
         splitCommands[commandIndex] = `@${newName} ${newExpression}`;
         this.commands = splitCommands.join("\n");
         await this.updateCommands(this.commands);
         await this.documentPresenter.refreshVariables();
     }
 
-    async showVarValue(_eventTarget, varName) {
-        await assistOS.UI.showModal("variable-value", {
-            "var-name": varName
-        })
-    }
 }

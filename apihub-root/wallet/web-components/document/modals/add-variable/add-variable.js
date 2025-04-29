@@ -45,6 +45,7 @@ export class AddVariable {
         }
         let variableName = formData.data.name;
         let command = formData.data.command;
+        command = assistOS.UI.unsanitize(command);
         let variableType = formData.data.type;
         if(variableType === "Any"){
             variableType = undefined;

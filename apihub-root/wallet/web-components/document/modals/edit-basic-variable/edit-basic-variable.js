@@ -7,6 +7,7 @@ export class EditBasicVariable {
         this.document = documentPresenter._document;
         this.element.classList.add("maintain-focus");
         this.varName = this.element.getAttribute("data-name");
+        this.variable = documentPresenter.variables.find(variable => variable.varName === this.varName);
         this.expression = decodeURIComponent(this.element.getAttribute("data-expression"));
         this.invalidate();
     }
@@ -16,8 +17,12 @@ export class EditBasicVariable {
     }
 
     afterRender(){
-        let valueInput = this.element.querySelector("#command");
-        valueInput.value = this.expression;
+        let expressionInput = this.element.querySelector("#command");
+        expressionInput.value = this.expression;
+        let valueInput = this.element.querySelector("#value");
+        valueInput.value = this.variable.value;
+        let errorsInput = this.element.querySelector("#errors");
+        errorsInput.value = this.variable.buildError;
     }
     async editVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
