@@ -1,24 +1,19 @@
-const documentModule = require("assistos").loadModule("document", {});
 const spaceModule = require("assistos").loadModule("space", {});
-export class AddVariable {
+
+export class EditVariableTab {
     constructor(element, invalidate) {
-        this.invalidate = invalidate;
         this.element = element;
+        this.invalidate = invalidate;
         this.documentId = this.element.getAttribute("data-document-id");
-        this.chapterId = this.element.getAttribute("data-chapter-id");
-        this.paragraphId = this.element.getAttribute("data-paragraph-id");
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this.document = documentPresenter._document;
-        if(this.chapterId){
-            this.chapter = this.document.chapters.find(chapter => chapter.id === this.chapterId);
-        }
-        if(this.paragraphId){
-            this.paragraph = this.chapter.paragraphs.find(paragraph => paragraph.id === this.paragraphId);
-        }
         this.element.classList.add("maintain-focus");
+        this.varName = this.element.getAttribute("data-name");
+        this.expression = decodeURIComponent(this.element.getAttribute("data-expression"));
         this.invalidate();
     }
-    async beforeRender(){
+
+    async beforeRender() {
         let commands = await spaceModule.getCommands(assistOS.space.id);
         let variableCommandOptions = "";
         for(let command of commands){
@@ -33,7 +28,10 @@ export class AddVariable {
         }
         this.variableTypeOptions = variableTypeOptions;
     }
-    afterRender(){
+
+    afterRender() {
+        let expressionInput = this.element.querySelector("#expression");
+        expressionInput.value = this.expression;
         let commandSelect = this.element.querySelector("#command");
         commandSelect.addEventListener("change", (event) => {
             let value = event.target.value;
@@ -79,7 +77,7 @@ export class AddVariable {
             }
         })
     }
-    async addVariable(targetElement){
+    async editVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
         if(!formData.isValid){
             return;
@@ -105,36 +103,10 @@ export class AddVariable {
         if(command === "assign"){
             command = ":=";
         }
-        let fullCommand = `@${variableName} ${command} ${expression}`;
-
-        if(this.paragraphId){
-            this.paragraph.commands += fullCommand;
-            this.paragraph.commands += `\n`;
-            await documentModule.updateParagraph(assistOS.space.id, this.chapterId,
-                this.paragraphId,
-                this.paragraph.text,
-                this.paragraph.commands,
-                this.paragraph.comments)
-        } else if(this.chapterId){
-            this.chapter.commands += fullCommand;
-            this.chapter.commands += `\n`;
-            await documentModule.updateChapter(assistOS.space.id, this.chapterId,
-                this.chapter.title,
-                this.chapter.commands,
-                this.chapter.comments);
-        } else {
-            this.document.commands += fullCommand;
-            this.document.commands += `\n`;
-            await documentModule.updateDocument(assistOS.space.id, this.documentId,
-                this.document.title,
-                this.document.category,
-                this.document.infoText,
-                this.document.commands,
-                this.document.comments,);
-        }
-        await assistOS.UI.closeModal(this.element, true);
-    }
-    async closeModal(){
-        await assistOS.UI.closeModal(this.element);
+        expression = `${command} ${expression}`;
+        await assistOS.UI.closeModal(this.element, {
+            varName: variableName,
+            expression: expression,
+        });
     }
 }

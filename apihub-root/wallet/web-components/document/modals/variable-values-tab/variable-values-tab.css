@@ -1,0 +1,10 @@
+variable-values-tab{
+    display: flex;
+    justify-content: space-between;
+}
+variable-values-tab .form-item{
+    width: 300px;
+}
+variable-values-tab textarea{
+    height: 300px;
+}
