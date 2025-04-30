@@ -1,5 +1,6 @@
 paragraph-item {
     position: relative;
+    background-color: var(--modal-background);
 }
 
 .paragraph-header {
@@ -10,11 +11,8 @@ paragraph-item {
     font-size: 11px;
 }
 
-.highlight-paragraph-header {
-    background: var(--white-blue-tint) !important;
-}
 .highlighted-paragraph{
-    background-color: var(--white-blue-tint);
+    background-color: var(--white);
 }
 .paragraph-container{
 
@@ -33,7 +31,7 @@ paragraph-item {
     justify-content: space-between;
     padding: 10px;
     width: 100%;
-    background-color: var(--commands-background);
+    background-color: var(--modal-background);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
     border-bottom: 2px solid var(--very-light-gray);
@@ -119,7 +117,6 @@ textarea.paragraph-commands{
     line-height: 1.2;
     resize: none;
     border: none;
-    border-radius: 5px;
     cursor: text;
     padding: 5px;
     min-height: 38px;
@@ -127,6 +124,7 @@ textarea.paragraph-commands{
     width: 100%;
     word-break: break-all;
     hyphens: auto;
+    background-color: inherit;
 }
 
 .paragraph-text:empty {

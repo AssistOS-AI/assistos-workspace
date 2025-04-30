@@ -50,17 +50,6 @@ export class EditVariables {
         this.initVariables();
         let splitCommands = this.splitCommands();
         let variablesHTML = "";
-        this.tableLabels = "";
-        if(splitCommands.length > 0){
-            this.tableLabels = `
-                        <div class="table-labels">
-                              <div class="cell table-label">Name</div>
-                              <div class="cell table-label">Expression</div>
-                              <div class="cell table-label">Value</div>
-                              <div class="cell table-label">Status</div>
-                              <div class="cell table-label"></div>
-                        </div>`;
-        }
         for(let variable of splitCommands){
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
@@ -68,8 +57,12 @@ export class EditVariables {
                     <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                     <div class="cell">${variable.status || "......."}</div>
                     <div class="cell actions-cell">
-                        <img src="./wallet/assets/icons/eye.svg" data-local-action="openEditor ${variable.varName}" class="pointer" alt="edit">
-                        <img src="./wallet/assets/icons/trash-can.svg" data-local-action="deleteVariable ${variable.varName}" class="pointer" alt="delete">
+                        <div class="action-button-container right-margin" data-local-action="openEditor ${variable.varName}">
+                            <img src="./wallet/assets/icons/eye.svg" class="pointer" alt="edit">
+                        </div>
+                        <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">
+                            <img src="./wallet/assets/icons/trash-can.svg" class="pointer delete-icon" alt="delete">
+                        </div>
                     </div>
                 `;
         }

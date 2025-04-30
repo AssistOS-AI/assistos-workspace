@@ -242,8 +242,6 @@ export class ParagraphItem {
     async highlightParagraph() {
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.add("highlight-paragraph-header");
         let paragraphText = this.element.querySelector('.paragraph-text');
         paragraphText.classList.add("focused");
         let paragraphContainer = this.element.querySelector('.paragraph-container');
@@ -256,8 +254,6 @@ export class ParagraphItem {
         chapterPresenter.focusOutHandler();
         let paragraphContainer = this.element.querySelector('.paragraph-container');
         paragraphContainer.classList.remove("highlighted-paragraph");
-        let paragraphHeaderContainer = this.element.querySelector('.paragraph-header');
-        paragraphHeaderContainer.classList.remove("highlight-paragraph-header");
     }
 
     async focusOutHandler() {

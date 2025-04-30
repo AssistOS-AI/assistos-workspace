@@ -11,10 +11,15 @@
     margin-right: 10px;
 }
 .table-labels{
-    font-weight: bold;
     font-size: 16px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
+    color: var(--light-gray-text)
+}
+.table-actions{
+    display: flex;
+    justify-content: end;
+    align-items: center;
 }
 .right-margin{
     margin-right: 10px;
@@ -61,4 +66,28 @@ edit-variables .focused-field{
 .var-value{
     position: absolute;
     left: 0;
+}
+.action-button-container{
+    height: fit-content;
+    border-radius: 5px;
+    background-color: var(--action-button-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+}
+.delete-button-container{
+    border-radius: 5px;
+    background-color: var(--delete-button-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+}
+.delete-icon{
+    filter: invert(1) brightness(2);
+    width: 14px;
+}
+.right-margin{
+    margin-right: 5px;
 }

@@ -1,15 +1,16 @@
-<div class="plugin-header">
-    <div class="header-left-section">
-        <div class="plugin-title">Edit Variables</div>
-        <button class="gray-button" data-local-action="openAddVariableModal">+ Add Variable</button>
-    </div>
-    <div class="close" data-local-action="closePlugin">
-        <span aria-hidden="true">&times;</span>
-    </div>
-</div>
-
 <div class="variables-table-container">
-    $$tableLabels
+    <div class="table-labels">
+        <div class="cell table-label">Name</div>
+        <div class="cell table-label">Expression</div>
+        <div class="cell table-label">Value</div>
+        <div class="cell table-label">Status</div>
+        <div class="cell table-label table-actions">
+            <div class="action-button-container pointer right-margin" data-local-action="openAddVariableModal">
+                <img src="./wallet/assets/icons/plus.svg" alt="add">
+            </div>
+            <div class="close" data-local-action="closePlugin">&times;</div>
+        </div>
+    </div>
     <div class="variables-table">
         $$variablesHTML
     </div>

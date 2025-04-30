@@ -17,11 +17,10 @@
 }
 
 .highlighted-chapter{
-    background-color: var(--white-blue-tint);
+   border-left: 3px solid var(--strong-blue);
 }
 
 .chapter-container{
-
     border-radius: 5px;
 }
 .chapter-container.highlighted-chapter{
@@ -72,11 +71,6 @@
     cursor: pointer;
     transition-duration: 0.3s;
 }
-
-.highlighted-chapter{
-    background-color: var(--white-blue-tint);
-}
-
 .chapter-title-container.highlighted-chapter{
     padding: 10px;
 }
@@ -125,7 +119,6 @@ html[theme="dark"] .arrow svg {
 chapter-item {
     width: 100%;
     cursor: default;
-    border-radius: 5px;
     display: flex;
     flex-direction: column;
     min-width: 0;
