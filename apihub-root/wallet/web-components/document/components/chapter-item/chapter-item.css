@@ -229,3 +229,6 @@ html[theme="dark"] input.chapter-title{
 .chapter-plugins-icons{
     display: flex;
 }
+.rotate-down{
+    transform: rotate(180deg);
+}

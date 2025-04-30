@@ -206,23 +206,6 @@ async function addSecret(request, response){
     const spaceId = request.params.spaceId;
     try {
         await secrets.addSecret(spaceId, request.userId, request.body.name, request.body.secretKey, request.body.value);
-        await setServerlessEnv(spaceId, request.sessionId);
-        utils.sendResponse(response, 200, "application/json", {});
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error}`,
-        });
-    }
-}
-async function addSecrets(request, response){
-    const spaceId = request.params.spaceId;
-    try
-    {
-        let secretsArr = request.body;
-        for(let secret of secretsArr){
-            await secrets.addSecret(spaceId, request.userId, secret.name, secret.secretKey, secret.value);
-        }
-        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -234,7 +217,6 @@ async function deleteSecret(request, response){
     const spaceId = request.params.spaceId;
     try {
         await secrets.deleteSecret(spaceId, request.body.secretKey);
-        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -252,7 +234,6 @@ async function editSecret(request, response) {
     const userId = request.userId;
     try {
         await secrets.putSpaceKey(spaceId, userId, request.body.secretKey, request.body.name, request.body.value);
-        await setServerlessEnv(spaceId, request.sessionId);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -261,18 +242,30 @@ async function editSecret(request, response) {
     }
 }
 
-async function setServerlessEnv(serverlessId, sessionId){
+async function restartServerless(request, response){
+    let serverlessId = request.params.spaceId;
     const baseURL = process.env.BASE_URL;
-    let response = await fetch(`${baseURL}/proxy/setEnv/${serverlessId}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json',
-            'Cookie': `sessionId=${sessionId}`
+    try {
+        let res = await fetch(`${baseURL}/proxy/setEnv/${serverlessId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Cookie': `sessionId=${request.sessionId}`
+            }
+        });
+        if(res.status !== 200){
+            utils.sendResponse(response, 500, "application/json", {
+                message: `Serverless restart failed: ${res.status}`,
+            });
         }
-    });
-    if(response.status !== 200){
-        throw new Error(`Failed to restart serverless ${serverlessId}: ${response.statusText}`);
+    } catch (e) {
+        utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${error}`,
+        });
     }
+
+    utils.sendResponse(response, 200, "application/json", {});
+
 }
 async function getChatTextResponse(request, response) {
     const spaceId = request.params.spaceId;
@@ -614,7 +607,6 @@ module.exports = {
     createSpace,
     deleteSpace,
     addSecret,
-    addSecrets,
     editSecret,
     getSecretsMasked,
     deleteSecret,
@@ -622,5 +614,6 @@ module.exports = {
     getChatTextStreamingResponse,
     importPersonality,
     chatCompleteParagraph,
-    listUserSpaces
+    listUserSpaces,
+    restartServerless
 }

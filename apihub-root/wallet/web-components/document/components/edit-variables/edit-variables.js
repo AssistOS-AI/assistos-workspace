@@ -87,6 +87,11 @@ export class EditVariables {
         }
     }
     async deleteVariable(targetElement, varName){
+        let message = "Are you sure you want to delete this variable?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if (!confirmation) {
+            return;
+        }
         let splitCommands = this.commands.split("\n");
         let commandIndex = splitCommands.findIndex(command => command.includes(`@${varName}`));
         splitCommands.splice(commandIndex, 1);

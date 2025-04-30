@@ -108,13 +108,6 @@ html, body,
     height: 100%;
 }
 
-.invisible {
-    visibility: hidden;
-}
-
-.hidden {
-    display: none;
-}
 
 body {
     margin: 0;
@@ -830,4 +823,12 @@ dialog {
 }
 .timeout-toast.error .message-type{
     color: #DC3545;
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+.hidden {
+    display: none;
 }

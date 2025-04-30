@@ -1,5 +1,5 @@
 const documentModule = require("assistos").loadModule("document", {});
-import {getVarDefinitionCommand} from "../../../../imports.js";
+const spaceModule = require("assistos").loadModule("space", {});
 export class AddVariable {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
@@ -18,23 +18,62 @@ export class AddVariable {
         this.element.classList.add("maintain-focus");
         this.invalidate();
     }
-    beforeRender(){
-        let variableTypes = ["Any", "Table", "Document"];
-        let variableTypeOptions = "";
-        for(let type of variableTypes){
+    async beforeRender(){
+        let commands = await spaceModule.getCommands(assistOS.space.id);
+        let variableCommandOptions = "";
+        for(let command of commands){
+            variableCommandOptions += `<option value="${command}">${command}</option>`;
+        }
+        this.variableCommandOptions = variableCommandOptions;
+
+        let types = await spaceModule.getCustomTypes(assistOS.space.id);
+        let variableTypeOptions = `<option value="" selected disabled>Select Type</option>`;
+        for(let type of types){
             variableTypeOptions += `<option value="${type}">${type}</option>`;
         }
         this.variableTypeOptions = variableTypeOptions;
     }
     afterRender(){
+        let commandSelect = this.element.querySelector("#command");
+        commandSelect.addEventListener("change", (event) => {
+            let value = event.target.value;
+            let typeInput = this.element.querySelector(".form-item.type");
+            if(value === "new"){
+                typeInput.classList.remove("hidden");
+            } else {
+                typeInput.classList.add("hidden");
+            }
+            if(value === "macros" || value === "jsdef"){
+                let expressionInput = this.element.querySelector(".expression-input");
+                expressionInput.classList.add("hidden");
+                expressionInput.name = "";
+                expressionInput.id = "";
+                let expressionTextarea = this.element.querySelector(".expression-multi-line");
+                expressionTextarea.classList.remove("hidden");
+                expressionTextarea.name = "expression";
+                expressionTextarea.id = "expression";
+            } else {
+                let expressionInput = this.element.querySelector(".expression-input");
+                expressionInput.classList.remove("hidden");
+                expressionInput.name = "expression";
+                expressionInput.id = "expression";
+                let expressionTextarea = this.element.querySelector(".expression-multi-line");
+                expressionTextarea.classList.add("hidden");
+                expressionTextarea.name = "";
+                expressionTextarea.id = "";
+            }
+        });
         let typeSelect = this.element.querySelector("#type");
         typeSelect.addEventListener("change", (event) => {
             let value = event.target.value;
+            let columnsInput = this.element.querySelector(".form-item.columns");
+            let expressionInput = this.element.querySelector(".form-item.expression");
             if(value === "Table"){
-                let commandInput = this.element.querySelector(".form-item.command");
-                commandInput.classList.add("hidden");
-                let columnsInput = this.element.querySelector(".form-item.columns");
+                expressionInput.classList.add("hidden");
                 columnsInput.classList.remove("hidden");
+            } else {
+                expressionInput.classList.remove("hidden");
+                columnsInput.classList.add("hidden");
             }
         })
     }
@@ -45,17 +84,25 @@ export class AddVariable {
         }
         let variableName = formData.data.name;
         let command = formData.data.command;
-        command = assistOS.UI.unsanitize(command);
-        let variableType = formData.data.type;
-        if(variableType === "Any"){
-            variableType = undefined;
-        } else if(variableType === "Table"){
-            formData.data.columns = parseInt(formData.data.columns);
-            for(let i = 0; i < formData.data.columns; i++){
-                command += `c${i} `;
+        let expression = formData.data.expression;
+        expression = assistOS.UI.unsanitize(expression);
+
+        if(command === "new"){
+            let variableType = formData.data.type;
+            if(!variableType){
+                return alert("Please select a type");
+            }
+            if(variableType === "Table"){
+                formData.data.columns = parseInt(formData.data.columns);
+                for(let i = 0; i < formData.data.columns; i++){
+                    expression += `c${i} `;
+                }
             }
         }
-        let fullCommand = getVarDefinitionCommand(variableName, variableType, command);
+        if(command === "assign"){
+            command = ":=";
+        }
+        let fullCommand = `@${variableName} ${command} ${expression}`;
 
         if(this.paragraphId){
             this.paragraph.commands += fullCommand;

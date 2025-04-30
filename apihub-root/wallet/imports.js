@@ -14,7 +14,6 @@ import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 import CustomAudio from "./core/media/CustomAudio.js";
 import videoUtils from "./core/media/videoUtils.js";
 
-import {getVarDefinitionCommand} from "./core/soplang/utils.js"
 export {
     getDemoUserCredentials,
     insertTextAtCursor,
@@ -26,5 +25,4 @@ export {
     generateId,
     CustomAudio,
     videoUtils,
-    getVarDefinitionCommand
 };

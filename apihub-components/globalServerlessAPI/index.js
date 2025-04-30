@@ -14,6 +14,7 @@ const {
     putFile,
     deleteFile,
     deleteSpace,
+    restartServerless,
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -71,9 +72,10 @@ function Space(server) {
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets", getSecretsMasked);
     server.post("/spaces/:spaceId/secrets", addSecret);
-    server.post("/spaces/:spaceId/secrets/multiple", addSecrets);
     server.put("/spaces/:spaceId/secrets", editSecret);
     server.put("/spaces/:spaceId/secrets/delete", deleteSecret);
+
+    server.put("/spaces/:spaceId/restart", restartServerless);
 }
 
 module.exports = Space;
