@@ -169,7 +169,7 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        let result = await userModule.loginUser(this.email, authCode, "emailCode");
+        let result = await userModule.loginUser(this.email, authCode, "email");
         if(result.operation !== "success"){
             throw new Error(result.message);
         }
