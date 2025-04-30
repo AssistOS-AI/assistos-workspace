@@ -1,0 +1,9 @@
+.expression-multi-line {
+    resize: none;
+}
+#name{
+    width: 150px;
+}
+#command{
+    width: 100px;
+}

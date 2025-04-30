@@ -4,16 +4,28 @@
     "services": [],
     "components": [
         {
+            "name": "variable-values-tab",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "VariableValuesTab"
+        },
+        {
+            "name": "edit-variable-tab",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "EditVariableTab"
+        },
+        {
             "name": "table-editor",
             "directory": "document",
             "type": "components",
             "presenterClassName": "TableEditor"
         },
         {
-            "name": "edit-basic-variable",
+            "name": "document-variable-details",
             "directory": "document",
             "type": "modals",
-            "presenterClassName": "EditBasicVariable"
+            "presenterClassName": "DocumentVariableDetails"
         },
         {
             "name": "add-variable",

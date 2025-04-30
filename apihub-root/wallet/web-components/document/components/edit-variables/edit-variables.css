@@ -11,7 +11,6 @@
     margin-right: 10px;
 }
 .table-labels{
-    padding: 10px 0;
     font-weight: bold;
     font-size: 16px;
     display: grid;
@@ -38,25 +37,15 @@
 
 .variables-table{
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
+    grid-template-columns: repeat(5, 1fr);
 }
 
-.table-row{
-    cursor: pointer;
-    margin: 10px 0;
-    padding: 10px 0;
-    display: flex;
-    border-bottom: 0.5px solid var(--light-gray-text);
-}
-.table-row:hover{
-    background-color: var(--white);
-}
 .cell {
-    flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    padding: 10px;
+    padding: 5px;
+    border-bottom: 1px solid var(--very-light-gray);
 }
 .actions-cell{
     display: flex;

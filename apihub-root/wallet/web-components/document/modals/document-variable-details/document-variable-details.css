@@ -1,0 +1,54 @@
+document-variable-details{
+    display: block;
+    width: 700px;
+    height: 500px;
+}
+document-variable-details textarea{
+    resize: none;
+}
+.modal-body{
+    height: 100%;
+}
+.tabs-section {
+    display: flex;
+    font-size: 18px;
+    font-weight: 400;
+}
+
+.tab {
+    padding: 15px 30px;
+    display: flex;
+    align-items: center;
+}
+.tab-icon{
+    --icon-color: #222222; /* default icon color */
+    width: 24px;
+    height: 24px;
+    background-color: var(--icon-color);
+    margin-right: 10px;
+}
+.values{
+    -webkit-mask: url("./wallet/assets/icons/eye.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/eye.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.edit{
+    -webkit-mask: url("./wallet/assets/icons/edit.svg") no-repeat center;
+    mask: url("./wallet/assets/icons/edit.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.active {
+    color: var(--blue-button);
+    border-bottom: 2px solid var(--blue-button);
+}
+.active .tab-icon{
+    --settings-icon: var(--blue-button);
+}
+
+.tab-content {
+    overflow-y: auto;
+    padding: 10px;
+    width: 100%;
+}
