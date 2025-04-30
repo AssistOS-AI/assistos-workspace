@@ -3,7 +3,7 @@ const {fsPromises} = require("fs");
 async function WebAssistant() {
     const self = {};
 
-    const Persistence = await $$.loadPlugin("defaultPersistence");
+    const Persistence = await $$.loadPlugin("DefaultPersistence");
 
     await Persistence.configureTypes({
         webAssistant: {
@@ -193,6 +193,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["defaultPersistence"];
+        return ["DefaultPersistence"];
     }
 };

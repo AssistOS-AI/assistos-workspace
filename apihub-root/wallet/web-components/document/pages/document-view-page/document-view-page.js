@@ -9,6 +9,7 @@ export class DocumentViewPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.observers = [];
         this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
             this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
@@ -331,11 +332,13 @@ export class DocumentViewPage {
         let tasksMenu = this.element.querySelector(".tasks-menu");
         let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
         let scriptArgs = this.element.querySelector(".script-modal");
+        let buildIcon = this.element.querySelector(".build-document");
         this.attachTooltip(this.undoButton, "Undo");
         this.attachTooltip(this.redoButton, "Redo");
         this.attachTooltip(tasksMenu, "Tasks");
         this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
+        this.attachTooltip(buildIcon, "Build Document");
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
@@ -740,6 +743,14 @@ export class DocumentViewPage {
             await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId);
         }
     }
+
+    async closePlugin(targetElement) {
+        let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        pluginElement.remove();
+        pluginUtils.removeHighlightPlugin("infoText", this);
+    }
+
     async undoOperation(targetElement){
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
@@ -758,6 +769,38 @@ export class DocumentViewPage {
         } else {
             assistOS.showToast("Nothing to redo.", "info");
             this.toggleEditingState(true);
+        }
+    }
+    async buildForDocument(button){
+        button.classList.add("disabled");
+        try {
+            await spaceModule.buildForDocument(assistOS.space.id, this._document.docId);
+            await assistOS.showToast("Build successful", "success", 5000);
+        } catch (e) {
+            await assistOS.showToast("Build failed", "error", 5000);
+        } finally {
+            button.classList.remove("disabled");
+            await this.refreshVariables();
+            this.notifyObservers("variables")
+        }
+    }
+    observeChange(elementId, callback, callbackAsyncParamFn) {
+        let obj = {elementId: elementId, callback: callback, param: callbackAsyncParamFn};
+        callback.refferenceObject = obj;
+        this.observers.push(new WeakRef(obj));
+    }
+    notifyObservers(prefix) {
+        this.observers = this.observers.reduce((accumulator, item) => {
+            if (item.deref()) {
+                accumulator.push(item);
+            }
+            return accumulator;
+        }, []);
+        for (const observerRef of this.observers) {
+            const observer = observerRef.deref();
+            if (observer && observer.elementId.startsWith(prefix)) {
+                observer.callback(observer.param);
+            }
         }
     }
 }

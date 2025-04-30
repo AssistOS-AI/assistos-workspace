@@ -514,6 +514,6 @@ module.exports = {
         }
     },
     getDependencies: function(){
-        return ["DefaultPersistence", "AgentWrapper"];
+        return ["DefaultPersistence"];
     }
 }

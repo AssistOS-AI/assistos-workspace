@@ -13,7 +13,7 @@ export class VariablesTab{
         let variablesHTML = "";
         for (let variable of this.variables) {
             variablesHTML +=
-                 `<div class="cell">${variable.varId}</div>
+                 `<div class="cell">${variable.docId}</div>
                  <div class="cell">${variable.varName}</div>
                  <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                  <div class="cell pointer details" data-local-action="showDetails ${variable.id}">.........</div>`;

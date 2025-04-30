@@ -496,11 +496,6 @@
             "type": "components"
         },
         {
-            "name": "announcement-item",
-            "directory": "space-application",
-            "type": "components"
-        },
-        {
             "name": "action-box",
             "directory": "space-application",
             "type": "components"
@@ -512,22 +507,10 @@
             "presenterClassName": "ChatItem"
         },
         {
-            "name": "announcements-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "AnnouncementsPage"
-        },
-        {
             "name": "agents-page",
             "directory": "agent",
             "type": "pages",
             "presenterClassName": "AgentsPage"
-        },
-        {
-            "name": "add-announcement-modal",
-            "directory": "space-application",
-            "type": "modals",
-            "presenterClassName": "AddAnnouncementModal"
         },
         {
             "name": "add-agent",
@@ -540,12 +523,6 @@
             "directory": "space-application",
             "type": "modals",
             "presenterClassName": "EditApikeyModal"
-        },
-        {
-            "name": "edit-announcement-modal",
-            "directory": "space-application",
-            "type": "modals",
-            "presenterClassName": "EditAnnouncementModal"
         },
         {
             "name": "show-error-modal",

@@ -10,7 +10,7 @@ const execFileAsync = promisify(execFile)
 async function Application() {
     let self = {};
     let WorkspacePlugin = await $$.loadPlugin("Workspace");
-    let persistence = await $$.loadPlugin("defaultPersistence");
+    let persistence = await $$.loadPlugin("DefaultPersistence");
 
     persistence.configureTypes({
         application: {
@@ -396,7 +396,7 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["Workspace", "defaultPersistence"];
+        return ["Workspace", "DefaultPersistence"];
     }
 }
 

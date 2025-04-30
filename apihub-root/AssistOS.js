@@ -179,7 +179,6 @@ class AssistOS {
         assistOS.space = Space.getInstance(spaceStatus);
         assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
-        //await assistOS.loadAgent(assistOS.space.id);
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
 
         defaultPlugins = await defaultPlugins.json();
@@ -208,7 +207,7 @@ class AssistOS {
         } catch (error) {
             agent = await  personalityModule.getDefaultAgent(spaceId);
         }
-        localStorage.setItem("agent", agent.id);
+        localStorage.setItem("agent", agent.name);
         assistOS.agent = agent;
     }
 

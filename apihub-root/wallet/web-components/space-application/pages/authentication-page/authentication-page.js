@@ -146,7 +146,7 @@ export class AuthenticationPage {
         let loader = assistOS.UI.showLoading();
         let result = await userModule.userExists(email);
         await assistOS.UI.hideLoading(loader);
-        if(result.account_exists){
+        if(result.userExists){
             result = await userModule.generateAuthCode(email);
             this.email = email;
         } else {
@@ -169,13 +169,15 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        let result = await userModule.loginUser(this.email, authCode);
+        let result = await userModule.loginUser(this.email, authCode, "emailCode");
         if(result.operation !== "success"){
             throw new Error(result.message);
         }
         if(this.createSpace){
             let spaceName = this.email.split('@')[0];
+            await assistOS.UI.showLoading();
             await spaceModule.createSpace(spaceName);
+            await assistOS.UI.hideLoading();
         }
         await assistOS.UI.showLoading();
         await assistOS.loadPage(this.email);

@@ -45,6 +45,7 @@ export class AddVariable {
         }
         let variableName = formData.data.name;
         let command = formData.data.command;
+        command = assistOS.UI.unsanitize(command);
         let variableType = formData.data.type;
         if(variableType === "Any"){
             variableType = undefined;
@@ -69,8 +70,8 @@ export class AddVariable {
             this.chapter.commands += `\n`;
             await documentModule.updateChapter(assistOS.space.id, this.chapterId,
                 this.chapter.title,
-                this.chapter.comments,
-                this.chapter.commands);
+                this.chapter.commands,
+                this.chapter.comments);
         } else {
             this.document.commands += fullCommand;
             this.document.commands += `\n`;
