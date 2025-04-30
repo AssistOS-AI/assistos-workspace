@@ -360,7 +360,6 @@ async function getChatTextStreamingResponse(request, response) {
                 }
             }
         );
-
         await streamContext.streamPromise;
     } catch (error) {
         if (!response.headersSent) {
@@ -368,7 +367,6 @@ async function getChatTextStreamingResponse(request, response) {
         }
     }
 }
-
 async function headFile(request, response) {
     const fileId = request.params.fileId;
     const type = request.headers['content-type'];
