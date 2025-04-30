@@ -6,11 +6,7 @@
     <title>AssistOS</title>
     <link href="wallet/index.css" rel="stylesheet">
     <base href="/" id="baseTag">
-    <script defer>
-        let currentTheme = localStorage.getItem('theme');
-        const htmlElement = document.getElementsByTagName('html')[0];
-        htmlElement.setAttribute('theme', currentTheme);
-    </script>
+
     <style id="default-loader-style">
         dialog {
             background: none !important;
@@ -133,9 +129,7 @@
     <div id="page-content"></div>
     <div class="toast-container"></div>
 </div>
-<script id="default-loader-script">
-    document.querySelector('#default-loader-markup').showModal();
-</script>
+
 <script src ="marked.min.js"></script>
 <script src="wallet/bundles/versionLessBoot.js"></script>
 <script src="wallet/bundles/assistos_sdk.js"></script>

@@ -1,6 +1,11 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import NotificationManager from "./wallet/core/NotificationManager.js";
 
+document.querySelector('#default-loader-markup').showModal();
+let currentTheme = localStorage.getItem('theme');
+const htmlElement = document.getElementsByTagName('html')[0];
+htmlElement.setAttribute('theme', currentTheme);
+
 const userModule = require('assistos').loadModule('user', {});
 const spaceModule = require('assistos').loadModule('space', {});
 const applicationModule = require('assistos').loadModule('application', {});
@@ -477,7 +482,6 @@ function closeDefaultLoader() {
     }
     UILoader.modal.close();
     UILoader.modal.remove();
-    UILoader.script.remove();
     UILoader.style.remove();
 }
 
