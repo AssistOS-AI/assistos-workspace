@@ -70,7 +70,7 @@
     --selected-chat: #E1ECF4;
     --selected-chat-outline: #0000000D;
     --tab: #ECECEC;
-    --document-font-color: #000000;
+
     /* New Impl */
     --modal-background: #f9f9f9;
     --gray-button-border: #CCCCCC;
@@ -79,6 +79,8 @@
     --action-button-background: #E9E9E9;
     --delete-button-background: #C80001EE;
     --chapter-border: #EFEFEF;
+    --plugin-focus: #919191;
+    --document-font-color: #646464;
 }
 
 * {

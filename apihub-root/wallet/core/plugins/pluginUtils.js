@@ -23,7 +23,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
 }
 function removeHighlightPlugin(type, presenter) {
     let highlightPluginClass = `${type}-highlight-plugin`;
-    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${highlightPluginClass}`);
+    let pluginIcon = presenter.element.querySelector(`.action-button-container.${highlightPluginClass}`);
     pluginIcon.classList.remove(highlightPluginClass);
 }
 function highlightPlugin(type, componentName, presenter) {
@@ -32,7 +32,7 @@ function highlightPlugin(type, componentName, presenter) {
     if(highlightPlugin){
         highlightPlugin.classList.remove(highlightPluginClass);
     }
-    let pluginIcon = presenter.element.querySelector(`.plugin-circle.${componentName}`);
+    let pluginIcon = presenter.element.querySelector(`.action-button-container.${componentName}`);
     pluginIcon.classList.add(highlightPluginClass);
 }
 async function initializePlugin(plugin) {
@@ -80,7 +80,7 @@ async function renderPluginIcons(containerElement, type) {
     }
 }
 function attachPluginTooltip(containerElement, plugin, type) {
-    containerElement.classList.add("plugin-circle", plugin.component, "pointer");
+    containerElement.classList.add("action-button-container", plugin.component, "pointer");
     containerElement.setAttribute("data-local-action", `openPlugin ${type} ${plugin.component}`);
     let tooltip = document.createElement("div");
     tooltip.classList.add("plugin-name");

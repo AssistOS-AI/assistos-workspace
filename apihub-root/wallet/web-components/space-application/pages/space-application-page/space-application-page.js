@@ -1,5 +1,3 @@
-import {changeSelectedPageFromSidebar} from "../../../../imports.js";
-
 export class SpaceApplicationPage {
     constructor(element, invalidate) {
         this.element = element;
