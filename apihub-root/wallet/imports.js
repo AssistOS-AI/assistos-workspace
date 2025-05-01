@@ -13,7 +13,7 @@ import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 //mediaPlayers
 import CustomAudio from "./core/media/CustomAudio.js";
 import videoUtils from "./core/media/videoUtils.js";
-
+import {decodePercentCustom} from "./core/soplang/utils.js";
 export {
     getDemoUserCredentials,
     insertTextAtCursor,
@@ -25,4 +25,5 @@ export {
     generateId,
     CustomAudio,
     videoUtils,
+    decodePercentCustom
 };

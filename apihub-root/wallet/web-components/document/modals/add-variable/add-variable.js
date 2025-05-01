@@ -33,6 +33,30 @@ export class AddVariable {
         }
         this.variableTypeOptions = variableTypeOptions;
     }
+    changeExpressionInputToMultiLine(){
+        let expressionInput = this.element.querySelector(".expression-input");
+        expressionInput.classList.add("hidden");
+        expressionInput.name = "";
+        expressionInput.id = "";
+        let expressionTextarea = this.element.querySelector(".expression-multi-line");
+        expressionTextarea.classList.remove("hidden");
+        expressionTextarea.name = "expression";
+        expressionTextarea.id = "expression";
+        let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
+        parametersInput.classList.remove("hidden");
+    }
+    changeMultiLineToSingleLine(){
+        let expressionInput = this.element.querySelector(".expression-input");
+        expressionInput.classList.remove("hidden");
+        expressionInput.name = "expression";
+        expressionInput.id = "expression";
+        let expressionTextarea = this.element.querySelector(".expression-multi-line");
+        expressionTextarea.classList.add("hidden");
+        expressionTextarea.name = "";
+        expressionTextarea.id = "";
+        let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
+        parametersInput.classList.remove("hidden");
+    }
     afterRender(){
         let commandSelect = this.element.querySelector("#command");
         commandSelect.addEventListener("change", (event) => {
@@ -44,40 +68,11 @@ export class AddVariable {
                 typeInput.classList.add("hidden");
             }
             if(value === "macro" || value === "jsdef"){
-                let expressionInput = this.element.querySelector(".expression-input");
-                expressionInput.classList.add("hidden");
-                expressionInput.name = "";
-                expressionInput.id = "";
-                let expressionTextarea = this.element.querySelector(".expression-multi-line");
-                expressionTextarea.classList.remove("hidden");
-                expressionTextarea.name = "expression";
-                expressionTextarea.id = "expression";
+                this.changeExpressionInputToMultiLine();
             } else {
-                let expressionInput = this.element.querySelector(".expression-input");
-                expressionInput.classList.remove("hidden");
-                expressionInput.name = "expression";
-                expressionInput.id = "expression";
-                let expressionTextarea = this.element.querySelector(".expression-multi-line");
-                expressionTextarea.classList.add("hidden");
-                expressionTextarea.name = "";
-                expressionTextarea.id = "";
+                this.changeMultiLineToSingleLine();
             }
         });
-        let typeSelect = this.element.querySelector("#type");
-        typeSelect.addEventListener("change", (event) => {
-            let value = event.target.value;
-            let columnsInput = this.element.querySelector(".form-item.columns");
-            let expressionFormItem = this.element.querySelector(".form-item.expression");
-            if(value === "Table"){
-                expressionFormItem.classList.add("hidden");
-                let expressionInput = this.element.querySelector("#expression");
-                expressionInput.value = "";
-                columnsInput.classList.remove("hidden");
-            } else {
-                expressionFormItem.classList.remove("hidden");
-                columnsInput.classList.add("hidden");
-            }
-        })
     }
     async addVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
@@ -95,15 +90,11 @@ export class AddVariable {
                 return alert("Please select a type");
             }
             expression += `${variableType} `;
-            if(variableType === "Table"){
-                formData.data.columns = parseInt(formData.data.columns);
-                for(let i = 0; i < formData.data.columns; i++){
-                    expression += `c${i} `;
-                }
-            }
-        }
-        if(command === "assign"){
+        } else if(command === "assign"){
             command = ":=";
+        } else if(command === "macro" || command === "jsdef"){
+            let parameters = assistOS.UI.unsanitize(formData.data.parameters);
+            expression = `${parameters}\n \t${expression}\n end`;
         }
         let fullCommand = `@${variableName} ${command} ${expression}`;
 
@@ -130,7 +121,7 @@ export class AddVariable {
                 this.document.category,
                 this.document.infoText,
                 this.document.commands,
-                this.document.comments,);
+                this.document.comments);
         }
         await assistOS.UI.closeModal(this.element, true);
     }

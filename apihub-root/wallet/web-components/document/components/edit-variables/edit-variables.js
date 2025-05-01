@@ -1,6 +1,7 @@
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 const documentModule = require("assistos").loadModule("document", {});
-
+const spaceModule = require("assistos").loadModule("space", {});
+import {decodePercentCustom} from "./../../../../imports.js";
 export class EditVariables {
     constructor(element, invalidate){
         this.element = element;
@@ -18,19 +19,24 @@ export class EditVariables {
         this.element.classList.add("maintain-focus");
         this.invalidate();
     }
-    splitCommands(){
-        let splitCommands = this.commands.split("\n");
+
+    async splitCommands(){
+        let parsedCommands = await spaceModule.parseCommands(assistOS.space.id, this.context.chapterId, this.context.paragraphId, this.commands);
         let commands = [];
-        for(let command of splitCommands){
-            const match = command.match(/^(@\S+)\s+(.+)$/);
-            if(!match){
-                continue;
+        for(let command of parsedCommands){
+            let varName = command.outputVars[0];
+            if(command.command === "assign"){
+                command.command = ":="
             }
-            const varName = match[1].slice(1);
+            let inputVars = command.inputVars.map(inputVar => inputVar).join(" ");
+            if(command.command === "macro" || command.command === "jsdef"){
+                inputVars = decodePercentCustom(inputVars);
+            }
+            let expression = `${command.command} ${inputVars}`;
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
             commands.push({
                 varName: varName,
-                expression: match[2],
+                expression: expression,
                 value: variable ? variable.value : undefined,
             });
         }
@@ -43,12 +49,11 @@ export class EditVariables {
             this.commands = this.chapter.commands;
         } else {
             this.commands = this.document.commands;
-            this.splitCommands();
         }
     }
-    beforeRender(){
+    async beforeRender(){
         this.initVariables();
-        let splitCommands = this.splitCommands();
+        let splitCommands = await this.splitCommands();
         let variablesHTML = "";
         for(let variable of splitCommands){
             variablesHTML += `
@@ -87,7 +92,18 @@ export class EditVariables {
         }
         let splitCommands = this.commands.split("\n");
         let commandIndex = splitCommands.findIndex(command => command.includes(`@${varName}`));
-        splitCommands.splice(commandIndex, 1);
+        let splitCommand = splitCommands[commandIndex].split(" ");
+        let command = splitCommand[1];
+        if(command === "macro" || command === "jsdef"){
+            for(let i = commandIndex; i < splitCommands.length; i++){
+                if(splitCommands[i].trim() === "end"){
+                    splitCommands.splice(commandIndex, i + 1 - commandIndex);
+                    break;
+                }
+            }
+        } else {
+            splitCommands.splice(commandIndex, 1);
+        }
         this.commands = splitCommands.join("\n");
         await this.updateCommands(this.commands);
         this.invalidate();
@@ -113,6 +129,7 @@ export class EditVariables {
                 this.document.docId,
                 this.document.title,
                 this.document.category,
+                this.document.infoText,
                 this.document.commands,
                 this.document.comments);
         }
