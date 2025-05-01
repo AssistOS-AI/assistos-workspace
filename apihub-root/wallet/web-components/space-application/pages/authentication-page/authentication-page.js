@@ -147,7 +147,7 @@ export class AuthenticationPage {
         let result = await userModule.userExists(email);
         await assistOS.UI.hideLoading(loader);
         if(result.userExists){
-            result = await userModule.generateAuthCode(email, "email");
+            result = await userModule.generateAuthCode(email, "emailCode");
             this.email = email;
         } else {
             let signUpMessage = `We couldn't find an account for ${email}. Do you want to create a new account with this email?`;
@@ -155,7 +155,7 @@ export class AuthenticationPage {
                 message: signUpMessage
             }, true);
             if (signUpConfirmation) {
-                result = await userModule.generateAuthCode(email, "email");
+                result = await userModule.generateAuthCode(email, "emailCode");
                 this.email = email;
                 this.createSpace = true;
             } else {
@@ -169,7 +169,7 @@ export class AuthenticationPage {
     }
     async submitCode(_target) {
         let authCode = this.element.querySelector("#authCode").value;
-        let result = await userModule.loginUser(this.email, authCode, "email");
+        let result = await userModule.loginUser(this.email, authCode, "emailCode");
         if(result.operation !== "success"){
             throw new Error(result.message);
         }
