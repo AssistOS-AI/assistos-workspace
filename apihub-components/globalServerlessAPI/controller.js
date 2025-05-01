@@ -128,9 +128,9 @@ async function createSpace(request, response, server) {
         const securityContext = new serverSideSecurityContext(request);
         const ApplicationModule=assistOSSDK.loadModule("application",securityContext);
 
-        // for (const application of defaultApplications) {
-        //     await ApplicationModule.installApplication(space.id,application)
-        // }
+        for (const application of defaultApplications) {
+            await ApplicationModule.installApplication(space.id,application)
+        }
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {

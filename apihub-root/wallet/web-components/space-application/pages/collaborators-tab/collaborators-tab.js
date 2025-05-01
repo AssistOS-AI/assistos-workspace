@@ -1,42 +1,107 @@
 const spaceModule = require('assistos').loadModule('space', {});
+
+const mockCollaborators = [
+    {
+        username:"Alex",
+        email: "demoemail@com",
+        role: "member",
+        documentsCreated: 0,
+        tasksCreated: 10,
+        tokensUsed: 2000
+
+    },
+    {
+        email: "demoemail1@com",
+        username: "John",
+        role: "admin",
+        documentsCreated: 5,
+        tasksCreated: 20,
+        tokensUsed: 300
+    },
+    {
+        email: "demoemail2@com",
+        username: "Jane",
+        role: "owner",
+        documentsCreated: 2,
+        tasksCreated: 100,
+        tokensUsed: 50000
+    },
+    {
+        email: "demoemail3@com",
+        username:"Carlos",
+        role: "member",
+        documentsCreated: 1,
+        tasksCreated: 1,
+        tokensUsed: 25
+    }
+]
+const roles = [
+    "Member",
+    "Admin",
+    "Owner"
+]
+function getAvatarHTML(name, size = 32) {
+    let hue = Array.from(name).reduce((s,c)=>s+c.charCodeAt(0),0) % 360
+    let bg = `hsl(${hue},60%,50%)`
+    return `<div class="avatar" style="background:${bg};width:${size}px;height:${size}px;font-size:${size*0.5}px">${name[0].toUpperCase()}</div>`
+}
+
+
+const trashIcon =
+    `<svg width="19" height="18" viewBox="0 0 19 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.17426 17.9036C3.58372 17.9036 3.07836 17.709 2.65818 17.3197C2.238 16.9305 2.02755 16.462 2.02684 15.9143V2.98393C1.72262 2.98393 1.46779 2.88845 1.26236 2.69747C1.05692 2.5065 0.953845 2.27044 0.953129 1.98929C0.952413 1.70814 1.05549 1.47207 1.26236 1.2811C1.46923 1.09013 1.72405 0.994644 2.02684 0.994644H6.32168C6.32168 0.712828 6.42476 0.476766 6.63091 0.286458C6.83706 0.096149 7.09189 0.000663096 7.39539 0H11.6902C11.9945 0 12.2496 0.0954859 12.4558 0.286458C12.6619 0.477429 12.7647 0.713491 12.7639 0.994644H17.0588C17.363 0.994644 17.6182 1.09013 17.8243 1.2811C18.0305 1.47207 18.1332 1.70814 18.1325 1.98929C18.1318 2.27044 18.0287 2.50683 17.8233 2.69847C17.6178 2.8901 17.363 2.98526 17.0588 2.98393V15.9143C17.0588 16.4614 16.8487 16.9298 16.4285 17.3197C16.0083 17.7096 15.5026 17.9043 14.9114 17.9036H4.17426ZM14.9114 2.98393H4.17426V15.9143H14.9114V2.98393ZM7.39539 13.925C7.69961 13.925 7.95479 13.8295 8.16095 13.6386C8.3671 13.4476 8.46982 13.2115 8.4691 12.9304V5.96786C8.4691 5.68605 8.36602 5.44999 8.15987 5.25968C7.95372 5.06937 7.69889 4.97388 7.39539 4.97322C7.09189 4.97256 6.83706 5.06804 6.63091 5.25968C6.42476 5.45131 6.32168 5.68737 6.32168 5.96786V12.9304C6.32168 13.2122 6.42476 13.4486 6.63091 13.6396C6.83706 13.8305 7.09189 13.9257 7.39539 13.925ZM11.6902 13.925C11.9945 13.925 12.2496 13.8295 12.4558 13.6386C12.6619 13.4476 12.7647 13.2115 12.7639 12.9304V5.96786C12.7639 5.68605 12.6609 5.44999 12.4547 5.25968C12.2486 5.06937 11.9937 4.97388 11.6902 4.97322C11.3867 4.97256 11.1319 5.06804 10.9258 5.25968C10.7196 5.45131 10.6165 5.68737 10.6165 5.96786V12.9304C10.6165 13.2122 10.7196 13.4486 10.9258 13.6396C11.1319 13.8305 11.3867 13.9257 11.6902 13.925Z" fill="white"/>
+</svg>
+`
+const getDeleteButton = (email) => {
+    return `<button class="delete-collaborator-button" data-local-action="removeCollaborator ${email}">${trashIcon
+    }</button>`
+}
+
 export class CollaboratorsTab {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
     }
+
     async beforeRender() {
-        let collaborators = await spaceModule.getCollaborators(assistOS.space.id);
-        let collaboratorsHTML = "";
-        for (let collaborator of collaborators) {
-            collaboratorsHTML += `<div class="collaborator-item">
-                                        <div class="collaborator-email"> ${collaborator.email}</div>
-                                        <select class="collaborator-role" data-user-email="${collaborator.email}">
-                                            <option value="member" ${collaborator.role === "member" ? "selected" : ""}>Member</option>
-                                            <option value="admin" ${collaborator.role === "admin" ? "selected" : ""}>Admin</option>
-                                            <option value="owner" ${collaborator.role === "owner" ? "selected" : ""}>Owner</option>
-                                        </select>
-                                        <div class="delete-collaborator">
-                                            <img class="trash-icon black-icon" data-local-action="removeCollaborator ${collaborator.email}" src="./wallet/assets/icons/trash-can.svg" alt="trash">
-                                        </div>
-                                     </div>`;
-        }
-        this.collaboratorsHTML = collaboratorsHTML
+        // let collaborators = await spaceModule.getCollaborators(assistOS.space.id);
+        let collaborators = mockCollaborators;
+        this.collaboratorsHTML = collaborators.map(c => `
+        <tr>
+              <td class="collaborator-user">
+      ${getAvatarHTML(c.username)}
+      <div class="user-info">
+        <div class="user-name">${c.username}</div>
+        <div class="user-email">${c.email}</div>
+      </div>
+    </td>
+            <td>
+                <select class="collaborator-role" data-user-email="${c.email}">
+                    ${roles.map(r=>`<option value="${r.toLowerCase()}"${c.role===r.toLowerCase()?' selected':''}>${r}</option>`).join('')}
+                </select>
+            </td>
+            <td>${c.documentsCreated}</td>
+            <td>${c.tasksCreated}</td>
+            <td>${c.tokensUsed}</td>
+            <td>${getDeleteButton(c.email)}</td>
+        </tr>
+    `).join('')
     }
-    afterRender(){
-        let collaboratorsRoles = this.element.querySelectorAll(".collaborator-role");
-        for (let role of collaboratorsRoles) {
-            role.addEventListener("change", async (e) => {
-                let email = e.target.getAttribute("data-user-email");
-                let role = e.target.value;
-                let message = await spaceModule.setCollaboratorRole(assistOS.space.id, email, role);
-                if (message) {
-                    alert(message);
-                }
-                this.invalidate();
-            });
-        }
+
+    afterRender() {
+        this.element.querySelector('#collaborators-table tbody').innerHTML = this.collaboratorsHTML
+        this.element.querySelectorAll('.collaborator-role').forEach(el => {
+            el.addEventListener('change', async e => {
+                let email = e.target.dataset.userEmail
+                let role = e.target.value
+                let msg = await spaceModule.setCollaboratorRole(assistOS.space.id, email, role)
+                if(msg) alert(msg)
+                this.invalidate()
+            })
+        })
     }
+
     addCollaborator() {
         assistOS.UI.showModal("add-space-collaborator-modal");
     }
