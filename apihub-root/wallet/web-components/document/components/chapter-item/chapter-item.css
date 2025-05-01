@@ -123,6 +123,8 @@ chapter-item {
     flex-direction: column;
     min-width: 0;
     position: relative;
+    background-color: var(--modal-background);
+    border: 1px solid var(--chapter-border);
 }
 
 .chapter-content {
