@@ -53,7 +53,7 @@ export class EditVariableTab {
         expressionTextarea.name = "";
         expressionTextarea.id = "";
         let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
-        parametersInput.classList.remove("hidden");
+        parametersInput.classList.add("hidden");
     }
     afterRender() {
 
@@ -109,9 +109,8 @@ export class EditVariableTab {
             let parameters = assistOS.UI.unsanitize(formData.data.parameters);
             expression = `${parameters}\n \t${expression}\n end`;
         }
-        expression = `${command} ${expression}`;
+        expression = `@${variableName} ${command} ${expression}`;
         await assistOS.UI.closeModal(this.element, {
-            varName: variableName,
             expression: expression,
         });
     }

@@ -55,7 +55,7 @@ export class AddVariable {
         expressionTextarea.name = "";
         expressionTextarea.id = "";
         let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
-        parametersInput.classList.remove("hidden");
+        parametersInput.classList.add("hidden");
     }
     afterRender(){
         let commandSelect = this.element.querySelector("#command");

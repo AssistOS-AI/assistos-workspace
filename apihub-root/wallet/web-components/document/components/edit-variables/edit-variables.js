@@ -136,28 +136,27 @@ export class EditVariables {
     }
 
     async openEditor(targetElement, varName){
-        let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
-        if(variable.customType){
-            if(variable.customType === "Table"){
-                //targetElement.insertAdjacentHTML("beforeend", `<table-editor data-presenter="table-editor" data-document-id="${this.document.docId}" data-chapter-id="${this.context.chapterId}" data-paragraph-id="${this.context.paragraphId}" data-var-name="${varName}"></table-editor>`);
-                return;
-            }
-        }
         let expressionField = this.element.querySelector(`.cell[data-name="${varName}"]`);
         let expression = encodeURIComponent(expressionField.innerText);
         let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, expression: expression }, true);
         if(inputs){
-            await this.saveVariable(varName, inputs.varName, inputs.expression);
+            await this.saveVariable(varName, inputs.expression);
             this.invalidate();
         }
     }
 
-    async saveVariable(varName, newName, newExpression){
+    async saveVariable(varName, newExpression){
         let splitCommands = this.commands.split("\n");
-        let commandIndex = splitCommands.findIndex(command => command.includes(`@${varName}`));
-        newExpression = assistOS.UI.unsanitize(newExpression);
-        splitCommands[commandIndex] = `@${newName} ${newExpression}`;
-        this.commands = splitCommands.join("\n");
+        let foundVariable = splitCommands.find(command => command.includes(`@${varName}`));
+        let oldCommand = foundVariable.split(" ")[1];
+        if(oldCommand === "macro" || oldCommand === "jsdef"){
+            const regex = new RegExp(`@${varName}[\\s\\S]*?end`, 'g');
+            this.commands = this.commands.replace(regex, newExpression);
+        } else {
+            const regex = new RegExp(`@${varName}[^\n]*`, 'g');
+            this.commands = this.commands.replace(regex, newExpression);
+        }
+
         await this.updateCommands(this.commands);
         await this.documentPresenter.refreshVariables();
     }
