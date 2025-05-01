@@ -147,7 +147,7 @@ export class AuthenticationPage {
         let result = await userModule.userExists(email);
         await assistOS.UI.hideLoading(loader);
         if(result.userExists){
-            result = await userModule.generateAuthCode(email, "email");
+            result = await userModule.generateAuthCode(email, "emailCode");
             this.email = email;
         } else {
             let signUpMessage = `We couldn't find an account for ${email}. Do you want to create a new account with this email?`;
