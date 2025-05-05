@@ -138,15 +138,13 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .space-document-path {
+    font-weight: 600;
+    font-size: 18px;
     width: 85%;
     cursor: default;
     display: flex;
     align-items: center;
-    font-size: 14px;
-    font-weight: 500;
     line-height: 21px;
-    letter-spacing: 0em;
-    text-align: left;
 }
 
 .document-title {
@@ -362,7 +360,7 @@ html[theme="dark"] input.document-title{
 .plugins-separator{
     width: 2px;
     height: 30px;
-    background-color: #505050;
+    background-color: #646464;
     border-radius: 2px;
     margin: 0 15px 0 15px;
 }

@@ -562,13 +562,10 @@ dialog {
 }
 
 .main-path-button {
-    font-family: Poppins;
     font-size: 18px;
     font-weight: 600;
     line-height: 39px;
-    letter-spacing: 0em;
     text-align: left;
-    color: var(--left-sidebar);
 }
 
 .document-path {

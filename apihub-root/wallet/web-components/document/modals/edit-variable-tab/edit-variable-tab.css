@@ -7,3 +7,12 @@
 #command{
     width: 100px;
 }
+.grouped-inputs{
+    display: flex;
+}
+.right-margin{
+    margin-right: 10px;
+}
+.expression-multi-line{
+    height: 140px;
+}

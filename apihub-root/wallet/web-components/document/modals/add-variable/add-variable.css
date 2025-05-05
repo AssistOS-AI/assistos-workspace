@@ -1,3 +1,24 @@
+add-variable{
+    display: block;
+    width: 600px;
+    height: 450px;
+}
+.modal-body{
+    height: calc(100% - 55px);
+}
+.grouped-inputs{
+    display: flex;
+}
 .expression-multi-line {
     resize: none;
+    height: 140px;
+}
+#name{
+    width: 150px;
+}
+#command{
+    width: 100px;
+}
+.right-margin{
+    margin-right: 10px;
 }

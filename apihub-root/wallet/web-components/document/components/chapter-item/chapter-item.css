@@ -243,3 +243,6 @@ html[theme="dark"] input.chapter-title{
     align-items: center;
     justify-content: center;
 }
+.add-elements{
+    position: relative;
+}
