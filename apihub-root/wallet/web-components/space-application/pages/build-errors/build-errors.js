@@ -7,7 +7,8 @@ export class BuildErrors {
         this.invalidate();
     }
     async beforeRender(){
-        this.errors = await spaceModule.getErrorsFromLastBuild(assistOS.space.id);
+        //this.errors = await spaceModule.getErrorsFromLastBuild(assistOS.space.id);
+        this.errors = [];
         this.buildErrors = JSON.stringify(this.errors, null, 2);
     }
 }

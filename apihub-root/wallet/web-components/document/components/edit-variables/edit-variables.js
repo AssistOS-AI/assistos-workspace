@@ -32,11 +32,11 @@ export class EditVariables {
             if(command.command === "macro" || command.command === "jsdef"){
                 inputVars = decodePercentCustom(inputVars);
             }
-            let expression = `${command.command} ${inputVars}`;
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
             commands.push({
                 varName: varName,
-                expression: expression,
+                command: command.command,
+                expression: inputVars,
                 value: variable ? variable.value : undefined,
             });
         }
@@ -53,12 +53,12 @@ export class EditVariables {
     }
     async beforeRender(){
         this.initVariables();
-        let splitCommands = await this.splitCommands();
+        this.commands = await this.splitCommands();
         let variablesHTML = "";
-        for(let variable of splitCommands){
+        for(let variable of this.commands){
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
-                    <div class="cell" data-name="${variable.varName}">${variable.expression}</div>
+                    <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
                     <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                     <div class="cell">${variable.status || "......."}</div>
                     <div class="cell actions-cell">
@@ -136,9 +136,8 @@ export class EditVariables {
     }
 
     async openEditor(targetElement, varName){
-        let expressionField = this.element.querySelector(`.cell[data-name="${varName}"]`);
-        let expression = encodeURIComponent(expressionField.innerText);
-        let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, expression: expression }, true);
+        let variable = this.commands.find(variable => variable.varName === varName);
+        let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, command: variable.command, expression: variable.expression }, true);
         if(inputs){
             await this.saveVariable(varName, inputs.expression);
             this.invalidate();

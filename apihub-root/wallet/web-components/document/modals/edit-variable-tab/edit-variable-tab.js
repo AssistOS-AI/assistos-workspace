@@ -9,10 +9,8 @@ export class EditVariableTab {
         this.document = documentPresenter._document;
         this.element.classList.add("maintain-focus");
         this.varName = this.element.getAttribute("data-name");
-        let fullExpression = decodeURIComponent(this.element.getAttribute("data-expression"));
-        let splitExpression = fullExpression.split(" ");
-        this.command = splitExpression[0];
-        this.expression = splitExpression.slice(1).join(" ");
+        this.expression = this.element.getAttribute("data-expression");
+        this.command = this.element.getAttribute("data-command");
         this.invalidate();
     }
 

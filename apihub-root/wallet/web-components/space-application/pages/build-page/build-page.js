@@ -10,8 +10,7 @@ export class BuildPage {
     async beforeRender(){
         this.variables = await spaceModule.getVariables(assistOS.space.id);
         this.spaceGraph = JSON.stringify(this.graph, null, 2);
-        this.errors = await spaceModule.getErrorsFromLastBuild(assistOS.space.id);
-        this.buildErrors = JSON.stringify(this.errors);
+        this.errors = [];
         let variablesHTML = "";
         for (let variable of this.variables) {
             variablesHTML +=

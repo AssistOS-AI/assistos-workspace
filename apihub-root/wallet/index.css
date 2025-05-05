@@ -81,6 +81,7 @@
     --chapter-border: #EFEFEF;
     --plugin-focus: #919191;
     --document-font-color: #646464;
+    --default-font-color: #646464;
 }
 
 * {
