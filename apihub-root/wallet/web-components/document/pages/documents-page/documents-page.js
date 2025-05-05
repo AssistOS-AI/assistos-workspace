@@ -22,14 +22,14 @@ export class DocumentsPage {
     }
 
     beforeRender() {
-        this.documentCategoryOptions = `<option value="">All</option>`;
+        this.documentCategoryOptions = `<option class="select-option" value="">All</option>`;
         for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
-            this.documentCategoryOptions += `<option value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
+            this.documentCategoryOptions += `<option class="select-option" value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
         }
         this.tableRows = "";
         this.documents.forEach((document) => {
             this.tableRows += `<document-item data-name="${document.title}" 
-            data-id="${document.id}" data-local-action="editAction"></document-item>`;
+            data-chapters-count="${document.chapters.length}" data-id="${document.id}" data-local-action="editAction"></document-item>`;
         });
         if (assistOS.space.loadingDocuments) {
             assistOS.space.loadingDocuments.forEach((taskId) => {

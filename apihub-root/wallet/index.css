@@ -29,7 +29,6 @@
     --medium-black: #55555514;
     --brown-gray: #555555;
     --settings-page-theme: #6b6b6b;
-    --form-input: #8B8B8B;
     --very-light-gray: #c2c2c299;
     --action-box-border: #dedede;
     --error-modal-border: #E5E5E5;
@@ -82,6 +81,8 @@
     --plugin-focus: #919191;
     --document-font-color: #646464;
     --default-font-color: #646464;
+    --form-input: #8B8B8B;
+    --option-hover: #F2F2F2;
 }
 
 * {
@@ -225,7 +226,13 @@ dialog {
     margin: 4px 0 8px;
     padding: 8px;
 }
-
+.select-input{
+    border-radius: 5px;
+    border: 0.5px solid var(--lighter-black);
+    padding: 8px;
+    background-color: var(--white);
+    color: var(--default-font-color);
+}
 
 .header-title {
     display: block;

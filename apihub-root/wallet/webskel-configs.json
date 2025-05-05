@@ -508,8 +508,8 @@
             "type": "components"
         },
         {
-            "name": "action-box",
-            "directory": "space-application",
+            "name": "action-box-documents",
+            "directory": "document",
             "type": "components"
         },
         {
