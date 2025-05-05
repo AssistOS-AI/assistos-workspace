@@ -83,6 +83,8 @@
     --default-font-color: #646464;
     --form-input: #8B8B8B;
     --option-hover: #F2F2F2;
+    --application-marketplace-background: #F8F8F8;
+    --application-marketplace-border: #DDDDDD;
 }
 
 * {

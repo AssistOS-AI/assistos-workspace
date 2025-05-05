@@ -21,13 +21,13 @@ export class ApplicationItem {
             this.requiresUpdate = await applicationModule.requiresUpdate(assistOS.space.id, this.appName);
         }
         this.appImage = this.app.image;
+        this.description = "application description";
         this.applicationButtons = `<div class='application-buttons'>
             ${this.installed ? `
-                <button class="general-button uninstall" data-local-action="uninstallApplication">Uninstall</button>
-                <button class="general-button update" data-local-action="updateApplication" ${this.requiresUpdate ? "" : "disabled"}>Update</button>
+                <div class="app-button pointer uninstall" data-local-action="uninstallApplication">Uninstall</div>
+                <div class="app-button pointer update" data-local-action="updateApplication" ${this.requiresUpdate ? "" : "disabled"}>Update</div>
             ` : `
-                <button class="general-button" data-local-action="installApplication">Install</button>
-            `}
+                <div class="app-button pointer" data-local-action="installApplication">Install</div>`}
         </div>
     `;
     }

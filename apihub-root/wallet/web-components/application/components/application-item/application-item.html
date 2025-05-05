@@ -1,22 +1,14 @@
-<div class="application-item">
-    <div class="unit-header">
-        <div class="application-image-container" data-local-action="navigateToApplicationPage">
-            <img src="$$appImage" alt="app-image">
+<div class="app-img-container" data-local-action="navigateToApplicationPage">
+    <img class="app-icon" src="$$appImage" alt="app-image">
+</div>
+<div class="details">
+    <div class="container-header">
+        <div class="app-item-name">$$appName</div>
+        <div class="install-section">
+            $$applicationButtons
         </div>
     </div>
-    <div class="details">
-        <div class="container-header">
-            <div class="name-and-author">
-                <div class="name">$$data-name</div>
-                <div class="author">Axiologic</div>
-            </div>
-            <div class="install-section">
-                $$applicationButtons
-            </div>
-        </div>
-        <div class="app-description">
-            $$description
-        </div>
+    <div class="app-description">
+        $$description
     </div>
-
 </div>
