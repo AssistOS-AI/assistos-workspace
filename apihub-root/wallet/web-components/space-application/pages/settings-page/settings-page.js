@@ -15,7 +15,9 @@ export class SettingsPage {
         } else if (this.activeTab === "settingsTab") {
             this.tabContent = `<display-preferences data-presenter="display-preferences"></display-preferences>`;
         } else if (this.activeTab === "webAssistant") {
-            this.tabContent = "TO BE DONE";
+            this.tabContent = `
+            <application-creator-landing data-presenter="application-creator-landing"></application-creator-landing>
+            `
         } else if (this.activeTab === "advancedSettings") {
             this.tabContent = "<advanced-settings data-presenter='advanced-settings'></advanced-settings>";
         }

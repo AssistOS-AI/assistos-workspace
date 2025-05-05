@@ -24,21 +24,30 @@
 
 .preferences-content {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    width:100%;
+    height:100%;
+    gap: 30px;
 }
 
-.preferences-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+.preferences-list-left, .preferences-list-right{
+    display:flex;
+    flex-direction:column;
+    gap:30px;
+    width:50%;
 }
-
 .preference {
     display: flex;
     flex-direction: column;
 }
-
+.preference select{
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    vertical-align: middle;
+    color: #595959;
+}
 .preference label {
     font-size: 14px;
     font-weight: bold;

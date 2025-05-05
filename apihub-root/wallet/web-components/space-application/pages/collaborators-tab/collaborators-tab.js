@@ -90,7 +90,6 @@ export class CollaboratorsTab {
     }
 
     afterRender() {
-        this.element.querySelector('#collaborators-table tbody').innerHTML = this.collaboratorsHTML
         this.element.querySelectorAll('.collaborator-role').forEach(el => {
             el.addEventListener('change', async e => {
                 let email = e.target.dataset.userEmail

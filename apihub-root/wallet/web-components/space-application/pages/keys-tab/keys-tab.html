@@ -1,12 +1,20 @@
-<div class="keys-tab-header">
-    <button class="gray-button" data-local-action="addSecret">+ Add Secret</button>
-</div>
-<div class="table-content">
-    <div class="table-labels">
-        <div class="table-label secret-name">Name</div>
-        <div class="table-label key">Key</div>
-        <div class="table-label value">Value</div>
-        <div class="table-label remaining-space"></div>
-    </div>
-    <div class="table-rows">$$secretsHTML</div>
+<div class="table-section">
+    <button class="general-button table-action-btn" data-local-action="addSecret">
+        <svg width="15" height="16" viewBox="0 0 15 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6.43096 9.0668H1.09136C0.788784 9.0668 0.535331 8.96428 0.331002 8.75924C0.126674 8.5542 0.0241531 8.30075 0.0234412 7.99888C0.0227292 7.69701 0.12525 7.44356 0.331002 7.23852C0.536755 7.03348 0.790208 6.93096 1.09136 6.93096H6.43096V1.59136C6.43096 1.28878 6.53348 1.03533 6.73852 0.831002C6.94356 0.626674 7.19701 0.524153 7.49888 0.523441C7.80075 0.522729 8.05455 0.62525 8.26031 0.831002C8.46606 1.03675 8.56822 1.29021 8.5668 1.59136V6.93096H13.9064C14.209 6.93096 14.4628 7.03348 14.6678 7.23852C14.8729 7.44356 14.975 7.69701 14.9743 7.99888C14.9736 8.30075 14.8711 8.55455 14.6668 8.76031C14.4624 8.96606 14.209 9.06822 13.9064 9.0668H8.5668V14.4064C8.5668 14.709 8.46428 14.9628 8.25924 15.1678C8.0542 15.3729 7.80075 15.475 7.49888 15.4743C7.19701 15.4736 6.94356 15.3711 6.73852 15.1668C6.53348 14.9624 6.43096 14.709 6.43096 14.4064V9.0668Z"
+                  fill="#454545"/>
+        </svg>
+        Add Secret
+    </button>
+    <table class="data-table" id="table-secrets">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Key</th>
+            <th>Value</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>$$secretsHTML</tbody>
+    </table>
 </div>

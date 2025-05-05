@@ -23,7 +23,7 @@
     width: 100%;
     table-layout: fixed;
     border-collapse: collapse;
-    color: #919191;
+    color: #595959;
 }
 
 #collaborators-table th,
@@ -83,7 +83,7 @@
 .collaborator-role {
     border: none;
     background: none;
-    color: #919191;
+    color: #595959;
     cursor: pointer;
 }
 
@@ -102,3 +102,11 @@
 #collaborators-table tr {
     border-bottom: 1px solid #e0e0e0;
 }
+
+ .collaborator-user {
+    display: inline-flex;
+}
+
+ .user-info{
+     text-align: left;
+ }
