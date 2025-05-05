@@ -1,22 +1,54 @@
 agent-item{
-    padding: 20px;
-}
-.agent-image{
-    height: 130px;
-    width: 130px;
-    border-radius: 9px;
-    object-fit: cover;
+    height: 150px;
+    width: 250px;
+    display: flex;
+    border: 1px solid var(--action-button-background);
+    border-radius: 5px;
 }
 .agent-content{
-    width: 130px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding: 10px 10px 23px 10px;
+    width: calc(100% - 5px);
 }
-.text{
+
+.agent-icon-container{
+    padding: 6px;
+    border: 1px solid var(--action-button-background);
+    border-radius: 5px;
+    margin-right: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.agent-name{
+    font-weight: 700;
     text-align: center;
-    width: 130px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+.box-header{
+    display: flex;
+    align-items: baseline;
+}
+.agent-vertical-line{
+    width: 5px;
+    background-color: #000000;
+}
+.agent-description{
+    font-size: 12px;
+    height: 100px;
+    width: 100%;
+    color: var(--default-font-color);
+    display: -webkit-box;
+    -webkit-line-clamp: 4;       /* Number of lines to show */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+}
+.box-header{
+    margin-bottom: 10px;
 }

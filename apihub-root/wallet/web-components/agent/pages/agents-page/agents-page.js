@@ -15,16 +15,7 @@ export class AgentsPage {
         this.agentBlocks = "";
         for (let agent of this.agents) {
             let imageSrc;
-            if (agent.imageId) {
-                try {
-                    imageSrc = await spaceModule.getImageURL(agent.imageId);
-                } catch (e) {
-                    imageSrc = "./wallet/assets/images/default-agent.png";
-                }
-            } else {
-                imageSrc = "./wallet/assets/images/default-agent.png";
-            }
-            this.agentBlocks += `<agent-item data-presenter="agent-item" data-name="${agent.name}" data-id="${agent.id}" data-image="${imageSrc}"></agent-item>`;
+            this.agentBlocks += `<agent-item data-presenter="agent-item" data-name="${agent.name}" data-id="${agent.id}"></agent-item>`;
         }
     }
 

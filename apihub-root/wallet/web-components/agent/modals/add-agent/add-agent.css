@@ -46,3 +46,13 @@ input[type="file"]{
 .modal-footer{
     padding-bottom: 10px;
 }
+.color-option{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+#color{
+    width: 100px;
+    height: 45px;
+}

@@ -1,17 +1,19 @@
 <div id="header-container">
     <div class="agents-header">Agents</div>
-    <button class="general-button" id="import-agent-btn" data-local-action="importDocument">Import Agent</button>
+    <button class="gray-button" id="import-agent-btn" data-local-action="importDocument">Import Agent</button>
 </div>
 <hr class="line-separator">
 <div class="table">
     $$agentBlocks
-    <div class="add-agent-button" data-local-action="showAddAgentModal">
-        <div class="square-container">
-            <div class="horizontal-line"></div>
-            <div class="vertical-line"></div>
-        </div>
-        <div class="button-text text">
-            Add New
+    <div class="add-agent-button pointer" data-local-action="showAddAgentModal">
+        <div class="add-agent-vertical-line"></div>
+        <div class="agent-content">
+            <div class="box-header">
+                <div class="agent-icon-container">
+                    <img src="./wallet/assets/icons/plus.svg" alt="agent" class="agent-icon">
+                </div>
+                <div class="add-agent-text">Add Agent</div>
+            </div>
         </div>
     </div>
 </div>

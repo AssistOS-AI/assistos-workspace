@@ -5,29 +5,7 @@ export class AddDocumentModal {
         this.invalidate = invalidate;
         this.element = element;
         this.currentTheme = localStorage.getItem('theme') || 'light';
-        this.setupSourceToggle();
-        this.setupTheme();
         this.invalidate();
-    }
-
-    setupTheme() {
-        this.element.dataset.theme = this.currentTheme;
-        document.addEventListener('themechange', this.handleThemeChange.bind(this));
-    }
-
-    handleThemeChange(event) {
-        this.currentTheme = event.detail.theme;
-        this.element.dataset.theme = this.currentTheme;
-    }
-
-    setupSourceToggle() {
-        this.element.addEventListener('click', (e) => {
-            const sourceOption = e.target.closest('.source-option');
-            if (sourceOption) {
-                const tab = sourceOption.dataset.tab;
-                this.switchTab(tab);
-            }
-        });
     }
 
     switchTab(tab) {
@@ -37,13 +15,26 @@ export class AddDocumentModal {
         options.forEach(t => t.classList.remove('active'));
         forms.forEach(f => f.style.display = 'none');
         
-        this.element.querySelector(`[data-tab="${tab}"]`).classList.add('active');
+        this.element.querySelector(`#${tab}`).classList.add('active');
         this.element.querySelector(`#${tab}DocumentForm`).style.display = 'flex';
     }
 
     beforeRender() {
+        this.categoriesOptions = `<option class="select-option" value="document" selected>DOCUMENT</option>`;
+        let categories = Object.keys(constants.DOCUMENT_CATEGORIES);
+        categories = categories.filter(category => category !== "document");
+        for(let category of categories) {
+            this.categoriesOptions += `<option class="select-option" value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
+        }
     }
-
+    afterRender() {
+        this.element.querySelectorAll('.source-toggle-input').forEach(option => {
+            option.addEventListener('click', () => {
+                const tab = option.getAttribute('id');
+                this.switchTab(tab);
+            });
+        });
+    }
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
     }
@@ -52,7 +43,7 @@ export class AddDocumentModal {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             try {
-                let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, constants.DOCUMENT_CATEGORIES.DOCUMENT);
+                let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, formData.data.category);
                 assistOS.UI.closeModal(_target);
                 await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
             } catch (e) {
