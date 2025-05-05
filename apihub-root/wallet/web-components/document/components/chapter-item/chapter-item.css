@@ -1,3 +1,14 @@
+chapter-item {
+    width: 100%;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    position: relative;
+    background-color: var(--modal-background);
+    border: 1px solid var(--chapter-border);
+    margin-bottom: 10px;
+}
 .chapter-title-container {
     position: relative;
     display: flex;
@@ -17,9 +28,15 @@
 }
 
 .highlighted-chapter{
-   border-left: 3px solid var(--strong-blue);
+    border-left: 3px solid var(--strong-blue);
+    background-color: var(--white);
+    border-top: none;
+    border-bottom: none;
+    border-right: none;
 }
-
+.highlighted-chapter .chapter-title{
+    background-color: var(--white);
+}
 .chapter-container{
     border-radius: 5px;
 }
@@ -55,7 +72,6 @@
     border-radius: 5px;
     background-color: white;
 }
-
 
 .chapter-actions{
     display: flex;
@@ -107,24 +123,13 @@ html[theme="dark"] .arrow svg {
     filter: brightness(0) invert(1);
 }
 .chapter-title.focused{
-    box-shadow: inset 0 0 0 2px var(--commands-background);
+    box-shadow: inset 0 0 0 2px var(--gray-button-text);
 }
 .action-box-chapter{
     margin-right: 10px;
 }
 .ten-px-margin-left {
     margin-left: 10px;
-}
-
-chapter-item {
-    width: 100%;
-    cursor: default;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    position: relative;
-    background-color: var(--modal-background);
-    border: 1px solid var(--chapter-border);
 }
 
 .chapter-content {
@@ -161,8 +166,10 @@ chapter-item {
     padding: 5px 5px 5px 5px;
     margin-left: 3px;
     display: inline-block;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 18px;
     margin-right: 10px;
+    background-color: var(--modal-background);
 }
 
 .chapter-paragraphs {
@@ -226,4 +233,16 @@ html[theme="dark"] input.chapter-title{
 }
 .rotate-down{
     transform: rotate(180deg);
+}
+
+.right-margin{
+    margin-right: 5px;
+}
+.delete-chapter{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.add-elements{
+    position: relative;
 }

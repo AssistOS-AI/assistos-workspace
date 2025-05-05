@@ -284,7 +284,7 @@ export class DocumentViewPage {
             });
         }
         this.hasTableOfContents = this._document.hasTableOfContents || false;
-        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#000000");
+        document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#646464");
         await this.refreshVariables();
     }
     async refreshVariables(){

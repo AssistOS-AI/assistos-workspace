@@ -5,30 +5,33 @@
     </div>
 </div>
 <form class="modal-body">
-    <div class="form-item">
-        <label class="form-label" for="name">Name</label>
-        <input class="form-input" pattern="^\S+$" title="No spaces allowed" id="name" type="text" name="name" required>
+    <div class="grouped-inputs">
+        <div class="form-item right-margin">
+            <label class="form-label" for="name">Name</label>
+            <input class="form-input" pattern="^\S+$" title="No spaces allowed" id="name" type="text" name="name" required>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="command">Select Command</label>
+            <select class="form-input" id="command" name="command">
+                $$variableCommandOptions
+            </select>
+        </div>
     </div>
-    <div class="form-item">
-        <label class="form-label" for="command">Select Command</label>
-        <select class="form-input" id="command" name="command">
-            $$variableCommandOptions
-        </select>
-    </div>
+
     <div class="form-item type hidden">
         <label class="form-label" for="type">Select type</label>
         <select class="form-input" id="type" name="type">
             $$variableTypeOptions
         </select>
     </div>
+    <div class="form-item multi-line-expr-parameters hidden">
+        <label class="form-label" for="parameters">Parameters</label>
+        <input class="form-input" id="parameters" type="text" name="parameters">
+    </div>
     <div class="form-item expression">
         <label class="form-label" for="expression">Expression</label>
         <input class="form-input expression-input" id="expression" type="text" name="expression">
         <textarea class="form-input expression-multi-line hidden"></textarea>
-    </div>
-    <div class="form-item columns hidden">
-        <label class="form-label" for="columns">Nr. of columns</label>
-        <input class="form-input" id="columns" type="number" name="columns" min="1" max="99" value="1">
     </div>
     <button class="general-button" data-local-action="addVariable">Add Variable</button>
 </form>

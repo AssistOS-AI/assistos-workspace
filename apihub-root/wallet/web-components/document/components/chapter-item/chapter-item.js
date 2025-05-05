@@ -213,18 +213,6 @@ export class ChapterItem {
         let insertElements = this.element.querySelector(".add-elements");
         this.documentPresenter.attachTooltip(insertElements,"Insert Elements");
 
-        let downloadAudio = this.element.querySelector(".download-audio");
-        this.documentPresenter.attachTooltip(downloadAudio,"Download Audio");
-
-        let downloadVideo = this.element.querySelector(".download-compiled-video");
-        this.documentPresenter.attachTooltip(downloadVideo,"Download Compiled Video");
-
-        let compileVideo = this.element.querySelector(".compile-chapter-video");
-        this.documentPresenter.attachTooltip(compileVideo,"Compile Chapter Video");
-
-        let deleteVideo = this.element.querySelector(".delete-compiled-video");
-        this.documentPresenter.attachTooltip(deleteVideo,"Delete Compiled Video");
-
         let deleteChapter = this.element.querySelector(".delete-chapter");
         this.documentPresenter.attachTooltip(deleteChapter,"Delete Chapter");
 
@@ -308,12 +296,7 @@ export class ChapterItem {
                 <div>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
-                </div>`,
-        "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
-        "delete-menu": `<div>
-                            <list-item data-local-action="downloadAllAudio" data-name="Download All Audio" data-highlight="light-highlight"></list-item>
-                            <list-item data-local-action="downloadCompiledVideo" data-name="Download Compiled Video" data-highlight="light-highlight"></list-item>
-                        </div>`
+                </div>`
     }
 
     closeMenu(controller, targetElement, menuName, event) {
@@ -381,9 +364,7 @@ export class ChapterItem {
         }
     }
 
-    async downloadAllAudio() {
-        alert("TO BE DONE");
-    }
+
 
     async showBackgroundAudio(){
         await assistOS.UI.showModal("chapter-background-audio", {"chapter-id": this.chapter.id});

@@ -61,7 +61,8 @@ document-view-page::-webkit-scrollbar-track {
 
 .infoText-subtitle {
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
+    font-size: 18px;
     line-height: normal;
     padding-left: 10px;
     padding-right: 10px;
@@ -137,15 +138,13 @@ document-view-page::-webkit-scrollbar-track {
 }
 
 .space-document-path {
+    font-weight: 600;
+    font-size: 18px;
     width: 85%;
     cursor: default;
     display: flex;
     align-items: center;
-    font-size: 14px;
-    font-weight: 500;
     line-height: 21px;
-    letter-spacing: 0em;
-    text-align: left;
 }
 
 .document-title {
@@ -153,7 +152,7 @@ document-view-page::-webkit-scrollbar-track {
     width: calc(100% - 40px);
     display: inline-block;
     font-style: normal;
-    font-weight: 600;
+    font-weight: 700;
     line-height: normal;
     padding: 10px;
     border-radius: 3px;
@@ -164,7 +163,6 @@ document-view-page::-webkit-scrollbar-track {
     padding: 10px;
     border-radius: 5px;
     display: flex;
-    position:relative;
 }
 
 .document-title:focus {
@@ -233,7 +231,7 @@ document-view-page::-webkit-scrollbar-track {
     background-color: white; !important;
 }
 .container-element.focused{
-    background-color: var(--white-blue-tint);
+    background-color: var(--modal-background);
 }
 .insert-image {
     margin-left: 10px;
@@ -362,7 +360,7 @@ html[theme="dark"] input.document-title{
 .plugins-separator{
     width: 2px;
     height: 30px;
-    background-color: #505050;
+    background-color: #646464;
     border-radius: 2px;
     margin: 0 15px 0 15px;
 }
@@ -372,6 +370,7 @@ html[theme="dark"] input.document-title{
 }
 .plugin-name,
 .tooltip-name{
+    color: var(--default-font-color);
     z-index: 2;
     top: 32px;
     padding: 5px;
@@ -385,7 +384,13 @@ html[theme="dark"] input.document-title{
 .infoText-highlight-plugin,
 .chapter-highlight-plugin,
 .paragraph-highlight-plugin{
-    border: 3px solid var(--medium-blue);
+    background-color: var(--plugin-focus) !important;
+}
+.document-highlight-plugin img,
+.infoText-highlight-plugin img,
+.chapter-highlight-plugin img,
+.paragraph-highlight-plugin img{
+    filter: invert(1) brightness(2);
 }
 
 .toc-container {
@@ -462,4 +467,14 @@ html[theme="dark"] input.document-title{
 .toc-empty {
     color: #6a737d;
     font-style: italic;
+}
+.action-button-container{
+    height: fit-content;
+    border-radius: 5px;
+    background-color: var(--action-button-background);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    position: relative;
 }

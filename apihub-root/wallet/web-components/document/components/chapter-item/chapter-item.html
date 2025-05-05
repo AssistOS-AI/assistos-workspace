@@ -6,37 +6,25 @@
         <input type="text" data-local-action="editItem chapterTitle" class="chapter-title focusable $$chapterFontSize $$chapterFontFamily font-color"
                data-metadata="$$titleMetadata"/>
         <div class="chapter-toolbar">
-            <div data-local-action="moveChapter up" class="move-chapter-up toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class="toolbar-margin1 pointer black-icon">
-            </div>
-            <div data-local-action="moveChapter down" class="move-chapter-down toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class="toolbar-margin1 rotate-down pointer black-icon">
-            </div>
-
-            <div data-local-action="openMenu insert-document-element" class="add-elements toolbar-margin1 pointer insert-document-element">
-                <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
-            </div>
-
-            <div data-local-action="downloadAllAudio" class="download-audio toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/downloadAudio.svg" alt="icon" class="toolbar-margin1 pointer black-icon" loading="lazy">
-            </div>
-            <div data-local-action="downloadCompiledVideo" class="download-compiled-video toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/downloadVideo.svg" alt="icon"  class="toolbar-margin1 pointer black-icon $$data-download-video" loading="lazy">
+            <div class="toolbar-left-section">
+                <div data-local-action="moveChapter up" class="move-chapter-up pointer right-margin">
+                    <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class=" pointer black-icon">
+                </div>
+                <div data-local-action="moveChapter down" class="move-chapter-down pointer right-margin">
+                    <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class="rotate-down pointer black-icon">
+                </div>
+                <div data-local-action="openMenu insert-document-element" class="add-elements pointer">
+                    <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
+                </div>
+                <div class="plugins-separator"></div>
+                <div class="chapter-plugins-icons"></div>
             </div>
 
-            <div data-local-action="compileChapterVideo" class="compile-chapter-video toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/compile.svg" alt="icon"  class="toolbar-margin1 pointer black-icon $$data-compile-video" loading="lazy">
+            <div class="toolbar-right-section">
+                <div data-local-action="deleteChapter" class="delete-chapter pointer">
+                    <img src="./wallet/assets/icons/trash-can.svg" alt="icon" class="pointer black-icon" loading="lazy">
+                </div>
             </div>
-
-            <div data-local-action="deleteCompiledVideo" class="delete-compiled-video toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/deleteVideo.svg" alt="icon" data-local-action="deleteCompiledVideo" class="toolbar-margin1 pointer black-icon $$data-delete-video" loading="lazy">
-            </div>
-
-            <div data-local-action="deleteChapter" class="delete-chapter toolbar-margin1 pointer insert-document-element">
-                <img src="./wallet/assets/icons/trash-can.svg" alt="icon" class="toolbar-margin1 pointer black-icon" loading="lazy">
-            </div>
-            <div class="plugins-separator"></div>
-            <div class="chapter-plugins-icons"></div>
         </div>
     </div>
 </div>

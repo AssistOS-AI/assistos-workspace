@@ -70,7 +70,7 @@
     --selected-chat: #E1ECF4;
     --selected-chat-outline: #0000000D;
     --tab: #ECECEC;
-    --document-font-color: #000000;
+
     /* New Impl */
     --modal-background: #f9f9f9;
     --gray-button-border: #CCCCCC;
@@ -79,6 +79,9 @@
     --action-button-background: #E9E9E9;
     --delete-button-background: #C80001EE;
     --chapter-border: #EFEFEF;
+    --plugin-focus: #919191;
+    --document-font-color: #646464;
+    --default-font-color: #646464;
 }
 
 * {
@@ -560,13 +563,10 @@ dialog {
 }
 
 .main-path-button {
-    font-family: Poppins;
     font-size: 18px;
     font-weight: 600;
     line-height: 39px;
-    letter-spacing: 0em;
     text-align: left;
-    color: var(--left-sidebar);
 }
 
 .document-path {

@@ -1,6 +1,7 @@
 paragraph-item {
     position: relative;
     background-color: var(--modal-background);
+    margin-bottom: 5px;
 }
 
 .paragraph-header {
@@ -15,14 +16,10 @@ paragraph-item {
     background-color: var(--white);
 }
 .paragraph-container{
+    padding: 5px;
+}
 
-    border-radius: 5px;
-}
-.paragraph-container.highlighted-paragraph{
-    padding: 10px;
-}
 .paragraph-header-container {
-    border-radius: 4px 0;
     width: 100%;
 }
 .paragraph-toolbar{
@@ -34,7 +31,7 @@ paragraph-item {
     background-color: var(--modal-background);
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    border-bottom: 2px solid var(--very-light-gray);
+    border-bottom: 3px solid var(--very-light-gray);
 }
 .toolbar-left-section{
     display: flex;
@@ -45,7 +42,7 @@ paragraph-item {
     align-items: center;
 }
 .toolbar-margin{
-    margin-right: 20px;
+    margin-right: 10px;
 }
 .rotate-down{
     transform: rotate(180deg);
@@ -125,6 +122,8 @@ textarea.paragraph-commands{
     word-break: break-all;
     hyphens: auto;
     background-color: inherit;
+    font-weight: 500;
+    font-size: 16px;
 }
 
 .paragraph-text:empty {
