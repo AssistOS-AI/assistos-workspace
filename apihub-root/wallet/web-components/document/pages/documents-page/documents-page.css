@@ -1,16 +1,11 @@
 documents-page{
     overflow: scroll;
 }
-.documents-page {
-    font-family: Poppins;
-}
-.app-title{
+.page-title{
     font-size: 26px;
     font-weight: 600;
     line-height: 42px;
     text-align: left;
-    color: var(--left-sidebar);
-    width: 100%;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -99,5 +94,6 @@ documents-page{
     align-items: center;
 }
 .documents-select{
-    margin-left: 10px;
+    margin: 0;
+    width: 140px;
 }
