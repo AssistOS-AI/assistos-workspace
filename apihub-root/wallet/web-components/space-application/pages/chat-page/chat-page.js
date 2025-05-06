@@ -584,9 +584,18 @@ if (IFrameContext) {
 
         async afterRender() {
             await super.afterRender()
-            await document.querySelector('left-sidebar')?.webSkelPresenter?.toggleChat(undefined, UI.chatState, UI.chatWidth);
             const agentToggleCheckbox = this.element.querySelector('#chat-toggle')
             agentToggleCheckbox.addEventListener('change', this.toggleAgentResponse.bind(this));
+            let chatState = localStorage.getItem("chatState");
+            if (chatState === "minimized") {
+                await this.toggleMinimizeScreen();
+            } else if (chatState === "half") {
+                await this.toggleHalfScreen();
+            } else if (chatState === "third") {
+                await this.toggleThirdScreen();
+            } else  {
+                await this.toggleFullScreen();
+            }
         }
 
         setSpaceContainer() {
@@ -596,38 +605,41 @@ if (IFrameContext) {
             return this.spaceContainer;
         }
 
-        async toggleFullScreen(_target) {
+        toggleFullScreen(_target) {
             this.setSpaceContainer();
-            const agentPage = this.element
+            const agentPage = this.element;
             agentPage.style.display = "flex";
             agentPage.style.width = "calc(100vw - 75px)";
             agentPage.style.minWidth = "calc(100vw - 75px)";
             this.spaceContainer.style.display = "none";
+            localStorage.setItem("chatState", "full");
         }
 
-        async toggleHalfScreen(_target) {
+        toggleHalfScreen(_target) {
             this.setSpaceContainer();
-            const agentPage = this.element
+            const agentPage = this.element;
             agentPage.style.display = "flex";
             this.spaceContainer.style.display = "flex";
             agentPage.style.width = "calc(50vw - 37.5px)";
             agentPage.style.minWidth = "calc(50vw - 37.5px)";
             this.spaceContainer.style.width = "calc(50vw - 37.5px)";
             this.spaceContainer.style.minWidth = "calc(50vw - 37.5px)";
+            localStorage.setItem("chatState", "half");
         }
 
-        async toggleThirdScreen(_target) {
+        toggleThirdScreen(_target) {
             this.setSpaceContainer();
-            const agentPage = this.element
+            const agentPage = this.element;
             agentPage.style.display = "flex";
             this.spaceContainer.style.display = "flex";
             agentPage.style.width = "calc(30vw - 37.5px)";
             agentPage.style.minWidth = "calc(30vw - 37.5px)";
             this.spaceContainer.style.width = "calc(70vw - 37.5px)";
             this.spaceContainer.style.minWidth = "calc(70vw - 37.5px)";
+            localStorage.setItem("chatState", "third");
         }
 
-        async toggleMinimizeScreen(_target) {
+        toggleMinimizeScreen(_target) {
             this.setSpaceContainer();
             const agentPage = this.element
             UI.chatState = "minimized";
@@ -637,6 +649,7 @@ if (IFrameContext) {
             this.spaceContainer.style.display = "flex";
             this.spaceContainer.style.width = "calc(100vw - 75px)";
             this.spaceContainer.style.minWidth = "calc(100vw - 75px)";
+            localStorage.setItem("chatState", "minimized");
         }
 
         async swapPersonality(_target, id) {

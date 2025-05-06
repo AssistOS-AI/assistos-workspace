@@ -132,38 +132,14 @@ export class LeftSidebar {
         assistOS.navigateToPage(page);
     }
 
-   toggleChat(_target, mode, width) {
-        const maximizeChat = () => {
-            assistOS.UI.chatState = "open";
-            let spaceApplicationPage = document.querySelector('space-application-page');
-            let minimumChatWidth = 0.35 * parseFloat(getComputedStyle(spaceApplicationPage).width);
-            agentPage.style.display = "flex";
-            agentPage.style.minWidth = minimumChatWidth + 'px';
-            agentPage.style.width = (width || assistOS.UI.chatWidth || minimumChatWidth) + 'px';
-            assistOS.UI.chatWidth = width || assistOS.UI.chatWidth || minimumChatWidth;
-            document.cookie=`chatState=open;path=/;max-age=31536000;`;
-        }
-
-        const minimizeChat = () => {
-            assistOS.UI.chatState = "close";
-            agentPage.style.display = "none";
-            agentPage.style.width = "0px";
-            agentPage.style.minWidth = "0px";
-            document.cookie=`chatState=close;path=/;max-age=31536000;`;
-        }
-
-        const agentPage = document.querySelector("chat-page");
-
-        if (mode === "open") {
-            maximizeChat();
-        } else if (mode === "close") {
-            minimizeChat();
+   toggleChat(_target, mode) {
+        const chatPage = document.querySelector("chat-page");
+        let chatPresenter = chatPage.webSkelPresenter;
+        let chatState = localStorage.getItem("chatState");
+        if (chatState !== "minimized") {
+            chatPresenter.toggleMinimizeScreen();
         } else {
-            if (assistOS.UI.chatState === "open") {
-                minimizeChat();
-            } else {
-                maximizeChat();
-            }
+            chatPresenter.toggleHalfScreen();
         }
     }
 
