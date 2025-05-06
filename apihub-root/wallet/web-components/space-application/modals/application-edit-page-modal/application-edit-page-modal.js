@@ -8,8 +8,40 @@ const getWidgets = async function (spaceId) {
 
 
 const getPageData = async function (spaceId, pageId) {
+    return mockPages.find(p => p.id === pageId);
     const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
     return page;
+}
+const mockWidgets = {
+    crm:   [{name:'contacts'},{name:'leads'}],
+    sales: [{name:'dashboard'}]
+}
+applicationModule.getWidgets = async spaceId => mockWidgets
+
+const mockPages = [
+    {
+        id:'home',
+        name:'Home',
+        description:'Pagina principală',
+        widget:'crm/contacts',
+        chatSize:'30',
+        generalSettings:'',
+        data:''
+    }
+]
+
+spaceModule.getWebAssistantConfigurationPage = async (spaceId,pageId) =>
+    mockPages.find(p=>p.id===pageId)
+
+spaceModule.addWebAssistantConfigurationPage = async (spaceId,pageData) => {
+    mockPages.push({id:crypto.randomUUID(),...pageData})
+    return true
+}
+
+spaceModule.updateWebAssistantConfigurationPage = async (spaceId,pageId,pageData) => {
+    const i=mockPages.findIndex(p=>p.id===pageId)
+    if(i>-1) mockPages[i]={...mockPages[i],...pageData}
+    return true
 }
 
 

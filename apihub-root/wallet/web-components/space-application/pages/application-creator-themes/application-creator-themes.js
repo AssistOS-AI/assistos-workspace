@@ -14,10 +14,23 @@ const getDropDownMenu = function (id) {
             </a>
           </div>
 `}
-
 const getThemes = async function (spaceId){
+    return mockThemes;
     const themes = await spaceModule.getWebAssistantThemes(spaceId);
     return themes;
+}
+
+const mockThemes = [
+    {id:'light', name:'Light', description:'Luminos', theme:{}},
+    {id:'dark',  name:'Dark',  description:'Întunecat', theme:{}}
+]
+
+spaceModule.getWebAssistantThemes = async spaceId => mockThemes
+
+spaceModule.deleteWebAssistantTheme = async (spaceId, id) => {
+    const i = mockThemes.findIndex(t => t.id === id)
+    if (i > -1) mockThemes.splice(i, 1)
+    return true
 }
 
 export class ApplicationCreatorThemes {

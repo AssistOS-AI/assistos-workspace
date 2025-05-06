@@ -5,12 +5,14 @@ settings-page {
 
 .settings-page {
     width: 100%;
+    height: 100%;
 }
 
 .settings-header {
     padding: 20px 30px;
     font-size: 26px;
     font-weight: 600;
+    height: 80px;
     color: var(--black)
 }
 
@@ -18,6 +20,8 @@ settings-page {
     display: flex;
     font-size: 18px;
     font-weight: 400;
+    height: 60px;
+    border-bottom: 1px solid #EFEFEF
 }
 
 .tab {
@@ -25,68 +29,171 @@ settings-page {
     display: flex;
     align-items: center;
 }
-.tab-icon{
+
+.tab-icon {
     --icon-color: #222222; /* default icon color */
     width: 24px;
     height: 24px;
     background-color: var(--icon-color);
     margin-right: 10px;
 }
-.collaborators{
+
+.collaborators {
     -webkit-mask: url("./wallet/assets/icons/collaborators.svg") no-repeat center;
     mask: url("./wallet/assets/icons/collaborators.svg") no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
-.keys{
+
+.keys {
     -webkit-mask: url("./wallet/assets/icons/keys.svg") no-repeat center;
     mask: url("./wallet/assets/icons/keys.svg") no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
-.settings{
+
+.settings {
     -webkit-mask: url("./wallet/assets/icons/folder-with-letter.svg") no-repeat center;
     mask: url("./wallet/assets/icons/folder-with-letter.svg") no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
-.web-assistant{
+
+.web-assistant {
     -webkit-mask: url("./wallet/assets/icons/web-assistant.svg") no-repeat center;
     mask: url("./wallet/assets/icons/web-assistant.svg") no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
-.advanced-settings{
+
+.advanced-settings {
     -webkit-mask: url("./wallet/assets/icons/advanced-settings.svg") no-repeat center;
     mask: url("./wallet/assets/icons/advanced-settings.svg") no-repeat center;
     -webkit-mask-size: contain;
     mask-size: contain;
 }
+
 .active {
     color: var(--blue-button);
     border-bottom: 2px solid var(--blue-button);
 }
-.active .tab-icon{
+
+.active .tab-icon {
     --settings-icon: var(--blue-button);
 }
 
 .tab-content {
     overflow-y: auto;
-    padding: 25px 30px 20px 30px;
+    padding: 0px 8px 20px 8px;
     width: 100%;
+    height: calc(100% - 60px);
 }
 
-.table-section{display:flex;flex-direction:column;align-items:flex-end;width:100%;height:100%;padding:10px}
-.table-action-btn{display:flex;align-items:center;justify-content:center;padding-inline:20px;margin-block-end:10px;background:#EDEDED;border:1px solid #CCC;color:#454545}
-.data-table{width:100%;table-layout:fixed;border-collapse:collapse;color:#595959}
-.data-table th,.data-table td{text-align:center;vertical-align:middle;padding:12px 8px}
-.data-table th{font-weight:600;border-bottom:1px solid #e0e0e0;color:#666}
-.data-table th:first-child{text-align:left}
-.data-table td.main-cell{display:flex;align-items:center;justify-content:flex-start;text-align:left}
-.avatar{width:32px;height:32px;border-radius:50%;background:#ccc;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:8px}
-.user-info{margin-left:8px;line-height:1.2}
-.user-name{font-weight:600;font-size:16px;color:#646464}
-.user-email{font-size:12px;color:#666}
-.role-select{border:none;background:none;color:#595959;cursor:pointer}
-.delete-row-btn{display:inline-block;width:38px;height:38px;padding:8px;margin:0 auto;border-radius:6px;background:#C80001EE;border:none;cursor:pointer}
-.data-table tr{border-bottom:1px solid #e0e0e0}
+.page-body {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: calc(100% - 80px);
+}
+
+.table-section {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    width: 100%;
+    height: 100%;
+    padding: 12px
+}
+
+.table-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 20px;
+    background: #EDEDED;
+    border: 1px solid #CCC;
+    color: #454545
+}
+
+.data-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: #595959
+}
+
+.data-table th, .data-table td {
+    text-align: left;;
+    vertical-align: middle;
+    padding: 8px 4px
+}
+
+.data-table th {
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+   color: #919191;
+    font-family: Inter;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: left;
+    vertical-align: middle;
+}
+
+.data-table td.main-cell {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left
+}
+
+.avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #ccc;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-right: 8px
+}
+
+.user-info {
+    margin-left: 8px;
+    line-height: 1.2
+}
+
+.user-name {
+    font-weight: 600;
+    font-size: 16px;
+    color: #646464
+}
+
+.user-email {
+    font-size: 12px;
+    color: #666
+}
+
+.role-select {
+    border: none;
+    background: none;
+    color: #595959;
+    cursor: pointer
+}
+
+.delete-row-btn {
+    display: inline-block;
+    width: 38px;
+    height: 38px;
+    padding: 8px;
+    margin: 0 auto;
+    border-radius: 6px;
+    background: #C80001EE;
+    border: none;
+    cursor: pointer
+}
+
+.data-table tr {
+    border-bottom: 1px solid #e0e0e0
+}

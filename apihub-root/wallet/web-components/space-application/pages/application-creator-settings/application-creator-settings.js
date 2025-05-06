@@ -1,19 +1,59 @@
 const personalityModule = require('assistos').loadModule('agent', {});
 const applicationModule = require('assistos').loadModule('application', {});
-const spaceModule = require('assistos').loadModule('space', {});
+const WebAssistant = require('assistos').loadModule('webassistant', {})
 
+/*
 const getWidgets = async function (spaceId) {
     const widgets = await applicationModule.getWidgets(spaceId);
     return widgets;
 }
+*/
 
 const getPersonalities = async function (spaceId) {
     const personalities = await personalityModule.getAgents(spaceId);
     return personalities;
 }
+const getConfiguration = async spaceId => ({
+    settings: {
+        primaryColor: '#000000',
+        textColor: '#ffffff',
+        initialPrompt: '',
+        chatIndications: '',
+        theme: '',
+        personality: '',
+        header: '',
+        footer: ''
+    }
+})
+
+const getWidgets = async spaceId => ({
+    crm: [{ name: 'contacts' }, { name: 'leads' }],
+    sales: [{ name: 'dashboard' }]
+})
+
+const getThemes = async spaceId => ([
+    { id: 'light', name: 'Light', description: '', theme: {} },
+    { id: 'dark',  name: 'Dark',  description: '', theme: {} }
+])
+
+
+const updateConfigurationSettings = async (spaceId, data) => true
+/*
 
 const getConfiguration = async function (spaceId) {
-    const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)
+    //const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
+    const configuration = {
+        settings: {
+            primaryColor: "#000000",
+            textColor: "#ffffff",
+            initialPrompt: "",
+            chatIndications: "",
+            theme: "",
+            personality: "",
+            header: "",
+            footer: ""
+        }
+    }
     return configuration;
 }
 
@@ -21,6 +61,7 @@ const getThemes = async function (spaceId) {
     const themes = await spaceModule.getWebAssistantThemes(spaceId);
     return themes;
 }
+*/
 
 export class ApplicationCreatorSettings {
     constructor(element, invalidate) {
@@ -49,14 +90,14 @@ export class ApplicationCreatorSettings {
         this.widgets = Object.entries(
             widgets)
             .map(([app, widgets]) =>
-                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}`===this.header?"selected":""}>${app}/${widget.name}</option>`))
+                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.header ? "selected" : ""}>${app}/${widget.name}</option>`))
             .flat(2)
             .join('');
 
-        this.footers=Object.entries(
+        this.footers = Object.entries(
             widgets)
             .map(([app, widgets]) =>
-                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}`===this.footer?"selected":""}>${app}/${widget.name}</option>`))
+                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.footer ? "selected" : ""}>${app}/${widget.name}</option>`))
             .flat(2)
             .join('');
 

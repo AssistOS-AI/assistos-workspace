@@ -10,6 +10,7 @@ export class ApplicationCreatorLanding {
     }
 
     async afterRender(){
-
+        document.querySelector('.tab-content').style.padding = '0';
     }
+
 }

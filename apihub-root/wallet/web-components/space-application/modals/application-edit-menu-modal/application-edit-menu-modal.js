@@ -10,6 +10,42 @@ const getPage = async function (spaceId, pageId) {
     const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
     return page;
 }
+/* — mock store — */
+const mockPages = [
+    {id:'home', name:'Home'},
+    {id:'faq',  name:'FAQ'}
+]
+
+const mockMenuItems = [
+    {id:'m1', name:'Start', icon:'/static/start.svg', targetPage:'home', itemLocation:'assistant'},
+    {id:'m2', name:'FAQ',  icon:'/static/faq.svg',  targetPage:'faq',  itemLocation:'assistant'}
+]
+
+spaceModule.getWebAssistantConfigurationPages = async spaceId => mockPages
+
+spaceModule.getWebAssistantConfigurationPage = async (spaceId,pageId) =>
+    mockPages.find(p=>p.id===pageId)
+
+spaceModule.getWebAssistantConfigurationPageMenuItem = async (spaceId,itemId) =>
+    mockMenuItems.find(m=>m.id===itemId)
+
+spaceModule.addWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,item) => {
+    const id = crypto.randomUUID()
+    mockMenuItems.push({...item,id})
+    return {id}
+}
+
+spaceModule.updateWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,itemId,data) => {
+    const i = mockMenuItems.findIndex(m=>m.id===itemId)
+    if(i>-1) mockMenuItems[i] = {...mockMenuItems[i],...data}
+    return true
+}
+
+spaceModule.deleteWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,itemId) => {
+    const i = mockMenuItems.findIndex(m=>m.id===itemId)
+    if(i>-1) mockMenuItems.splice(i,1)
+    return true
+}
 
 export class ApplicationEditMenuModal {
     constructor(element, invalidate) {

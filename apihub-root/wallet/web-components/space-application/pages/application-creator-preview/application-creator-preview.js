@@ -1,4 +1,4 @@
-const spaceModule = require('assistos').loadModule('space', {});
+const WebAssistant = require('assistos').loadModule('webassistant', {});
 
 const getChatIframe = (spaceId, personalityId) => {
     return `<iframe
@@ -11,7 +11,8 @@ const getChatIframe = (spaceId, personalityId) => {
 }
 
 const getConfiguration = async function (spaceId) {
-    const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)
+    debugger
+    const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
     return configuration;
 }
 

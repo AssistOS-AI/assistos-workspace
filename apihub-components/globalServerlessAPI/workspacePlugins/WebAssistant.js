@@ -56,7 +56,25 @@ async function WebAssistant() {
             menu: []
         });
     }
-
+    await Persistence.createIndex("webAssistant", "id");
+    self.getWebAssistantConfiguration = async function () {
+        return {
+            id: "config",
+            settings: {
+                header: "",
+                initialPrompt: "",
+                chatIndications: "",
+                personality: "",
+                theme: "light",
+                primaryColor: "#007bff",
+                textColor: "#000000"
+            },
+            themes: [],
+            pages: [],
+            menu: []
+        };
+        return await Persistence.getWebAssistantById("config");
+    }
     self.getWebChatThemes = async function () {
         return await Persistence.getEveryWebChatTheme();
     };
@@ -84,7 +102,7 @@ async function WebAssistant() {
 
     self.updateWebChatConfiguration = async function (settings) {
         const config = await Persistence.getWebAssistant("config");
-        config.settings = { ...config.settings, ...settings };
+        config.settings = {...config.settings, ...settings};
         return await Persistence.updateWebAssistant("config", config);
     };
 
@@ -172,7 +190,7 @@ async function WebAssistant() {
             fsPromises.readFile(path.join(componentPath, `${widgetName}.css`), 'utf8'),
             fsPromises.readFile(path.join(componentPath, `${widgetName}.js`), 'utf8')
         ]);
-        return { html, css, js };
+        return {html, css, js};
     };
 
     return self;

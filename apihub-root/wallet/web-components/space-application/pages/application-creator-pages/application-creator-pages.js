@@ -25,8 +25,36 @@ const getDropDownMenu = function (id) {
 const spaceModule = require('assistos').loadModule('space', {});
 
 const getPageRows = async function (spaceId) {
+    return mockPages;
     return await spaceModule.getWebAssistantConfigurationPages(spaceId);
 }
+const mockPages = [
+    {
+        id:'home',
+        name:'Home',
+        description:'Pagina principală',
+        pageType:'widget',
+        pageContent:{widget:'crm/contacts'},
+        widget:'crm/contacts'
+    },
+    {
+        id:'faq',
+        name:'FAQ',
+        description:'Întrebări frecvente',
+        pageType:'static',
+        pageContent:'<h1>FAQ</h1>',
+        widget:''
+    }
+]
+
+spaceModule.getWebAssistantConfigurationPages = async spaceId => mockPages
+
+spaceModule.deleteWebAssistantConfigurationPage = async (spaceId,id) => {
+    const i = mockPages.findIndex(p => p.id === id)
+    if (i > -1) mockPages.splice(i,1)
+    return true
+}
+
 
 export class ApplicationCreatorPages {
     constructor(element, invalidate) {

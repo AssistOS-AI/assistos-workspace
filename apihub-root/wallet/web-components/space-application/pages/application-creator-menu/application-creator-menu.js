@@ -31,6 +31,24 @@ const getDropDownMenu = function (id) {
           </div>
 `
 }
+const mockPages = [
+    {id:'home', name:'Home'},
+    {id:'faq',  name:'FAQ'}
+]
+
+const mockMenu = [
+    {id:'m1', name:'Start', targetPage:'home', itemLocation:'header', icon:'/static/start.svg'},
+    {id:'m2', name:'FAQ',  targetPage:'faq',  itemLocation:'footer', icon:'/static/faq.svg'}
+]
+
+spaceModule.getWebAssistantConfigurationPages      = async spaceId => mockPages
+spaceModule.getWebAssistantConfigurationPageMenu   = async spaceId => mockMenu
+spaceModule.getWebAssistantConfigurationPage       = async (spaceId,pageId) => mockPages.find(p=>p.id===pageId)
+spaceModule.deleteWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,itemId) => {
+    const i = mockMenu.findIndex(m => m.id === itemId)
+    if (i > -1) mockMenu.splice(i,1)
+    return true
+}
 
 export class ApplicationCreatorMenu {
     constructor(element, invalidate) {
