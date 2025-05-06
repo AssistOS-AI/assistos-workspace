@@ -105,7 +105,6 @@ html {
     --default-font: Poppins;
     font-weight: 400;
     font-family: var(--default-font);
-    color: var(--default-font-color);
 }
 
 input, textarea {

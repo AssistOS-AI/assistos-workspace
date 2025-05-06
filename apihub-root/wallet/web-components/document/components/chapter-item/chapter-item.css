@@ -6,10 +6,11 @@ chapter-item {
     min-width: 0;
     position: relative;
     background-color: var(--modal-background);
-    border: 1px solid var(--chapter-border);
+    box-shadow: inset 0 0 0 1px var(--chapter-border);
     margin-bottom: 10px;
 }
 .chapter-title-container {
+    height: 43px;
     position: relative;
     display: flex;
     align-items: center;
@@ -25,15 +26,11 @@ chapter-item {
 }
 
 .highlighted-chapter{
-    border-left: 3px solid var(--strong-blue);
     background-color: var(--white);
-    border-top: none;
-    border-bottom: none;
-    border-right: none;
+    border: none;
+    box-shadow: none;
 }
-.highlighted-chapter .chapter-title{
-    background-color: var(--white);
-}
+
 .chapter-container{
     border-radius: 5px;
 }
@@ -41,9 +38,13 @@ chapter-item {
     padding: 10px;
 }
 .chapter-header-container {
-    border-radius: 4px 0;
     padding: 10px;
     width: 100%;
+    background-color: var(--modal-background);
+    margin-bottom: 5px;
+}
+.chapter-plugin-container{
+    background-color: var(--white);
 }
 
 .toolbar-left-section{
@@ -54,10 +55,6 @@ chapter-item {
     display: flex;
     align-items: center;
 }
-.toolbar-margin{
-    margin-right: 40px;
-}
-
 .toolbar-menu {
     position: absolute;
     z-index: 10;
@@ -93,12 +90,10 @@ chapter-item {
     display: none;
     align-items: center;
     justify-content: space-between;
-    padding: 5px 10px;
-    width: 40%;
-    /*background-color: var(--commands-background);*/
+    padding: 5px;
+    width: 30%;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
-    /*border-bottom: 2px solid var(--very-light-gray);*/
 }
 .chapter-left-section{
     display: flex;
@@ -120,9 +115,7 @@ chapter-item {
 html[theme="dark"] .arrow svg {
     filter: brightness(0) invert(1);
 }
-.chapter-title.focused{
-    box-shadow: inset 0 0 0 2px var(--gray-button-text);
-}
+
 .action-box-chapter{
     margin-right: 10px;
 }
@@ -160,7 +153,7 @@ html[theme="dark"] .arrow svg {
     outline: none;
     border-radius: 5px;
     border: none;
-    width: 100%;
+    width: 65%;
     padding: 5px 5px 5px 5px;
     margin-left: 3px;
     display: inline-block;
@@ -208,10 +201,6 @@ html[theme="dark"] .arrow svg {
     display: flex;
     align-items: center;
 }
-.icon-container{
-    display: flex;
-    align-items: center;
-}
 
 .chapter-icons{
     visibility: hidden;
@@ -243,4 +232,7 @@ html[theme="dark"] input.chapter-title{
 }
 .add-elements{
     position: relative;
+}
+.highlighted-header{
+    box-shadow: inset 6px 0 0 -3px var(--strong-blue)
 }

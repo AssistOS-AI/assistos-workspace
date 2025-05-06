@@ -55,6 +55,17 @@ export class EditVariables {
         this.initVariables();
         this.commands = await this.splitCommands();
         let variablesHTML = "";
+        this.variablesHeader = `<div class="no-variables">No variables defined</div>`;
+        this.emptyTableClass = "";
+        if(this.commands.length > 0){
+            this.variablesHeader = `
+                <div class="cell table-label">Name</div>
+                <div class="cell table-label">Expression</div>
+                <div class="cell table-label">Value</div>
+                <div class="cell table-label">Status</div>`;
+        } else {
+            this.emptyTableClass = "empty-table"
+        }
         for(let variable of this.commands){
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
@@ -62,7 +73,7 @@ export class EditVariables {
                     <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                     <div class="cell">${variable.status || "......."}</div>
                     <div class="cell actions-cell">
-                        <div class="action-button-container right-margin" data-local-action="openEditor ${variable.varName}">
+                        <div class="icon-container right-margin" data-local-action="openEditor ${variable.varName}">
                             <img src="./wallet/assets/icons/eye.svg" class="pointer" alt="edit">
                         </div>
                         <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">

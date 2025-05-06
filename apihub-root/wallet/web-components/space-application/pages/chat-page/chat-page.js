@@ -609,8 +609,8 @@ if (IFrameContext) {
             this.setSpaceContainer();
             const agentPage = this.element;
             agentPage.style.display = "flex";
-            agentPage.style.width = "calc(100vw - 75px)";
-            agentPage.style.minWidth = "calc(100vw - 75px)";
+            agentPage.style.width = "calc(100vw - 70px)";
+            agentPage.style.minWidth = "calc(100vw - 70px)";
             this.spaceContainer.style.display = "none";
             localStorage.setItem("chatState", "full");
         }
@@ -647,8 +647,8 @@ if (IFrameContext) {
             agentPage.style.width = "0px";
             agentPage.style.minWidth = "0px";
             this.spaceContainer.style.display = "flex";
-            this.spaceContainer.style.width = "calc(100vw - 75px)";
-            this.spaceContainer.style.minWidth = "calc(100vw - 75px)";
+            this.spaceContainer.style.width = "calc(100vw - 70px)";
+            this.spaceContainer.style.minWidth = "calc(100vw - 70px)";
             localStorage.setItem("chatState", "minimized");
         }
 

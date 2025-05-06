@@ -197,7 +197,6 @@ export class ChapterItem {
             this.openPlugin("", "chapter", this.currentPlugin);
         }
 
-        this.element.setAttribute("data-local-action", "highlightChapter");
         this.renderChapterTitle();
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.element.click();
@@ -251,7 +250,11 @@ export class ChapterItem {
     async highlightChapter() {
         assistOS.space.currentChapterId = this.chapter.id;
         this.element.classList.add("highlighted-chapter");
+    }
+    highlightChapterHeader() {
         this.switchChapterToolbar("on");
+        let chapterHeader = this.element.querySelector(".chapter-header-container");
+        chapterHeader.classList.add("highlighted-header");
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -264,6 +267,7 @@ export class ChapterItem {
     }
     async closePlugin(targetElement) {
         let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
+        pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("chapter", this);
@@ -273,6 +277,8 @@ export class ChapterItem {
         this.focusOutHandler()
         chapterTitle.classList.remove("focused");
         await selectionUtils.deselectItem(this.titleId, this);
+        let chapterHeader = this.element.querySelector(".chapter-header-container");
+        chapterHeader.classList.remove("highlighted-header");
     }
 
     openMenu(targetElement, menuName) {

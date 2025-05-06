@@ -14,7 +14,15 @@
     font-size: 16px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    color: var(--light-gray-text)
+    color: var(--light-gray-text);
+    padding: 10px 0;
+}
+.empty-table{
+    grid-template-columns: repeat(2, 1fr);
+}
+.no-variables{
+    padding: 13px;
+    border-bottom: 1px solid var(--very-light-gray);
 }
 .table-actions{
     display: flex;
@@ -52,6 +60,11 @@
     padding: 5px;
     border-bottom: 1px solid var(--very-light-gray);
 }
+.table-label{
+    font-size: 16px;
+    color: var(--plugin-focus);
+    border-bottom: 3px solid var(--very-light-gray);
+}
 .actions-cell{
     display: flex;
     align-items: center;
@@ -68,13 +81,20 @@ edit-variables .focused-field{
     left: 0;
 }
 .action-button-container{
-    height: fit-content;
     border-radius: 5px;
     background-color: var(--action-button-background);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 5px;
+    width: 27px;
+    height: 27px;
+    margin-right: 15px;
+}
+.close-container{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
 }
 .delete-button-container{
     border-radius: 5px;
@@ -90,4 +110,7 @@ edit-variables .focused-field{
 }
 .right-margin{
     margin-right: 5px;
+}
+edit-variables .close{
+    margin-right: 4px;
 }
