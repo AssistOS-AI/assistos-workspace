@@ -19,9 +19,6 @@ chapter-item {
     line-height: normal;
     overflow: visible;
 }
-.chapter-plugin-container{
-    padding: 10px;
-}
 
 .highlight-chapter-header {
     background: var(--white-blue-tint) !important;
@@ -45,6 +42,7 @@ chapter-item {
 }
 .chapter-header-container {
     border-radius: 4px 0;
+    padding: 10px;
     width: 100%;
 }
 

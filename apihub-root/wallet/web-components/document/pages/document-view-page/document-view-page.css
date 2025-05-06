@@ -20,6 +20,9 @@ document-view-page {
     align-items: center;
     padding-bottom: 10px;
 }
+.infoText-plugin-container{
+    padding: 5px;
+}
 .book-comment-container{
     display: flex;
     align-items: center;

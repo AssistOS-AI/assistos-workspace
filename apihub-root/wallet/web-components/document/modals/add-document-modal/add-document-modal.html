@@ -5,11 +5,13 @@
     </div>
 </div>
 <div class="source-toggle">
-    <div class="source-option active" data-tab="create">
-        <i class="fas fa-file-alt"></i> Create Document
+    <div class="radio-item">
+        <input type="radio" name="source" id="create" class="source-toggle-input" checked>
+        <label for="create" class="source-toggle-label">Create Document</label>
     </div>
-    <div class="source-option" data-tab="upload">
-        <i class="fas fa-upload"></i> Upload File(s)
+    <div class="radio-item">
+        <input type="radio" name="source" id="upload" class="source-toggle-input">
+        <label for="upload" class="source-toggle-label">Upload files</label>
     </div>
 </div>
 <form class="add-document-form modal-body" id="createDocumentForm">
@@ -17,7 +19,12 @@
         <label class="form-label" for="documentTitle">Title</label>
         <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" maxlength="50" required placeholder="Title of Document">
     </div>
-
+    <div class="form-item">
+        <label class="form-label" for="category">Category</label>
+        <select class="form-input" name="category" id="category" required>
+            $$categoriesOptions
+        </select>
+    </div>
     <div class="modal-footer">
         <button type="button" class="general-button" data-local-action="addDocument">Create</button>
     </div>

@@ -35,6 +35,9 @@ export class AddAgent {
                     name: formInfo.data.name,
                     description: formInfo.data.description,
                     imageId: imageId,
+                    info: {
+                        color: formInfo.data.color,
+                    },
                 };
                 try {
                     await agentModule.addAgent(assistOS.space.id, agentData);
@@ -43,7 +46,6 @@ export class AddAgent {
                 }
 
                 document.querySelector('chat-container').webSkelPresenter.invalidate();
-
                 assistOS.UI.closeModal(_target,{refresh:true});
             };
             if(!formInfo.data.photo){
