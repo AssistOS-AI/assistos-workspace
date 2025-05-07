@@ -7,7 +7,7 @@ export class DisplayPreferences {
     async beforeRender() {
         const selectedParagraphSize = parseInt(localStorage.getItem("document-font-size"), 10) || 12;
         const selectedFont = localStorage.getItem("document-font-family") || "Arial";
-        const selectedColor = localStorage.getItem("document-font-color") || "#000000";
+        this.selectedColor = localStorage.getItem("document-font-color") || "#000000";
         const selectedDocumentTitleSize = parseInt(localStorage.getItem("document-title-font-size"), 10) ?? 24;
         const selectedChapterTitleSize = parseInt(localStorage.getItem("chapter-title-font-size"), 10) ?? 20;
         const selectedAbstractSize = parseInt(localStorage.getItem("abstract-font-size"), 10) ?? 14;
@@ -33,6 +33,31 @@ export class DisplayPreferences {
                         <option value="${font}" ${font === selectedFont ? "selected" : ""}>${font}</option>`).join("");
     }
     afterRender(){
+        const swatch=this.element.querySelector('#font-color-swatch')
+        const hex=this.element.querySelector('#document-font-color')
+        const picker=this.element.querySelector('#hidden-font-color')
+        swatch.style.backgroundColor=this.selectedColor
+        hex.value=this.selectedColor
+        swatch.addEventListener('click',e=>{
+            picker.style.left=e.clientX+'px'
+            picker.style.top=e.clientY+'px'
+            picker.click()
+        })
+
+        picker.addEventListener('input',e=>{
+            const v=e.target.value
+            swatch.style.backgroundColor=v
+            hex.value=v
+            localStorage.setItem('document-font-color',v)
+        })
+        hex.addEventListener('input',e=>{
+            const v=e.target.value
+            if(/^#[0-9A-Fa-f]{6}$/.test(v)){
+                swatch.style.backgroundColor=v
+                picker.value=v
+                localStorage.setItem('document-font-color',v)
+            }
+        })
         this.element.addEventListener("change", (event) => {
             const id = event.target.id;
             if (id === "document-font-size") {

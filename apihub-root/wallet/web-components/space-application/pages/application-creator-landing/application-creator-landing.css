@@ -37,7 +37,7 @@ application-creator-landing{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-block-start: 40px;
+    padding-block-start: 20px;
     padding-block-end: 20px;
     padding-inline:0 !important;
     width: 100%;
@@ -46,9 +46,13 @@ application-creator-landing{
 }
 
 .left-header span {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333333;
+    font-weight: 450;
+    color: #919191;
+    font-family: Inter;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: center;
+    vertical-align: middle;
 }
 
 .right-header {

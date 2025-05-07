@@ -175,19 +175,7 @@ keys-tab {
     border-bottom: 1px solid #e0e0e0;
 }
 
-.options-container-button {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    outline: none;
-    border: none;
-    background: #FFFFFF;
-}
+
 .secret-name{
     display:inline-flex;
-}
-.actions-button{
-    display:flex;
-    justify-content:center;
 }
