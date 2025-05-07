@@ -4,6 +4,30 @@
     "services": [],
     "components": [
         {
+            "name": "login-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "LoginPage"
+        },
+        {
+            "name": "lock-login",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "LockLogin"
+        },
+        {
+            "name": "totp-register",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "TotpRegister"
+        },
+        {
+            "name": "auth-component",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "AuthComponent"
+        },
+        {
             "name": "variable-values-tab",
             "directory": "document",
             "type": "modals",
@@ -549,10 +573,10 @@
             "presenterClassName": "AddSpaceModal"
         },
         {
-            "name": "authentication-page",
+            "name": "landing-page",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "AuthenticationPage"
+            "presenterClassName": "LandingPage"
         },
         {
             "name": "account-settings-page",

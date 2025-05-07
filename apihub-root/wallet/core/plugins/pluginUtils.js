@@ -10,6 +10,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
     if(plugin.type === "embedded"){
         let pluginContainer = presenter.element.querySelector(`.${type}-plugin-container`);
         let contextString = encodeURIComponent(JSON.stringify(context));
+        pluginContainer.classList.add("plugin-open");
         pluginContainer.innerHTML = `<${componentName} data-context="${contextString}" data-presenter="${componentName}"></${componentName}>`;
     } else {
         await assistOS.UI.showModal(componentName, {
@@ -23,7 +24,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
 }
 function removeHighlightPlugin(type, presenter) {
     let highlightPluginClass = `${type}-highlight-plugin`;
-    let pluginIcon = presenter.element.querySelector(`.action-button-container.${highlightPluginClass}`);
+    let pluginIcon = presenter.element.querySelector(`.icon-container.${highlightPluginClass}`);
     pluginIcon.classList.remove(highlightPluginClass);
 }
 function highlightPlugin(type, componentName, presenter) {
@@ -32,7 +33,7 @@ function highlightPlugin(type, componentName, presenter) {
     if(highlightPlugin){
         highlightPlugin.classList.remove(highlightPluginClass);
     }
-    let pluginIcon = presenter.element.querySelector(`.action-button-container.${componentName}`);
+    let pluginIcon = presenter.element.querySelector(`.icon-container.${componentName}`);
     pluginIcon.classList.add(highlightPluginClass);
 }
 async function initializePlugin(plugin) {
@@ -80,7 +81,7 @@ async function renderPluginIcons(containerElement, type) {
     }
 }
 function attachPluginTooltip(containerElement, plugin, type) {
-    containerElement.classList.add("action-button-container", plugin.component, "pointer");
+    containerElement.classList.add("icon-container", plugin.component, "pointer");
     containerElement.setAttribute("data-local-action", `openPlugin ${type} ${plugin.component}`);
     let tooltip = document.createElement("div");
     tooltip.classList.add("plugin-name");

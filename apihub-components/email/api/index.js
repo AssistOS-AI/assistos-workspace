@@ -93,7 +93,7 @@ class Email {
         const baseURL= process.env.BASE_URL;
         let appLink;
         if(invitationToken){
-            appLink = `<a class="button" href="${baseURL}/#authentication-page/inviteToken/${encodeURIComponent(invitationToken)}">Create an account</a>`;
+            appLink = `<a class="button" href="${baseURL}/#landing-page/inviteToken/${encodeURIComponent(invitationToken)}">Create an account</a>`;
         } else {
             appLink = `<a class="button" href="${baseURL}">Take me there</a>`;
         }

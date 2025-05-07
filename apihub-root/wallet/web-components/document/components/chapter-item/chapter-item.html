@@ -1,19 +1,19 @@
-<div class="chapter-header-container">
+<div class="chapter-header-container" data-local-action="editItem chapterHeader">
     <div class="chapter-plugin-container"></div>
     <div class="chapter-title-container">
-        <img class="chapter-visibility-arrow unfocusable black-icon" data-local-action="changeChapterDisplay $$chapter-id" src="./wallet/assets/icons/arrow-down.svg" alt="chapter">
+        <img class="chapter-visibility-arrow pointer unfocusable black-icon" data-local-action="changeChapterDisplay $$chapter-id" src="./wallet/assets/icons/arrow-down.svg" alt="chapter">
         <div class="data-chapter-number $$chapterFontSize $$chapterFontFamily font-color">$$chapterNumber.</div>
         <input type="text" data-local-action="editItem chapterTitle" class="chapter-title focusable $$chapterFontSize $$chapterFontFamily font-color"
                data-metadata="$$titleMetadata"/>
         <div class="chapter-toolbar">
             <div class="toolbar-left-section">
-                <div data-local-action="moveChapter up" class="move-chapter-up pointer right-margin">
+                <div data-local-action="moveChapter up" class="move-chapter-up icon-container right-margin">
                     <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class=" pointer black-icon">
                 </div>
-                <div data-local-action="moveChapter down" class="move-chapter-down pointer right-margin">
+                <div data-local-action="moveChapter down" class="move-chapter-down icon-container right-margin">
                     <img src="./wallet/assets/icons/arrow-up.svg" alt="icon"  loading="lazy" class="rotate-down pointer black-icon">
                 </div>
-                <div data-local-action="openMenu insert-document-element" class="add-elements pointer">
+                <div data-local-action="openMenu insert-document-element" class="add-elements icon-container">
                     <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
                 </div>
                 <div class="plugins-separator"></div>

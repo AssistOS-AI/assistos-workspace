@@ -1,12 +1,4 @@
 const crypto = require("opendsu").loadAPI("crypto");
-export function getDemoUserCredentials() {
-    try {
-        const demoUserCredentials = JSON.parse(getCookieValue("demoCredentials"));
-        return [demoUserCredentials.email, demoUserCredentials.password]
-    } catch (error) {
-        return ["", ""];
-    }
-}
 
 export function getCookieValue(cookieName) {
     const name = cookieName + "=";

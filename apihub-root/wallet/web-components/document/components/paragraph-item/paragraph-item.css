@@ -1,6 +1,6 @@
 paragraph-item {
     position: relative;
-    background-color: var(--modal-background);
+    background-color: var(--inactive-element);
     margin-bottom: 5px;
 }
 
@@ -14,9 +14,10 @@ paragraph-item {
 
 .highlighted-paragraph{
     background-color: var(--white);
+    box-shadow: inset 6px 0 0 -3px var(--strong-blue)
 }
 .paragraph-container{
-    padding: 5px;
+    padding: 0 5px;
 }
 
 .paragraph-header-container {
@@ -26,12 +27,10 @@ paragraph-item {
     display: none;
     align-items: center;
     justify-content: space-between;
-    padding: 10px;
+    padding: 5px;
     width: 100%;
-    background-color: var(--modal-background);
-    border-top-left-radius: 5px;
-    border-top-right-radius: 5px;
-    border-bottom: 3px solid var(--very-light-gray);
+    /*border-bottom: 3px solid var(--very-light-gray);*/
+    /*border-top: 3px solid var(--very-light-gray);*/
 }
 .toolbar-left-section{
     display: flex;
@@ -41,9 +40,7 @@ paragraph-item {
     display: flex;
     align-items: center;
 }
-.toolbar-margin{
-    margin-right: 10px;
-}
+
 .rotate-down{
     transform: rotate(180deg);
 }
@@ -59,8 +56,6 @@ paragraph-item {
     position: relative;
     cursor: default;
     display: flex;
-    border-bottom-left-radius: 5px;
-    border-bottom-right-radius: 5px;
     width: 100%;
     align-items: center;
 }
@@ -251,4 +246,7 @@ html[theme="dark"] textarea.paragraph-text{
     flex-direction: column;
     align-items: center;
     justify-content: center;
+}
+.plugin-open{
+    margin-bottom: 20px;
 }

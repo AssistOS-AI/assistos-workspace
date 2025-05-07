@@ -30,6 +30,7 @@
     --brown-gray: #555555;
     --settings-page-theme: #6b6b6b;
     --very-light-gray: #c2c2c299;
+    --a:#F2F2F2;
     --action-box-border: #dedede;
     --error-modal-border: #E5E5E5;
     --gray-border: #E6E6E6;
@@ -45,7 +46,6 @@
     --light-blue: #E1ECF4;
     --medium-blue: #0C5C9E;
     --chatbots-history-blue: #98BFE0;
-    --strong-blue: #0088CC;
     --documents-page-header: #363C44;
     --harsh-gray: #94aee34d;
     --input-file-selector: #2B64E1;
@@ -71,7 +71,8 @@
     --tab: #ECECEC;
 
     /* New Impl */
-    --modal-background: #f9f9f9;
+    --strong-blue: #0088CC;
+    --inactive-element: #f9f9f9;
     --gray-button-border: #CCCCCC;
     --gray-button-text: #4A4A4B;
     --gray-button-background: #EDEDED;
@@ -85,6 +86,22 @@
     --option-hover: #F2F2F2;
     --application-marketplace-background: #F8F8F8;
     --application-marketplace-border: #DDDDDD;
+    /*auth component*/
+    --text-white-color: #FFFFFF;
+    --text-grey-color: #D8D8D8;
+    --text-dark-color: #000000;
+    --border-base-color: #E8E8E8;
+    --app-theme-color: #1F1F1F;
+    --background-dark-color: #000000;
+    --background-item-color: #262626;
+    --background-light-color: #f7f7f7;
+    --body-bg-color: #EEEEEE;
+    --disabled-color: #E8E8E8;
+    --disabled-text-color: #4B4B4B;
+    --green-text-color: #66CC66;
+    --form-background-color: #373737;
+    --error-color: #FF0000;
+    --border-opac-color: rgba(255, 255, 255, 0.231);
 }
 
 * {
@@ -105,7 +122,6 @@ html {
     --default-font: Poppins;
     font-weight: 400;
     font-family: var(--default-font);
-    color: var(--default-font-color);
 }
 
 input, textarea {
@@ -140,29 +156,30 @@ dialog {
 }
 
 dialog.modal {
-    box-shadow: 0px 1px 7.3px 0px #00000040;
+    box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.25);
 }
 
 dialog {
-    border-radius: 5px;
+    border: 1px solid var(--very-light-gray);
 }
 
 .modal-header {
     align-items: center;
-    padding: 5px 20px;
-    background: var(--error-modal-border);
+    padding: 10px 15px;
     display: flex;
-    color: var(--light-gray-text);
+    color: var(--prompt-text);
+    font-weight: 700;
+    font-size: 24px;
     justify-content: space-between;
+    border-bottom: 1px solid var(--very-light-gray);
 }
 
 .close {
-    padding: 0;
     color: var(--light-gray-text);
     cursor: pointer;
-    background-color: transparent;
-    border: none;
-    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-title {
@@ -173,7 +190,6 @@ dialog {
 }
 
 .modal-body {
-    background-color: var(--modal-background);
     padding: 20px;
 }
 
@@ -183,7 +199,6 @@ dialog {
     justify-content: center;
     bottom: 10px;
     align-items: center;
-    background-color: var(--modal-background);
 }
 
 .modal-footer > button {
@@ -229,7 +244,7 @@ dialog {
     margin: 4px 0 8px;
     padding: 8px;
 }
-.select-input{
+select{
     border-radius: 5px;
     border: 0.5px solid var(--lighter-black);
     padding: 8px;
@@ -379,7 +394,7 @@ dialog {
     line-height: 24px;
     text-align: center;
     color: var(--white);
-    background: var(--blue-button);
+    background: var(--strong-blue);
     width: fit-content;
     height: 36px;
     padding: 6px 11px 6px 11px;

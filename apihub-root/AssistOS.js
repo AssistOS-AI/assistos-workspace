@@ -57,7 +57,7 @@ const textFontFamilyMap = Object.freeze({
     "Times New Roman": "font-times-new-roman",
     "Verdana": "font-verdana"
 });
-const authPage = "authentication-page";
+const authPage = "landing-page";
 function getEmailCookie() {
     const match = document.cookie.match(/(?:^|;\s*)email=([^;]*)/);
     return match ? decodeURIComponent(match[1]) : null;
@@ -271,7 +271,7 @@ class AssistOS {
 
         spaceId = spaceId || spaceIdURL;
 
-        if (spaceId === authPage && email) {
+        if ((spaceId === authPage && email) || spaceId === "login-page") {
             spaceId = undefined;
         }
 
@@ -300,10 +300,9 @@ class AssistOS {
             }
             await this.initPage(applicationName, applicationLocation);
         } catch (error) {
-            console.info(error);
+            console.log("unauthorized");
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage(authPage, authPage);
-            throw error;
         }
     }
 
@@ -379,7 +378,7 @@ class AssistOS {
                 <div class="toast-message">${message}</div>
             </div>
             <button type="button" class="close" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
+                <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
             </button>`;
         toastContainer.appendChild(toast);
         let timeoutId = setTimeout(() => {

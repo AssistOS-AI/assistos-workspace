@@ -334,6 +334,7 @@ export class ParagraphItem {
         let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
         pluginElement.remove();
+        pluginContainer.classList.remove("plugin-open");
         pluginUtils.removeHighlightPlugin("paragraph", this);
     }
 

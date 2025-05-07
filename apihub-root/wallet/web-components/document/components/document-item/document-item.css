@@ -19,7 +19,7 @@ document-item{
 
 .cell {
     width: 96%;
-    padding: 8px 10px;
+    padding: 8px 10px 8px 0;
 }
 .name-cell{
     color: var(--black);
