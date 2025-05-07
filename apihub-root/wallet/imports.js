@@ -1,7 +1,6 @@
 
 // Others
 import {
-    getDemoUserCredentials,
     insertTextAtCursor,
     base64ToBlob,
     executorTimer,
@@ -15,7 +14,6 @@ import CustomAudio from "./core/media/CustomAudio.js";
 import videoUtils from "./core/media/videoUtils.js";
 import {decodePercentCustom} from "./core/soplang/utils.js";
 export {
-    getDemoUserCredentials,
     insertTextAtCursor,
     base64ToBlob,
     executorTimer,

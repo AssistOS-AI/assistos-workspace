@@ -79,7 +79,7 @@ document-view-page {
 }
 
 .infoText-section.focused .infoText-input{
-    background-color: var(--modal-background);
+    background-color: var(--inactive-element);
 }
 .infoText-section.focused .infoText-input.focused{
     background-color: var(--white); !important;
@@ -245,11 +245,11 @@ document-view-page {
     background-color: white; !important;
 }
 .container-element.focused{
-    background-color: var(--modal-background);
+    background-color: var(--inactive-element);
     box-shadow: inset 6px 0 0 -3px var(--strong-blue);
 }
 .container-element.focused .document-infoText{
-    background-color: var(--modal-background);
+    background-color: var(--inactive-element);
 }
 .insert-image {
     margin-left: 10px;

@@ -22,7 +22,7 @@
 }
 .no-variables{
     padding: 13px;
-    border-bottom: 1px solid var(--very-light-gray);
+    border-bottom: 3px solid var(--very-light-gray);
 }
 .table-actions{
     display: flex;

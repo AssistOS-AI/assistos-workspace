@@ -1,56 +1,19 @@
-import {getDemoUserCredentials} from "../../../../imports.js";
-
 let userModule = require("assistos").loadModule("user", {});
 const spaceModule = require("assistos").loadModule("space", {});
 
-export class AuthenticationPage {
+export class LandingPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.rotations = 0;
-        [this.demoUserEmail, this.demoUserPassword] = getDemoUserCredentials();
         this.invalidate();
     }
 
     async beforeRender() {
         this.inviteToken = window.location.hash.split("/")[2];
         this.dataSubpage = this.element.getAttribute("data-subpage");
-        switch (this.dataSubpage) {
-            case "register-confirmation": {
-                this.subpage = `
-              <div>
-                   <div class="form-item">
-                        <label class="form-label" for="authCode">
-                            <p>Enter the code that has been sent to your email</p>
-                            <input type="text" name="authCode" id="authCode" class="form-input" value="${this.authCode || ''}">
-                        </label>
-                        <button type="button" data-local-action="submitCode" class="general-button">Submit</button>
-                    </div>
-              </div>`;
-                break;
-            }
-            default: {
-                this.subpage = ` 
-                <form class="log-in-form">
-                    <div class="form-item">
-                        <label class="form-label" for="user-email">Enter your E-mail to begin using AssistOS</label>
-                        <input class="form-input" name="email" type="email" data-id="user-email" id="user-email" placeholder="Add e-mail">
-                    </div>
-                    <div class="form-footer">
-                        <button type="button" class="general-button" data-local-action="generateCode">Submit</button>
-                    </div>
-                </form>`;
-                break;
-            }
-        }
     }
 
-    sendFormOnEnter(event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            this.element.querySelector(".general-button").click();
-        }
-    }
 
     afterRender() {
         this.carousel = this.element.querySelector(".images");
@@ -58,16 +21,9 @@ export class AuthenticationPage {
         setTimeout(async () => {
             await this.startSlideshow(0);
         });
-        let inputs = this.element.querySelectorAll("input");
-        this.lastInput = inputs[inputs.length - 1];
-        if (this.lastInput) {
-            this.lastInput.removeEventListener("keypress", this.boundFn);
-            this.boundFn = this.sendFormOnEnter.bind(this);
-            this.lastInput.addEventListener("keypress", this.boundFn);
-        }
         if(this.dataSubpage === "successful-activation"){
             const innerElement = this.element.querySelector('#successful-activation');
-            let time =5;
+            let time = 5;
             let intervalId = setInterval(async ()=>{
                 if(time === 0){
                     clearInterval(intervalId);
@@ -128,14 +84,9 @@ export class AuthenticationPage {
         }
     }
 
-    async navigateToPage(subpage) {
-        if (this.inviteToken) {
-            await assistOS.UI.changeToDynamicPage("authentication-page", `authentication-page/inviteToken/${this.inviteToken}`, {subpage: subpage});
-        } else {
-            await assistOS.UI.changeToDynamicPage("authentication-page", "authentication-page", {subpage: subpage});
-        }
+    async navigateToLoginPage(targetElement, actionType) {
+        await assistOS.UI.changeToDynamicPage("login-page", `login-page`, {"authtype": actionType});
     }
-
 
     async generateCode(_target) {
         let email = this.element.querySelector("#user-email").value;

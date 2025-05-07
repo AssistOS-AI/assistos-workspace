@@ -1,6 +1,6 @@
 paragraph-item {
     position: relative;
-    background-color: var(--modal-background);
+    background-color: var(--inactive-element);
     margin-bottom: 5px;
 }
 

@@ -1,0 +1,114 @@
+<section class="component_container">
+    <section class="header">
+        <label class="title"></label>
+    </section>
+    <section class="content">
+        <section class="auth_container">
+            <section class="auth_type_wrapper">
+                <section class="email_wrapper">
+                    <section class="input_container">
+                        <input class="email_input form-input" name="email" autocomplete="email" type="email" placeholder="Email address">
+                        <button class="submit_email_button app-button" data-local-action="submitEmail" disabled> Sign In
+                        </button>
+                    </section>
+                    <section class="selection_short_info email_code">
+                        Enable two-step verification to receive a one-time code via email, adding an extra layer of
+                        protection to your account.
+                    </section>
+                    <section class="selection_short_info passkey">
+                        Passkey is the default register method. If you're unsure, you can choose other method to
+                        register. You can switch methods later.
+                    </section>
+                    <section class="selection_short_info totp">
+                        After scanning the QR code, your app will generate a 6-digit code.
+                        One Time Password (OTP)
+                    </section>
+                    <section class="auth_methods_section"></section>
+                    <section class="actions_container"></section>
+                </section>
+                <section class="selection_long_info email_code_auth $$email_code_auth">
+                    <section class="selection_info email_code" id="code_info">
+                        Receive a one-time code sent to your registered email address. Enter this code to verify your
+                        identity and access your account.
+                        <ul>
+                            <li>
+                                Simple and Familiar: Ideal if you prefer using your email for authentication.
+                            </li>
+                            <li>
+                                No Special Setup Required: Works on any device with email access.
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+                <section class="selection_long_info passkey_auth $$passkey_auth">
+                    <section class="selection_info passkey" id="passkey_info">
+                        Utilize a secure, passwordless method by authenticating with your device's built-in security
+                        features, such
+                        as fingerprint, facial recognition, or PIN.
+                        <ul>
+                            <li>
+                                Enhanced Security: Passkeys are resistant to phishing and eliminate the need to remember
+                                passwords.
+                            </li>
+                            <li>
+                                Seamless Experience: Authenticate quickly using your device's security features.
+                            </li>
+                            <li>
+                                Cross-Platform Compatibility: Passkeys can sync across your devices for consistent
+                                access.
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+                <section class="selection_long_info totp_auth $$totp_auth">
+                    <section class="selection_info totp" id="totp_info">
+                        Use a time-based authenticator app on your phone to generate verification codes.
+                        <ul>
+                            <li>
+                                High Security: Adds an extra layer of protection beyond your password.
+                            </li>
+                            <li>
+                                Works Offline: Generate codes even without internet access.
+                            </li>
+                            <li>
+                                Compatible with Popular Apps: Works with Google Authenticator, Authy, and others.
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+            </section>
+            <section class="totp_login_section">
+                <section class="input_container">
+                    <input class="totp_input app_input" type="text" pattern="[0-9]*" inputmode="numeric"
+                           maxlength="6"
+                           placeholder="6-digit code from authenticator app">
+                    <button class="totp_action_button app_button" data-local-action="totpCodeSubmit" disabled>Log in
+                    </button>
+                </section>
+                <label class="info">Enter the 6-digit code from your authenticator app.</label>
+            </section>
+            <section class="totp_register_section">
+            </section>
+            <section class="code_submit_section">
+                <div class="code_sent_message">
+                    An email containing your authentication code has been sent to your email address. Please
+                    check your inbox (and spam folder if necessary) to retrieve the code and proceed
+                </div>
+                <section class="input_container">
+                    <input class="code_input app_input" type="password" placeholder="Code from email">
+                    <button class="submit_code_button app_button" data-local-action="submitCode" disabled>Log in
+                    </button>
+                </section>
+                <label class="info">
+                    If you have not received an email after more than 2 minutes, make sure your email address is
+                    correct,
+                    then try again.
+                </label>
+            </section>
+        </section>
+        <section class="promo_section">
+            <label class="info promotion">$$promoText</label>
+        </section>
+    </section>
+
+</section>

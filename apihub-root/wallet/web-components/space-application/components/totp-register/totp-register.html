@@ -1,0 +1,25 @@
+<section class="totp_registration">
+    <h3>Set Up Authenticator</h3>
+    <p>
+    <ol>
+        <li>Search for ‘authenticator’ app for your device (Google Authenticator, Authy, etc.)</li>
+        <li>Open the app.</li>
+        <li>Pair your app with OutfinityGift by scanning this QR Code
+            <div class="qrcode_container">
+                <div class="qrcode" id="totp_qrcode"></div>
+                <div>Or enter this key manually:</div>
+                <p class="secret_key" id="totp_secret"></p>
+            </div>
+        </li>
+        <li>
+            <div class="verification_section">
+                <p>Enter the 6-digit code from your authenticator:</p>
+                <div class="input_container">
+                    <input class="totp_verify_input app_input" type="text" pattern="[0-9]*"
+                           inputmode="numeric" maxlength="6" placeholder="Verification code">
+                    <button class="totp_verify_button app_button gold_background" disabled>Verify</button>
+                </div>
+            </div>
+        </li>
+    </ol>
+</section>
