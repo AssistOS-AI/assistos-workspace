@@ -199,7 +199,7 @@ settings-page {
     height:100%;
     display:flex;
     justify-content: flex-end;
-    margin-right:38px;
+    margin-right:28px;
 }
 .first-table-field{
     text-align: left !important;

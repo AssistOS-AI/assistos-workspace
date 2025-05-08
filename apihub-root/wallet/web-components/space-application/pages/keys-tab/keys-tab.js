@@ -30,6 +30,8 @@ export class KeysTab {
 
     afterRender() {
         this.element.querySelector('#table-secrets tbody').innerHTML = this.secretsHTML
+        this.element.querySelectorAll('.actions-button')
+            .forEach(b => {b.style.marginRight = '46px'});
     }
 
     async deleteAPIKey(_eventTarget, secretKey) {

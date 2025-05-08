@@ -1,7 +1,8 @@
-application-creator-landing{
-    width:100%;
-    height:100%;
+application-creator-landing {
+    width: 100%;
+    height: 100%;
 }
+
 #application-root-container {
     display: flex;
     width: 100%;
@@ -15,8 +16,10 @@ application-creator-landing{
     align-items: flex-start;
     flex-direction: column;
     width: 180px;
+    height: 100%;
     box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
     padding: 20px;
+    background: #F5F5F5;
 }
 
 #application-page-container {
@@ -39,7 +42,7 @@ application-creator-landing{
     align-items: center;
     padding-block-start: 20px;
     padding-block-end: 20px;
-    padding-inline:0 !important;
+    padding-inline: 0 !important;
     width: 100%;
     height: 80px;
     border-bottom: 1px solid #e0e0e0;
@@ -256,11 +259,12 @@ application-creator-landing{
     letter-spacing: 0.5px;
     font-size: 12px;
 }
-.max-icon-display{
-    height:40px;
-    width:40px;
-    max-height:40px;
-    max-width:40px;
+
+.max-icon-display {
+    height: 40px;
+    width: 40px;
+    max-height: 40px;
+    max-width: 40px;
 }
 
 .application-form-item-select {
@@ -417,25 +421,62 @@ application-creator-landing{
     stroke: #2A92AF;
 }
 
-.table-container { overflow-x: auto; width: 100%; height: 100%; border-radius: 12px;}
+.table-container {
+    overflow-x: auto;
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+}
 
-.modern-table { width: 100%; border-collapse: separate; border-spacing: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; overflow:scroll;}
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: scroll;
+}
 
-.modern-table thead { color: #1a365d; }
+.modern-table thead {
+    color: #1a365d;
+}
 
-.modern-table th { padding: 1.25rem; text-align: left; font-weight: 600; font-size: 0.95rem; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 2px solid #e2e8f0; }
+.modern-table th {
+    padding: 1.25rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: 0.6px;
+    text-transform: uppercase;
+    border-bottom: 2px solid #e2e8f0;
+}
 
-.modern-table td { padding: 1.25rem; color: #2d3748; font-size: 0.95rem; border-bottom: 1px solid #edf2f7; line-height: 1.5; }
+.modern-table td {
+    padding: 1.25rem;
+    color: #2d3748;
+    font-size: 0.95rem;
+    border-bottom: 1px solid #edf2f7;
+    line-height: 1.5;
+}
 
-.modern-table tbody tr { transition: all 0.3s ease; }
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+}
 
-.modern-table tbody tr:hover { background: #f7fafc;}
+.modern-table tbody tr:hover {
+    background: #f7fafc;
+}
 
-.modern-table tbody tr:last-child td { border-bottom: none; }
+.modern-table tbody tr:last-child td {
+    border-bottom: none;
+}
 
-.modern-table td:first-child, .modern-table th:first-child { padding-left: 2rem; }
+.modern-table td:first-child, .modern-table th:first-child {
+    padding-left: 2rem;
+}
 
-.modern-table td:last-child, .modern-table th:last-child { padding-right: 2rem; }
+.modern-table td:last-child, .modern-table th:last-child {
+    padding-right: 2rem;
+}
 
 .status {
     display: inline-block;
@@ -664,9 +705,9 @@ application-creator-landing{
 }
 
 .file-input-wrapper {
-    display:flex;
-    flex-direction:column;
-    gap:12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
     position: relative;
     width: 100%;
 }
@@ -1008,4 +1049,98 @@ input:checked + .toggle-slider:before {
 .form-left .application-form-item,
 .form-right .application-form-item {
     width: 100%;
+}
+
+.red {
+    background: #C80001;;
+}
+
+.page-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    padding-block-end: 12px;
+    border-bottom: 1px solid #EFEFEF
+}
+
+.page-item-name {
+    color: #222222CC;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: justify;
+}
+
+.page-item-application {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+.page-item-application-logo {
+    display: flex;
+}
+
+.page-item-application-name {
+    font-family: Inter;
+    font-weight: 500;
+    font-size: 13.93px;
+    line-height: 100%;
+    letter-spacing: 0px;
+    vertical-align: middle;
+    color: #646464;
+}
+
+.page-item-description-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    width: 100%;
+}
+
+.page-item-description {
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: justify;
+    color: #646464;
+}
+
+.page-item-description-buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.square-40 {
+    width: 40px;
+    height: 40px;
+}
+
+.page-item-application-left, .page-item-application-right {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+}
+
+.application-form-item-row {
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.width-25 {
+    width: 25%;
+}
+.application-form-subitem{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
 }

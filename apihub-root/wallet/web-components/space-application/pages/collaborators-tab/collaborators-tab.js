@@ -93,6 +93,9 @@ export class CollaboratorsTab {
     }
 
     afterRender() {
+        this.element.querySelectorAll('.actions-button')
+            .forEach(b => b.style.marginRight = '70px');
+
         this.element.querySelectorAll('.collaborator-role').forEach(el => {
             el.addEventListener('change', async e => {
                 let email = e.target.dataset.userEmail
