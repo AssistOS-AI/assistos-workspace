@@ -404,7 +404,8 @@ export class AuthComponent {
                 }, true);
 
                 if (signUpConfirmation) {
-                    await this.submitStep1("signup");
+                    this.auth_step = "signup";
+                    await this.submitStep1();
                     return //await this.signupSubmit(this.selected_method, this.email);
                 } else {
                     return;
