@@ -107,3 +107,9 @@ input[type="range"]::-moz-range-thumb {
     border-color: #007BFF;
     box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
+.color-picker{display:flex;width:100%;height:30px;border:1px solid #ccc;border-radius:4px;overflow:hidden}
+.color-swatch{flex:0 0 90%;height:100%}
+#document-font-color{flex:0 0 10%;border:none;padding-left:4px;font-family:Inter;font-size:14px;outline:none; justify-content:center;}
+#hidden-font-color{
+    position:fixed;width:0;height:0;opacity:0;border:none;padding:0
+}

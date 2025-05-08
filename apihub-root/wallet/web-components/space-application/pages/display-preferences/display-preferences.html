@@ -40,8 +40,13 @@
         </div>
         <div class="preference">
             <label for="document-font-color">Font Color</label>
-            <input type="color" id="document-font-color" name="document-font-color" value="${selectedColor}">
+            <div id="font-color-picker" class="color-picker">
+                <div id="font-color-swatch" class="color-swatch"></div>
+                <input type="text" id="document-font-color" name="document-font-color" maxlength="7">
+                <input type="color" id="hidden-font-color" style="display:none">
+            </div>
         </div>
+
     </div>
 </div>
 

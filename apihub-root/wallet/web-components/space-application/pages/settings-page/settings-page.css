@@ -84,7 +84,7 @@ settings-page {
 
 .tab-content {
     overflow-y: auto;
-    padding: 0px 8px 20px 8px;
+    padding: 0px 8px 20px 16px;
     width: 100%;
     height: calc(100% - 60px);
 }
@@ -99,7 +99,7 @@ settings-page {
 .table-section {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     width: 100%;
     height: 100%;
     padding: 12px
@@ -109,7 +109,6 @@ settings-page {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-inline: 20px;
     background: #EDEDED;
     border: 1px solid #CCC;
     color: #454545
@@ -123,19 +122,18 @@ settings-page {
 }
 
 .data-table th, .data-table td {
-    text-align: left;;
+    text-align: center;
     vertical-align: middle;
     padding: 8px 4px
 }
 
 .data-table th {
-    font-weight: 600;
-    border-bottom: 1px solid #e0e0e0;
+    font-weight: 450;
    color: #919191;
     font-family: Inter;
     font-size: 16px;
     line-height: 100%;
-    text-align: left;
+    text-align: center;
     vertical-align: middle;
 }
 
@@ -195,5 +193,54 @@ settings-page {
 }
 
 .data-table tr {
-    border-bottom: 1px solid #e0e0e0
+    border-bottom: 1px solid #e0e0e0;
 }
+.actions-button{
+    height:100%;
+    display:flex;
+    justify-content: flex-end;
+    margin-right:38px;
+}
+.first-table-field{
+    text-align: left !important;
+}
+.options-container-button {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    height:100%;
+    justify-content: center;
+    outline: none;
+    border: none;
+    background: #FFFFFF;
+}
+.last-table-field{
+    display:flex;
+    justify-content: flex-end;
+}
+.table-section{
+    width:100%;
+}
+
+.data-table{
+    width:65%;
+    table-layout:fixed;
+}
+
+.data-table th,
+.data-table td{
+    padding:8px 0;
+    white-space:nowrap;
+}
+
+.data-table th:last-child,
+.data-table td:last-child{
+    text-align:right;
+}
+
+.data-table th:last-child,
+.data-table td:last-child{
+    text-align:center;
+}
+
+
