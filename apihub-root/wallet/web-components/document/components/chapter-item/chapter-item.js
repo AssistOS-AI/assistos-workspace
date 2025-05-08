@@ -217,7 +217,12 @@ export class ChapterItem {
 
 
     }
-
+    async addParagraph(_target) {
+        let position = this.chapter.paragraphs.length;
+        let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
+        assistOS.space.currentParagraphId = paragraph.id;
+        await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
+    }
     async addParagraphOrChapterOnKeyPress(event) {
         if (!event.ctrlKey || event.key !== "Enter") {
             return;
@@ -313,6 +318,7 @@ export class ChapterItem {
                 <div>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraph" data-name="Add Paragraph" data-highlight="light-highlight"></list-item>
                 </div>`
     }
 

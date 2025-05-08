@@ -13,6 +13,7 @@ import {changeSelectedPageFromSidebar} from "../AssistOS.js";
 import CustomAudio from "./core/media/CustomAudio.js";
 import videoUtils from "./core/media/videoUtils.js";
 import {decodePercentCustom} from "./core/soplang/utils.js";
+import {generateAvatar} from "./utils/uiutils.js";
 export {
     insertTextAtCursor,
     base64ToBlob,
@@ -23,5 +24,6 @@ export {
     generateId,
     CustomAudio,
     videoUtils,
-    decodePercentCustom
+    decodePercentCustom,
+    generateAvatar
 };

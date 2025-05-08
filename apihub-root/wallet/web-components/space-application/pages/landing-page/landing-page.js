@@ -1,6 +1,3 @@
-let userModule = require("assistos").loadModule("user", {});
-const spaceModule = require("assistos").loadModule("space", {});
-
 export class LandingPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -9,10 +6,7 @@ export class LandingPage {
         this.invalidate();
     }
 
-    async beforeRender() {
-        this.inviteToken = window.location.hash.split("/")[2];
-        this.dataSubpage = this.element.getAttribute("data-subpage");
-    }
+    async beforeRender() {}
 
 
     afterRender() {
@@ -21,19 +15,6 @@ export class LandingPage {
         setTimeout(async () => {
             await this.startSlideshow(0);
         });
-        if(this.dataSubpage === "successful-activation"){
-            const innerElement = this.element.querySelector('#successful-activation');
-            let time = 5;
-            let intervalId = setInterval(async ()=>{
-                if(time === 0){
-                    clearInterval(intervalId);
-                    this.dataSubpage = "login-page";
-                    this.invalidate();
-                }
-                innerElement.innerHTML =`Account Activated! Redirecting to log in page in ${time} seconds`
-                time--;
-            },1000)
-        }
     }
 
     async startSlideshow(milliseconds) {
@@ -87,79 +68,4 @@ export class LandingPage {
     async navigateToLoginPage(targetElement, actionType) {
         await assistOS.UI.changeToDynamicPage("login-page", `login-page`, {"authtype": actionType});
     }
-
-    async generateCode(_target) {
-        let email = this.element.querySelector("#user-email").value;
-        if (!email) {
-            alert("Email is required");
-            return;
-        }
-        let loader = assistOS.UI.showLoading();
-        let result = await userModule.userExists(email);
-        await assistOS.UI.hideLoading(loader);
-        if(result.userExists){
-            result = await userModule.generateAuthCode(email, "emailCode");
-            this.email = email;
-        } else {
-            let signUpMessage = `We couldn't find an account for ${email}. Do you want to create a new account with this email?`;
-            let signUpConfirmation = await assistOS.UI.showModal("confirm-action-modal", {
-                message: signUpMessage
-            }, true);
-            if (signUpConfirmation) {
-                result = await userModule.generateAuthCode(email, "emailCode");
-                this.email = email;
-                this.createSpace = true;
-            } else {
-                return;
-            }
-        }
-        this.authCode = result.code;
-        this.invalidate(async () => {
-            this.element.setAttribute("data-subpage", "register-confirmation")
-        })
-    }
-    async submitCode(_target) {
-        let authCode = this.element.querySelector("#authCode").value;
-        let result = await userModule.loginUser(this.email, authCode, "emailCode");
-        if(result.operation !== "success"){
-            throw new Error(result.message);
-        }
-        if(this.createSpace){
-            let spaceName = this.email.split('@')[0];
-            await assistOS.UI.showLoading();
-            await spaceModule.createSpace(spaceName);
-            await assistOS.UI.hideLoading();
-        }
-        await assistOS.UI.showLoading();
-        await assistOS.loadPage(this.email);
-        if (!assistOS.user.imageId) {
-            let uint8Array = await this.generateUserAvatar(this.email);
-            assistOS.user.imageId = await spaceModule.putImage(uint8Array);
-            await userModule.updateUserImage(assistOS.user.email, assistOS.user.imageId);
-        }
-        await assistOS.UI.hideLoading();
-    }
-    async generateUserAvatar(email, size = 100) {
-        let firstLetter = email.charAt(0).toUpperCase();
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-
-        // Generate a random background color
-        ctx.fillStyle = `hsl(${Math.floor(Math.random() * 360)}, 70%, 60%)`;
-        ctx.fillRect(0, 0, size, size);
-
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = `${size * 0.5}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(firstLetter, size / 2, size / 2);
-        const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
-        const arrayBuffer = await blob.arrayBuffer();
-        const uint8Array = new Uint8Array(arrayBuffer);
-        canvas.remove();
-        return uint8Array;
-    }
-
 }
