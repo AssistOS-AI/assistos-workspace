@@ -103,7 +103,7 @@ left-sidebar {
     visibility: hidden;
     position: absolute;
     left: 105%;
-    top: 15px;
+    top: 0;
     width: 200px;
     color: var(--white-text);
     background-color: var(--left-sidebar-background);

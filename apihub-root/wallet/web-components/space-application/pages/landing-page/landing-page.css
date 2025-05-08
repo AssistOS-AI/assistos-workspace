@@ -19,7 +19,14 @@ landing-page{
     width:100%;
     position: relative;
 }
-
+.buttons-container{
+    display: flex;
+    justify-content: center;
+    margin-top: 16px;
+ }
+.right-margin{
+    margin-right: 10px;
+}
 /*image carousel*/
 .slideshow-container {
     width: 66%;
@@ -131,9 +138,6 @@ landing-page{
 .form-footer {
     display: flex;
     justify-content: center;
-}
-.general-button{
-    margin: 16px 0;
 }
 
 .logo-container {

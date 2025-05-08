@@ -158,13 +158,17 @@ export class DocumentViewPage {
 
     async initTitleInfoTextSelection() {
         this.infoTextClass = "document-infoText";
+        this.infoTextTitleClass = "document-infoTextTitle";
         this.titleClass = "document-title";
         this.infoTextId = "infoText";
+        this.infoTextTitleId = "infoTextTitle";
         this.titleId = "title";
         this.boundSelectInfoTextHandler = this.handleUserSelection.bind(this, this.infoTextClass);
         this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
+        this.boundSelectInfoTextTitleHandler = this.handleUserSelection.bind(this, this.infoTextTitleClass);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextId, this.boundSelectInfoTextHandler);
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
+        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextTitleId, this.boundSelectInfoTextTitleHandler);
     }
 
     async getPersonalityName(personalityId){
@@ -483,16 +487,19 @@ export class DocumentViewPage {
     }
 
     async focusOutHandler(element, itemId) {
+        await this.focusOutHandlerTitle(element, itemId);
+        element.removeEventListener('keydown', this.boundControlInfoTextHeight);
+        this.changeToolbarView(element, "off");
+        this.currentPlugin = this.closePlugin("", true);
+    }
+    async focusOutHandlerTitle(element, itemId) {
         let container = element.closest(".container-element");
         container.classList.remove("focused");
         element.removeEventListener('keydown', this.titleKeyDownHandler);
-        element.removeEventListener('keydown', this.boundControlInfoTextHeight);
         element.classList.remove("focused");
-
         this.stopTimer.bind(this, true);
         await selectionUtils.deselectItem(itemId, this);
         delete this.currentSelectItem;
-        this.changeToolbarView(element, "off");
     }
 
     async controlInfoTextHeight(infoText) {
@@ -517,17 +524,23 @@ export class DocumentViewPage {
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
         await selectionUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
-        this.currentSelectItem = this.titleId;
+        this.currentSelectItem = this.infoTextId;
         this.changeToolbarView(targetElement, "on");
+        if(this.currentPlugin){
+            await this.openPlugin("", "infoText", this.currentPlugin);
+        }
     }
     async highlightInfoTextTitle(targetElement) {
-        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextId));
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextTitleId));
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        //await selectionUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
-        //this.currentSelectItem = this.titleId;
+        await selectionUtils.selectItem(true, this.infoTextTitleId, this.infoTextClass, this);
+        this.currentSelectItem = this.infoTextTitleId;
         this.changeToolbarView(targetElement, "on");
+        if(this.currentPlugin){
+            await this.openPlugin("", "infoText", this.currentPlugin);
+        }
     }
     async editItem(targetElement, type) {
         if (targetElement.getAttribute("id") === "current-selection") {
@@ -550,7 +563,7 @@ export class DocumentViewPage {
             targetElement.classList.add("focused");
             let containerElement = targetElement.closest(".container-element");
             containerElement.classList.add("focused");
-            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.titleId));
+            await this.changeCurrentElement(targetElement, this.focusOutHandlerTitle.bind(this, targetElement, this.titleId));
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
             await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
@@ -736,12 +749,19 @@ export class DocumentViewPage {
         }
     }
 
-    async closePlugin(targetElement) {
+    closePlugin(targetElement, focusoutClose) {
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("infoText", this);
+        if(focusoutClose){
+            return pluginName;
+        }
     }
 
     async undoOperation(targetElement){

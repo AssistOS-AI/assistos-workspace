@@ -251,10 +251,13 @@ export class ChapterItem {
         assistOS.space.currentChapterId = this.chapter.id;
         this.element.classList.add("highlighted-chapter");
     }
-    highlightChapterHeader() {
+    async highlightChapterHeader() {
         this.switchChapterToolbar("on");
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.add("highlighted-header");
+        if(this.curentPlugin){
+          await this.openPlugin("", "chapter", this.curentPlugin);
+        }
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -265,12 +268,19 @@ export class ChapterItem {
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
-    async closePlugin(targetElement) {
+    async closePlugin(targetElement, focusoutClose) {
         let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("chapter", this);
+        if(focusoutClose){
+            return pluginName;
+        }
     }
 
     async focusOutHandlerTitle(chapterTitle){
@@ -279,6 +289,7 @@ export class ChapterItem {
         await selectionUtils.deselectItem(this.titleId, this);
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.remove("highlighted-header");
+        this.curentPlugin = await this.closePlugin("", true);
     }
 
     openMenu(targetElement, menuName) {

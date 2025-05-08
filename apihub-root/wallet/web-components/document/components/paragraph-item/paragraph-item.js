@@ -216,29 +216,6 @@ export class ParagraphItem {
         }
     }
 
-    async enterEditModeCommands() {
-        let commandsElement = this.element.querySelector('.paragraph-commands');
-        if (!commandsElement) {
-            let textareaContainer = this.element.querySelector('.header-section');
-            textareaContainer.insertAdjacentHTML('beforeend', `<textarea class="paragraph-commands"></textarea>`);
-            let paragraphCommands = this.element.querySelector('.paragraph-commands');
-            paragraphCommands.value = this.paragraph.commands;
-            paragraphCommands.style.padding = `5px 10px`;
-            paragraphCommands.style.height = paragraphCommands.scrollHeight + 'px';
-            paragraphCommands.addEventListener('input', function () {
-                this.style.height = 'auto';
-                this.style.height = this.scrollHeight + 'px';
-            });
-            let controller = new AbortController();
-            document.addEventListener("click", async (event) => {
-                if (!event.target.closest(".paragraph-commands")) {
-                    await this.focusOutHandlerHeader(controller);
-                    controller.abort();
-                }
-            }, {signal: controller.signal});
-        }
-    }
-
     async highlightParagraph() {
         assistOS.space.currentParagraphId = this.paragraph.id;
         this.switchParagraphToolbar("on");
@@ -246,6 +223,9 @@ export class ParagraphItem {
         paragraphText.classList.add("focused");
         let paragraphContainer = this.element.querySelector('.paragraph-container');
         paragraphContainer.classList.add("highlighted-paragraph");
+        if(this.curentPlugin){
+            await this.openPlugin("", "paragraph", this.curentPlugin);
+        }
     }
 
     removeHighlightParagraph() {
@@ -272,18 +252,11 @@ export class ParagraphItem {
                 }
                 assistOS.space.currentParagraphId = null;
                 await selectionUtils.deselectItem(this.paragraph.id, this);
+                this.curentPlugin = await this.closePlugin("", true);
             }
         );
     }
 
-    async focusOutHandlerHeader(eventController) {
-        await assistOS.loadifyComponent(this.element, async () => {
-            let commands = this.element.querySelector('.paragraph-commands');
-            this.paragraph.commands = commands.value;
-            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id, this.paragraph.text, this.paragraph.commands, this.paragraph.comments);
-            commands.remove();
-        });
-    }
 
     async resetTimer(paragraph, event) {
         paragraph.style.height = "auto";
@@ -330,12 +303,19 @@ export class ParagraphItem {
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
-    async closePlugin(targetElement) {
+    async closePlugin(targetElement, focusoutClose) {
         let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginContainer.classList.remove("plugin-open");
         pluginUtils.removeHighlightPlugin("paragraph", this);
+        if(focusoutClose){
+            return pluginName;
+        }
     }
 
     openMenu(targetElement, menuName) {
