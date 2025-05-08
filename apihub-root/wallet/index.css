@@ -2,6 +2,7 @@
 @import "dark-theme.css";
 
 :root {
+    --default-font: Inter, Arial, sans-serif;
     --black: black;
     --user-text: black;
     --robot-text: black;
@@ -71,10 +72,10 @@
     --tab: #ECECEC;
 
     /* New Impl */
-    --strong-blue: #0088CC;
+    --strong-blue: #08C;
     --inactive-element: #f9f9f9;
     --gray-button-border: #CCCCCC;
-    --gray-button-text: #4A4A4B;
+    --gray-button-text: #454545;
     --gray-button-background: #EDEDED;
     --action-button-background: #E9E9E9;
     --delete-button-background: #C80001EE;
@@ -119,13 +120,13 @@
 
 
 html {
-    --default-font: Poppins;
+    font-family: var(--default-font), sans-serif;
+    font-variation-settings: normal;
+    font-feature-settings: 'calt' 0;
     font-weight: 400;
-    font-family: var(--default-font);
 }
 
 input, textarea {
-    font-family: var(--default-font);
     font-weight: 400;
 }
 
@@ -228,7 +229,7 @@ dialog {
 /*forms*/
 .form-label {
     color: var(--default-font-color);
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -243,6 +244,7 @@ dialog {
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
+    font-size: 14px;
 }
 select{
     border-radius: 5px;
@@ -391,24 +393,17 @@ select{
     align-items: center;
     font-size: 16px;
     font-weight: 600;
-    line-height: 24px;
-    text-align: center;
     color: var(--white);
     background: var(--strong-blue);
-    width: fit-content;
-    height: 36px;
-    padding: 6px 11px 6px 11px;
-    gap: 5px;
+    padding: 10px 25px;
     cursor: pointer;
     border-radius: 5px;
 }
 .gray-button{
     cursor: pointer;
-    padding: 6px 11px 6px 11px;
-    height: 36px;
+    padding: 10px 25px;
     font-size: 16px;
     font-weight: 600;
-    line-height: 24px;
     text-align: center;
     background-color: var(--gray-button-background);
     border-radius: 5px;

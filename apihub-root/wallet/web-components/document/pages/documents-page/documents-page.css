@@ -42,7 +42,7 @@ documents-page{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 54px 20px 40px;
+    padding: 20px 40px 20px 40px;
 }
 
 .documents-titles {

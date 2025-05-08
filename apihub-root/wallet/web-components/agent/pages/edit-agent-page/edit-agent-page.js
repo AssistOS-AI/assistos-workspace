@@ -18,9 +18,14 @@ export class EditAgentPage {
 
     async beforeRender() {
         this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
+        this.agentName = this.agent.name;
         const llms = await llmModule.getModels({spaceId: this.spaceId});
         this.llmTabs = this.getLlmTabsHtml(llms);
-        this.deleteAgentButton = `<div class="delete-agent" data-local-action="deleteAgent">Delete agent</div>`;
+        this.deleteAgentButton = `
+        <div class="delete-agent" data-local-action="deleteAgent">
+            <img src="./wallet/assets/icons/trash-can.svg" alt="Delete agent" class="delete-icon">
+            <div>Delete agent</div>
+        </div>`;
         if (this.agent.name === constants.DEFAULT_AGENT_NAME) {
             this.deleteAgentButton = "";
         }
@@ -37,14 +42,14 @@ export class EditAgentPage {
         })
         let llmTabsHtml = "";
         Object.keys(llmsByType).forEach(llmType => {
-            llmTabsHtml +=  `<div class="tab-header" data-local-action="openTab agent-${llmType}">${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}</div>`
+            llmTabsHtml +=  `<div class="tab" data-local-action="openTab agent-${llmType}">${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}</div>`
         });
         return llmTabsHtml;
     }
 
     async afterRender() {
         let currentTab = this.element.querySelector(`[data-local-action="openTab ${this.currentTab}"]`);
-        currentTab.classList.add("selected");
+        currentTab.classList.add("active");
         this.checkSaveButtonState();
     }
 

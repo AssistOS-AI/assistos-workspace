@@ -42,7 +42,7 @@ export class AddAgent {
                 assistOS.showToast(e.message, "error", 3000);
             }
 
-            document.querySelector('chat-container').webSkelPresenter.invalidate();
+            //document.querySelector('chat-container').webSkelPresenter.invalidate();
             assistOS.UI.closeModal(_target,{refresh:true});
         }
     }

@@ -12,7 +12,7 @@ agents-page {
 .agents-header{
     font-size: 26px;
     font-weight: 600;
-    padding: 20px;
+    padding: 20px 40px;
 }
 .line-separator{
     margin-top: 0;
@@ -21,7 +21,7 @@ agents-page {
     background: var(--very-light-gray);
 }
 .table {
-    padding: 10px;
+    padding: 20px 40px;
     height: calc(100% - 78px);
     overflow: auto;
     width: 100%;
