@@ -214,10 +214,15 @@ export class AuthComponent {
     }
 
     async waitGetCode(email, ref) {
-        await userModule.generateAuthCode(email, ref, "emailCode");
+        let resp = await userModule.generateAuthCode(email, ref, "emailCode");
         this.element.querySelector(".auth_type_wrapper").style.display = "none";
         this.element.querySelector(".code_submit_section").style.display = "flex";
-
+        let codeInput = this.element.querySelector(".code_input");
+        if(resp.code){
+            codeInput.value = resp.code;
+            let submitCodeButton = this.element.querySelector(".submit_code_button");
+            submitCodeButton.disabled = false;
+        }
         // Use .bind(this) to ensure 'this' inside activateCodeButton refers to the LoginPage instance
         setTimeout(() => {
             window.location.reload()
@@ -311,7 +316,7 @@ export class AuthComponent {
                 this.element.querySelector(".totp_register_section").style.display = "block";
                 this.element.addEventListener("totp-verified", async (event) => {
                     try {
-                        await this.submitTotpCode(event.detail.token);
+                        await this.submitTotpCode(event.detail.token, true);
                     } catch (e) {
                         this.element.querySelector(".totp_register_section").style.display = "none";
                         this.element.querySelector(".totp_login_section").style.display = "flex";
@@ -348,14 +353,21 @@ export class AuthComponent {
         }
     }
 
-    async submitTotpCode(token) {
+    async submitTotpCode(token, createSpace) {
         if (!token || !/^\d{6}$/.test(token)) {
             throw new Error("Please enter a valid 6-digit code");
         }
         // Verify TOTP code for login
         const result = await userModule.verifyTotp(token, this.email);
         if (result.operation === "success") {
-            await assistOS.loadPage(this.email);
+            let spaceId;
+            if(createSpace){
+                let spaceName = this.email.split('@')[0];
+                await assistOS.UI.showLoading();
+                spaceId = await spaceModule.createSpace(spaceName);
+                await assistOS.UI.hideLoading();
+            }
+            await assistOS.loadPage(this.email, spaceId);
         } else {
             throw new Error("Invalid authentication code");
         }
