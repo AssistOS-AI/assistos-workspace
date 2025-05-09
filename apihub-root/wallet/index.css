@@ -24,6 +24,10 @@
     --option-hover: #F2F2F2;
     --application-marketplace-background: #F8F8F8;
     --application-marketplace-border: #DDDDDD;
+    --gray-button-background: #EDEDED;
+    --gray-button-text: #333333;
+    --gray-button-border: #CCCCCC;
+    --menu-backgroud: #F5F5F5;
     /*auth component*/
 
     --text-white-color: #FFFFFF;
@@ -311,7 +315,6 @@ select{
 .page-name {
     margin-left: 14px;
     color: var(--white-text);
-    font-family: Poppins;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
@@ -323,7 +326,7 @@ select{
     display: flex;
     align-items: center;
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
     color: var(--white);
     background: var(--strong-blue);
     padding: var(--button-padding);
@@ -334,28 +337,19 @@ select{
     cursor: pointer;
     padding: var(--button-padding);
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 400;
     text-align: center;
     background-color: var(--gray-button-background);
     border-radius: 5px;
     border: 1px solid var(--gray-button-border);
     color: var(--gray-button-text);
-}
-.cancel-button{
-    background: var(--white-text);
-    color: var(--strong-blue);
-    box-shadow: inset 0 0 0 2px var(--strong-blue);
-}
-.app-logo {
-    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .rotate {
     transform: rotate(-90deg);
-}
-
-.page-static-title {
-    margin-left: 33px;
 }
 
 .sidebar-item {
@@ -369,7 +363,7 @@ select{
     font-size: 14px;
     font-weight: 400;
     line-height: 21px;
-    letter-spacing: 0em;
+    letter-spacing: 0;
     text-align: left;
 }
 
@@ -388,23 +382,10 @@ select{
     padding-bottom: 0;
 }
 
-.remove-border {
-    border: none;
-}
-
 .item-list {
     background-color: var(--white-text);
     height: 100%;
     width: 100%;
-}
-
-.sidebar-name {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    letter-spacing: 0;
-    text-align: left;
-    color: var(--strong-blue);
 }
 
 .svg-container {
@@ -497,35 +478,6 @@ select{
     min-width: 270px;
     width: 14%;
     height: 100%;
-}
-
-/* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
-
-/* AiAuthor */
-.secondary-path-button {
-    font-family: Poppins;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 39px;
-    letter-spacing: 0em;
-    text-align: left;
-    color: var(--strong-blue);
-}
-
-.main-path-button {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 39px;
-    text-align: left;
-}
-
-.document-path {
-    padding: 20px !important;
-}
-
-.breadcrumbs-path-svg {
-    min-width: 7px;
-    min-height: 12px;
 }
 
 .user-profile-image {

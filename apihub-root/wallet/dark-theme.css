@@ -75,13 +75,6 @@ html[theme="dark"] dialog.spinner {
     border-radius: 50%;
 }
 
-html[theme="dark"] .modal-header,
-html[theme="dark"] .modal-title,
-html[theme="dark"] button.close,
-html[theme="dark"] .secondary-path-button,
-html[theme="dark"] .sidebar-name {
-}
-
 html[theme="dark"] .modal-header {
     background: var(--brown-gray);
 }
