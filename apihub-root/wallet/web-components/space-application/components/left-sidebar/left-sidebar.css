@@ -58,7 +58,7 @@ left-sidebar {
 }
 .sidebar-item-title {
     margin-left: 12px;
-    color: var(--medium-gray);
+    color: var(--default-font-color);
 }
 .closed{
     display: none;
@@ -134,7 +134,7 @@ left-sidebar {
     height: 80%;
     width: 5px;
     border-radius: 7px;
-    background-color: var(--left-sidebar);
+    background-color: var(--strong-blue);
 }
 #selected-page {
     border-radius: 5px;
@@ -209,7 +209,7 @@ left-sidebar {
     box-shadow: 0 1px 6px 0 var(--very-light-gray);
     z-index: 1;
     border-radius: 5px;
-    border: 1px solid var(--blue-border);
+    border: 1px solid var(--very-light-gray);
     background: var(--white);
     bottom: 0;
     left: 100%;

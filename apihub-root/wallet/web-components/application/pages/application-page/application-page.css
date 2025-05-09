@@ -46,7 +46,7 @@ application-page{
     padding-right: 64px;
 }
 .organization-name{
-    color: var(--left-sidebar);
+    color: var(--strong-blue);
     font-size: 15px;
     font-weight: 600;
     margin-bottom: 10px;
@@ -60,7 +60,7 @@ application-page{
     padding: 8px 10px;
     border-radius: 10px;
     background-color: var(--very-light-gray);
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     font-size: 15px;
     font-weight: 500;
 }

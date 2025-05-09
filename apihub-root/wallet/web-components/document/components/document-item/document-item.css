@@ -5,7 +5,7 @@ document-item {
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid var(--very-light-gray);
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
@@ -22,7 +22,7 @@ document-item{
     padding: 8px 10px 8px 0;
 }
 .name-cell{
-    color: var(--black);
+    color: var(--header-font-color);
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
@@ -30,7 +30,6 @@ document-item{
 }
 .action-cell {
     position: relative;
-    color:  var(--brown-gray);
     display: flex;
     justify-content: end;
     align-items: center;

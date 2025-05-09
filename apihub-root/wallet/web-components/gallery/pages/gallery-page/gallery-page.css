@@ -23,7 +23,6 @@ gallery-page {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: var(--white);
-    color: var(--user-text);
 }
 .gallery-image{
     width: 170px;

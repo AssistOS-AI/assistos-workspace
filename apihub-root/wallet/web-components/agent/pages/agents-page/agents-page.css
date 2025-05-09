@@ -12,7 +12,7 @@ agents-page {
 .agents-header{
     font-size: 26px;
     font-weight: 600;
-    padding: 20px 40px;
+    padding: var(--page-padding);
 }
 .line-separator{
     margin-top: 0;
@@ -21,7 +21,7 @@ agents-page {
     background: var(--very-light-gray);
 }
 .table {
-    padding: 20px 40px;
+    padding: var(--page-padding);
     height: calc(100% - 78px);
     overflow: auto;
     width: 100%;
@@ -29,7 +29,6 @@ agents-page {
     grid-template-columns: repeat(6, 1fr);
     gap: 20px;
     background: var(--white);
-    color: var(--user-text);
 }
 
 

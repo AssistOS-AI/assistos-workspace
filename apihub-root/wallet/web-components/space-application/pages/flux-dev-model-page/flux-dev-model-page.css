@@ -23,7 +23,7 @@
 }
 
 .input-header p {
-    color: var(--medium-gray);
+    color: var(--default-font-color);
 }
 
 .input-form {
@@ -58,7 +58,7 @@
 }
 
 .submit-btn {
-    background: var(--medium-blue);
+    background: var(--strong-blue);
     color: white;
     border: none;
     padding: 0.75rem 1.5rem;
@@ -73,7 +73,7 @@
 }
 
 .submit-btn:disabled {
-    background: var(--medium-gray);
+    background: var(--default-font-color);
     cursor: not-allowed;
 }
 
@@ -87,7 +87,7 @@
 }
 
 .result-placeholder {
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     text-align: center;
     padding: 2rem;
 }
@@ -128,7 +128,7 @@
     width: 40px;
     height: 40px;
     border: 4px solid var(--chat-header-border);
-    border-top: 4px solid var(--medium-blue);
+    border-top: 4px solid var(--strong-blue);
     border-radius: 50%;
     animation: spin 1s linear infinite;
 }

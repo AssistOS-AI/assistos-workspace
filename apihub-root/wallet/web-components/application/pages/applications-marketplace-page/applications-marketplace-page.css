@@ -32,17 +32,13 @@ applications-marketplace-page {
     font-weight: 600;
 }
 
-*[theme="dark"] .add-marketplace {
-    color: var(--user-text);
-}
-
 .category-header {
     padding: 0 20px 20px 20px;
 }
 
 
 .description {
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     font-size: 16px;
     font-weight: 500;
 }

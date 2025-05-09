@@ -38,14 +38,14 @@
     margin: 10px 0;
     padding: 10px 0;
     display: flex;
-    border-bottom: 0.5px solid var(--light-gray-text);
+    border-bottom: 0.5px solid var(--very-light-gray);
 }
 .cell {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 10px;
-    border-bottom: 0.5px solid var(--light-gray-text);
+    border-bottom: 0.5px solid var(--very-light-gray);
 }
 .details{
     text-decoration: underline;

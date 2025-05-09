@@ -30,7 +30,7 @@
 }
 .document-link{
     cursor: pointer;
-    color: var(--medium-blue);
+    color: var(--strong-blue);
     text-decoration: underline;
 }
 .document-link:hover{

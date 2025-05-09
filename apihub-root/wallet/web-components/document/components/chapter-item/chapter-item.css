@@ -14,15 +14,10 @@ chapter-item {
     position: relative;
     display: flex;
     align-items: center;
-    color: var(--light-black);
     font-weight: 600;
     padding: 0 0 0 8px;
     line-height: normal;
     overflow: visible;
-}
-
-.highlight-chapter-header {
-    background: var(--white-blue-tint) !important;
 }
 
 .highlighted-chapter{
@@ -178,39 +173,14 @@ html[theme="dark"] .arrow svg {
 .data-chapter-number {
     width: 25px;
 }
-.circle-button{
-    width: 16px;
-    height: 25px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-.circle-button:hover {
-    background-color: var(--medium-black);
-}
-
 .flex{
     display: flex;
 }
-.chapter-audio{
-    margin-right: 5px;
-}
-.top-audio-section{
-    display: flex;
-    align-items: center;
-}
-
 .chapter-icons{
     visibility: hidden;
     display: flex;
     align-items: center;
 }
-.chapter-audio-icon{
-    margin-right: 5px;
-}
-
 html[theme="dark"] input.chapter-title{
     background: var(--white)
 }

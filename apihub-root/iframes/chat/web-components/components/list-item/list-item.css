@@ -2,7 +2,7 @@ list-item:hover > .dark-highlight{
     background-color: var(--black);
 }
 list-item:hover > .light-highlight{
-    background-color: var(--light-highlight);
+    background-color: var(--action-button-background);
 }
 list-item{
     width:100%;

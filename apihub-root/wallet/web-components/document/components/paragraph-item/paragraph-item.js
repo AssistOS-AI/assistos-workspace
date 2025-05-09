@@ -252,6 +252,15 @@ export class ParagraphItem {
                 }
                 assistOS.space.currentParagraphId = null;
                 await selectionUtils.deselectItem(this.paragraph.id, this);
+
+                let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
+                let pluginElement = pluginContainer.firstElementChild;
+                if(!pluginElement){
+                    return;
+                }
+                if(pluginElement.classList.contains("pinned")){
+                    return;
+                }
                 this.curentPlugin = await this.closePlugin("", true);
             }
         );

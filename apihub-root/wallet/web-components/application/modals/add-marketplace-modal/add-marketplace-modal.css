@@ -10,7 +10,7 @@ dialog{
 .modal-header{
     padding: 5px 20px 5px 20px;
     margin-bottom: 5px;
-    background: var(--medium-blue);
+    background: var(--strong-blue);
     display: flex;
     justify-content: space-between;
 }
@@ -32,19 +32,8 @@ dialog{
     font-size: 30px;
 }
 
-.form-label {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 600;
-}
 
-.form-input {
-    border-radius: 8px;
-    border: 0.5px solid var(--lighter-black);
-    width: 100%;
-    margin: 4px 0 8px;
-    padding: 8px;
-}
+
 .modal-footer{
     display: flex;
     justify-content: center;

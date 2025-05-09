@@ -490,6 +490,14 @@ export class DocumentViewPage {
         await this.focusOutHandlerTitle(element, itemId);
         element.removeEventListener('keydown', this.boundControlInfoTextHeight);
         this.changeToolbarView(element, "off");
+        let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        if(pluginElement.classList.contains("pinned")){
+            return;
+        }
         this.currentPlugin = this.closePlugin("", true);
     }
     async focusOutHandlerTitle(element, itemId) {

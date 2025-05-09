@@ -25,7 +25,7 @@ export class DocumentVariableDetails {
         let activeTab = this.element.querySelector(`.${this.activeTab}`);
         activeTab.classList.add("active");
         let icon = activeTab.querySelector(".tab-icon");
-        icon.style.setProperty('--icon-color', 'var(--blue-button)');
+        icon.style.setProperty('--icon-color', 'var(--strong-blue)');
     }
 
     changeTab(_eventTarget, tabName) {

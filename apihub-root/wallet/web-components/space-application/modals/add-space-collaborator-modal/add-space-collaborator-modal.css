@@ -15,7 +15,7 @@ add-space-collaborator-modal {
 .add-collab{
     display: flex;
     align-items: center;
-    color: var(--blue-button);
+    color: var(--strong-blue);
 }
 .collab-title{
     margin-left: 5px;
@@ -42,8 +42,4 @@ add-space-collaborator-modal {
 }
 .select-role{
     width: 100%;
-    background-color: var(--white);
-    margin: 4px 0 8px 20px;
-    padding: 8px;
-    border: 0.5px solid var(--lighter-black);
 }

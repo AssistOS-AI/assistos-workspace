@@ -76,10 +76,10 @@ task-item{
     text-overflow: ellipsis;
     white-space: nowrap;
     text-decoration: underline;
-    color: var(--left-sidebar);
+    color: var(--strong-blue);
 }
 .task-link:hover{
-    color: var(--medium-blue);
+    color: var(--strong-blue);
 }
 .failed-link{
     cursor: pointer;

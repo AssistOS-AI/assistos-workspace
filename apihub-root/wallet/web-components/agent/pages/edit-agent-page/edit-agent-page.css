@@ -8,18 +8,18 @@ edit-agent-page{
 .page-body{
     display: flex;
     width: 100%;
-    padding: 20px 40px;
+    padding: var(--page-padding);
     height: calc(100% - 220px);
 }
 .delete-agent{
     display: flex;
-    padding: 10px 25px;
+    padding: var(--button-padding);
     justify-content: center;
     align-items: center;
     gap: 4px;
     font-weight: 600;
     border-radius: 5px;
-    background-color: var(--delete-button-background);
+    background-color: var(--red);
     color: var(--white);
     cursor: pointer;
 }
@@ -30,8 +30,8 @@ edit-agent-page{
 }
 .cancel-btn{
     background:var(--white-text);
-    color: var(--medium-blue);
-    box-shadow: inset 0 0 0 2px var(--medium-blue);
+    color: var(--strong-blue);
+    box-shadow: inset 0 0 0 2px var(--strong-blue);
 }
 .pointer{
     cursor: pointer;
@@ -59,7 +59,7 @@ edit-agent-page{
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 40px;
+    padding: var(--page-padding);
 }
 .tab-header:hover{
     background-color: var(--very-light-gray);
@@ -72,7 +72,7 @@ edit-agent-page{
 }
 
 .page-footer{
-    padding: 20px 40px;
+    padding: var(--page-padding);
     display: flex;
     gap: 15px;
     margin-top: auto;
@@ -86,8 +86,8 @@ edit-agent-page{
     border-bottom: 1px solid var(--chapter-border);
 }
 .active {
-    color: var(--blue-button);
-    border-bottom: 2px solid var(--blue-button);
+    color: var(--strong-blue);
+    border-bottom: 2px solid var(--strong-blue);
 }
 .tab {
      cursor: pointer;

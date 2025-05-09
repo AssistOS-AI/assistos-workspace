@@ -3,7 +3,7 @@
     align-items: center;
     justify-content: space-between;
     border-top: 1px solid var(--very-light-gray);
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
