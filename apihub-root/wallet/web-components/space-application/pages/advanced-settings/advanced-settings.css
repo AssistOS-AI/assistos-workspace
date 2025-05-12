@@ -1,14 +1,14 @@
+advanced-settings{
+    margin:12px;
+}
 .tab-footer{
     display:flex;
-}
-#delete-space-button{
-    background: #C80001;
-    gap:10px;
-    padding:14px;
+    margin-left:12px;
 }
 .left-part{
     display:flex;
     width:50%;
+    margin-left:12px;
     justify-content:flex-start;
     text-align:justify;
 }

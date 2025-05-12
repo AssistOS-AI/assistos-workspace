@@ -1021,6 +1021,7 @@ input:checked + .toggle-slider:before {
     }
 }
 
+
 .form-left.align-start {
     align-items: flex-start;
 }

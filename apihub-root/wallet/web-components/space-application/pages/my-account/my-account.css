@@ -1,0 +1,60 @@
+my-account{
+    height:100%;
+}
+.myAccountContainer {
+    position:relative;
+    display: flex;
+    padding:12px;
+    flex-direction: column;
+    width: 40%;
+    max-width: 500px;
+    height: 100%;
+    gap: 30px;
+}
+
+.accountData {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.accountDataKey {
+    font-family: Inter;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: left;
+    vertical-align: middle;
+    color: var(--default-font-color);
+}
+.accountDataValue{
+    display:flex;
+    flex-direction: column;
+    font-family: Inter;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 100%;
+    letter-spacing: 0%;
+    text-align: left;
+    gap:12px;
+    vertical-align: middle;
+    color: #000000;
+}
+.multi-value{
+    display:flex;
+    flex-direction:row;
+    justify-content: space-between;
+    align-items: center;
+}
+.underlined{
+    border-bottom: 1px solid #EFEFEF;
+    padding-bottom:4px;
+}
+svg{
+    cursor:pointer;
+}
+.accountFooter{
+    position:absolute;
+    bottom:20px;
+}

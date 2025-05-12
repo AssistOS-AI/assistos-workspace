@@ -112,6 +112,12 @@
             "presenterClassName": "CollaboratorsTab"
         },
         {
+            "name": "my-account",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "MyAccount"
+        },
+        {
             "name": "keys-tab",
             "directory": "space-application",
             "type": "pages",
@@ -534,6 +540,11 @@
         {
             "name": "action-box-documents",
             "directory": "document",
+            "type": "components"
+        },
+        {
+            "name": "action-box-collaborators",
+            "directory": "space-application",
             "type": "components"
         },
         {

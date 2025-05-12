@@ -9,7 +9,7 @@ settings-page {
 }
 
 .settings-header {
-    padding: 20px 30px;
+    padding: var(--page-padding);
     font-size: 26px;
     font-weight: 600;
     height: 80px;
@@ -18,20 +18,25 @@ settings-page {
 
 .tabs-section {
     display: flex;
+    height:38px;
     font-size: 18px;
     font-weight: 400;
-    height: 60px;
     border-bottom: 1px solid #EFEFEF
 }
 
 .tab {
     padding: 15px 30px;
+    height:38px;
     display: flex;
     align-items: center;
-}
+    cursor:pointer;
 
+}
+.tab:hover{
+        color: var(--strong-blue);
+}
 .tab-icon {
-    --icon-color: #222222; /* default icon color */
+    --icon-color: #222222;
     width: 24px;
     height: 24px;
     background-color: var(--icon-color);
@@ -84,9 +89,9 @@ settings-page {
 
 .tab-content {
     overflow-y: auto;
-    padding: 0px 8px 20px 16px;
+    padding: 0px 8px 0px 16px;
     width: 100%;
-    height: calc(100% - 60px);
+    height: calc(100% - 38px);
 }
 
 .page-body {
@@ -111,7 +116,8 @@ settings-page {
     justify-content: center;
     background: #EDEDED;
     border: 1px solid #CCC;
-    color: #454545
+    color: #454545;
+    width:fit-content;
 }
 
 .data-table {
@@ -193,6 +199,8 @@ settings-page {
 
 .data-table tr {
     border-bottom: 1px solid #e0e0e0;
+    position:relative;
+    height:fit-content;
 }
 .actions-button{
     height:100%;
@@ -240,6 +248,15 @@ settings-page {
 .data-table th:last-child,
 .data-table td:last-child{
     text-align:center;
+}
+#delete-space-button{
+    width:174px;
+    height:44px;
+    background: #C80001;
+    gap:10px;
+    padding:14px;
+    border: 1px solid #C80001;
+    border-radius:2px;
 }
 
 

@@ -1,0 +1,24 @@
+action-box-collaborators {
+    padding: 5px;
+    z-index: 1;
+    position: absolute;
+    top:5px;
+    right: 90px;
+    border: 1px solid var(--action-button-background);
+    border-radius: 10px;
+    background-color: var(--menu-backgroud);
+}
+
+
+.action {
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.action:hover {
+    background-color: var(--action-button-background);
+}

@@ -3,11 +3,15 @@ export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.activeTab = "collaboratorsTab";
+        this.activeTab = "myaccountTab";
         this.invalidate();
     }
 
     async beforeRender() {
+        if(this.activeTab==="myaccountTab"){
+            this.tabContent = `<my-account data-presenter="my-account"></my-account>`;
+            this.subpageName= "My Account";
+        }
         if (this.activeTab === "keysTab") {
             this.tabContent = `<keys-tab data-presenter="keys-tab"></keys-tab>`;
             this.subpageName= "Secrets";
@@ -30,10 +34,13 @@ export class SettingsPage {
 
 
     afterRender() {
+        const userIsNotAdmin=false;
+        if(userIsNotAdmin){
+            this.element.querySelectorAll(".adminTab").forEach(node=>node.style.display = "none");
+        }
         let activeTab = this.element.querySelector(`.${this.activeTab}`);
         activeTab.classList.add("active");
-        let icon = activeTab.querySelector(".tab-icon");
-        icon.style.setProperty('--icon-color', 'var(--strong-blue)');
+
     }
 
     changeTab(_eventTarget, tabName) {
