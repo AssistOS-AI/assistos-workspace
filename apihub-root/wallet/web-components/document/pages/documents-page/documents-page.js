@@ -28,8 +28,7 @@ export class DocumentsPage {
         }
         this.tableRows = "";
         this.documents.forEach((document) => {
-            this.tableRows += `<document-item data-name="${document.title}" 
-            data-chapters-count="${document.chapters.length}" data-id="${document.id}" data-local-action="editAction"></document-item>`;
+            this.tableRows += `<document-item data-presenter="document-item" data-id="${document.id}" data-local-action="editAction"></document-item>`;
         });
         if (assistOS.space.loadingDocuments) {
             assistOS.space.loadingDocuments.forEach((taskId) => {

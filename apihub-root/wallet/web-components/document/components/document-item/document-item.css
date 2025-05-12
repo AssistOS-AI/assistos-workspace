@@ -1,16 +1,18 @@
-document-item {
+document-item{
+    display: block;
+    color: var(--default-font-color);
+    padding: 20px 0 20px 0;
+    border-bottom: 2px solid var(--light-gray-border);
+}
+.document-item {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     grid-template-rows: 1fr;
     align-items: center;
     justify-content: space-between;
-    border-top: 1px solid var(--very-light-gray);
-    color: var(--default-font-color);
     font-size: 16px;
     font-style: normal;
     font-weight: 500;
-    line-height: normal;
-    padding: 20px 40px 20px 0;
 }
 
 document-item{
@@ -36,6 +38,8 @@ document-item{
 }
 
 .circle-button {
+    position: absolute;
+    right: -15px;
     cursor: pointer;
     padding: 7px 0;
     display: flex;
@@ -47,4 +51,13 @@ document-item{
 
 .circle-button:hover {
     background-color: rgba(85, 85, 85, 0.08);
+}
+.infoText-preview{
+    padding-top: 10px;
+    padding-right: 40px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* change to 2 for 2 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

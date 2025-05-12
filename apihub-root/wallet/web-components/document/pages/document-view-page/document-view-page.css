@@ -4,6 +4,7 @@ document-view-page {
     min-width: 415px !important;
 }
 .doc-title-breadcrumb{
+    font-size: 28px;
     width: calc(100% - 287px);
     white-space: nowrap;
     overflow: hidden;
@@ -49,7 +50,7 @@ document-view-page {
     scrollbar-width: thin;
     overflow-y: scroll;
     height: calc(100vh - 70px);
-    padding: 10px 20px 10px 50px;
+    padding: 10px 20px 10px 40px;
 }
 
 .document-editor {
@@ -61,7 +62,7 @@ document-view-page {
     width: 100%;
     position: sticky;
     top: 0;
-    padding: 15px 15px 15px 70px;
+    padding: 20px 40px;
     display: flex;
     justify-content: space-between;
     background-color: var(--white);
@@ -82,22 +83,18 @@ document-view-page {
     outline: none;
     font-style: normal;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 20px;
     line-height: normal;
     padding-left: 10px;
     padding-right: 10px;
     width: 100%;
+    background-color: var(--inactive-element);
 }
 .breadcrumbs-path-svg {
     min-width: 7px;
     min-height: 12px;
 }
-.main-path-button {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 39px;
-    text-align: left;
-}
+
 .infoText-section.focused .infoText-input{
     background-color: var(--inactive-element);
 }
@@ -106,7 +103,10 @@ document-view-page {
 }
 
 .infoText-section {
-    margin-bottom: 10px;
+    outline: 2px var(--light-gray-border) solid;
+    outline-offset: -1px;
+    margin-bottom: 15px;
+    background-color: var(--inactive-element);
 }
 
 .paragraph-controls {
@@ -125,6 +125,7 @@ document-view-page {
 }
 
 .document-infoText {
+    background-color: var(--inactive-element);
     resize: none;
     border: none;
     display: inline-block;
@@ -137,6 +138,7 @@ document-view-page {
     hyphens: auto;
     word-break: break-word;
     outline: none;
+    font-size: 16px;
 }
 
 .container-element.focused .document-infoText:focus {
@@ -164,17 +166,28 @@ document-view-page {
     right: 35px;
     display: none;
     flex-direction: column;
-    align-items: center;
+    z-index: 1;
     padding: 5px;
     border-radius: 10px;
-    z-index: 1;
     border: 1px solid var(--action-button-background);
     background-color: var(--menu-backgroud);
+    width: max-content;
+    color: var(--default-font-color);
 }
-
+.menu-item{
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.menu-item:hover{
+    background-color: var(--action-button-background);
+}
 .space-document-path {
     font-weight: 600;
-    font-size: 18px;
+    font-size: 28px;
     width: 85%;
     cursor: default;
     display: flex;
@@ -196,6 +209,7 @@ document-view-page {
     position: relative;
     padding: 10px;
     display: flex;
+    margin-bottom: 15px;
 }
 
 .document-title:focus {
@@ -264,6 +278,7 @@ document-view-page {
     background-color: white; !important;
 }
 .container-element.focused{
+    outline: none;
     background-color: var(--inactive-element);
     box-shadow: inset 6px 0 0 -3px var(--strong-blue);
 }
@@ -299,7 +314,6 @@ document-view-page {
 .menu-section {
     display: flex;
     align-items: center;
-    margin-right: 20px;
 }
 
 .tasks-menu {

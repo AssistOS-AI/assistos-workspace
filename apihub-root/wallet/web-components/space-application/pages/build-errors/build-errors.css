@@ -3,7 +3,7 @@
     padding: 5px;
     height: calc(100% - 20px);
     width: 100%;
-    border: 1px solid var(--very-light-gray);
+    border: 1px solid var(--light-gray-border);
     border-radius: 10px;
 }
 .build-errors-section{
