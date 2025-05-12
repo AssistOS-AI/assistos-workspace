@@ -96,13 +96,13 @@ dialog{
 }
 
 #ok-button {
-    background: var(--medium-blue);
+    background: var(--strong-blue);
 }
 
 #details-button {
-    color: var(--medium-blue);
+    color: var(--strong-blue);
     background-color: var(--white-text);
-    border-color: var(--medium-blue);
+    border-color: var(--strong-blue);
 }
 
 .button {

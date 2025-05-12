@@ -74,12 +74,12 @@ settings-page {
 }
 
 .active {
-    color: var(--blue-button);
-    border-bottom: 2px solid var(--blue-button);
+    color: var(--strong-blue);
+    border-bottom: 2px solid var(--strong-blue);
 }
 
 .active .tab-icon {
-    --settings-icon: var(--blue-button);
+    --settings-icon: var(--strong-blue);
 }
 
 .tab-content {
@@ -129,8 +129,7 @@ settings-page {
 
 .data-table th {
     font-weight: 450;
-   color: #919191;
-    font-family: Inter;
+    color: var(--plugin-focus);
     font-size: 16px;
     line-height: 100%;
     text-align: center;

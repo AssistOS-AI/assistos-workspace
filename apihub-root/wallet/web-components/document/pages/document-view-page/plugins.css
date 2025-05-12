@@ -1,0 +1,59 @@
+.assistos-plugin{
+    position:relative;
+}
+.document-plugins-container{
+    display: flex;
+}
+.document-plugins-container .icon-container{
+    margin-right: 0;
+    margin-left: 15px;
+}
+
+.icon-container.locked-item{
+    background-color: var(--very-light-gray);
+    /*pointer-events: none;*/
+}
+.plugins-separator{
+    width: 3px;
+    height: 30px;
+    background-color: var(--very-light-gray);
+    margin: 0 15px 0 15px;
+}
+.document-plugin{
+    margin-right: 0 !important;
+    margin-left: 15px;
+}
+.plugin-name,
+.tooltip-name{
+    color: var(--default-font-color);
+    z-index: 2;
+    top: 32px;
+    padding: 5px;
+    display: none;
+    position: absolute;
+    box-shadow: 0 1px 7.3px 0 #00000040;
+    background-color: var(--white);
+    border-radius: 5px;
+}
+.document-highlight-plugin,
+.infoText-highlight-plugin,
+.chapter-highlight-plugin,
+.paragraph-highlight-plugin{
+    background-color: var(--plugin-focus) !important;
+}
+.document-highlight-plugin img,
+.infoText-highlight-plugin img,
+.chapter-highlight-plugin img,
+.paragraph-highlight-plugin img{
+    filter: invert(1) brightness(2);
+}
+.options-container{
+    top: 20px;
+    right: 5px;
+    position: absolute;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 4px;
+    gap: 15px;
+}

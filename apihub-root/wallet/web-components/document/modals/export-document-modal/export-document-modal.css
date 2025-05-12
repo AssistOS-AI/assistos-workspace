@@ -8,7 +8,7 @@
 .export-button {
     cursor: pointer;
     padding: 6px;
-    background-color: var(--blue-button);
+    background-color: var(--strong-blue);
     font-size: 16px;
     font-weight: 600;
     line-height: 24px;

@@ -377,9 +377,9 @@ class AssistOS {
                 <div class="message-type">${type.charAt(0).toUpperCase() + type.slice(1)}:</div>
                 <div class="toast-message">${message}</div>
             </div>
-            <button type="button" class="close" aria-label="Close">
+            <div class="close" aria-label="Close">
                 <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
-            </button>`;
+            </div>`;
         toastContainer.appendChild(toast);
         let timeoutId = setTimeout(() => {
             toast.remove();

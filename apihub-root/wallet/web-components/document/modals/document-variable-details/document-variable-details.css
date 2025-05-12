@@ -43,11 +43,11 @@ document-variable-details textarea{
     mask-size: contain;
 }
 .active {
-    color: var(--blue-button);
-    border-bottom: 2px solid var(--blue-button);
+    color: var(--strong-blue);
+    border-bottom: 2px solid var(--strong-blue);
 }
 .active .tab-icon{
-    --settings-icon: var(--blue-button);
+    --settings-icon: var(--strong-blue);
 }
 
 .tab-content {

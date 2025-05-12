@@ -48,7 +48,7 @@
 }
 
 #user-avatar:hover .overlay {
-    background: var(--medium-blue);
+    background: var(--strong-blue);
     opacity: 0.75;
 }
 .span-text{

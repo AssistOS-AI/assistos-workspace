@@ -50,7 +50,7 @@ llm-demo-page {
 }
 
 .llm-page-header p {
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     font-size: 1.1rem;
 }
 
@@ -113,7 +113,6 @@ llm-demo-page {
 }
 
 .model-license-r {
-    background: var(--light-red);
     color: var(--red);
     padding: 0.25rem 0.75rem;
     border-radius: 1rem;
@@ -144,7 +143,7 @@ llm-demo-page {
 }
 
 .model-card p {
-    color: var(--medium-gray);
+    color: var(--default-font-color);
     margin: 0;
     line-height: 1.5;
 }

@@ -216,10 +216,10 @@ textarea.paragraph-commands{
     margin-left: 5px;
     cursor: pointer;
     text-decoration: underline;
-    color: var(--left-sidebar);
+    color: var(--strong-blue);
 }
 .fix-warning:hover{
-    color: var(--medium-blue);
+    color: var(--strong-blue);
 }
 
 .menu-container.locked-item{

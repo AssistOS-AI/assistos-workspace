@@ -1,24 +1,29 @@
 list-item:hover > .dark-highlight{
     background-color: var(--black);
 }
+list-item > .dark-highlight{
+    color: var(--white);
+}
 list-item:hover > .light-highlight{
-    background-color: var(--light-highlight);
+    background-color: var(--action-button-background);
 }
 list-item{
     width:100%;
+    color: var(--default-font-color);
 }
 list-item.disabled .list-item{
     pointer-events: none;
     background-color: var(--very-light-gray);
 }
 .list-item {
+    font-weight: 500;
     cursor: pointer;
-    width: calc(100% - 10px);
-    padding: 5px 0;
+    width: 100%;
+    padding: 10px;
     border-radius: 5px;
-    margin: 0 5px;
     display: flex;
     align-items: center;
+    gap: 5px;
 }
 .list-item-name{
     white-space: nowrap;

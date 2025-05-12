@@ -21,7 +21,7 @@ application-item{
 }
 .app-button{
     font-size: 12px;
-    color: var(--blue-button);
+    color: var(--strong-blue);
 }
 .container-header{
     margin-bottom: 10px;

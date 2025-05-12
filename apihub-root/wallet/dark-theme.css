@@ -1,17 +1,11 @@
 :root[theme="dark"] {
     --black: #000000;
     --white: #252526;
-    --form-border: #0000006E;
-    --lighter-black: #0000003d;
-    --chatbots-shadow: #00000047;
-    --abstract-content-focus: #0000001C;
-    --prompt-shadow: #00000057;
-    --path-button: #CCCCCC;
     --chapter-title: #f7f7f5;
-    --prompt-text: #222222;
+    --header-font-color: #222222;
     --light-black: #f7f7f5;
     --gray-black: #FFFFFF;
-    --medium-gray: #CCCCCC;
+    --default-font-color: #CCCCCC;
     --medium-black: #55555514;
     --brown-gray: #555555;
     --settings-page-theme: #6b6b6b;
@@ -21,30 +15,24 @@
     --error-modal-border: #E5E5E5;
     --gray-border: #E6E6E6;
     --white-text: #121111;
-    --robot-text: #939396;
-    --user-text: #FFFFFF;
     --light-brown-gray: #707070;
     --light-brown: #CCCCCC;
     --red: #C70000;
     --lighter-brown: #6B574E;
     --spinner-l-r-b: #00aeef26;
     --spinner-t: #00aeefcc;
-    --light-blue: #3F3F46;
-    --medium-blue: #90959e;
+    --strong-blue: #90959e;
     --chatbots-history-blue: #98BFE0;
-    --strong-blue: #007bff;
     --documents-page-header: #CCCCCC;
     --harsh-gray: #94aee34d;
     --input-file-selector: #2B64E1;
     --blue-black: #18203F;
     --suggest: #0618D1;
     --blue-border: #383838;
-    --blue-button: #000000;
     --bright-blue: #2D9FFF;
     --semi-bold-text: #f7f7f5;
     --feature-hover: #afa8ba38;
     --action-box-background: #252526;
-    --left-sidebar: #CCCCCC;
     --left-sidebar-background: #333333;
     --right-sidebar: linear-gradient(180deg, #353535 44%, #252526 100%);
     --right-sidebar-border: #383838;
@@ -52,19 +40,13 @@
     --black-pin: white;
     --chat-input-container: #3F3F46;
     --white-blue-tint: rgba(255, 255, 255, 0.12);
-    --commands-background: #7d7d7d;
     --inactive-element: #333333;
-    --chat-background: #333333;
     --tab: #7d7d7d;
     --selected-chat: #333333;
-    --dark-text: #b8b8b8;
-    --light-highlight: #000000;
 }
 html[theme="dark"] .general-button{
-    color: var(--user-text);
 }
 html[theme="dark"] div{
-    color: var(--user-text);
 }
 
 html[theme="dark"] .right-sidebar svg,
@@ -79,18 +61,13 @@ html[theme="dark"] .alternative svg.pointe {
 
 html[theme="dark"] textarea,
 html[theme="dark"] input,
-html[theme="dark"] select {
-    background: var(--light-blue);
-    color: var(--user-text);
-}
+
 html[theme="dark"] span{
-    color: var(--user-text);
 }
 html[theme="dark"] form,
 html[theme="dark"] dialog {
     /*background: var(--white);*/
     border: var(--right-sidebar-border);
-    color: var(--user-text);
     box-shadow: var(--right-sidebar-shadow);
 }
 
@@ -98,21 +75,11 @@ html[theme="dark"] dialog.spinner {
     border-radius: 50%;
 }
 
-html[theme="dark"] .modal-header,
-html[theme="dark"] .modal-title,
-html[theme="dark"] button.close,
-html[theme="dark"] .secondary-path-button,
-html[theme="dark"] .sidebar-name {
-    color: var(--user-text);
-}
-
 html[theme="dark"] .modal-header {
     background: var(--brown-gray);
 }
 
 html[theme="dark"] .general-button-reversed-colors {
-    background: var(--light-blue);
-    color: var(--user-text);
     border: var(--right-sidebar-border);
 }
 
@@ -122,11 +89,9 @@ html[theme="dark"] .item-list-container {
 }
 
 html[theme="dark"] .space-container {
-    background: var(--light-blue);
     border: 1px solid var(--black);
 }
 html[theme="dark"] .select-settings-container {
-    background: var(--light-blue);
 }
 
 html[theme="dark"] img.black-icon{

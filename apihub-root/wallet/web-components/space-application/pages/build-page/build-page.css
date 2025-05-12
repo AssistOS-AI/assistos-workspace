@@ -35,6 +35,6 @@ build-page {
     align-items: center;
 }
 .active {
-    color: var(--blue-button);
-    border-bottom: 2px solid var(--blue-button);
+    color: var(--strong-blue);
+    border-bottom: 2px solid var(--strong-blue);
 }

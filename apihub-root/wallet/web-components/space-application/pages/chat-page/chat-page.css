@@ -14,7 +14,6 @@ chat-page {
     justify-content: space-between;
     width: 100%;
     padding:8px;
-    background-color: var(--chat-header-background);
     border-radius: 10px;
     border: 2px solid var(--chat-header-border);
 }
@@ -37,9 +36,7 @@ chat-page {
 }
 
 .selected-chat {
-    background: var(--selected-chat);
     border-radius: 10px;
-    outline: 1px solid var(--selected-chat-outline);
 }
 
 .chat-name {
@@ -61,14 +58,9 @@ chat-page {
     margin-right: 5px;
 }
 
-*[theme="dark"] .current-personality {
-    color: var(--light-brown);
-}
-
 .personalities-list {
     padding: 5px 0;
     box-shadow: 0px 1px 5.5px 0px #65666754;
-    color: var(--dark-text);
     border-radius: 10px;
     height: fit-content;
     max-height: 30vh;

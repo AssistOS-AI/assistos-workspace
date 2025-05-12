@@ -185,6 +185,7 @@ export class AuthComponent {
         await assistOS.UI.changeToDynamicPage("landing-page", "landing-page");
     }
     async submitCode() {
+        clearTimeout(this.timeout);
         try {
             await userModule.walletLogin(this.email, this.element.querySelector(".code_input").value, "emailCode");
             // Store the email in localStorage for later use
@@ -224,7 +225,7 @@ export class AuthComponent {
             submitCodeButton.disabled = false;
         }
         // Use .bind(this) to ensure 'this' inside activateCodeButton refers to the LoginPage instance
-        setTimeout(() => {
+        this.timeout = setTimeout(() => {
             window.location.reload()
         }, 2 * 60 * 1000);
     }
@@ -404,7 +405,8 @@ export class AuthComponent {
                 }, true);
 
                 if (signUpConfirmation) {
-                    await this.submitStep1("signup");
+                    this.auth_step = "signup";
+                    await this.submitStep1();
                     return //await this.signupSubmit(this.selected_method, this.email);
                 } else {
                     return;

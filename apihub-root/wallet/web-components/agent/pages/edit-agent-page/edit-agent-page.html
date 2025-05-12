@@ -1,23 +1,23 @@
 <div class="header">
     <div class="left-header-section">
-        <img class="black-icon pointer" src="./wallet/assets/icons/back.svg" alt="back" data-local-action="openAgentsPage">
         <div class="agent-name">
             $$agentName
         </div>
     </div>
     <div class="right-header-section">
-        <button type="button" class="general-button right-margin save-button" data-local-action="saveChanges">Save Changes</button>
-        <button class="general-button" data-local-action="exportAgent">Export Agent</button>
+        <button class="gray-button" data-local-action="exportAgent">Export Agent</button>
         $$deleteAgentButton
     </div>
 </div>
-<div class="separator"></div>
-<div class="agent-tabs">
-    <div class="tab-header" data-local-action="openTab agent-description">Description</div>
+<div class="tabs-section">
+    <div class="tab" data-local-action="openTab agent-description">Description</div>
     $$llmTabs
-    <div class="tab-header" data-local-action="openTab telegram-bot">Telegram Bot</div>
+    <div class="tab" data-local-action="openTab telegram-bot">Telegram Bot</div>
 </div>
-<div class="separator"></div>
 <div class="page-body">
     <$$currentTab data-presenter="$$currentTab" class="current-tab"></$$currentTab>
+</div>
+<div class="page-footer">
+    <button type="button" class="general-button right-margin save-button" data-local-action="saveChanges">Save</button>
+    <button type="button" class="gray-button" data-local-action="saveChanges">Cancel</button>
 </div>

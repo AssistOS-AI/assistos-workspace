@@ -20,18 +20,7 @@ add-document-modal {
     justify-content: space-evenly;
     background: inherit;
 }
-.form-input:focus {
-    color: var(--gray-black);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 18px;
-    letter-spacing: 0;
-}
-#documentTopic{
-    resize: none;
-    font-family: 'Poppins';
-    height: 100px;
-}
+
 .tabs {
     display: flex;
     gap: 16px;

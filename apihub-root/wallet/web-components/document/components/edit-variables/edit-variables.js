@@ -84,6 +84,12 @@ export class EditVariables {
         }
         this.variablesHTML = variablesHTML;
     }
+    afterRender(){
+        pluginUtils.renderPluginDefaultOptions(this.element);
+    }
+    pinPlugin(targetElement){
+        pluginUtils.pinPlugin(targetElement, this.element);
+    }
     async openAddVariableModal(){
         let confirmation = await assistOS.UI.showModal("add-variable", {
             "document-id": this.document.docId,

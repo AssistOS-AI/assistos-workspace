@@ -2,82 +2,20 @@
 @import "dark-theme.css";
 
 :root {
+    --default-font: Inter, Arial, sans-serif;
     --black: black;
-    --user-text: black;
-    --robot-text: black;
     --white: white;
     --white-text: white;
-    --light-gray-text: #616161;
-    --dark-text: #444444;
-    --darker-text: #1D1D1D;
-    --red: red;
-    --light-red: #CF9A9A;
-    --chat-background: #F3F3F3;
-    --light-highlight: #E4E6F0;
-    --commands-background: #C1D8EC;
-    --form-border: #0000006E;
-    --lighter-black: #0000003d;
-    --chatbots-shadow: #00000047;
-    --abstract-content-focus: #0000001C;
-    --prompt-shadow: #00000057;
-    --path-button: #121212;
-    --chapter-title: #1E1E1E;
-    --prompt-text: #222222;
-    --light-black: #252525;
-    --gray-black: #3A3A3A;
-    --medium-gray: #505050;
-    --medium-black: #55555514;
-    --brown-gray: #555555;
-    --settings-page-theme: #6b6b6b;
+    --form-input-border: #BDBDBD;
     --very-light-gray: #c2c2c299;
-    --a:#F2F2F2;
-    --action-box-border: #dedede;
     --error-modal-border: #E5E5E5;
-    --gray-border: #E6E6E6;
-    --light-brown-gray: #504f4f;
-    --light-brown: #372B2B;
-    --lighter-brown: #6B574E;
-    --spinner-l-r-b: #00aeef26;
-    --green: green;
-    --light-green: #9ACFBD;
-    --medium-green: #097C55;
-    --spinner-t: #00aeefcc;
-    --blue: blue;
-    --light-blue: #E1ECF4;
-    --medium-blue: #0C5C9E;
-    --chatbots-history-blue: #98BFE0;
-    --documents-page-header: #363C44;
-    --harsh-gray: #94aee34d;
-    --input-file-selector: #2B64E1;
-    --blue-black: #18203F;
-    --suggest: #0618D1;
-    --blue-border: #C3DEF4;
-    --bright-blue: #2D9FFF;
-    --semi-bold-text: #3C3C3D;
-    --right-sidebar-border: #E4E6F0;
-    --feature-hover: #afa8ba38;
-    --action-box-background: #FEFAFF;
-    --left-sidebar: #3F88C5;
-    --blue-button: #3478C6;
-    --left-sidebar-background: #2C2C2C;
-    --black-pin: #2C2C2C;
     --left-sidebar-icons: #7B7B7B;
-    --chat-input-container: white;
-    --white-blue-tint: #EAF3FE;
-    --chat-header-background: #EFEFEF99;
-    --chat-header-border: #E5E5E599;
-    --selected-chat: #E1ECF4;
-    --selected-chat-outline: #0000000D;
-    --tab: #ECECEC;
-
-    /* New Impl */
-    --strong-blue: #0088CC;
-    --inactive-element: #f9f9f9;
-    --gray-button-border: #CCCCCC;
-    --gray-button-text: #4A4A4B;
-    --gray-button-background: #EDEDED;
+    --left-sidebar-background: #2C2C2C;
+    --header-font-color: #222222;
+    --strong-blue: #08C;
+    --inactive-element: #F9F9F9;
     --action-button-background: #E9E9E9;
-    --delete-button-background: #C80001EE;
+    --red: #C80001EE;
     --chapter-border: #EFEFEF;
     --plugin-focus: #919191;
     --document-font-color: #646464;
@@ -86,7 +24,12 @@
     --option-hover: #F2F2F2;
     --application-marketplace-background: #F8F8F8;
     --application-marketplace-border: #DDDDDD;
+    --gray-button-background: #EDEDED;
+    --gray-button-text: #333333;
+    --gray-button-border: #CCCCCC;
+    --menu-backgroud: #F5F5F5;
     /*auth component*/
+
     --text-white-color: #FFFFFF;
     --text-grey-color: #D8D8D8;
     --text-dark-color: #000000;
@@ -98,10 +41,12 @@
     --body-bg-color: #EEEEEE;
     --disabled-color: #E8E8E8;
     --disabled-text-color: #4B4B4B;
-    --green-text-color: #66CC66;
     --form-background-color: #373737;
     --error-color: #FF0000;
     --border-opac-color: rgba(255, 255, 255, 0.231);
+
+    --button-padding: 10px 20px;
+    --page-padding: 20px 40px;
 }
 
 * {
@@ -119,13 +64,13 @@
 
 
 html {
-    --default-font: Poppins;
+    font-family: var(--default-font), sans-serif;
+    font-variation-settings: normal;
+    font-feature-settings: 'calt' 0;
     font-weight: 400;
-    font-family: var(--default-font);
 }
 
 input, textarea {
-    font-family: var(--default-font);
     font-weight: 400;
 }
 
@@ -167,7 +112,7 @@ dialog {
     align-items: center;
     padding: 10px 15px;
     display: flex;
-    color: var(--prompt-text);
+    color: var(--header-font-color);
     font-weight: 700;
     font-size: 24px;
     justify-content: space-between;
@@ -175,7 +120,6 @@ dialog {
 }
 
 .close {
-    color: var(--light-gray-text);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -228,7 +172,7 @@ dialog {
 /*forms*/
 .form-label {
     color: var(--default-font-color);
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 600;
 }
 
@@ -239,15 +183,22 @@ dialog {
 
 .form-input {
     border-radius: 5px;
-    border: 0.5px solid var(--lighter-black);
+    border: 0.5px solid var(--form-input-border);
     width: 100%;
     margin: 4px 0 8px;
     padding: 8px;
+    font-size: 14px;
+}
+.form-input:focus {
+    border-color: var(--strong-blue);
+    outline: 2px solid var(--strong-blue);
+    outline-offset: -2px;
 }
 select{
+    padding: var(--button-padding);
+    font-size: 16px;
     border-radius: 5px;
-    border: 0.5px solid var(--lighter-black);
-    padding: 8px;
+    border: 0.5px solid var(--form-input-border);
     background-color: var(--white);
     color: var(--default-font-color);
 }
@@ -291,20 +242,6 @@ select{
     height: 30px;
 }
 
-.sidebar-item-main {
-    color: var(--semi-bold-text);
-    white-space: nowrap;
-    cursor: pointer;
-    width: 100%;
-    padding: 10px 15px 10px 15px;
-    margin-right: 10px;
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    letter-spacing: 0em;
-    text-align: left;
-    border-bottom: 1px solid var(--gray-border);
-}
 
 .pointer {
     cursor: pointer;
@@ -323,10 +260,10 @@ select{
     -moz-animation: rotation .6s infinite linear;
     -o-animation: rotation .6s infinite linear;
     animation: rotation .6s infinite linear;
-    border-left: 6px solid var(--spinner-l-r-b);
-    border-right: 6px solid var(--spinner-l-r-b);
-    border-bottom: 6px solid var(--spinner-l-r-b);
-    border-top: 6px solid var(--spinner-t);
+    border-left: 6px solid var(--default-font-color);
+    border-right: 6px solid var(--default-font-color);
+    border-bottom: 6px solid var(--default-font-color);
+    border-top: 6px solid var(--black);
     border-radius: 100%;
 }
 
@@ -378,7 +315,6 @@ select{
 .page-name {
     margin-left: 14px;
     color: var(--white-text);
-    font-family: Poppins;
     font-size: 16px;
     font-style: normal;
     font-weight: 600;
@@ -390,67 +326,50 @@ select{
     display: flex;
     align-items: center;
     font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    text-align: center;
+    font-weight: 400;
     color: var(--white);
     background: var(--strong-blue);
-    width: fit-content;
-    height: 36px;
-    padding: 6px 11px 6px 11px;
-    gap: 5px;
+    padding: var(--button-padding);
     cursor: pointer;
     border-radius: 5px;
 }
 .gray-button{
     cursor: pointer;
-    padding: 6px 11px 6px 11px;
-    height: 36px;
+    padding: var(--button-padding);
     font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
+    font-weight: 400;
     text-align: center;
     background-color: var(--gray-button-background);
     border-radius: 5px;
     border: 1px solid var(--gray-button-border);
     color: var(--gray-button-text);
-}
-.cancel-button{
-    background: var(--white-text);
-    color: var(--medium-blue);
-    box-shadow: inset 0 0 0 2px var(--medium-blue);
-}
-.app-logo {
-    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .rotate {
     transform: rotate(-90deg);
 }
 
-.page-static-title {
-    margin-left: 33px;
-}
-
 .sidebar-item {
     display: flex;
     align-items: center;
     width: 100%;
-    padding: 10px 0px;
+    padding: 10px 0;
     white-space: nowrap;
     cursor: pointer;
     font-style: normal;
-    color: var(--left-sidebar);
     font-size: 14px;
     font-weight: 400;
     line-height: 21px;
-    letter-spacing: 0em;
+    letter-spacing: 0;
     text-align: left;
 }
 
 .sidebar-item:hover {
     border-radius: 5px;
-    background: var(--feature-hover);
+    background: var(--form-input-border);
 }
 
 .sidebar-name-container, .item-list-container {
@@ -463,23 +382,10 @@ select{
     padding-bottom: 0;
 }
 
-.remove-border {
-    border: none;
-}
-
 .item-list {
     background-color: var(--white-text);
     height: 100%;
     width: 100%;
-}
-
-.sidebar-name {
-    font-size: 16px;
-    font-weight: 600;
-    line-height: 24px;
-    letter-spacing: 0;
-    text-align: left;
-    color: var(--medium-blue);
 }
 
 .svg-container {
@@ -572,35 +478,6 @@ select{
     min-width: 270px;
     width: 14%;
     height: 100%;
-}
-
-/* TODO move to index.css(global application css) of AiAuthor after a proper solution is implemented */
-
-/* AiAuthor */
-.secondary-path-button {
-    font-family: Poppins;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 39px;
-    letter-spacing: 0em;
-    text-align: left;
-    color: var(--medium-blue);
-}
-
-.main-path-button {
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 39px;
-    text-align: left;
-}
-
-.document-path {
-    padding: 20px !important;
-}
-
-.breadcrumbs-path-svg {
-    min-width: 7px;
-    min-height: 12px;
 }
 
 .user-profile-image {

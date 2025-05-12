@@ -1,24 +1,18 @@
 
 action-box-documents {
+    padding: 5px;
     z-index: 1;
     position: absolute;
     right: 35px;
     top: 0;
+    border: 1px solid var(--action-button-background);
+    border-radius: 10px;
+    background-color: var(--menu-backgroud);
 }
 
-.action-box {
-    margin-top: 0;
-    padding: 5px;
-    background-color: var(--white-text);
-    border-radius: 5px;
-    border: 1px solid var(--action-box-border);
-    color: var(--default-font-color);
-
-}
 
 .action {
-    background: var(--white);
-    padding: 7px;
+    padding: 10px;
     cursor: pointer;
     border-radius: 5px;
     display: flex;
@@ -28,16 +22,4 @@ action-box-documents {
 
 .action:hover {
     background-color: var(--action-button-background);
-}
-
-*[theme="dark"] .action:hover {
-    background-color: var(--feature-hover);
-}
-
-.act1:hover {
-    border-radius: 6px 6px 0 0;
-}
-
-.act2:hover {
-    border-radius: 0 0 6px 6px;
 }

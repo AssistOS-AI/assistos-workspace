@@ -12,28 +12,6 @@ async function Application() {
     let WorkspacePlugin = await $$.loadPlugin("Workspace");
     let persistence = await $$.loadPlugin("DefaultPersistence");
 
-    await persistence.configureTypes({
-        llm: {
-            id: "random",
-            name: "string",
-            provider: "provider",
-            type: "string",
-            capabilities: "array string",
-            description: "string",
-            pricing: "object",
-            contextWindow: "integer",
-            knowledgeCuttoff: "date"
-        },
-        provider: {
-            id: "random",
-            name: "string",
-            models: "array llm"
-        }
-    })
-
-    await persistence.createIndex("llm", "name");
-    await persistence.createIndex("provider", "name");
-
     persistence.configureTypes({
         application: {
             name: "string",

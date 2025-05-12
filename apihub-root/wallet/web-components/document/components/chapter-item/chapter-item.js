@@ -217,7 +217,12 @@ export class ChapterItem {
 
 
     }
-
+    async addParagraph(_target) {
+        let position = this.chapter.paragraphs.length;
+        let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
+        assistOS.space.currentParagraphId = paragraph.id;
+        await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
+    }
     async addParagraphOrChapterOnKeyPress(event) {
         if (!event.ctrlKey || event.key !== "Enter") {
             return;
@@ -251,10 +256,13 @@ export class ChapterItem {
         assistOS.space.currentChapterId = this.chapter.id;
         this.element.classList.add("highlighted-chapter");
     }
-    highlightChapterHeader() {
+    async highlightChapterHeader() {
         this.switchChapterToolbar("on");
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.add("highlighted-header");
+        if(this.curentPlugin){
+          await this.openPlugin("", "chapter", this.curentPlugin);
+        }
     }
 
     async openPlugin(targetElement, type, pluginName) {
@@ -265,12 +273,19 @@ export class ChapterItem {
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
     }
-    async closePlugin(targetElement) {
+    async closePlugin(targetElement, focusoutClose) {
         let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("chapter", this);
+        if(focusoutClose){
+            return pluginName;
+        }
     }
 
     async focusOutHandlerTitle(chapterTitle){
@@ -279,6 +294,15 @@ export class ChapterItem {
         await selectionUtils.deselectItem(this.titleId, this);
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.remove("highlighted-header");
+        let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        if(!pluginElement){
+            return;
+        }
+        if(pluginElement.classList.contains("pinned")){
+            return;
+        }
+        this.curentPlugin = await this.closePlugin("", true);
     }
 
     openMenu(targetElement, menuName) {
@@ -302,6 +326,7 @@ export class ChapterItem {
                 <div>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraph" data-name="Add Paragraph" data-highlight="light-highlight"></list-item>
                 </div>`
     }
 

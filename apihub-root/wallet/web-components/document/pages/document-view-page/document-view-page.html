@@ -8,7 +8,7 @@
         </svg>
         <div class="doc-title-breadcrumb pointer">$$docTitle</div>
     </div>
-    <div class="menu-section">
+    <div class="menu-section maintain-focus">
         <div class="document-plugins-container"></div>
         <div class="plugins-separator"></div>
         <div data-local-action="buildForDocument" class="build-document icon-container toolbar-margin">
@@ -51,7 +51,6 @@
             <input type="text" class="document-title focusable $$documentFontSize $$documentFontFamily font-color" data-local-action="editItem title"/>
         </div>
         <div class="infoText-section container-element" data-metadata="infoText of the document">
-            <div class="infoText-plugin-container"></div>
             <div class="infoText-header-section">
                 <div class="left-section">
                     <input data-local-action="editItem infoTextTitle" type="text" class="infoText-input font-color $$infoTextFontFamily" value="Document Info">
@@ -69,7 +68,7 @@
                     </div>
                 </div>
             </div>
-
+            <div class="infoText-plugin-container"></div>
             <div class="document-infoText-container">
                 <textarea class="document-infoText focusable $$infoTextFontFamily $$infoTextFontSize font-color" data-local-action="editItem infoText" placeholder="No document info set"></textarea>
             </div>
