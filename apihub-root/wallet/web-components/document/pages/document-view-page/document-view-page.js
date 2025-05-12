@@ -281,6 +281,7 @@ export class DocumentViewPage {
         this.infoTextFontFamily = this.documentFontFamily
         this.infoTextFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("infoText-font-size") || "16px"];
         this.chaptersContainer = "";
+        this.category = this._document.category;
         this.docTitle = this._document.title;
         if (this._document.chapters.length > 0) {
             this._document.chapters.forEach((item) => {

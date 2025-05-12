@@ -38,6 +38,8 @@ document-item{
 }
 
 .circle-button {
+    position: absolute;
+    right: -15px;
     cursor: pointer;
     padding: 7px 0;
     display: flex;

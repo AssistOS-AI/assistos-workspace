@@ -3,8 +3,8 @@ action-box-documents {
     padding: 5px;
     z-index: 1;
     position: absolute;
-    right: 35px;
-    top: 0;
+    right: 20px;
+    top: -10px;
     border: 1px solid var(--action-button-background);
     border-radius: 10px;
     background-color: var(--menu-backgroud);

@@ -6,7 +6,7 @@ chapter-item {
     min-width: 0;
     position: relative;
     background-color: var(--inactive-element);
-    margin-bottom: 10px;
+    margin-bottom: 15px;
     outline: 2px var(--light-gray-border) solid;
     outline-offset: -1px;
 }
@@ -155,7 +155,7 @@ html[theme="dark"] .arrow svg {
     margin-left: 3px;
     display: inline-block;
     font-weight: 700;
-    font-size: 18px;
+    font-size: 20px;
     margin-right: 10px;
     background-color: var(--inactive-element);
 }
