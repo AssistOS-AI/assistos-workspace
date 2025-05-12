@@ -9,14 +9,9 @@ export class AddDocumentModal {
     }
 
     switchTab(tab) {
-        const options = this.element.querySelectorAll('.source-option');
         const forms = this.element.querySelectorAll('.add-document-form');
-        
-        options.forEach(t => t.classList.remove('active'));
         forms.forEach(f => f.style.display = 'none');
-        
-        this.element.querySelector(`#${tab}`).classList.add('active');
-        this.element.querySelector(`#${tab}DocumentForm`).style.display = 'flex';
+        this.element.querySelector(`#${tab}Doc`).style.display = 'block';
     }
 
     beforeRender() {
@@ -26,14 +21,40 @@ export class AddDocumentModal {
         for(let category of categories) {
             this.categoriesOptions += `<option class="select-option" value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
         }
+        let supportedFormats = ["docx", "pptx", "pdf", "md", "txt", "xlsx"];
+        this.supportedFormats = supportedFormats.join(", ");
+        this.maxSize = 30 //MB
     }
     afterRender() {
-        this.element.querySelectorAll('.source-toggle-input').forEach(option => {
-            option.addEventListener('click', () => {
-                const tab = option.getAttribute('id');
-                this.switchTab(tab);
-            });
+        this.fileInput = this.element.querySelector('#fileUpload');
+        this.fileInput.addEventListener('change', (e) => {
+            let files = e.target.files;
+            if(files.length === 0) {
+                this.fileInput.innerHTML = `<div class="no-files">No files uploaded</div>`;
+                return;
+            }
+            let filesHTML = "";
+            for (let file of files) {
+                let fileName = file.name;
+                let fileSize = (file.size / (1024 * 1024)).toFixed(2); // Convert to MB
+                let fileType = file.type;
+                filesHTML += `<div class="file-item">
+                                <div class="file-name">${fileName}</div>
+                                <div class="file-name">${fileSize} MB</div>
+                                
+                              </div>`;
+            }
         });
+    }
+    selectRadio(_target) {
+        _target.classList.add('selected');
+        let value = _target.getAttribute('data-value');
+        let radioButtons = this.element.querySelectorAll('.custom-radio');
+        let others = Array.from(radioButtons).filter(radio => radio !== _target);
+        others.forEach(radio => {
+            radio.classList.remove('selected');
+        });
+        this.switchTab(value);
     }
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
@@ -51,10 +72,12 @@ export class AddDocumentModal {
             }
         }
     }
+    openFileUpload(_target) {
+        this.fileInput.click();
+    }
 
     async uploadFiles(_target) {
-        const fileInput = this.element.querySelector('#fileUpload');
-        const files = fileInput.files;
+        const files = this.fileInput.files;
         
         if (files.length === 0) {
             assistOS.showToast('Please select at least one file', "error", 3000);

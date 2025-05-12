@@ -3,9 +3,8 @@ documents-page{
 }
 .page-title{
     color: var(--header-font-color);
-    font-size: 28px;
+    font-size: var(--page-header-font-size);
     font-weight: 600;
-    line-height: 42px;
     text-align: left;
     white-space: nowrap;
     overflow: hidden;
@@ -16,7 +15,7 @@ documents-page{
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 40px 20px 40px;
+    padding: var(--page-padding);
     border-bottom: 2px solid var(--light-gray-border);
 }
 

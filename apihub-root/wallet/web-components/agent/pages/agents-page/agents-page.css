@@ -1,32 +1,29 @@
 agents-page {
     overflow: scroll;
 }
-#header-container{
+.page-header{
     display: flex;
     align-items: center;
     justify-content: space-between;
-}
-#import-agent-btn{
-    margin-right:40px;
-}
-.agents-header{
-    font-size: 26px;
-    font-weight: 600;
     padding: var(--page-padding);
+}
+
+.agents-header{
+    font-size: var(--page-header-font-size);
+    font-weight: 600;
 }
 .line-separator{
     margin-top: 0;
     border: none;
     height: 2px;
-    background: var(--very-light-gray);
+    background: var(--light-gray-border);
 }
 .table {
     padding: var(--page-padding);
-    height: calc(100% - 78px);
     overflow: auto;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 20px;
     background: var(--white);
 }

@@ -10,7 +10,7 @@ settings-page {
 
 .settings-header {
     padding: var(--page-padding);
-    font-size: 26px;
+    font-size: var(--page-header-font-size);
     font-weight: 600;
     height: 80px;
     color: var(--black)

@@ -24,11 +24,11 @@ applications-marketplace-page {
 }
 
 .marketplace-header {
-    padding: 20px;
+    padding: var(--page-padding);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 32px;
+    font-size: var(--page-header-font-size);
     font-weight: 600;
 }
 

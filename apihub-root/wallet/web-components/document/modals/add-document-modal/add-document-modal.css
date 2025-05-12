@@ -1,24 +1,7 @@
-dialog {
-    height: 420px;
-    width: 400px;
-    min-height: 420px;
-    min-width: 400px;
-    background: #ffffff;
-}
 add-document-modal {
-    display: flex;
-    flex-direction: column;
-    height: 420px;
-    background: #ffffff;
-}
-.add-document-form{
-    padding-left: 20px;
-    padding-right: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    background: inherit;
+    display: block;
+    height: 540px;
+    width: 860px;
 }
 
 .tabs {
@@ -29,70 +12,104 @@ add-document-modal {
 }
 
 .source-toggle {
-    display: flex;
-    gap: 0.75rem;
-    padding: 20px;
+    padding: 15px 15px 10px 15px;
     background: inherit;
     color: var(--default-font-color);
 }
-
-.source-option {
-    flex: 1;
-    padding: 0.75rem;
-    background: #f8f9fa;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    cursor: pointer;
-    text-align: center;
-    color: #4a5568;
-    font-weight: 500;
-    font-size: 13px;
-    transition: all 0.2s ease;
+.radios-label{
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+.radios-container{
+    display: flex;
+    gap: 0.75rem;
+}
+.file-limits{
+    margin-top: 10px;
+    font-size: 8px;
+    color: var(--header-font-color);
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+.create-button,
+.upload-button{
+    width: fit-content;
 }
 
-.modal-body, .modal-footer {
-    background: inherit;
+.modal-footer{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    height: 220px;
 }
-
-[data-theme="dark"] dialog {
-    background: #1a202c;
-}
-
-[data-theme="dark"] add-document-modal {
-    background: #1a202c;
-    color: #e2e8f0;
-}
-
-[data-theme="dark"] .modal-header {
-    background: #1a202c;
-    color: #e2e8f0;
-}
-
-[data-theme="dark"] .modal-body {
-    background: #1a202c;
-}
-
-[data-theme="dark"] .modal-footer {
-    background: #1a202c;
-}
-
-
 
 .file-input {
-    padding: 10px;
-    border: 2px dashed #e2e8f0;
-    border-radius: 8px;
+    border-radius: 5px;
+    border: 1px dashed rgba(74, 74, 75, 0.90);
     width: 100%;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    align-items: center;
     cursor: pointer;
+    padding: 20px;
+}
+#fileUpload{
+    display: none;
+}
+.upload-icon-container{
+    margin-bottom: 10px;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    background: var(--gray-button-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.file-input-label{
+    color: var(--header-font-color);
+    font-size: 13px;
 }
 
-.file-input:hover {
-    border-color: #4299e1;
+.custom-radio{
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #DDDDDD;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-
-[data-theme="dark"] .file-input {
-    border-color: #4a5568;
-    color: #e2e8f0;
-    background: #2d3748;
+.radio-selection{
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #CCCCCC;
+}
+.custom-radio.selected .radio-selection {
+    background-color: #4A4A4B;
+}
+.radio-item{
+    display: flex;
+}
+.radio-margin{
+    margin-right: 10px;
+}
+.uploaded-files{
+    border-radius: 5px;
+    min-height: 75px;
+    border: 1px solid var(--form-input-border);
+    padding: 10px;
+    margin-bottom: 10px;
+}
+.no-files{
+    color: var(--form-input);
+    font-size: 14px;
+    font-weight: 500;
+}
+.file-item{
+    font-size: 12px;
+    color: var(--form-input);
 }
