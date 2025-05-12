@@ -428,7 +428,8 @@
         {
             "name": "document-item",
             "directory": "document",
-            "type": "components"
+            "type": "components",
+            "presenterClassName": "DocumentItem"
         },
         {
             "name": "application-document-item",

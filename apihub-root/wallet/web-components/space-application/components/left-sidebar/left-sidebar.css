@@ -190,7 +190,7 @@ left-sidebar {
     z-index: 1;
     color: var(--white-text);
     background: var(--left-sidebar-background);
-    border: 1px solid var(--very-light-gray);
+    border: 1px solid var(--light-gray-border);
     border-radius: 5px;
     visibility: hidden;
     position: absolute;
@@ -209,7 +209,7 @@ left-sidebar {
     box-shadow: 0 1px 6px 0 var(--very-light-gray);
     z-index: 1;
     border-radius: 5px;
-    border: 1px solid var(--very-light-gray);
+    border: 1px solid var(--light-gray-border);
     background: var(--white);
     bottom: 0;
     left: 100%;

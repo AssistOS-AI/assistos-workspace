@@ -16,7 +16,7 @@
     --inactive-element: #F9F9F9;
     --action-button-background: #E9E9E9;
     --red: #C80001EE;
-    --chapter-border: #EFEFEF;
+    --light-gray-border: #EFEFEF;
     --plugin-focus: #919191;
     --document-font-color: #646464;
     --default-font-color: #646464;
@@ -72,6 +72,7 @@ html {
 
 input, textarea {
     font-weight: 400;
+    font-family: var(--default-font), sans-serif;
 }
 
 html, body,
@@ -105,7 +106,7 @@ dialog.modal {
 }
 
 dialog {
-    border: 1px solid var(--very-light-gray);
+    border: 1px solid var(--light-gray-border);
 }
 
 .modal-header {

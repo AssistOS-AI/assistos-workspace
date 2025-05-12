@@ -137,6 +137,7 @@ document-view-page {
     hyphens: auto;
     word-break: break-word;
     outline: none;
+    font-size: 16px;
 }
 
 .container-element.focused .document-infoText:focus {
@@ -164,14 +165,25 @@ document-view-page {
     right: 35px;
     display: none;
     flex-direction: column;
-    align-items: center;
+    z-index: 1;
     padding: 5px;
     border-radius: 10px;
-    z-index: 1;
     border: 1px solid var(--action-button-background);
     background-color: var(--menu-backgroud);
+    width: max-content;
+    color: var(--default-font-color);
 }
-
+.menu-item{
+    padding: 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.menu-item:hover{
+    background-color: var(--action-button-background);
+}
 .space-document-path {
     font-weight: 600;
     font-size: 18px;

@@ -8,6 +8,7 @@ action-box-documents {
     border: 1px solid var(--action-button-background);
     border-radius: 10px;
     background-color: var(--menu-backgroud);
+    width: max-content;
 }
 
 

@@ -294,7 +294,7 @@ export class ChapterItem {
         await selectionUtils.deselectItem(this.titleId, this);
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.remove("highlighted-header");
-        let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
+        let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
         if(!pluginElement){
             return;

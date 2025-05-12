@@ -6,8 +6,9 @@ chapter-item {
     min-width: 0;
     position: relative;
     background-color: var(--inactive-element);
-    box-shadow: inset 0 0 0 1px var(--chapter-border);
     margin-bottom: 10px;
+    outline: 2px var(--light-gray-border) solid;
+    outline-offset: -1px;
 }
 .chapter-title-container {
     height: 43px;
@@ -24,6 +25,7 @@ chapter-item {
     background-color: var(--white);
     border: none;
     box-shadow: none;
+    outline: none;
 }
 
 .chapter-container{
