@@ -1130,6 +1130,10 @@ input:checked + .toggle-slider:before {
     align-items: center;
     gap: 4px;
 }
+input:focus {
+    outline: none;
+    border: 2px solid #0088cc;
+}
 
 .application-form-item-row {
     flex-direction: row;
