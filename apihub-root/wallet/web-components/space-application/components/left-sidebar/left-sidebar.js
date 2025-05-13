@@ -40,8 +40,10 @@ export class LeftSidebar {
         this.userImage = userImageURL;
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.applications) {
+            if(application.skipUI){
+                continue;
+            }
             let svgImage = application.svg;
-
             this.applications += `
         <div class="feature" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.id}">
             <div class="app-focus hidden"></div>

@@ -15,7 +15,8 @@ async function Application() {
     persistence.configureTypes({
         application: {
             name: "string",
-            lastUpdate: "string"
+            lastUpdate: "string",
+            skipUI: "boolean",
         }
     });
 
@@ -156,6 +157,7 @@ async function Application() {
         await persistence.createApplication({
             name: application.name,
             lastUpdate: application.lastUpdate,
+            skipUI: manifest.skipUI || false,
         })
     }
     self.getApplications = async function () {
