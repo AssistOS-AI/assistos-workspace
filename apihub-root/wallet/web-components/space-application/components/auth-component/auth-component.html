@@ -7,11 +7,22 @@
             <section class="auth_type_wrapper">
                 <section class="email_wrapper">
                     <section class="input_container">
-                        <input class="email_input form-input" name="email" autocomplete="email" type="email" placeholder="Email address">
-                        <button class="submit_email_button app-button" data-local-action="submitEmail" disabled> Sign In
+                        <input class="email_input app_input" type="email" name="email" autocomplete="email" placeholder="Email address">
+                        <button class="submit_email_button app_button gold_background" data-local-action="submitEmail"
+                                disabled> Sign In
                         </button>
                     </section>
-                    <section class="selection_short_info email_code">
+                    <section class="change_auth_type">
+                        <section class="to_login">
+                            <span>Already have an account?</span>
+                            <span class="text_gradient pointer" data-local-action="changeAuthType" auth-type="login">Login</span>
+                        </section>
+                        <section class="to_signup">
+                            <span>Don't have an account?</span>
+                            <span class="text_gradient pointer" data-local-action="changeAuthType" auth-type="signup">Register</span>
+                        </section>
+                    </section>
+                    <section class="selection_short_info emailCode">
                         Enable two-step verification to receive a one-time code via email, adding an extra layer of
                         protection to your account.
                     </section>
@@ -27,7 +38,7 @@
                     <section class="actions_container"></section>
                 </section>
                 <section class="selection_long_info email_code_auth $$email_code_auth">
-                    <section class="selection_info email_code" id="code_info">
+                    <section class="selection_info emailCode" id="code_info">
                         Receive a one-time code sent to your registered email address. Enter this code to verify your
                         identity and access your account.
                         <ul>
@@ -82,7 +93,7 @@
                     <input class="totp_input app_input" type="text" pattern="[0-9]*" inputmode="numeric"
                            maxlength="6"
                            placeholder="6-digit code from authenticator app">
-                    <button class="totp_action_button app_button" data-local-action="totpCodeSubmit" disabled>Log in
+                    <button class="totp_action_button app_button gold_background" data-local-action="totpCodeSubmit" disabled>Log in
                     </button>
                 </section>
                 <label class="info">Enter the 6-digit code from your authenticator app.</label>
@@ -96,7 +107,7 @@
                 </div>
                 <section class="input_container">
                     <input class="code_input app_input" type="password" placeholder="Code from email">
-                    <button class="submit_code_button app_button" data-local-action="submitCode" disabled>Log in
+                    <button class="submit_code_button app_button gold_background" data-local-action="submitCode" disabled>Log in
                     </button>
                 </section>
                 <label class="info">
