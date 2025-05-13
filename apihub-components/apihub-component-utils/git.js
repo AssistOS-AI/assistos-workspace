@@ -7,7 +7,7 @@ const https = require('https');
 const { URL } = require('url');
 function getGitHubToken(){
     let keys = JSON.parse(process.env.API_KEYS);
-    return keys["GitHub"];
+    return keys["GITHUB"];
 }
 async function checkGitHubRepoVisibility(repoUrl) {
     try {
