@@ -3,8 +3,8 @@ build-page {
 }
 
 .page-header {
-    padding: 20px 30px;
-    font-size: 26px;
+    padding: var(--page-padding);
+    font-size: var(--page-header-font-size);
     font-weight: 600;
     color: var(--black);
     display: flex;

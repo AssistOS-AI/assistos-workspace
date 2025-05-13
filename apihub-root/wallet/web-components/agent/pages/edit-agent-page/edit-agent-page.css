@@ -1,9 +1,12 @@
 edit-agent-page{
     overflow-y: auto;
 }
-.agent-name{
-    font-weight: 700;
-    font-size: 28px;
+.left-header-section{
+    font-weight: 600;
+    font-size: var(--page-header-font-size);
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 .page-body{
     display: flex;
@@ -16,8 +19,7 @@ edit-agent-page{
     padding: var(--button-padding);
     justify-content: center;
     align-items: center;
-    gap: 4px;
-    font-weight: 600;
+    gap: 5px;
     border-radius: 5px;
     background-color: var(--red);
     color: var(--white);

@@ -1,10 +1,11 @@
-dialog {
-    padding: 0;
-    width: 50%;
-    overflow: hidden;
+add-agent{
+    display: block;
+    width: 850px;
 }
-
 textarea#description {
     resize: none;
     height: 150px;
+}
+.modal-footer{
+    margin-top: 10px;
 }

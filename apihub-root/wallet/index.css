@@ -41,12 +41,14 @@
     --body-bg-color: #EEEEEE;
     --disabled-color: #E8E8E8;
     --disabled-text-color: #4B4B4B;
+    --green-text-color: #66CC66;
     --form-background-color: #373737;
     --error-color: #FF0000;
     --border-opac-color: rgba(255, 255, 255, 0.231);
 
     --button-padding: 10px 20px;
     --page-padding: 20px 40px;
+    --page-header-font-size: 28px;
 }
 
 * {
@@ -115,7 +117,7 @@ dialog {
     display: flex;
     color: var(--header-font-color);
     font-weight: 700;
-    font-size: 24px;
+    font-size: 25px;
     justify-content: space-between;
     border-bottom: 1px solid var(--very-light-gray);
 }
@@ -128,27 +130,16 @@ dialog {
 }
 
 .modal-title {
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
 }
-
+.close-icon{
+    width: 13px;
+}
 .modal-body {
-    padding: 20px;
+    padding: 15px;
 }
 
 .modal-footer {
-    display: flex;
     height: 20%;
-    justify-content: center;
-    bottom: 10px;
-    align-items: center;
-}
-
-.modal-footer > button {
-    padding: 6px 30px;
-    justify-content: center;
 }
 
 .modal {
@@ -398,8 +389,9 @@ select{
 }
 
 .disabled {
-    background-color: var(--blue-border);
+    opacity: 0.4;
     pointer-events: none;
+    cursor: not-allowed;
 }
 
 /*page placeholder*/

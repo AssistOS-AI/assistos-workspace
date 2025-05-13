@@ -69,15 +69,8 @@ export class DocumentViewPage {
             tocContainer.appendChild(headerContainer);
             tocContainer.appendChild(tocContent);
 
-            const titleElement = this.element.querySelector(".document-title-container");
-            const infoText = this.element.querySelector(".document-infoText-container");
-
-            if (titleElement && infoText) {
-                titleElement.parentNode.insertBefore(tocContainer, infoText);
-            } else {
-                console.error("Cannot find title or infoText containers");
-                return;
-            }
+            const infoTextSection = this.element.querySelector(".infoText-section");
+            infoTextSection.insertAdjacentElement("afterend", tocContainer)
         }
 
         const tocContent = tocContainer.querySelector(".toc-content");
@@ -341,16 +334,16 @@ export class DocumentViewPage {
         }
         this.documentEditor = this.element.querySelector(".document-editor");
         this.disabledMask = this.element.querySelector(".disabled-mask");
-        this.undoButton = this.element.querySelector(".undo-button");
-        this.redoButton = this.element.querySelector(".redo-button");
-        let tasksMenu = this.element.querySelector(".tasks-menu");
-        let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
+        //this.undoButton = this.element.querySelector(".undo-button");
+        //this.redoButton = this.element.querySelector(".redo-button");
+        //let tasksMenu = this.element.querySelector(".tasks-menu");
+        //let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
         let scriptArgs = this.element.querySelector(".script-modal");
         let buildIcon = this.element.querySelector(".build-document");
-        this.attachTooltip(this.undoButton, "Undo");
-        this.attachTooltip(this.redoButton, "Redo");
-        this.attachTooltip(tasksMenu, "Tasks");
-        this.attachTooltip(snapshotsButton, "Snapshots");
+        //this.attachTooltip(this.undoButton, "Undo");
+        //this.attachTooltip(this.redoButton, "Redo");
+        //this.attachTooltip(tasksMenu, "Tasks");
+        //this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
         this.attachTooltip(buildIcon, "Build Document");
         if(this.viewMode ==="demo"){

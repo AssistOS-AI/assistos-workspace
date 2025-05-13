@@ -20,15 +20,15 @@ applications-marketplace-page {
     width: 100%;
     gap: 20px;
     overflow: hidden;
-    padding: 0 20px;
+    padding: 0 40px;
 }
 
 .marketplace-header {
-    padding: 20px;
+    padding: var(--page-padding);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 32px;
+    font-size: var(--page-header-font-size);
     font-weight: 600;
 }
 

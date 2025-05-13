@@ -63,25 +63,17 @@ export class AuthComponent {
             }
         });
 
-        /*  authSelect.addEventListener("change", (event) => {
-              this.selected_method = event.target.value;
-              this.element.querySelector(".auth_container").setAttribute("selected-auth", event.target.value);
-          })
-  */
-        //     this.element.querySelector(".auth_method_select").value = this.selected_method;
-
         this.setAuthStep(this.auth_step);
     }
-
 
     setRegisterOptions() {
         this.auth_options = "";
         for (const method of this.authMethods) {
             let option = "";
-            if (method === "email_code") {
+            if (method === "emailCode") {
                 this.email_code_auth = "enabled";
-                option = `<label class="radio_container choice pointer email_code">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="email_code">
+                option = `<label class="radio_container choice pointer emailCode">
+                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -108,9 +100,8 @@ export class AuthComponent {
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options}`;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="cancelAuth">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer" data-local-action="signupSubmit">Register</button>`;
-
+        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="signup">Cancel</button>
+        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="signupSubmit">Register</button>`;
 
         this.addAuthMethodsListeners();
     }
@@ -121,8 +112,8 @@ export class AuthComponent {
             let option = "";
             if (method.type === "emailCode") {
                 this.email_code_auth = "enabled";
-                option = `<label class="radio_container choice pointer email_code">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="email_code">
+                option = `<label class="radio_container choice pointer emailCode">
+                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -149,8 +140,8 @@ export class AuthComponent {
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options} `;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="cancelAuth">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer" data-local-action="submitLoginMethod">Sign In</button>`;
+        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="login">Cancel</button>
+        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="submitLoginMethod">Sign In</button>`;
 
         this.addAuthMethodsListeners();
     }
@@ -167,7 +158,7 @@ export class AuthComponent {
                 this.element.querySelector(".auth_container").setAttribute("selected-auth", event.target.value);
                 this.selected_method = radio.value;
                 if (radio.getAttribute("passkey-id")) {
-                    const requestOptions = JSON.parse(this.passkeyData.publicKeyCredentialRequestOptions);
+                    const requestOptions = JSON.parse(JSON.stringify(this.publicKeyCredentialRequestOptions));
                     requestOptions.allowCredentials = requestOptions.allowCredentials.filter(item => item.id === radio.getAttribute("passkey-id"))
                     this.passkeyData = {
                         publicKeyCredentialRequestOptions: JSON.stringify(requestOptions),
@@ -244,15 +235,20 @@ export class AuthComponent {
             }
         });
     }
-
+    changeAuthType(_target) {
+        this.setAuthStep(_target.getAttribute("auth-type"));
+    }
     setAuthStep(stepName) {
         this.auth_step = stepName;
         sessionStorage.setItem("auth_step", this.auth_step);
         const formTitle = this.element.querySelector(".header .title");
         this.element.querySelector(".auth_container").classList.add("auth_step1");
+        this.element.querySelector(".auth_container").removeAttribute("selected-auth");
+        this.element.querySelector(".email_wrapper .input_container .submit_email_button").style.display = "block";
+        this.element.querySelector(".email_wrapper .input_container .email_input").readOnly = false;
         this.element.querySelector(".submit_email_button").textContent = "Next";
         if (stepName === "login") {
-            formTitle.textContent = "Sign in";
+            formTitle.textContent = "Login";
         } else {
             formTitle.textContent = "Register";
         }
@@ -281,7 +277,7 @@ export class AuthComponent {
             if (this.selected_method === "totp") {
                 this.totpLogin(this.email);
             }
-            if (this.selected_method === "email_code") {
+            if (this.selected_method === "emailCode") {
                 await this.waitGetCode(this.email);
             }
         } catch (err) {
@@ -304,7 +300,7 @@ export class AuthComponent {
 
     async signupSubmit() {
         try {
-            if (this.selected_method === "email_code") {
+            if (this.selected_method === "emailCode") {
                 this.createSpace = true;
                 await this.waitGetCode(this.email, this.referer);
             }
@@ -335,11 +331,12 @@ export class AuthComponent {
                     }
                 }, err.details.detailsData.lockTime);
             } else {
-                console.error(err.details);
-                let errModal = await showApplicationError("Error", err.message);
-                errModal.addEventListener("close", async () => {
-                    await assistOS.UI.changeToDynamicPage("landing-page", "landing-page");
-                });
+                if (err.name !== "NotAllowedError") {
+                    let errModal = await showApplicationError("Error", err.message);
+                    errModal.addEventListener("close", async () => {
+                        await assistOS.UI.changeToDynamicPage("landing-page", "landing-page");
+                    });
+                }
             }
         }
     }
@@ -381,6 +378,9 @@ export class AuthComponent {
             publicKeyCredentialRequestOptions: this.accountCheck.publicKeyCredentialRequestOptions,
             challengeKey: this.accountCheck.challengeKey
         }
+        if (this.publicKeyCredentialRequestOptions) {
+            this.publicKeyCredentialRequestOptions = JSON.parse(this.passkeyData.publicKeyCredentialRequestOptions);
+        }
         if (this.auth_step === "signup") {
             if (this.accountCheck.account_exists) {
                 let loginConfirmation = await assistOS.UI.showModal("confirm-action-modal", {
@@ -412,7 +412,7 @@ export class AuthComponent {
                     return;
                 }
             }
-
+            this.selected_method = this.accountCheck.activeAuthType;
             await this.submitStep1();
         }
     }

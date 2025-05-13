@@ -40,8 +40,10 @@ export class LeftSidebar {
         this.userImage = userImageURL;
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.applications) {
+            if(application.skipUI){
+                continue;
+            }
             let svgImage = application.svg;
-
             this.applications += `
         <div class="feature" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.id}">
             <div class="app-focus hidden"></div>
@@ -95,19 +97,6 @@ export class LeftSidebar {
                     let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
                     name.style.visibility = "hidden";
                 });
-            }
-        });
-        let userSection = this.element.querySelector(".user-photo-container");
-        let userActions = this.element.querySelector(".user-action-menu");
-        userSection.addEventListener("mouseover", () => {
-            userActions.style.visibility = "visible";
-        });
-        userSection.addEventListener("mouseout", () => {
-            userActions.style.visibility = "hidden";
-        });
-        userActions.addEventListener("mouseout", (event) => {
-            if(!userActions.contains(event.relatedTarget)){
-                userActions.style.visibility = "hidden";
             }
         });
 

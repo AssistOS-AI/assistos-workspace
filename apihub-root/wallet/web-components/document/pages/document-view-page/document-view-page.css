@@ -62,7 +62,7 @@ document-view-page {
     width: 100%;
     position: sticky;
     top: 0;
-    padding: 20px 40px;
+    padding: var(--page-padding);
     display: flex;
     justify-content: space-between;
     background-color: var(--white);
@@ -187,7 +187,7 @@ document-view-page {
 }
 .space-document-path {
     font-weight: 600;
-    font-size: 28px;
+    font-size: var(--page-header-font-size);
     width: 85%;
     cursor: default;
     display: flex;

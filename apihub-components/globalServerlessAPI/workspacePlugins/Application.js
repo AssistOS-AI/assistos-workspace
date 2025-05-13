@@ -15,7 +15,8 @@ async function Application() {
     persistence.configureTypes({
         application: {
             name: "string",
-            lastUpdate: "string"
+            lastUpdate: "string",
+            skipUI: "boolean",
         }
     });
 
@@ -51,12 +52,12 @@ async function Application() {
         }
     }
 
-    self.requiresUpdate = async function (applicationId) {
-        const applicationMetadata = self.getAvailableApps().find(app => app.id === applicationId);
+    self.requiresUpdate = async function (spaceId, appName) {
+        const applicationMetadata = self.getAvailableApps().find(app => app.name === appName);
         if (!applicationMetadata) {
             throw new Error("Application not Found");
         }
-        const applicationPath = self.getApplicationPath(applicationId);
+        const applicationPath = self.getApplicationPath(appName);
         return await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
     }
 
@@ -156,20 +157,30 @@ async function Application() {
         await persistence.createApplication({
             name: application.name,
             lastUpdate: application.lastUpdate,
+            skipUI: manifest.skipUI || false,
         })
     }
     self.getApplications = async function () {
-        return await persistence.getEveryApplicationObject();
+        let apps = await persistence.getEveryApplicationObject();
+        const availableApps = self.getAvailableApps();
+        for(let app of apps){
+            const availableApp = availableApps.find(a => a.name === app.name);
+            if (availableApp) {
+                app.description = availableApp.description;
+                app.svg = availableApp.svg;
+            }
+        }
+        return apps;
     }
 
-    self.uninstallApplication = async function (applicationId) {
+    self.uninstallApplication = async function (appName) {
         const applications = self.getAvailableApps();
-        const application = applications.find(app => app.id === applicationId);
+        const application = applications.find(app => app.name === appName);
         const manifestPath = self.getApplicationManifestPath(application.name);
         let manifestContent = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
         await git.uninstallDependencies(manifestContent.dependencies);
-        await fsPromises.rm(self.getApplicationPath(applicationId), {recursive: true, force: true});
-        await persistence.deleteApplication(applicationId);
+        await fsPromises.rm(self.getApplicationPath(appName), {recursive: true, force: true});
+        await persistence.deleteApplication(appName);
     }
 
     self.loadApplicationConfig = async function (applicationId) {

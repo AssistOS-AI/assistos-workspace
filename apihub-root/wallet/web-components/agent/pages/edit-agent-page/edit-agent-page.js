@@ -1,6 +1,5 @@
 const agentModule = require("assistos").loadModule("agent", {});
 const llmModule = require("assistos").loadModule("llm", {});
-const spaceModule = require("assistos").loadModule("space", {});
 const constants = require("assistos").constants;
 
 export class EditAgentPage {
@@ -13,14 +12,17 @@ export class EditAgentPage {
         if (!this.currentTab) {
             this.currentTab = "agent-description";
         }
-        this.invalidate();
+        this.invalidate(async ()=>{
+            this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
+            this.initialAgent = this.agent;
+        });
     }
 
     async beforeRender() {
         this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
         this.agentName = this.agent.name;
         const llms = await llmModule.getModels({spaceId: this.spaceId});
-        this.llmTabs = this.getLlmTabsHtml(llms);
+        //this.llmTabs = this.getLlmTabsHtml(llms);
         this.deleteAgentButton = `
         <div class="delete-agent" data-local-action="deleteAgent">
             <img src="./wallet/assets/icons/trash-can.svg" alt="Delete agent" class="delete-icon">
@@ -51,31 +53,6 @@ export class EditAgentPage {
         let currentTab = this.element.querySelector(`[data-local-action="openTab ${this.currentTab}"]`);
         currentTab.classList.add("active");
         this.checkSaveButtonState();
-    }
-
-    constructLlmOptions(llmModels, llmType) {
-        let options = [];
-        const agentLlmField = `selected${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}Llm`
-        if (this.agent[agentLlmField]) {
-            options.push(`<option value="${this.agent.llms[llmType]}" selected>${this.agent[agentLlmField]}</option>`);
-        } else {
-            options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
-        }
-        llmModels.forEach(llm => {
-            if (this.agent[agentLlmField] !== llm) {
-                options.push(`<option value="${llm.id}">${llm.name}</option>`);
-            }
-        });
-        return options.join('');
-    };
-
-    generateLlmSelectHtml(llmModels, llmType) {
-        return `<div class="form-item">
-            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
-            <select class="form-input" name="${llmType}LLM" id="${llmType}LLM">
-                ${this.constructLlmOptions(llmModels, llmType)}
-            </select>
-        </div>`
     }
 
     async deleteAgent() {
@@ -121,45 +98,28 @@ export class EditAgentPage {
         this.invalidate();
     }
 
-    uploadImage() {
-        return new Promise((resolve, reject) => {
-            let reader = new FileReader();
-            reader.onload = async (e) => {
-                const uint8Array = new Uint8Array(e.target.result);
-                try {
-                    this.agent.imageId = await spaceModule.putImage(uint8Array);
-                } catch (e) {
-                    reject(e.message);
-                }
-                resolve();
-            };
-            reader.onerror = (e) => {
-                reject(e.message);
-            };
-            reader.readAsArrayBuffer(this.photoAsFile);
-        });
-    }
 
     async saveChanges(_target) {
-        if (this.photoAsFile) {
-            await this.uploadImage();
-        }
         await agentModule.updateAgent(assistOS.space.id, this.agent.id, this.agent);
         this.initialAgent = JSON.parse(JSON.stringify(this.agent));
         this.checkSaveButtonState();
-        if (this.agent.name === assistOS.agent.agentData.name) {
+        if (this.agent.name === assistOS.agent.name) {
             await assistOS.changeAgent(this.agent.id);
             document.querySelector('chat-page').webSkelPresenter.invalidate();
         }
         await assistOS.showToast("Agent updated", "success");
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/agents-page`);
     }
 
     checkSaveButtonState() {
         let saveButton = this.element.querySelector(".save-button");
-        if (JSON.stringify(this.initialAgent) === JSON.stringify(this.agent) && !this.photoAsFile) {
+        if (JSON.stringify(this.initialAgent) === JSON.stringify(this.agent)) {
             saveButton.classList.add("disabled");
         } else {
             saveButton.classList.remove("disabled");
         }
+    }
+    async navigateToAgentsPage(){
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/agents-page`);
     }
 }

@@ -5,16 +5,23 @@
     </div>
 </div>
 <div class="source-toggle">
-    <div class="radio-item">
-        <input type="radio" name="source" id="create" class="source-toggle-input" checked>
-        <label for="create" class="source-toggle-label">Create Document</label>
-    </div>
-    <div class="radio-item">
-        <input type="radio" name="source" id="upload" class="source-toggle-input">
-        <label for="upload" class="source-toggle-label">Upload files</label>
+    <div class="radios-label">Select an option to add a document:</div>
+    <div class="radios-container">
+        <div class="radio-item">
+            <div class="custom-radio selected radio-margin" data-local-action="selectRadio" data-value="create">
+                <div class="radio-selection"></div>
+            </div>
+            <label class="source-toggle-label">Create Document</label>
+        </div>
+        <div class="radio-item">
+            <div class="custom-radio radio-margin" data-local-action="selectRadio" data-value="upload">
+                <div class="radio-selection"></div>
+            </div>
+            <label class="source-toggle-label">Upload files</label>
+        </div>
     </div>
 </div>
-<form class="add-document-form modal-body" id="createDocumentForm">
+<form class="add-document-form modal-body" id="createDoc">
     <div class="form-item">
         <label class="form-label" for="documentTitle">Title</label>
         <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" maxlength="50" required placeholder="Title of Document">
@@ -26,15 +33,31 @@
         </select>
     </div>
     <div class="modal-footer">
-        <button type="button" class="general-button" data-local-action="addDocument">Create</button>
+        <div class="general-button create-button" data-local-action="addDocument">Create</div>
     </div>
 </form>
-<form class="add-document-form modal-body" id="uploadDocumentForm" style="display: none;">
+<form class="add-document-form modal-body" id="uploadDoc" style="display: none;">
+    <div class="file-input" data-local-action="openFileUpload">
+        <div class="upload-icon-container">
+            <img src="./wallet/assets/icons/upload.svg" alt="upload" class="upload-icon">
+        </div>
+        <div class="file-input-label">Upload your files here</div>
+    </div>
+    <div class="file-limits">
+        <div>Supported formats: $$supportedFormats</div>
+        <div>Maximum size: $$maxSize MB</div>
+    </div>
+    <div class="uploaded-files">
+        <div class="no-files">No files uploaded</div>
+    </div>
     <div class="form-item">
-        <label class="form-label" for="fileUpload">Choose File(s)</label>
-        <input type="file" id="fileUpload" name="fileUpload" multiple class="form-input file-input">
+        <label class="form-label" for="category-file-upload">Category</label>
+        <select class="form-input" name="category-file-upload" id="category-file-upload" required>
+            $$categoriesOptions
+        </select>
     </div>
-    <div class="modal-footer">
-        <button type="button" class="general-button" data-local-action="uploadFiles">Upload</button>
+    <div class="upload-files-footer">
+        <div class="general-button upload-button disabled" data-local-action="uploadFiles">Upload</div>
     </div>
+    <input type="file" id="fileUpload" name="fileUpload" multiple accept="$$supportedFormats">
 </form>

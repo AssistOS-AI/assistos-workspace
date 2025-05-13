@@ -74,29 +74,6 @@ left-sidebar {
     flex-direction: column;
     padding: 15px;
 }
-.user-photo-container {
-    position: relative;
-    display: flex;
-    gap:10px;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 100%;
-    overflow: visible;
-}
-.bottom__chat{
-    display:flex;
-    align-items: center;
-    justify-content: center;
-    width:30px;
-    height:30px;
-    border-radius: 50%;
-    background: #878686;
-}
-.bottom__chat:hover{
-    cursor: pointer;
-
-}
 .user-action-menu {
     padding: 5px 0;
     border-radius: 5px;

@@ -20,12 +20,12 @@ export class ApplicationItem {
         if (this.installed) {
             this.requiresUpdate = await applicationModule.requiresUpdate(assistOS.space.id, this.appName);
         }
-        this.appImage = this.app.image;
-        this.description = "application description";
+        this.appImage = this.app.svg;
+        this.description = this.app.description || "no description";
         this.applicationButtons = `<div class='application-buttons'>
             ${this.installed ? `
                 <div class="app-button pointer uninstall" data-local-action="uninstallApplication">Uninstall</div>
-                <div class="app-button pointer update" data-local-action="updateApplication" ${this.requiresUpdate ? "" : "disabled"}>Update</div>
+                <div class="app-button pointer update ${this.requiresUpdate ? "" : "disabled"}" data-local-action="updateApplication">Update</div>
             ` : `
                 <div class="app-button pointer" data-local-action="installApplication">Install</div>`}
         </div>
@@ -51,7 +51,7 @@ export class ApplicationItem {
             }, assistOS.space.id, this.appName)
             location.reload();
         } catch (e) {
-            await showApplicationError("Failed to install application", assistOS.UI.sanitize(e.message), "");
+            await assistOS.showToast("Error installing application", "error", 3000);
         }
 
     }
