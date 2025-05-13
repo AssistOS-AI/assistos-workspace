@@ -42,8 +42,6 @@ export class ParagraphItem {
         if(this.currentPlugin){
             this.openPlugin("", "paragraph", this.currentPlugin);
         }
-        // let moveParagraphUp = this.element.querySelector(".comment-menu");
-        // this.documentPresenter.attachTooltip(moveParagraphUp,"Move Paragraph Up");
 
         let moveParagraphUp = this.element.querySelector(".move-paragraph-up");
         this.documentPresenter.attachTooltip(moveParagraphUp,"Move Paragraph Up");
@@ -66,50 +64,10 @@ export class ParagraphItem {
         let commentMenu = this.element.querySelector(".comment-menu");
         this.documentPresenter.attachTooltip(commentMenu,"Comments");
 
-        if(this.paragraph.comments.trim() !== ""){
-            let commentHighlight = this.element.querySelector(".plugin-circle.comment");
-            commentHighlight.classList.add("highlight-attachment");
-        }
         if(this.paragraph.commands.files && this.paragraph.commands.files.length > 0){
             let filesMenu = this.element.querySelector(".files-menu");
             filesMenu.classList.add("highlight-attachment");
         }
-
-        let paragraphContainer = this.element.querySelector(".paragraph-container");
-        if (!paragraphContainer) {
-            console.error("Nu s-a găsit .paragraph-container!");
-            return;
-        }
-
-        // let decodedText = await this.decodeHtmlEntities(this.paragraph.text);
-        //
-        // let parser = new DOMParser();
-        // let doc = parser.parseFromString(decodedText, "text/html");
-        // let tags = Array.from(doc.body.querySelectorAll("*"));
-        //
-        // if (tags.length > 0) {
-        //     console.log("Length:", tags.length);
-        //
-        //     let htmlString = tags.map(tag => {
-        //             let tempElement = document.createElement("div");
-        //             tempElement.innerHTML = tag.innerHTML;
-        //             let decodedContent = tempElement.textContent || tempElement.innerText || "";
-        //
-        //             return `<${tag.tagName.toLowerCase()}>${decodedContent}</${tag.tagName.toLowerCase()}>`;
-        //         }).join("\n");
-        //
-        //         paragraphContainer.insertAdjacentHTML("afterbegin", `
-        //         <paragraph-html-preview data-presenter="paragraph-html-preview">
-        //         </paragraph-html-preview>`);
-        //
-        //         setTimeout(() => {
-        //             let previewElement = paragraphContainer.querySelector("paragraph-html-preview");
-        //             if (previewElement) {
-        //                 previewElement.innerHTML += htmlString;
-        //                 console.log(htmlString + 1112)
-        //             }
-        //         }, 500);
-        // }
 
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
@@ -299,7 +257,6 @@ export class ParagraphItem {
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
                 </div>`,
-        "paragraph-comment-menu": `<paragraph-comment-menu class="paragraph-comment-menu" data-presenter="paragraph-comment-modal"></paragraph-comment-menu>`,
         "files-menu": `<files-menu data-presenter="files-menu"></files-menu>`
     }
 
@@ -342,7 +299,18 @@ export class ParagraphItem {
         let menuComponent = this.element.querySelector(`.${menuName}`);
         menuComponent.boundCloseMenu = boundCloseMenu;
     }
-
+    async openCommentModal(){
+        let comments = await assistOS.UI.showModal("comment-modal", {
+            comments: this.paragraph.comments
+        }, true);
+        if(comments !== undefined){
+            this.paragraph.comments = comments;
+            await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+                this.paragraph.text,
+                this.paragraph.commands,
+                this.paragraph.comments);
+        }
+    }
     closeMenu(controller, targetElement, menuName, event) {
         if (event.target.closest(`.toolbar-menu.${menuName}`) || event.target.closest(".insert-modal")) {
             return;

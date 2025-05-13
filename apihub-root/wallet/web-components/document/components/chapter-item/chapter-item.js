@@ -121,6 +121,19 @@ export class ChapterItem {
         paragraph.remove();
     }
 
+    async openCommentModal(){
+        let comments = await assistOS.UI.showModal("comment-modal", {
+            comments: this.chapter.comments
+        }, true);
+        if(comments !== undefined){
+            this.chapter.comments = comments;
+            await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+                this.chapter.title,
+                this.chapter.comments,
+                this.chapter.commands);
+        }
+    }
+
     changeParagraphOrder(paragraphId, position) {
         let paragraphs = this.chapter.paragraphs;
         let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);

@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "comment-modal",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "CommentModal"
+        },
+        {
             "name": "login-page",
             "directory": "space-application",
             "type": "pages",
@@ -289,25 +295,6 @@
             "directory": "document",
             "type": "modals",
             "presenterClassName": "ImageMenu"
-        },
-
-        {
-            "name": "paragraph-comment-menu",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "ParagraphCommentMenu"
-        },
-        {
-            "name": "chapter-comment-menu",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "ChapterCommentMenu"
-        },
-        {
-            "name": "document-comment-menu",
-            "directory": "document",
-            "type": "components",
-            "presenterClassName": "DocumentCommentMenu"
         },
         {
             "name": "export-document-modal",

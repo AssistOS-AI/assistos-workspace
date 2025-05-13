@@ -10,7 +10,6 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.observers = [];
-        this.boundCloseDocumentComment = this.closeDocumentComment.bind(this);
         this.invalidate(async () => {
             this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
@@ -696,19 +695,21 @@ export class DocumentViewPage {
         const tasksMenu = this.element.querySelector(".tasks-menu");
         tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
-
-    openDocumentComment(_target) {
-        const chapterMenu = `<document-comment-menu data-presenter="document-comment-menu"></document-comment-menu>`;
-        this.element.querySelector('.document-title-container')?.insertAdjacentHTML('beforeend', chapterMenu);
-        document.addEventListener('click', this.boundCloseDocumentComment);
-    }
-
-    closeDocumentComment(event) {
-        if (event.target.closest('document-comment-menu')) {
-            return;
+    async openCommentModal(){
+        let comments = await assistOS.UI.showModal("comment-modal", {
+            comments: this._document.comments
+        }, true);
+        if(comments !== undefined){
+            this._document.comments = comments;
+            await documentModule.updateDocument(
+                assistOS.space.id,
+                this._document.id,
+                this._document.title,
+                this._document.category,
+                this._document.infoText,
+                this._document.commands,
+                this._document.comments);
         }
-        document.removeEventListener('click', this.boundCloseDocumentComment);
-        this.element.querySelector('document-comment-menu')?.remove();
     }
 
     async handleUserSelection(itemClass, data) {
