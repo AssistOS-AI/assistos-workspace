@@ -10,8 +10,16 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.observers = [];
+        const documentId = this.element.getAttribute("documentId");
         this.invalidate(async () => {
-            this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            if(documentId==="demo"){
+               const documents = await documentModule.getDocuments(assistOS.space.id);
+               const docId= documents[documents.length-1].id;
+               this._document= await documentModule.loadDocument(assistOS.space.id, docId);
+               this.viewMode="demo";
+            }else{
+                this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
+            }
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
             assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.agents = await agentModule.getAgents(assistOS.space.id);
@@ -305,6 +313,7 @@ export class DocumentViewPage {
     }
 
     async afterRender() {
+
         let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
         await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
         let infoTextPluginsContainer = this.element.querySelector(".infoText-plugins-container");
@@ -336,6 +345,9 @@ export class DocumentViewPage {
         //this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
         this.attachTooltip(buildIcon, "Build Document");
+        if(this.viewMode ==="demo"){
+            this.element.querySelector('.document-page-header')?.remove();
+        }
     }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
