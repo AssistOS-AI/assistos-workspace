@@ -1,6 +1,6 @@
 add-document-modal {
     display: block;
-    height: 540px;
+    min-height: 540px;
     width: 860px;
 }
 
@@ -103,6 +103,10 @@ add-document-modal {
     border: 1px solid var(--form-input-border);
     padding: 10px;
     margin-bottom: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    row-gap: 10px;
+    column-gap: 10px;
 }
 .no-files{
     color: var(--form-input);
@@ -110,6 +114,19 @@ add-document-modal {
     font-weight: 500;
 }
 .file-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 12px;
     color: var(--form-input);
+    height: 16px;
+}
+.file-name{
+    width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.remove-file{
+    width: 11px;
 }

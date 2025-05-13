@@ -1,5 +1,6 @@
 const documentModule = require("assistos").loadModule("document", {});
 let constants = require("assistos").constants;
+import {generateId} from "./../../../../imports.js";
 export class AddDocumentModal {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
@@ -25,26 +26,55 @@ export class AddDocumentModal {
         this.supportedFormats = supportedFormats.join(", ");
         this.maxSize = 30 //MB
     }
+    getFileExtensionIcon(ext) {
+        switch (ext) {
+            case 'pdf': return 'pdf.svg';
+            case 'docx': return 'word.svg';
+            case 'pptx': return 'ppt.svg';
+            case 'xlsx': return 'excel.svg';
+            case 'md': return 'markdown.svg';
+            case 'txt': return 'txt.svg';
+            default: return 'txt.svg';
+        }
+    }
     afterRender() {
         this.fileInput = this.element.querySelector('#fileUpload');
+        let uploadedFiles = this.element.querySelector('.uploaded-files');
+        this.uploadButton = this.element.querySelector('.upload-button');
         this.fileInput.addEventListener('change', (e) => {
-            let files = e.target.files;
-            if(files.length === 0) {
-                this.fileInput.innerHTML = `<div class="no-files">No files uploaded</div>`;
+            if (this.fileInput.files.length === 0) {
                 return;
             }
+            this.files = Array.from(e.target.files);
+            this.uploadButton.classList.remove('disabled');
             let filesHTML = "";
-            for (let file of files) {
+            for (let file of this.files) {
+                file.id = generateId(8);
                 let fileName = file.name;
                 let fileSize = (file.size / (1024 * 1024)).toFixed(2); // Convert to MB
-                let fileType = file.type;
+                let extension = fileName.split('.').pop().toLowerCase();
+                let icon = this.getFileExtensionIcon(extension);
                 filesHTML += `<div class="file-item">
+                                <img src="./wallet/assets/icons/file-types/${icon}" alt="icon" class="file-icon">
                                 <div class="file-name">${fileName}</div>
-                                <div class="file-name">${fileSize} MB</div>
-                                
+                                <div class="file-size">${fileSize} MB</div>
+                                <img src="./wallet/assets/icons/x-mark.svg" alt="Remove file" class="remove-file pointer" data-local-action="removeFile ${file.id}">
                               </div>`;
             }
+            uploadedFiles.innerHTML = filesHTML;
         });
+    }
+    removeFile(_target, fileId) {
+        this.files = this.files.filter(file => file.id !== fileId);
+        let fileItem = _target.closest('.file-item');
+        if (fileItem) {
+            fileItem.remove();
+        }
+        if(this.files.length === 0) {
+            let uploadedFiles = this.element.querySelector('.uploaded-files');
+            uploadedFiles.innerHTML = `<div class="no-files">No files uploaded</div>`;
+            this.uploadButton.classList.add('disabled');
+        }
     }
     selectRadio(_target) {
         _target.classList.add('selected');
@@ -77,7 +107,7 @@ export class AddDocumentModal {
     }
 
     async uploadFiles(_target) {
-        const files = this.fileInput.files;
+        const files = this.files;
         
         if (files.length === 0) {
             assistOS.showToast('Please select at least one file', "error", 3000);
