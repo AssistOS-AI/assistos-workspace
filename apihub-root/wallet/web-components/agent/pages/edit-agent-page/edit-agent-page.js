@@ -22,7 +22,7 @@ export class EditAgentPage {
         this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
         this.agentName = this.agent.name;
         const llms = await llmModule.getModels({spaceId: this.spaceId});
-        this.llmTabs = this.getLlmTabsHtml(llms);
+        //this.llmTabs = this.getLlmTabsHtml(llms);
         this.deleteAgentButton = `
         <div class="delete-agent" data-local-action="deleteAgent">
             <img src="./wallet/assets/icons/trash-can.svg" alt="Delete agent" class="delete-icon">
