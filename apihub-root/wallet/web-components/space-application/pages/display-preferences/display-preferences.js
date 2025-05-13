@@ -75,6 +75,7 @@ export class DisplayPreferences {
             } else if (id === "document-indent-size") {
                 localStorage.setItem("document-indent-size", event.target.value);
             }
+            this.element.querySelector('document-view-page').webSkelPresenter.invalidate();
         });
     }
 }

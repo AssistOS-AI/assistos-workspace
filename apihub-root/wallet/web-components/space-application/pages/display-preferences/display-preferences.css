@@ -30,11 +30,17 @@
     padding:12px;
 }
 
-.preferences-list-left, .preferences-list-right{
+.preferences-list-left{
     display:flex;
     flex-direction:column;
     gap:30px;
-    width:50%;
+    width:300px;
+}
+.preferences-list-right{
+    display:flex;
+    flex-direction:column;
+    gap:30px;
+    width:calc(100% - 300px);
 }
 .preference {
     display: flex;
@@ -107,7 +113,7 @@ input[type="range"]::-moz-range-thumb {
     box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
 .color-picker{display:flex;width:100%;height:30px;border:1px solid #ccc;border-radius:4px;overflow:hidden}
-.color-swatch{flex:0 0 90%;height:100%}
+.color-swatch{flex:0 0 70%;height:100%}
 #document-font-color{flex:0 0 10%;border:none;padding-left:4px;font-family:Inter;font-size:14px;outline:none; justify-content:center;}
 #hidden-font-color{
     position:fixed;width:0;height:0;opacity:0;border:none;padding:0
