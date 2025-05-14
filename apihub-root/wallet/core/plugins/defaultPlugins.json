@@ -6,7 +6,8 @@
             "component": "edit-variables",
             "icon": "./wallet/assets/icons/variable.svg",
             "presenter": "EditVariables",
-            "type": "embedded"
+            "type": "embedded",
+            "autoPin": true
         }
     ],
     "chapter": [
@@ -15,7 +16,8 @@
             "component": "edit-variables",
             "icon": "./wallet/assets/icons/variable.svg",
             "presenter": "EditVariables",
-            "type": "embedded"
+            "type": "embedded",
+            "autoPin": true
         }
     ],
     "paragraph": [
@@ -24,7 +26,8 @@
             "component": "edit-variables",
             "icon": "./wallet/assets/icons/variable.svg",
             "presenter": "EditVariables",
-            "type": "embedded"
+            "type": "embedded",
+            "autoPin": true
         }
     ]
 }

@@ -1,6 +1,6 @@
 import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
 const applicationModule = require("assistos").loadModule("application", {});
-async function openPlugin(componentName, type, context, presenter, selectionItemId) {
+async function openPlugin(componentName, type, context, presenter, selectionItemId, autoPin = false) {
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
     }
@@ -11,7 +11,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
         let pluginContainer = presenter.element.querySelector(`.${type}-plugin-container`);
         let contextString = encodeURIComponent(JSON.stringify(context));
         pluginContainer.classList.add("plugin-open");
-        pluginContainer.innerHTML = `<${componentName} class="assistos-plugin" data-context="${contextString}" data-presenter="${componentName}"></${componentName}>`;
+        pluginContainer.innerHTML = `<${componentName} data-pin="${autoPin}" class="assistos-plugin" data-context="${contextString}" data-presenter="${componentName}"></${componentName}>`;
     } else {
         await assistOS.UI.showModal(componentName, {
             context: encodeURIComponent(JSON.stringify(context)),
@@ -66,7 +66,7 @@ async function renderPluginIcons(containerElement, type) {
         if(plugin.iconPresenter){
             await loadPluginComponent(plugin.applicationId, plugin.iconComponent, plugin.iconPresenter);
             let iconContainer = document.createElement("div");
-            attachPluginTooltip(iconContainer, plugin, type);
+            attachPluginTooltip(iconContainer, plugin, type, plugin.autoPin);
             let iconContext = {icon: plugin.icon, plugin: plugin.component, type};
             let contextString = encodeURIComponent(JSON.stringify(iconContext));
             iconContainer.innerHTML += `<${plugin.iconComponent} data-context="${contextString}" data-presenter="${plugin.iconComponent}"></${plugin.iconComponent}>`;
@@ -75,14 +75,14 @@ async function renderPluginIcons(containerElement, type) {
             let icon = await getPluginIcon(plugin);
             let containerDiv = document.createElement("div");
             containerDiv.innerHTML = `<img class="pointer black-icon" loading="lazy" src="${icon}" alt="icon">`;
-            attachPluginTooltip(containerDiv, plugin, type);
+            attachPluginTooltip(containerDiv, plugin, type, plugin.autoPin);
             containerElement.appendChild(containerDiv);
         }
     }
 }
-function attachPluginTooltip(containerElement, plugin, type) {
+function attachPluginTooltip(containerElement, plugin, type, autoPin = false) {
     containerElement.classList.add("icon-container", plugin.component, "pointer");
-    containerElement.setAttribute("data-local-action", `openPlugin ${type} ${plugin.component}`);
+    containerElement.setAttribute("data-local-action", `openPlugin ${type} ${plugin.component} ${autoPin}`);
     let tooltip = document.createElement("div");
     tooltip.classList.add("plugin-name");
     tooltip.innerHTML = plugin.tooltip;
@@ -105,7 +105,7 @@ async function getPluginIcon(plugin) {
 function renderPluginDefaultOptions(pluginElement){
     let defaultOptions = `
             <div class="options-container">
-                <svg class="pointer" data-local-action="pinPlugin" width="19px" height="19px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg class="pointer pin" data-local-action="pinPlugin" width="19px" height="19px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
                     <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
                     <g id="SVGRepo_iconCarrier">
