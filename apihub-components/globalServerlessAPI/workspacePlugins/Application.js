@@ -1,6 +1,5 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
-const {paths: dataVolumePaths} = require("../../volumeManager");
 const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/utils");
 const git = require("../../apihub-component-utils/git.js");
 const {execFile} = require('child_process')

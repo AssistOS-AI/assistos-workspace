@@ -1,7 +1,6 @@
 const Task = require('./Task.js');
 const path = require('path');
 const fsPromises = require('fs').promises;
-const {paths: dataVolumePaths} = require('../volumeManager');
 
 const getFlow = async (spaceId,applicationId, flowName) => {
     const flowPath = await getFlowPath(spaceId,applicationId, flowName);

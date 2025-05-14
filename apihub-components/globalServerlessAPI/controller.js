@@ -170,8 +170,8 @@ async function createSpacePlugins(pluginsStorage){
     const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistence`);
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
-    const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/Email.js")`;
-    await fsPromises.writeFile(`${pluginsStorage}/Email.js`, emailPluginRedirect);
+    const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
+    await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
 }
 
 async function deleteSpace(request, response) {

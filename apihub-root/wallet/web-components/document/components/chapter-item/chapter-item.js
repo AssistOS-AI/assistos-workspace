@@ -230,8 +230,20 @@ export class ChapterItem {
 
 
     }
-    async addParagraph(_target) {
+    async addParagraph(_target, direction) {
         let position = this.chapter.paragraphs.length;
+        if (assistOS.space.currentParagraphId) {
+            position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId);
+            if(direction === "above"){
+                position -= - 1;
+                if(position < 0){
+                    position = 0;
+                }
+            } else {
+                position += 1;
+            }
+        }
+
         let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
         assistOS.space.currentParagraphId = paragraph.id;
         await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
@@ -253,14 +265,7 @@ export class ChapterItem {
             await this.documentPresenter.addChapter("", "below");
             // Else, if only Ctrl + Enter is pressed, add a paragraph
         } else if (event.ctrlKey && !event.shiftKey && event.key === "Enter") {
-            let position = this.chapter.paragraphs.length;
-            if (assistOS.space.currentParagraphId) {
-                position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId) + 1;
-            }
-
-            let paragraph = await documentModule.addParagraph(assistOS.space.id, this.chapter.id, "", null, null, position);
-            assistOS.space.currentParagraphId = paragraph.id;
-            await this.insertNewParagraph(assistOS.space.currentParagraphId, position);
+            await this.addParagraph("", "below");
         }
     }
 

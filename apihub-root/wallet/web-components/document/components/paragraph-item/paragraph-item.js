@@ -139,14 +139,9 @@ export class ParagraphItem {
         chapterPresenter.changeParagraphOrder(this.paragraph.id, position);
     }
 
-    addParagraph() {
+    addParagraph(targetElement, direction) {
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
-        let mockEvent = {
-            ctrlKey: true,
-            key: "Enter",
-            target: this.element.querySelector(".paragraph-text-container")
-        }
-        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent);
+        chapterPresenter.addParagraph("", direction);
     }
 
     async saveParagraph(paragraph) {
@@ -253,7 +248,8 @@ export class ParagraphItem {
     menus = {
         "insert-document-element": `
                 <div>
-                    <list-item data-local-action="addParagraph" data-name="Insert Paragraph After" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraph above" data-name="Insert Paragraph Above" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="addParagraph below" data-name="Insert Paragraph Below" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter above" data-name="Add Chapter Above" data-highlight="light-highlight"></list-item>
                     <list-item data-local-action="addChapter below" data-name="Add Chapter Below" data-highlight="light-highlight"></list-item>
                 </div>`,

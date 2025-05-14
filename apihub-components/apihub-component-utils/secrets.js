@@ -1,13 +1,13 @@
 const apihub = require('apihub');
-const config = require("../../data-volume/config/config.json");
 
 function getContainerName(spaceId) {
     return `${spaceId}`
 }
 const spaceSecretName = "spaceSecrets";
-
+const serverConfig = apihub.getServerConfig();
+const SERVER_ROOT_FOLDER = serverConfig.storage;
 async function createSpaceSecretsContainer(spaceId) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     let secretObject = {};
     const providers = require("../globalServerlessAPI/defaultSecrets.json")
     for (const llm of providers) {
@@ -23,7 +23,7 @@ async function createSpaceSecretsContainer(spaceId) {
 
 
 async function putSpaceKey(spaceId, userId, secretKey, name, value) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const secrets = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
     if (!secrets[secretKey]) {
         throw new Error("Secret not found")
@@ -42,7 +42,7 @@ async function putSpaceKey(spaceId, userId, secretKey, name, value) {
 }
 
 async function getSecret(spaceId, secretKey) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const secrets = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
     if (!secrets[secretKey]) {
         throw new Error("Secret not found")
@@ -52,7 +52,7 @@ async function getSecret(spaceId, secretKey) {
 
 
 async function addSecret(spaceId, userId, secretName, secretKey, value) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
 
     if(spaceAPIKeyObject[secretKey]){
@@ -68,7 +68,7 @@ async function addSecret(spaceId, userId, secretName, secretKey, value) {
 }
 
 async function deleteSecret(spaceId, secretKey) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
     const providers = require("../globalServerlessAPI/defaultSecrets.json")
     if(!spaceAPIKeyObject[secretKey]){
@@ -83,7 +83,7 @@ async function deleteSecret(spaceId, secretKey) {
 }
 
 async function getAPIKeys(spaceId) {
-    const secretsService = await apihub.getSecretsServiceInstanceAsync(config.SERVER_ROOT_FOLDER);
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     return secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
 }
 function maskSecret(str) {

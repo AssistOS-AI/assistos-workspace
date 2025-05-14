@@ -5,7 +5,6 @@ const cache = {};
 const Handler = require('./handler.js');
 const {pipeline} = require('stream');
 const {getWebhookSecret} = require("../webhook/controller");
-const configs = require("../../data-volume/config/config.json");
 const Logger = require("../logger/Logger");
 let LLMConfigs;
 

@@ -7,7 +7,6 @@ const path = require('path');
 const fs = require('fs');
 const fsPromises = fs.promises;
 const Storage = require('../apihub-component-utils/storage');
-const volumeManager = require('../volumeManager.js');
 const crypto = require('../apihub-component-utils/crypto');
 const fileSys = require('../apihub-component-utils/fileSys.js')
 class LipSync extends Task {

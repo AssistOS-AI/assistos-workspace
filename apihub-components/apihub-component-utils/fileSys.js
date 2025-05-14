@@ -1,12 +1,10 @@
 const path = require("path");
 const fsPromises = require("fs/promises");
-const volumeManager = require('../volumeManager.js');
 const fs = require("fs");
 const { Readable } = require('stream');
 const { pipeline } = require('stream');
 const util = require('util');
 const pipe = util.promisify(pipeline);
-const config = require("../../data-volume/config/config.json");
 
 async function downloadData(url, dest) {
     if (config.S3 === false) {

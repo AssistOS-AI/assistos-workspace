@@ -7,7 +7,6 @@ const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
 const SubscriptionManager = require("../subscribers/SubscriptionManager");
-const configs = require("../../data-volume/config/config.json");
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
