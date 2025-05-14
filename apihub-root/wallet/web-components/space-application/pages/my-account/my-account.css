@@ -11,7 +11,9 @@ my-account{
     height: 100%;
     gap: 30px;
 }
-
+.accountData .general-button{
+    margin-block-start:16px;
+}
 .accountData {
     display: flex;
     flex-direction: column;

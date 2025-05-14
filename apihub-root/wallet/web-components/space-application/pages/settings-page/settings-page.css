@@ -18,7 +18,7 @@ settings-page {
 
 .tabs-section {
     display: flex;
-    height:38px;
+    height: 38px;
     font-size: 18px;
     font-weight: 400;
     border-bottom: 1px solid #EFEFEF
@@ -26,14 +26,24 @@ settings-page {
 
 .tab {
     padding: 15px 30px;
-    height:38px;
+    height: 38px;
     display: flex;
     align-items: center;
-    cursor:pointer;
+    cursor: pointer;
 
 }
-.tab:hover{
-        color: var(--strong-blue);
+
+.tab:hover {
+    background: #ededed;
+    border-radius: 8px;
+}
+add-key-modal,edit-apikey-modal{
+    display:flex;
+    position:relative;
+    flex-direction:column;
+    padding:20px;
+    width:856px;
+    height:448px;
 }
 .tab-icon {
     --icon-color: #222222;
@@ -99,7 +109,7 @@ settings-page {
     flex-direction: column;
     width: 100%;
     height: calc(100% - 80px);
-    margin-inline-start:10px;
+    margin-inline-start: 10px;
 }
 
 .table-section {
@@ -118,7 +128,7 @@ settings-page {
     background: #EDEDED;
     border: 1px solid #CCC;
     color: #454545;
-    width:fit-content;
+    width: fit-content;
 }
 
 .data-table {
@@ -200,64 +210,70 @@ settings-page {
 
 .data-table tr {
     border-bottom: 1px solid #e0e0e0;
-    position:relative;
-    height:fit-content;
+    position: relative;
+    height: fit-content;
 }
-.actions-button{
-    height:100%;
-    display:flex;
+
+.actions-button {
+    height: 100%;
+    display: flex;
     justify-content: flex-end;
-    margin-right:28px;
+    margin-right: 28px;
 }
-.first-table-field{
+
+.first-table-field {
     text-align: left !important;
 }
+
 .options-container-button {
     cursor: pointer;
     display: flex;
     align-items: center;
-    height:100%;
+    height: 100%;
     justify-content: center;
     outline: none;
     border: none;
     background: #FFFFFF;
 }
-.last-table-field{
-    display:flex;
+
+.last-table-field {
+    display: flex;
     justify-content: flex-end;
 }
-.table-section{
-    width:100%;
+
+.table-section {
+    width: 100%;
 }
 
-.data-table{
-    width:100%;
-    table-layout:fixed;
+.data-table {
+    width: 100%;
+    table-layout: fixed;
 }
 
 .data-table th,
-.data-table td{
-    padding:8px 0;
-    white-space:nowrap;
+.data-table td {
+    padding: 8px 0;
+    white-space: nowrap;
 }
 
 .data-table th:last-child,
-.data-table td:last-child{
-    text-align:right;
+.data-table td:last-child {
+    text-align: right;
 }
 
 .data-table th:last-child,
-.data-table td:last-child{
-    text-align:center;
+.data-table td:last-child {
+    text-align: center;
 }
-#delete-space-button{
-    width:174px;
-    height:44px;
+
+#delete-space-button {
+    width: 174px;
+    height: 44px;
     background: #C80001;
-    gap:10px;
-    padding:14px;
+    gap: 10px;
+    padding: 14px;
     border: 1px solid #C80001;
-    border-radius:2px;
+    border-radius: 2px;
 }
 
 

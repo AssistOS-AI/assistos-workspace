@@ -119,7 +119,9 @@ dialog {
     font-weight: 700;
     font-size: 25px;
     justify-content: space-between;
-    border-bottom: 1px solid var(--very-light-gray);
+    font-family: Inter;
+    line-height: 100%;
+    letter-spacing: 0;
 }
 
 .close {
@@ -135,11 +137,16 @@ dialog {
     width: 13px;
 }
 .modal-body {
+    display:flex;
+    flex-direction:column;
+    gap:12px;
     padding: 15px;
+
 }
 
 .modal-footer {
-    height: 20%;
+    position:absolute;
+    bottom:40px;
 }
 
 .modal {
@@ -166,6 +173,9 @@ dialog {
     color: var(--default-font-color);
     font-size: 16px;
     font-weight: 600;
+    line-height: 100%;
+    letter-spacing: 0;
+    vertical-align: middle;
 }
 
 .form-item {

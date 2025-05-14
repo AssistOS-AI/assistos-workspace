@@ -1120,7 +1120,6 @@ input:checked + .toggle-slider:before {
 }
 
 .square-40 {
-    width: 40px;
     height: 40px;
 }
 
