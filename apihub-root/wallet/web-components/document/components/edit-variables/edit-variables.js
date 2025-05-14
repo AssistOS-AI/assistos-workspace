@@ -53,11 +53,11 @@ export class EditVariables {
     }
     async beforeRender(){
         this.initVariables();
-        this.commands = await this.splitCommands();
+        this.commandsArr = await this.splitCommands();
         let variablesHTML = "";
         this.variablesHeader = `<div class="no-variables">No variables defined</div>`;
         this.emptyTableClass = "";
-        if(this.commands.length > 0){
+        if(this.commandsArr.length > 0){
             this.variablesHeader = `
                 <div class="cell table-label">Name</div>
                 <div class="cell table-label">Expression</div>
@@ -66,7 +66,7 @@ export class EditVariables {
         } else {
             this.emptyTableClass = "empty-table"
         }
-        for(let variable of this.commands){
+        for(let variable of this.commandsArr){
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
                     <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
@@ -153,7 +153,7 @@ export class EditVariables {
     }
 
     async openEditor(targetElement, varName){
-        let variable = this.commands.find(variable => variable.varName === varName);
+        let variable = this.commandsArr.find(variable => variable.varName === varName);
         let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, command: variable.command, expression: variable.expression }, true);
         if(inputs){
             await this.saveVariable(varName, inputs.expression);

@@ -203,6 +203,11 @@ export class ChapterItem {
     }
 
     async afterRender() {
+        let createParagraph = this.element.getAttribute("data-create-paragraph");
+        if(createParagraph === "true"){
+            this.element.removeAttribute("data-create-paragraph");
+            await this.addParagraph("", "below");
+        }
         let chapterPluginsIcons = this.element.querySelector(".chapter-plugins-icons");
         await pluginUtils.renderPluginIcons(chapterPluginsIcons,"chapter");
 
@@ -235,7 +240,6 @@ export class ChapterItem {
         if (assistOS.space.currentParagraphId) {
             position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId);
             if(direction === "above"){
-                position -= - 1;
                 if(position < 0){
                     position = 0;
                 }

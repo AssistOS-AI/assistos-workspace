@@ -205,10 +205,10 @@ export class DocumentViewPage {
         let previousChapter = this.element.querySelector(`chapter-item[data-chapter-id="${previousChapterId}"]`);
         if (!previousChapter) {
             let chapterContainer = this.element.querySelector(".chapters-container");
-            chapterContainer.insertAdjacentHTML("afterbegin", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
+            chapterContainer.insertAdjacentHTML("afterbegin", `<chapter-item data-create-paragraph="true" data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-presenter="chapter-item"></chapter-item>`);
             return;
         }
-        previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-metadata="chapter nr. ${position + 1} with title ${newChapter.title} and id ${newChapter.id}" data-title-metadata="title of the current chapter" data-presenter="chapter-item"></chapter-item>`);
+        previousChapter.insertAdjacentHTML("afterend", `<chapter-item data-create-paragraph="true" data-chapter-number="${position + 1}" data-chapter-id="${newChapter.id}" data-presenter="chapter-item"></chapter-item>`);
     }
 
     changeChapterOrder(chapterId, position) {
@@ -237,6 +237,10 @@ export class DocumentViewPage {
         let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
         chapter.remove();
         this._document.chapters = this._document.chapters.filter((chapter) => chapter.id !== chapterId);
+        let allChapters = this.element.querySelectorAll("chapter-item");
+        for (let chapter of allChapters) {
+            chapter.webSkelPresenter.updateChapterNumber();
+        }
     }
 
     async onDocumentUpdate(data) {
@@ -432,6 +436,12 @@ export class DocumentViewPage {
         let chapter = await documentModule.addChapter(assistOS.space.id, this._document.id, chapterTitle, null, null, position);
         assistOS.space.currentChapterId = chapter.id;
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
+        let allChapters = this.element.querySelectorAll("chapter-item");
+        for (let chapter of allChapters) {
+            if(chapter.webSkelPresenter){
+                chapter.webSkelPresenter.updateChapterNumber();
+            }
+        }
     }
 
     async addParagraphTable(targetElement, mode) {
@@ -745,6 +755,7 @@ export class DocumentViewPage {
         if (this.selectionInterval) {
             await selectionUtils.deselectItem(this.currentSelectItem, this);
         }
+        document.removeEventListener("click", this.boundRemoveFocusHandler);
     }
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});

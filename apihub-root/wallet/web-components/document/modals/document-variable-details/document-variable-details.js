@@ -13,7 +13,7 @@ export class DocumentVariableDetails {
         this.invalidate();
     }
 
-    async beforeRender() {
+    beforeRender() {
         if (this.activeTab === "valuesTab") {
             this.tabContent = `<variable-values-tab data-name="${this.varName}" data-presenter="variable-values-tab"></variable-values-tab>`;
         } else if (this.activeTab === "editTab") {
@@ -29,10 +29,17 @@ export class DocumentVariableDetails {
     }
 
     changeTab(_eventTarget, tabName) {
+        let activeTab = this.element.querySelector(`.${this.activeTab}`);
+        activeTab.classList.remove("active");
+        let icon = activeTab.querySelector(".tab-icon");
+        icon.style.setProperty('--icon-color', '#454545');
+        let tabContent = this.element.querySelector(".tab-content");
         this.activeTab = tabName;
-        this.invalidate();
+        this.beforeRender();
+        tabContent.innerHTML = this.tabContent;
+        this.afterRender();
     }
     closeModal(){
-         assistOS.UI.closeModal(this.element)
+         assistOS.UI.closeModal(this.element);
     }
 }
