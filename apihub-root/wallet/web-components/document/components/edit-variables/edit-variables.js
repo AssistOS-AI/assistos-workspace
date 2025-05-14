@@ -17,6 +17,8 @@ export class EditVariables {
             this.paragraph = this.chapter.paragraphs.find(paragraph => paragraph.id === this.context.paragraphId);
         }
         this.element.classList.add("maintain-focus");
+        let pinned = this.element.getAttribute("data-pin");
+        this.pinned = pinned === "true";
         this.invalidate();
     }
 
@@ -86,9 +88,13 @@ export class EditVariables {
     }
     afterRender(){
         pluginUtils.renderPluginDefaultOptions(this.element);
+        if(this.pinned){
+            let pin = this.element.querySelector(".pin");
+            pluginUtils.pinPlugin(pin, this.element);
+        }
     }
-    pinPlugin(targetElement){
-        pluginUtils.pinPlugin(targetElement, this.element);
+    pinPlugin(pin){
+        pluginUtils.pinPlugin(pin, this.element);
     }
     async openAddVariableModal(){
         let confirmation = await assistOS.UI.showModal("add-variable", {

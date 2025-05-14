@@ -7,6 +7,7 @@
     height: auto;
     border-radius: 16px;
     padding: 20px;
+    text-align: justify;
 }
 
 .header .title {

@@ -760,7 +760,12 @@ export class DocumentViewPage {
     async translateDocument(){
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
-    async openPlugin(targetElement, type, pluginName) {
+    async openPlugin(targetElement, type, pluginName, autoPin) {
+        let pluginContainer = this.element.querySelector(`.${type}-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        if(pluginElement && pluginElement.tagName.toLowerCase() === pluginName){
+            return;
+        }
         if(type === "document"){
             let context = {
                 documentId: this._document.id
@@ -771,11 +776,12 @@ export class DocumentViewPage {
             let context = {
                 infoText: ""
             }
-            await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId);
+            await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId, autoPin);
         }
     }
 
     closePlugin(targetElement, focusoutClose) {
+        delete this.currentPlugin;
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;

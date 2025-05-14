@@ -176,8 +176,8 @@ export class ParagraphItem {
         paragraphText.classList.add("focused");
         let paragraphContainer = this.element.querySelector('.paragraph-container');
         paragraphContainer.classList.add("highlighted-paragraph");
-        if(this.curentPlugin){
-            await this.openPlugin("", "paragraph", this.curentPlugin);
+        if(this.currentPlugin){
+            await this.openPlugin("", "paragraph", this.currentPlugin);
         }
     }
 
@@ -214,7 +214,7 @@ export class ParagraphItem {
                 if(pluginElement.classList.contains("pinned")){
                     return;
                 }
-                this.curentPlugin = await this.closePlugin("", true);
+                this.currentPlugin = await this.closePlugin("", true);
             }
         );
     }
@@ -256,16 +256,22 @@ export class ParagraphItem {
         "files-menu": `<files-menu data-presenter="files-menu"></files-menu>`
     }
 
-    async openPlugin(targetElement, type, pluginName) {
+    async openPlugin(targetElement, type, pluginName, autoPin) {
+        let pluginContainer = this.element.querySelector(`.${type}-plugin-container`);
+        let pluginElement = pluginContainer.firstElementChild;
+        if(pluginElement && pluginElement.tagName.toLowerCase() === pluginName){
+            return;
+        }
         let selectionItemId = `${this.paragraph.id}_${pluginName}`;
         this.currentPlugin = pluginName;
         let context = {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         }
-        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId);
+        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId, autoPin);
     }
     async closePlugin(targetElement, focusoutClose) {
+        delete this.currentPlugin;
         let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
         if(!pluginElement){

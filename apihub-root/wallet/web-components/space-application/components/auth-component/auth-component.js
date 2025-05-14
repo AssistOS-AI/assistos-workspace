@@ -50,8 +50,8 @@ export class AuthComponent {
         });
 
         codeInput.addEventListener("keydown", (event) => {
-            if (event.key === 'Enter' && !loginActionButton.hasAttribute("disabled")) {
-                loginActionButton.click();
+            if (event.key === 'Enter' && !submitCodeButton.hasAttribute("disabled")) {
+                submitCodeButton.click();
             }
         });
 
@@ -157,14 +157,6 @@ export class AuthComponent {
                 event.target.parentElement.classList.add('selected');
                 this.element.querySelector(".auth_container").setAttribute("selected-auth", event.target.value);
                 this.selected_method = radio.value;
-                if (radio.getAttribute("passkey-id")) {
-                    const requestOptions = JSON.parse(JSON.stringify(this.publicKeyCredentialRequestOptions));
-                    requestOptions.allowCredentials = requestOptions.allowCredentials.filter(item => item.id === radio.getAttribute("passkey-id"))
-                    this.passkeyData = {
-                        publicKeyCredentialRequestOptions: JSON.stringify(requestOptions),
-                        challengeKey: this.accountCheck.challengeKey
-                    }
-                }
             });
             if (radio.value === this.selected_method) {
                 radio.click();
@@ -315,6 +307,7 @@ export class AuthComponent {
                     try {
                         await this.submitTotpCode(event.detail.token, true);
                     } catch (e) {
+                        console.log("Error submitting TOTP code", e);
                         this.element.querySelector(".totp_register_section").style.display = "none";
                         this.element.querySelector(".totp_login_section").style.display = "flex";
                     }
