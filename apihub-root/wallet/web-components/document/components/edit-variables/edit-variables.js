@@ -76,7 +76,7 @@ export class EditVariables {
                     <div class="cell">${variable.status || "......."}</div>
                     <div class="cell actions-cell">
                         <div class="icon-container right-margin" data-local-action="openEditor ${variable.varName}">
-                            <img src="./wallet/assets/icons/eye.svg" class="pointer" alt="edit">
+                            <img src="./wallet/assets/icons/eye-edit.svg" class="pointer" alt="edit">
                         </div>
                         <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">
                             <img src="./wallet/assets/icons/trash-can.svg" class="pointer delete-icon" alt="delete">

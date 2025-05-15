@@ -7,12 +7,13 @@ document-variable-details textarea{
     resize: none;
 }
 .modal-body{
-    padding-top: 0;
+    height: calc(100% - 45px);
 }
 .tabs-section {
     display: flex;
     font-size: 18px;
     font-weight: 400;
+    border-bottom: 1px solid var(--light-gray-border);
 }
 
 .tab {
@@ -22,8 +23,8 @@ document-variable-details textarea{
 }
 .tab-icon{
     --icon-color: #222222; /* default icon color */
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
     background-color: var(--icon-color);
     margin-right: 5px;
 }
@@ -52,7 +53,6 @@ document-variable-details textarea{
 
 .tab-content {
     overflow-y: auto;
-    padding: 10px;
     width: 100%;
     height: 100%;
 }

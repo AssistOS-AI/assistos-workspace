@@ -19,12 +19,7 @@ export class AddVariable {
         this.invalidate();
     }
     async beforeRender(){
-        let commands = await spaceModule.getCommands(assistOS.space.id);
-        let variableCommandOptions = "";
-        for(let command of commands){
-            variableCommandOptions += `<option value="${command}">${command}</option>`;
-        }
-        this.variableCommandOptions = variableCommandOptions;
+        this.commands = await spaceModule.getCommands(assistOS.space.id);
 
         let types = await spaceModule.getCustomTypes(assistOS.space.id);
         let variableTypeOptions = `<option value="" selected disabled>Select Type</option>`;
@@ -58,29 +53,82 @@ export class AddVariable {
         parametersInput.classList.add("hidden");
     }
     afterRender(){
-        let commandSelect = this.element.querySelector("#command");
-        commandSelect.addEventListener("change", (event) => {
+        let commandInput = this.element.querySelector("#command");
+        let selectOptions = this.element.querySelector(".select-options");
+        commandInput.value = "assign"
+        commandInput.addEventListener("input", (event) => {
             let value = event.target.value;
-            let typeInput = this.element.querySelector(".form-item.type");
-            if(value === "new"){
-                typeInput.classList.remove("hidden");
+            let foundCommands = this.commands.filter(command => command.toLowerCase().includes(value.toLowerCase()));
+            if(foundCommands.length === 0){
+                commandInput.setAttribute("data-valid", false);
             } else {
-                typeInput.classList.add("hidden");
+                commandInput.setAttribute("data-valid", true);
             }
-            if(value === "macro" || value === "jsdef"){
-                this.changeExpressionInputToMultiLine();
-            } else {
-                this.changeMultiLineToSingleLine();
-            }
+            this.renderSelectOptions(selectOptions, foundCommands);
         });
     }
+    /*search select*/
+    openSearchSelect(){
+        let selectOptions = this.element.querySelector(".select-options");
+        if(!selectOptions.classList.contains("hidden")){
+            return;
+        }
+        this.renderSelectOptions(selectOptions, this.commands);
+        let commandInput = this.element.querySelector("#command");
+        let currentValue = commandInput.value;
+        selectOptions.classList.remove("hidden");
+        this.controller = new AbortController();
+        let selectedOption = selectOptions.querySelector(`.option[data-value="${currentValue}"]`);
+        if(selectedOption){
+            selectedOption.classList.add("selected");
+        }
+        let boundCloseSearchSelect = this.closeSearchSelect.bind(this, selectOptions);
+        document.addEventListener("click", boundCloseSearchSelect, {signal: this.controller.signal});
+    }
+    closeSearchSelect(selectOptions, event){
+        if(!event.target.closest(".search-select-input")){
+            selectOptions.innerHTML = "";
+            selectOptions.classList.add("hidden");
+            this.controller.abort();
+        }
+    }
+    renderSelectOptions(selectOptions, commands){
+        let variableCommandOptions = "";
+        for(let command of commands){
+            variableCommandOptions += `<div class="option" data-local-action="selectOption" data-value="${command}">${command}</div>`;
+        }
+        selectOptions.innerHTML = variableCommandOptions;
+    }
+    selectOption(option){
+        let value = option.getAttribute("data-value");
+        let searchSelect = option.closest(".search-select");
+        let input = searchSelect.querySelector("input");
+        input.value = value;
+        let typeInput = this.element.querySelector(".form-item.type");
+        if(value === "new"){
+            typeInput.classList.remove("hidden");
+        } else {
+            typeInput.classList.add("hidden");
+        }
+        if(value === "macro" || value === "jsdef"){
+            this.changeExpressionInputToMultiLine();
+        } else {
+            this.changeMultiLineToSingleLine();
+        }
+    }
+    /*search select*/
     async addVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
         if(!formData.isValid){
             return;
         }
         let variableName = formData.data.name;
-        let command = formData.data.command;
+        let commandInput = this.element.querySelector("#command");
+        let valid = commandInput.getAttribute("data-valid");
+        if(valid === "false"){
+            return;
+        }
+        let command = commandInput.value;
         let expression = formData.data.expression;
         expression = assistOS.UI.unsanitize(expression);
 

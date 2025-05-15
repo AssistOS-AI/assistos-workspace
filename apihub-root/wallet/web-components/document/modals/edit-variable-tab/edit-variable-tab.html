@@ -1,4 +1,4 @@
-<form>
+<form class="edit-variable-form">
     <div class="grouped-inputs">
         <div class="form-item right-margin">
             <label class="form-label" for="name">Name</label>
@@ -6,10 +6,14 @@
                    value="$$varName">
         </div>
         <div class="form-item">
-            <label class="form-label" for="command">Select Command</label>
-            <select class="form-input" id="command" name="command">
-                $$variableCommandOptions
-            </select>
+            <label class="form-label" >Select Command</label>
+            <div class="search-select" data-local-action="openSearchSelect">
+                <div class="search-select-input">
+                    <input class="form-input" id="command" type="text" name="command" data-valid="true">
+                    <img class="search-icon" src="./wallet/assets/icons/search.svg" alt="search">
+                </div>
+                <div class="select-options hidden"></div>
+            </div>
         </div>
     </div>
     <div class="form-item type hidden">

@@ -12,9 +12,13 @@
         </div>
         <div class="form-item">
             <label class="form-label" for="command">Select Command</label>
-            <select class="form-input" id="command" name="command">
-                $$variableCommandOptions
-            </select>
+            <div class="search-select" data-local-action="openSearchSelect">
+                <div class="search-select-input">
+                    <input class="form-input" id="command" type="text" name="command" data-valid="true">
+                    <img class="search-icon" src="./wallet/assets/icons/search.svg" alt="search">
+                </div>
+                <div class="select-options hidden"></div>
+            </div>
         </div>
     </div>
 
@@ -33,5 +37,5 @@
         <input class="form-input expression-input" id="expression" type="text" name="expression">
         <textarea class="form-input expression-multi-line hidden"></textarea>
     </div>
-    <button class="general-button add-variable" data-local-action="addVariable">Add Variable</button>
+    <button class="general-button add-variable" data-local-action="addVariable">Add</button>
 </form>
