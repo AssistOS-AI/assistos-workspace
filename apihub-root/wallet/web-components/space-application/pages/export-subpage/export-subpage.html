@@ -1,0 +1,127 @@
+<div class="preferences-list-left">
+    <div class="preferences-list-left-left">
+        <div class="preference-category">
+            Section
+        </div>
+        <div class="preference">
+            <label for="section">Section</label>
+            <select id="section" name="section">
+                $$sections
+            </select>
+        </div>
+        <div class="preference">
+            <label for="font">Font</label>
+            <select id="font" name="font">
+                $$fonts
+            </select>
+        </div>
+        <div class="preference">
+            <label for="font-style">Font Style</label>
+            <select id="font-style" name="font-style">
+                $$fontStyles
+            </select>
+        </div>
+        <div class="preference">
+            <label for="font-size">Font Size</label>
+            <select id="font-size" name="font-size">
+                $$fontSizes
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-font-color">Color</label>
+            <div id="font-color-picker" class="color-picker">
+                <div id="font-color-swatch" class="color-swatch"></div>
+                <input type="text" id="document-font-color" name="document-font-color" maxlength="7">
+                <input type="color" id="hidden-font-color" style="display:none">
+            </div>
+        </div>
+    </div>
+    <div class="preferences-list-right-right">
+        <div class="preference-category">
+            Page Layout
+        </div>
+        <div class="preference">
+            <label for="position">Position</label>
+            <select id="position" name="position">
+                $$positions
+            </select>
+        </div>
+        <div class="preference">
+            <label for="style">Style</label>
+            <select id="style" name="styles">
+                $$styles
+            </select>
+        </div>
+        <div class="preference">
+            <label>Padding</label>
+            <div class="preference-row">
+                <div>
+                    <label for="padding-top">↑</label>
+                    <select id="padding-top" name="padding-top">
+                        $$paddings
+                    </select>
+                </div>
+                <div>
+                    <label for="padding-right">→</label>
+                    <select id="padding-right" name="padding-top">
+                        $$paddings
+                    </select>
+
+                </div>
+                <div>
+                    <label for="padding-bottom">↓</label>
+                    <select id="padding-bottom" name="padding-top">
+                        $$paddings
+                    </select>
+                </div>
+                <div>
+                    <label for="padding-left">←</label>
+
+                    <select id="padding-left" name="padding-top">
+                        $$paddings
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+</div>
+<div class="preferences-list-left">
+    <div class="preferences-list-left-left">
+        <div class="preference-category">
+            Background
+        </div>
+        <div class="preference">
+            <label for="document-font-color">Color</label>
+            <div id="font-color-picker-background" class="color-picker">
+                <div id="font-color-picker-background" class="color-swatch"></div>
+                <input type="text" id="font-color-picker-background" name="font-color-picker-background" maxlength="7">
+                <input type="color" id="font-color-picker-background" style="display:none">
+            </div>
+        </div>
+    </div>
+    <div class="preferences-list-right-right">
+        <div class="preference-category">
+            Page Format
+        </div>
+
+        <div class="preference">
+            <label for="format">Format</label>
+            <select id="format" name="format">
+                $$formats
+            </select>
+        </div>
+        <div class="preference">
+            <label for="orientation">Orientation</label>
+            <select id="orientation" name="orientation">
+                $$orientations
+            </select>
+        </div>
+    </div>
+</div>
+<div class="footer-buttons">
+    <button class="general-button">Export DOCX</button>
+    <button class="general-button">Export HTML</button>
+    <button class="general-button">Export AOS</button>
+</div>

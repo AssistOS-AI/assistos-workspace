@@ -317,7 +317,9 @@ export class DocumentViewPage {
     }
 
     async afterRender() {
-
+        if(this.element.getAttribute('reducePadding')){
+            this.element.querySelector('.document-editor-container').style.padding= "0px";
+        }
         let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
         await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
         let infoTextPluginsContainer = this.element.querySelector(".infoText-plugins-container");

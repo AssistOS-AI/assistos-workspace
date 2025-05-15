@@ -24,29 +24,57 @@
 
 .preferences-content {
     display: flex;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 100%;
     gap: 30px;
-    padding:12px;
+    padding: 12px;
 }
 
-.preferences-list-left{
-    display:flex;
-    flex-direction:column;
-    gap:30px;
-    width:300px;
+.preferences-list-left {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    width: 500px;
 }
-.preferences-list-right{
-    display:flex;
-    flex-direction:column;
-    gap:30px;
-    width:calc(100% - 300px);
+.preferences-list-left-left, .preferences-list-right-right{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: 50%;
 }
+
+.preferences-list-right {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    width: calc(100% - 500px);
+}
+
+.header2 {
+    display: flex;
+    gap: 10px;
+    border-bottom: 1px solid #EFEFEF;
+    margin-left: 8px;
+    padding-block: 10px;
+}
+
+.header-header {
+    cursor: pointer;
+    padding: 8px;
+
+}
+
+.header-header:hover {
+    background: #ededed;
+    border-radius: 8px;
+}
+
 .preference {
     display: flex;
     flex-direction: column;
 }
-.preference select{
+
+.preference select {
     font-family: Inter;
     font-weight: 400;
     font-size: 14px;
@@ -55,6 +83,7 @@
     vertical-align: middle;
     color: #595959;
 }
+
 .preference label {
     margin-bottom: 5px;
     font-weight: 600;
@@ -112,9 +141,36 @@ input[type="range"]::-moz-range-thumb {
     border-color: #007BFF;
     box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }
-.color-picker{display:flex;width:100%;height:30px;border:1px solid #ccc;border-radius:4px;overflow:hidden}
-.color-swatch{flex:0 0 70%;height:100%}
-#document-font-color{flex:0 0 10%;border:none;padding-left:4px;font-family:Inter;font-size:14px;outline:none; justify-content:center;}
-#hidden-font-color{
-    position:fixed;width:0;height:0;opacity:0;border:none;padding:0
+
+.color-picker {
+    display: flex;
+    width: 100%;
+    height: 30px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden
+}
+
+.color-swatch {
+    flex: 0 0 70%;
+    height: 100%
+}
+
+#document-font-color {
+    flex: 0 0 10%;
+    border: none;
+    padding-left: 4px;
+    font-family: Inter;
+    font-size: 14px;
+    outline: none;
+    justify-content: center;
+}
+
+#hidden-font-color {
+    position: fixed;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    border: none;
+    padding: 0
 }

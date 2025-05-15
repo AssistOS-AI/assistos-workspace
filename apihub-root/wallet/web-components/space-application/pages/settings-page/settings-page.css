@@ -32,7 +32,28 @@ settings-page {
     cursor: pointer;
 
 }
-
+.preference-category{
+    font-family: Inter;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 100%;
+    letter-spacing: 0;
+    text-align: justify;
+    color: #616161;
+}
+.preference-row{
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    width: 100%;
+    height: 100%;
+}
+.preference-row div {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
 .tab:hover {
     background: #ededed;
     border-radius: 8px;
@@ -98,7 +119,6 @@ add-key-modal,edit-apikey-modal{
 }
 
 .tab-content {
-    overflow-y: auto;
     padding: 0px 8px 0px 16px;
     width: 100%;
     height: calc(100% - 38px);
@@ -276,4 +296,9 @@ add-key-modal,edit-apikey-modal{
     border-radius: 2px;
 }
 
-
+.footer-buttons{
+    display: flex;
+    position:absolute;
+    bottom: 40px;
+    gap: 20px;
+}

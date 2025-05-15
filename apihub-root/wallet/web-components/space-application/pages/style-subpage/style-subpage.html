@@ -1,0 +1,52 @@
+<div class="preferences-list-left">
+    <div class="preferences-list-left-left">
+        <div class="preference">
+            <label for="document-title-font-size">Document Title Font Size</label>
+            <select id="document-title-font-size" name="document-title-font-size">
+                $$docTitleFontSize
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-chapter-title-font-size">Chapter Title Font Size</label>
+            <select id="document-chapter-title-font-size" name="document-chapter-title-font-size">
+                $$chapterTitleFontSize
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-abstract-font-size">Abstract Font Size</label>
+            <select id="document-abstract-font-size" name="document-abstract-font-size">
+                $$documentInfoFontSize
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-font-size">Paragraph Font Size</label>
+            <select id="document-font-size" name="document-font-size">
+                $$documentFontSize
+            </select>
+        </div>
+    </div>
+    <div class="preferences-list-right-right">
+
+        <div class="preference">
+            <label for="document-indent-size">Paragraph Indentation</label>
+            <select id="document-indent-size" name="document-indent-size">
+                $$indentSize
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-font-family">Font Family</label>
+            <select id="document-font-family" name="document-font-family">
+                $$fontFamily
+            </select>
+        </div>
+        <div class="preference">
+            <label for="document-font-color">Font Color</label>
+            <div id="font-color-picker" class="color-picker">
+                <div id="font-color-swatch" class="color-swatch"></div>
+                <input type="text" id="document-font-color" name="document-font-color" maxlength="7">
+                <input type="color" id="hidden-font-color" style="display:none">
+            </div>
+        </div>
+    </div>
+
+</div>

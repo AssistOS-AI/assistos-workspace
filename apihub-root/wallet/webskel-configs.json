@@ -112,6 +112,24 @@
             "presenterClassName": "DisplayPreferences"
         },
         {
+            "name": "style-subpage",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "StyleSubpage"
+        },
+        {
+            "name": "export-subpage",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "ExportSubpage"
+        },
+        {
+            "name": "print-subpage",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "PrintSubpage"
+        },
+        {
             "name": "collaborators-tab",
             "directory": "space-application",
             "type": "pages",
