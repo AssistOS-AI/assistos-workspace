@@ -1,8 +1,8 @@
-@import "font-style.css";
+@import "./assets/fonts/InterVariable/inter.css";
 @import "dark-theme.css";
 
 :root {
-    --default-font: Inter, Arial, sans-serif;
+    --default-font: "Inter", sans-serif;
     --black: black;
     --white: white;
     --white-text: white;
@@ -50,7 +50,13 @@
     --page-padding: 20px 40px;
     --page-header-font-size: 28px;
 }
-
+@supports (font-variation-settings: normal) {
+    :root {
+        --default-font: "InterVariable", sans-serif;
+        font-family: var(--default-font), sans-serif;
+        font-optical-sizing: auto;
+    }
+}
 * {
     box-sizing: border-box;
     -ms-overflow-style: none;
