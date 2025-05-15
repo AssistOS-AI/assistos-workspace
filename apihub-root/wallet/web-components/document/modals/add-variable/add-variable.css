@@ -1,10 +1,10 @@
 add-variable{
     display: block;
-    width: 800px;
+    width: 1100px;
     height: 450px;
 }
 .modal-body{
-    height: calc(100% - 45px);
+    height: calc(100% - 56px);
     display: flex;
     flex-direction: column;
 }
@@ -13,7 +13,7 @@ add-variable{
     gap: 10px;
 }
 .grouped-inputs > div {
-    width: 49%;
+    width: 50%;
 }
 .expression-multi-line {
     resize: none;
