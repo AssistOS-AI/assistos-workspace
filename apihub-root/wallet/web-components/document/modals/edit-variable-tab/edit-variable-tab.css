@@ -4,10 +4,10 @@ edit-variable-tab{
 .expression-multi-line {
     resize: none;
 }
-.modal-body{
-    height: calc(100% - 55px);
+.edit-variable-form{
     display: flex;
     flex-direction: column;
+    height: 100%;
 }
 .grouped-inputs{
     display: flex;
@@ -24,11 +24,49 @@ edit-variable-tab{
 }
 .save-variable{
     margin-top: auto;
-    align-self: flex-end;
+    align-self: flex-start;
 }
 #type{
     width: 49%;
 }
+/*search select*/
 #command{
-    height: 37px;
+    padding-right: 35px;
 }
+.search-select{
+    color: var(--form-input);
+    position: relative;
+}
+.search-select-input{
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+}
+.search-icon{
+    position: absolute;
+    right: 10px;
+    top: 12px;
+}
+.select-options{
+    width: 100%;
+    border: 1px solid var(--form-input-border);
+    background-color: var(--white);
+    position: absolute;
+    top: 40px;
+    left: 0;
+    max-height: 330px;
+    overflow-y: scroll;
+    border-radius: 5px;
+}
+.option{
+    cursor: pointer;
+    padding: 10px;
+    font-size: 14px;
+}
+.option:hover{
+    background-color: var(--option-hover);
+}
+.option.selected{
+    background-color: var(--action-button-background);
+}
+/*search select*/

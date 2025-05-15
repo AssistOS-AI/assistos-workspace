@@ -125,9 +125,9 @@ dialog {
     font-weight: 700;
     font-size: 25px;
     justify-content: space-between;
-    font-family: Inter;
     line-height: 100%;
     letter-spacing: 0;
+    border-bottom: 1px solid var(--light-gray-border);
 }
 
 .close {
@@ -196,6 +196,7 @@ dialog {
     margin: 4px 0 8px;
     padding: 8px;
     font-size: 14px;
+    color: var(--default-font-color);
 }
 .form-input:focus {
     border-color: var(--strong-blue);

@@ -15,12 +15,7 @@ export class EditVariableTab {
     }
 
     async beforeRender() {
-        let commands = await spaceModule.getCommands(assistOS.space.id);
-        let variableCommandOptions = "";
-        for(let command of commands){
-            variableCommandOptions += `<option value="${command}">${command}</option>`;
-        }
-        this.variableCommandOptions = variableCommandOptions;
+        this.commands = await spaceModule.getCommands(assistOS.space.id);
 
         let types = await spaceModule.getCustomTypes(assistOS.space.id);
         let variableTypeOptions = `<option value="" selected disabled>Select Type</option>`;
@@ -53,13 +48,74 @@ export class EditVariableTab {
         let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
         parametersInput.classList.add("hidden");
     }
-    afterRender() {
-
-        let commandSelect = this.element.querySelector("#command");
-        let selectedOption = commandSelect.querySelector(`option[value="${this.command}"]`);
-        if(selectedOption){
-            selectedOption.selected = true;
+    /*search select*/
+    openSearchSelect(){
+        let selectOptions = this.element.querySelector(".select-options");
+        if(!selectOptions.classList.contains("hidden")){
+            return;
         }
+        this.renderSelectOptions(selectOptions, this.commands);
+        let commandInput = this.element.querySelector("#command");
+        let currentValue = commandInput.value;
+        selectOptions.classList.remove("hidden");
+        this.controller = new AbortController();
+        let selectedOption = selectOptions.querySelector(`.option[data-value="${currentValue}"]`);
+        if(selectedOption){
+            selectedOption.classList.add("selected");
+        }
+        let boundCloseSearchSelect = this.closeSearchSelect.bind(this, selectOptions);
+        document.addEventListener("click", boundCloseSearchSelect, {signal: this.controller.signal});
+    }
+    closeSearchSelect(selectOptions, event){
+        if(!event.target.closest(".search-select-input")){
+            selectOptions.innerHTML = "";
+            selectOptions.classList.add("hidden");
+            this.controller.abort();
+        }
+    }
+    renderSelectOptions(selectOptions, commands){
+        let variableCommandOptions = "";
+        for(let command of commands){
+            variableCommandOptions += `<div class="option" data-local-action="selectOption" data-value="${command}">${command}</div>`;
+        }
+        selectOptions.innerHTML = variableCommandOptions;
+    }
+    selectOption(option){
+        let value = option.getAttribute("data-value");
+        let searchSelect = option.closest(".search-select");
+        let input = searchSelect.querySelector("input");
+        input.value = value;
+        let typeInput = this.element.querySelector(".form-item.type");
+        if(value === "new"){
+            typeInput.classList.remove("hidden");
+        } else {
+            typeInput.classList.add("hidden");
+        }
+        if(value === "macro" || value === "jsdef"){
+            this.changeExpressionInputToMultiLine();
+        } else {
+            this.changeMultiLineToSingleLine();
+        }
+    }
+    /*search select*/
+    afterRender() {
+        let commandInput = this.element.querySelector("#command");
+        let selectOptions = this.element.querySelector(".select-options");
+        if(this.command === ":="){
+            this.command = "assign";
+        }
+        commandInput.value = this.command;
+        commandInput.addEventListener("input", (event) => {
+            let value = event.target.value;
+            let foundCommands = this.commands.filter(command => command.toLowerCase().includes(value.toLowerCase()));
+            if(foundCommands.length === 0){
+                commandInput.setAttribute("data-valid", false);
+            } else {
+                commandInput.setAttribute("data-valid", true);
+            }
+            this.renderSelectOptions(selectOptions, foundCommands);
+        });
+
         if(this.command === "macro" || this.command === "jsdef"){
             this.changeExpressionInputToMultiLine();
             let parametersInput = this.element.querySelector("#parameters");
@@ -67,23 +123,19 @@ export class EditVariableTab {
             let parameters = splitExpression[0].split(",");
             parametersInput.value = parameters.join(" ");
             this.expression = splitExpression.slice(1).join(" ");
+        } else if(this.command === "new"){
+            let typeInput = this.element.querySelector(".form-item.type");
+            typeInput.classList.remove("hidden");
+            let splitExpression = this.expression.split(" ");
+            let type = splitExpression[0];
+            this.expression = splitExpression.slice(1).join(" ");
+            let selectedOption = typeInput.querySelector(`option[value="${type}"]`);
+            if(selectedOption){
+                selectedOption.selected = true;
+            }
         }
         let expressionInput = this.element.querySelector("#expression");
         expressionInput.value = this.expression;
-        commandSelect.addEventListener("change", (event) => {
-            let value = event.target.value;
-            let typeInput = this.element.querySelector(".form-item.type");
-            if(value === "new"){
-                typeInput.classList.remove("hidden");
-            } else {
-                typeInput.classList.add("hidden");
-            }
-            if(value === "macro" || value === "jsdef"){
-                this.changeExpressionInputToMultiLine();
-            } else {
-                this.changeMultiLineToSingleLine();
-            }
-        });
     }
     async editVariable(targetElement){
         let formData = await assistOS.UI.extractFormInformation(targetElement);
@@ -91,7 +143,12 @@ export class EditVariableTab {
             return;
         }
         let variableName = formData.data.name;
-        let command = formData.data.command;
+        let commandInput = this.element.querySelector("#command");
+        let valid = commandInput.getAttribute("data-valid");
+        if(valid === "false"){
+            return;
+        }
+        let command = commandInput.value;
         let expression = formData.data.expression;
         expression = assistOS.UI.unsanitize(expression);
 
@@ -100,7 +157,7 @@ export class EditVariableTab {
             if(!variableType){
                 return alert("Please select a type");
             }
-            expression += `${variableType} `;
+            expression = `${variableType} ${expression}`;
         }else if(command === "assign"){
             command = ":=";
         } else if(command === "macro" || command === "jsdef"){
