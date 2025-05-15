@@ -1,5 +1,5 @@
-import Binaries from './binaries.js'
-import path from 'path'
+const Binaries = require('./binaries.js')
+const path = require('path')
 
 const composeBinaryPath = binary =>
     path.resolve(process.env.PERSISTENCE_FOLDER, `../binaries/${binary}.js`)
@@ -83,4 +83,4 @@ class Provider {
     }
 }
 
-export default Provider
+module.exports = Provider
