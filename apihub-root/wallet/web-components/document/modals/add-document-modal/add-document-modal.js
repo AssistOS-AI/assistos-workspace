@@ -41,6 +41,15 @@ export class AddDocumentModal {
         this.fileInput = this.element.querySelector('#fileUpload');
         let uploadedFiles = this.element.querySelector('.uploaded-files');
         this.uploadButton = this.element.querySelector('.upload-button');
+        let docTitle = this.element.querySelector('#documentTitle');
+        let createButton = this.element.querySelector('.create-button');
+        docTitle.addEventListener('input', (e) => {
+            if(docTitle.value.trim() === '') {
+                createButton.classList.add('disabled');
+            } else{
+                createButton.classList.remove('disabled');
+            }
+        })
         this.fileInput.addEventListener('change', (e) => {
             if (this.fileInput.files.length === 0) {
                 return;
