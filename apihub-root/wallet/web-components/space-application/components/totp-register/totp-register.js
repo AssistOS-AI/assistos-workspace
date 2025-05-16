@@ -5,16 +5,8 @@ export class TotpRegister {
         this.element = element;
         this.invalidate = invalidate;
         this.email = this.element.variables["email"];
-        this.userIsRegisrerd = this.element.variables["user-is-registered"];
-        this.referer = this.element.variables["referer"];
-        this.invalidate(async () => {
-            if (this.userIsRegisrerd) {
-                // This is for an authenticated user, so we use registerTotp endpoint
-                this.totpResult = await userModule.registerTotp();
-            } else {
-                this.totpResult = await userModule.generateAuthCode(this.email, this.referer, "totp");
-            }
-        });
+        this.totpResult = JSON.parse(decodeURIComponent(this.element.variables["totp-result"]));
+        this.invalidate();
     }
 
     beforeRender() {

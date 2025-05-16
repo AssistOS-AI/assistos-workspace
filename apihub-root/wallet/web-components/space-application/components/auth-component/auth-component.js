@@ -128,12 +128,16 @@ export class AuthComponent {
             }
 
             if (method.type === "totp") {
-                this.totp_auth = "enabled";
-                option = `<label class="radio_container choice pointer totp">
+                if (!method.enabled || method.setupPending) {
+                    this.selected_method = this.selected_method === method.type ? "emailCode" : this.selected_method;
+                } else {
+                    this.totp_auth = "enabled";
+                    option = `<label class="radio_container choice pointer totp">
                                 <input type="radio"  class="custom_radio" name="auth_method" value="totp">
                                 <section class="label">Authenticator (OTP)</section>
                                 <section class="icon"></section>
                             </label>`;
+                }
             }
             this.auth_options = `${this.auth_options} ${option}`;
 
@@ -301,7 +305,9 @@ export class AuthComponent {
             }
             if (this.selected_method === "totp") {
                 this.element.querySelector(".auth_type_wrapper").style.display = "none";
-                this.element.querySelector(".totp_register_section").innerHTML = `<totp-register data-presenter="totp-register" email="${this.email}" referer="${this.referer || ''}"></totp-register>`
+                let totpResult = await userModule.generateAuthCode(this.email, this.referer || "", "totp");
+                totpResult = encodeURIComponent(JSON.stringify(totpResult));
+                this.element.querySelector(".totp_register_section").innerHTML = `<totp-register data-presenter="totp-register" totp-result="${totpResult}" email="${this.email}"></totp-register>`
                 this.element.querySelector(".totp_register_section").style.display = "block";
                 this.element.addEventListener("totp-verified", async (event) => {
                     try {
