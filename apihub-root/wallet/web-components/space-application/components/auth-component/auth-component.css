@@ -3,58 +3,86 @@
     flex-direction: column;
     max-width: 550px;
     margin: 0 auto;
-    background: var(--background-dark-color);
+    background-color: var(--white);
     height: auto;
-    border-radius: 16px;
-    padding: 20px;
     text-align: justify;
+    width: 520px;
 }
 
 .header .title {
     font-weight: 700;
-    font-size: 20px;
-    color: #FFFFFF;
+    font-size: 36px;
+    color: var(--header-font-color);
 }
-
+.header{
+    margin-bottom: 20px;
+}
 input:focus, input:focus-visible {
     outline: none;
 }
-
+.redirect-text{
+    margin-left: 3px;
+    color: var(--strong-blue);
+}
 .content {
-    color: var(--text-white-color);
-    padding: 20px;
+    color: var(--default-font-color);
     border-radius: 16px;
     display: flex;
     flex-direction: column;
 }
-
+.separator{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 1px;
+    width: 100%;
+    background-color: var(--light-gray-border);
+}
 .input_container {
-    display: flex;
-    gap: 10px;
 }
 
 .email_input, .code_input, .totp_input, .totp_verify_input {
-    flex-grow: 1;
-    margin: unset;
 }
-
-.app_button {
-    min-width: 80px;
-    font-weight: 600;
-    color: var(--app-theme-color);
+.gray-background{
+    background-color: var(--light-gray-border) !important;
+    color: var(--default-font-color) !important;
+}
+.auth-button {
+    width: 100%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--white);
+    background: var(--strong-blue);
+    padding: var(--button-padding);
+    cursor: pointer;
+    border-radius: 5px;
 }
 
 .info, .code_sent_message {
     font-size: 14px;
 }
-
+.selection_info{
+    font-size: 14px;
+    text-align: left;
+}
+.selection_info li{
+    margin-bottom: 5px;
+}
+.cancel_auth_method_button{
+    margin-top: 20px;
+}
 .email_wrapper {
     display: flex;
     flex-direction: column;
     gap: 20px;
     margin-bottom: 20px;
 }
-
+.to_login,.to_signup{
+    color: var(--default-font-color);
+}
 .code_submit_section,
 .selection_short_info,
 .selection_info,
@@ -68,21 +96,22 @@ input:focus, input:focus-visible {
 .to_login {
     display: none;
 }
-
+.selection_short_info{
+    font-size: 14px;
+}
 .auth_methods_section {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
     width: 100%;
-    border-radius: 10px;
-    background-color: var(--app-theme-color);
+    border-radius: 5px;
+    border: 1px solid var(--light-gray-border);
 }
 
 .choice {
     display: flex;
     gap: 10px;
-    padding: 10px;
-    color: var(--text-white-color);
+    padding: 11px;
     cursor: pointer;
     line-height: 1;
     flex-grow: 1;
@@ -90,30 +119,16 @@ input:focus, input:focus-visible {
 }
 
 .choice.selected {
-    /*    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.3);
-        border-top: 1px solid var(--border-opac-color);
-        border-bottom: 1px solid var(--border-opac-color);*/
-    background: repeating-linear-gradient(
-            236.4deg,
-            #856220 -7.99%,
-            #F4E683 27.54%,
-            #BF923D 79.32%,
-            #4E341B 148.7%,
-            #F1EA82 194.4%,
-            #856220 200%
-    );
-    border-radius: 10px;
+    background-color: var(--action-button-background);
+    border-radius: 5px;
 }
-
+.submit_email_button{
+    margin-top: 10px;
+}
 .choice.selected .label {
-    color: var(--app-theme-color);
+    color: var(--default-font-color);
     font-weight: 600;
 }
-
-.choice.selected .icon {
-    filter: invert(1);
-}
-
 .choice .icon {
     width: 20px;
     height: 20px;
@@ -145,46 +160,27 @@ input:focus, input:focus-visible {
     font-size: 16px;
 }
 
-.submit_auth_method_button {
-    max-width: 100px;
-    align-self: center;
-}
-
 .auth_container[selected-auth="emailCode"] .selection_info.emailCode,
 .auth_container[selected-auth="emailCode"] .selection_short_info.emailCode,
 .auth_container[selected-auth="passkey"] .selection_info.passkey,
 .auth_container[selected-auth="passkey"] .selection_short_info.passkey,
 .auth_container[selected-auth="totp"] .selection_info.totp,
 .auth_container[selected-auth="totp"] .selection_short_info.totp,
-.auth_step1 .change_auth_type,
-.auth_step1.auth_container[auth-step="login"] .to_signup,
-.auth_step1.auth_container[auth-step="signup"] .to_login {
+.auth_step1 .change_auth_type{
     display: block;
 }
 
-.actions_container {
+.auth_step1.auth_container[auth-step="login"] .to_signup,
+.auth_step1.auth_container[auth-step="signup"] .to_login {
     display: flex;
     justify-content: center;
-    gap: 20px;
+}
+.actions_container {
+
 }
 
 .actions_container button {
-    font-weight: 600;
-}
-
-.actions_container .cancel_auth_method_button:hover {
-    box-shadow: 0 1px 1px var(--disabled-text-color);
-}
-
-.actions_container .submit_auth_method_button:hover {
-    box-shadow: 0 1px 1px var(--background-dark-color);
-    border: none;
-}
-
-.cancel_auth_method_button {
-    background-color: var(--text-white-color);
-    color: var(--app-theme-color);
-    border: none;
+    width: 100%;
 }
 
 .totp_login_section,
@@ -201,7 +197,7 @@ input:focus, input:focus-visible {
 .promotion {
     font-style: italic;
     padding-top: 20px;
-    border-top: 1px solid var(--border-base-color);
+    border-top: 1px solid var(--default-font-color);
     width: 100%;
     position: relative;
     display: block;

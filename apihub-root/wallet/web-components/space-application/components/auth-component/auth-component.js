@@ -14,7 +14,6 @@ export class AuthComponent {
         this.authMethods = this.element.variables["auth-methods"].split(",");
         this.referer = assistOS.UI.getURLParams().ref;
         this.auth_step = this.element.variables["page-mode"] || sessionStorage.getItem("auth_step") || "login";
-        this.promoText = this.element.variables["promo-text"] || ""
         this.email_code_auth = "";
         this.passkey_auth = "";
         this.totp_auth = "";
@@ -36,10 +35,10 @@ export class AuthComponent {
         emailInput.addEventListener("input", (event) => {
             if (!isValidEmail(event.target.value)) {
                 event.target.classList.add("invalid_email");
-                submitEmailButton.setAttribute("disabled", "");
+                submitEmailButton.classList.add("disabled");
             } else {
                 event.target.classList.remove("invalid_email"); // Also remove the class if valid
-                submitEmailButton.removeAttribute("disabled");
+                submitEmailButton.classList.remove("disabled");
             }
         });
 
@@ -57,9 +56,9 @@ export class AuthComponent {
 
         codeInput.addEventListener("input", (event) => {
             if (event.target.value.length < 5) {
-                submitCodeButton.setAttribute("disabled", "");
+                submitCodeButton.classList.add("disabled");
             } else {
-                submitCodeButton.removeAttribute("disabled");
+                submitCodeButton.classList.remove("disabled");
             }
         });
 
@@ -100,8 +99,8 @@ export class AuthComponent {
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options}`;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="signup">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="signupSubmit">Register</button>`;
+        <button class="submit_auth_method_button auth-button" data-local-action="signupSubmit">Register</button>
+        <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="signup">Cancel</button>`;
 
         this.addAuthMethodsListeners();
     }
@@ -144,8 +143,8 @@ export class AuthComponent {
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options} `;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="login">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="submitLoginMethod">Sign In</button>`;
+        <button class="submit_auth_method_button auth-button" data-local-action="submitLoginMethod">Log In</button>
+        <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="login">Cancel</button>`;
 
         this.addAuthMethodsListeners();
     }
@@ -209,7 +208,7 @@ export class AuthComponent {
         if(resp.code){
             codeInput.value = resp.code;
             let submitCodeButton = this.element.querySelector(".submit_code_button");
-            submitCodeButton.disabled = false;
+            submitCodeButton.classList.remove('disabled');
         }
         // Use .bind(this) to ensure 'this' inside activateCodeButton refers to the LoginPage instance
         this.timeout = setTimeout(() => {
@@ -225,9 +224,9 @@ export class AuthComponent {
         const totpButton = document.querySelector(".totp_login_section .totp_action_button");
         totpInput.addEventListener("input", (event) => {
             if (event.target.value.length === 6 && /^\d{6}$/.test(event.target.value)) {
-                totpButton.removeAttribute("disabled");
+                totpButton.classList.remove("disabled");
             } else {
-                totpButton.setAttribute("disabled", "");
+                totpButton.classList.add("disabled");
             }
         });
     }
@@ -243,6 +242,10 @@ export class AuthComponent {
         this.element.querySelector(".email_wrapper .input_container .submit_email_button").style.display = "block";
         this.element.querySelector(".email_wrapper .input_container .email_input").readOnly = false;
         this.element.querySelector(".submit_email_button").textContent = "Next";
+        let separator = this.element.querySelector(".separator");
+        separator.classList.remove("hidden");
+        let footerSeparator = this.element.querySelector(".footer-separator");
+        footerSeparator.classList.add("hidden");
         if (stepName === "login") {
             formTitle.textContent = "Login";
         } else {
@@ -372,6 +375,10 @@ export class AuthComponent {
 
     async submitEmail() {
         this.email = this.element.querySelector(".email_input").value.trim();
+        let separator = this.element.querySelector(".separator");
+        separator.classList.add("hidden");
+        let footerSeparator = this.element.querySelector(".footer-separator");
+        footerSeparator.classList.remove("hidden");
         this.accountCheck = await userModule.userExists(this.email);
         this.passkeyData = {
             publicKeyCredentialRequestOptions: this.accountCheck.publicKeyCredentialRequestOptions,

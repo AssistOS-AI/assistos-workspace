@@ -65,9 +65,9 @@ export class TotpRegister {
 
             verifyInput.addEventListener("input", (event) => {
                 if (event.target.value.length === 6 && /^\d{6}$/.test(event.target.value)) {
-                    verifyButton.removeAttribute("disabled");
+                    verifyButton.classList.remove("disabled");
                 } else {
-                    verifyButton.setAttribute("disabled", "");
+                    verifyButton.classList.add("disabled");
                 }
             });
 

@@ -37,7 +37,7 @@ add-document-modal {
     width: fit-content;
 }
 
-.modal-footer{
+.add-document-footer{
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
