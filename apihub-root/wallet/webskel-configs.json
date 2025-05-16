@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "custom-radio",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "CustomRadio"
+        },
+        {
             "name": "comment-modal",
             "directory": "document",
             "type": "modals",

@@ -73,24 +73,6 @@ add-document-modal {
     font-size: 13px;
 }
 
-.custom-radio{
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    background-color: #DDDDDD;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.radio-selection{
-    width: 9px;
-    height: 9px;
-    border-radius: 50%;
-    background-color: #CCCCCC;
-}
-.custom-radio.selected .radio-selection {
-    background-color: #4A4A4B;
-}
 .radio-item{
     display: flex;
 }

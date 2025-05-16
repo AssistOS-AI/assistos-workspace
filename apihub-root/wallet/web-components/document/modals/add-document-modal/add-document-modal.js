@@ -72,6 +72,12 @@ export class AddDocumentModal {
             }
             uploadedFiles.innerHTML = filesHTML;
         });
+        let radios = this.element.querySelectorAll('custom-radio');
+        radios.forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                this.switchTab(e.value);
+            });
+        })
     }
     removeFile(_target, fileId) {
         this.files = this.files.filter(file => file.id !== fileId);
@@ -85,16 +91,7 @@ export class AddDocumentModal {
             this.uploadButton.classList.add('disabled');
         }
     }
-    selectRadio(_target) {
-        _target.classList.add('selected');
-        let value = _target.getAttribute('data-value');
-        let radioButtons = this.element.querySelectorAll('.custom-radio');
-        let others = Array.from(radioButtons).filter(radio => radio !== _target);
-        others.forEach(radio => {
-            radio.classList.remove('selected');
-        });
-        this.switchTab(value);
-    }
+
     closeModal(_target) {
         assistOS.UI.closeModal(_target);
     }
