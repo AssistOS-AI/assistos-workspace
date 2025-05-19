@@ -7,33 +7,35 @@
     position: relative;
     left: -1em;
 }
-
+.form-header{
+    font-size: 16px;
+    font-weight: 600;
+}
+.form-container{
+    padding-left: 25px;
+}
 .qrcode_container .qrcode {
-    width: 150px;
-    height: 150px;
-    margin: 0 auto 10px;
-    border: 1px solid var(--border-base-color);
+    margin: 10px auto 10px;
     padding: 10px;
     background-color: white;
 }
-
+.left-align{
+    width: 100%;
+    display: flex;
+}
 .secret_key {
     font-size: 14px;
     word-break: break-all;
-    background: var(--app-theme-color);
-    color: var(--text-grey-color);
     border-radius: 8px;
     max-width: 100%;
     overflow-wrap: break-word;
-    padding: 10px;
     width: 100%;
+    margin-bottom: 10px;
 }
 
 .verification_section .input_container {
     flex-direction: column;
     justify-content: center;
-    width: 150px;
-    margin: auto;
     position: relative;
     left: -1em;
 }
@@ -42,4 +44,19 @@
     color: var(--app-theme-color);
     font-size: 16px;
     font-weight: 600;
+    margin-top: 10px;
+}
+.auth-button {
+    width: 100%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--white);
+    background: var(--strong-blue);
+    padding: var(--button-padding);
+    cursor: pointer;
+    border-radius: 5px;
 }

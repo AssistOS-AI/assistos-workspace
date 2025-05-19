@@ -14,7 +14,6 @@ export class AuthComponent {
         this.authMethods = this.element.variables["auth-methods"].split(",");
         this.referer = assistOS.UI.getURLParams().ref;
         this.auth_step = this.element.variables["page-mode"] || sessionStorage.getItem("auth_step") || "login";
-        this.promoText = this.element.variables["promo-text"] || ""
         this.email_code_auth = "";
         this.passkey_auth = "";
         this.totp_auth = "";
@@ -36,10 +35,10 @@ export class AuthComponent {
         emailInput.addEventListener("input", (event) => {
             if (!isValidEmail(event.target.value)) {
                 event.target.classList.add("invalid_email");
-                submitEmailButton.setAttribute("disabled", "");
+                submitEmailButton.classList.add("disabled");
             } else {
                 event.target.classList.remove("invalid_email"); // Also remove the class if valid
-                submitEmailButton.removeAttribute("disabled");
+                submitEmailButton.classList.remove("disabled");
             }
         });
 
@@ -57,9 +56,9 @@ export class AuthComponent {
 
         codeInput.addEventListener("input", (event) => {
             if (event.target.value.length < 5) {
-                submitCodeButton.setAttribute("disabled", "");
+                submitCodeButton.classList.add("disabled");
             } else {
-                submitCodeButton.removeAttribute("disabled");
+                submitCodeButton.classList.remove("disabled");
             }
         });
 
@@ -73,7 +72,7 @@ export class AuthComponent {
             if (method === "emailCode") {
                 this.email_code_auth = "enabled";
                 option = `<label class="radio_container choice pointer emailCode">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="emailCode"></custom-radio>
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -81,7 +80,7 @@ export class AuthComponent {
             if (method === "passkey") {
                 this.passkey_auth = "enabled";
                 option = `<label class="radio_container choice pointer passkey">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="passkey">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey"></custom-radio>  
                                 <section class="label">Passkey</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -90,7 +89,7 @@ export class AuthComponent {
             if (method === "totp") {
                 this.totp_auth = "enabled";
                 option = `<label class="radio_container choice pointer totp">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="totp">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="totp"></custom-radio>
                                 <section class="label">Authenticator (OTP)</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -100,8 +99,8 @@ export class AuthComponent {
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options}`;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="signup">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="signupSubmit">Register</button>`;
+        <button class="submit_auth_method_button auth-button" data-local-action="signupSubmit">Register</button>
+        <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="signup">Cancel</button>`;
 
         this.addAuthMethodsListeners();
     }
@@ -113,7 +112,7 @@ export class AuthComponent {
             if (method.type === "emailCode") {
                 this.email_code_auth = "enabled";
                 option = `<label class="radio_container choice pointer emailCode">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="emailCode"></custom-radio>
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -121,47 +120,61 @@ export class AuthComponent {
             if (method.type === "passkey") {
                 this.passkey_auth = "enabled";
                 option = `<label class="radio_container choice pointer passkey">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="passkey" passkey-id="${method.id}">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey" passkey-id="${method.id}"></custom-radio>
                                 <section class="label">${method.name}</section>
                                 <section class="icon"></section>
                             </label>`;
             }
 
             if (method.type === "totp") {
-                this.totp_auth = "enabled";
-                option = `<label class="radio_container choice pointer totp">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="totp">
+                if (!method.enabled || method.setupPending) {
+                    this.selected_method = this.selected_method === method.type ? "emailCode" : this.selected_method;
+                } else {
+                    this.totp_auth = "enabled";
+                    option = `<label class="radio_container choice pointer totp">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="totp"></custom-radio>
                                 <section class="label">Authenticator (OTP)</section>
                                 <section class="icon"></section>
                             </label>`;
+                }
             }
             this.auth_options = `${this.auth_options} ${option}`;
 
         }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options} `;
         this.element.querySelector(".actions_container").innerHTML = `
-        <button class="cancel_auth_method_button app_button pointer" data-local-action="changeAuthType" auth-type="login">Cancel</button>
-        <button class="submit_auth_method_button app_button pointer gold_background" data-local-action="submitLoginMethod">Sign In</button>`;
+        <button class="submit_auth_method_button auth-button" data-local-action="submitLoginMethod">Log In</button>
+        <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="login">Cancel</button>`;
 
         this.addAuthMethodsListeners();
     }
 
     addAuthMethodsListeners() {
-        const radios = document.querySelectorAll('input[name="auth_method"]');
-
+        const radios = document.querySelectorAll('custom-radio[data-name="auth_method"]');
+        const labels = document.querySelectorAll('.radio_container');
+        labels.forEach(label => {
+            label.addEventListener('click', event => {
+                const radio = label.querySelector('custom-radio');
+                if (radio) {
+                    radio.webSkelPresenter.selectRadio(radio.firstElementChild);
+                }
+            });
+        })
         radios.forEach(radio => {
             radio.addEventListener('change', event => {
                 if (this.element.querySelector(".choice.selected")) {
                     this.element.querySelector(".choice.selected").classList.remove('selected');
                 }
                 event.target.parentElement.classList.add('selected');
-                this.element.querySelector(".auth_container").setAttribute("selected-auth", event.target.value);
-                this.selected_method = radio.value;
+                this.element.querySelector(".auth_container").setAttribute("selected-auth", event.value);
+                this.selected_method = event.value;
             });
-            if (radio.value === this.selected_method) {
-                radio.click();
+            let value = radio.getAttribute("data-value");
+            if (value === this.selected_method) {
+                radio.setAttribute("data-selected", "true");
+                radio.parentElement.classList.add('selected');
+                this.element.querySelector(".auth_container").setAttribute("selected-auth", value);
             }
-
         });
     }
     async cancelAuth() {
@@ -205,7 +218,7 @@ export class AuthComponent {
         if(resp.code){
             codeInput.value = resp.code;
             let submitCodeButton = this.element.querySelector(".submit_code_button");
-            submitCodeButton.disabled = false;
+            submitCodeButton.classList.remove('disabled');
         }
         // Use .bind(this) to ensure 'this' inside activateCodeButton refers to the LoginPage instance
         this.timeout = setTimeout(() => {
@@ -221,9 +234,9 @@ export class AuthComponent {
         const totpButton = document.querySelector(".totp_login_section .totp_action_button");
         totpInput.addEventListener("input", (event) => {
             if (event.target.value.length === 6 && /^\d{6}$/.test(event.target.value)) {
-                totpButton.removeAttribute("disabled");
+                totpButton.classList.remove("disabled");
             } else {
-                totpButton.setAttribute("disabled", "");
+                totpButton.classList.add("disabled");
             }
         });
     }
@@ -239,6 +252,10 @@ export class AuthComponent {
         this.element.querySelector(".email_wrapper .input_container .submit_email_button").style.display = "block";
         this.element.querySelector(".email_wrapper .input_container .email_input").readOnly = false;
         this.element.querySelector(".submit_email_button").textContent = "Next";
+        let separator = this.element.querySelector(".separator");
+        separator.classList.remove("hidden");
+        let footerSeparator = this.element.querySelector(".footer-separator");
+        footerSeparator.classList.add("hidden");
         if (stepName === "login") {
             formTitle.textContent = "Login";
         } else {
@@ -301,7 +318,9 @@ export class AuthComponent {
             }
             if (this.selected_method === "totp") {
                 this.element.querySelector(".auth_type_wrapper").style.display = "none";
-                this.element.querySelector(".totp_register_section").innerHTML = `<totp-register data-presenter="totp-register" email="${this.email}" referer="${this.referer || ''}"></totp-register>`
+                let totpResult = await userModule.generateAuthCode(this.email, this.referer || "", "totp");
+                totpResult = encodeURIComponent(JSON.stringify(totpResult));
+                this.element.querySelector(".totp_register_section").innerHTML = `<totp-register data-presenter="totp-register" totp-result="${totpResult}" email="${this.email}"></totp-register>`
                 this.element.querySelector(".totp_register_section").style.display = "block";
                 this.element.addEventListener("totp-verified", async (event) => {
                     try {
@@ -366,6 +385,10 @@ export class AuthComponent {
 
     async submitEmail() {
         this.email = this.element.querySelector(".email_input").value.trim();
+        let separator = this.element.querySelector(".separator");
+        separator.classList.add("hidden");
+        let footerSeparator = this.element.querySelector(".footer-separator");
+        footerSeparator.classList.remove("hidden");
         this.accountCheck = await userModule.userExists(this.email);
         this.passkeyData = {
             publicKeyCredentialRequestOptions: this.accountCheck.publicKeyCredentialRequestOptions,

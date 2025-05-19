@@ -119,7 +119,7 @@ dialog {
 
 .modal-header {
     align-items: center;
-    padding: 10px 15px;
+    padding: 15px;
     display: flex;
     color: var(--header-font-color);
     font-weight: 700;

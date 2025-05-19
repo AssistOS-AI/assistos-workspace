@@ -8,15 +8,11 @@
     <div class="radios-label">Select an option to add a document:</div>
     <div class="radios-container">
         <div class="radio-item">
-            <div class="custom-radio selected radio-margin" data-local-action="selectRadio" data-value="create">
-                <div class="radio-selection"></div>
-            </div>
+            <custom-radio data-presenter="custom-radio" data-selected="true" data-name="doc-source" data-value="create"></custom-radio>
             <label class="source-toggle-label">Create Document</label>
         </div>
         <div class="radio-item">
-            <div class="custom-radio radio-margin" data-local-action="selectRadio" data-value="upload">
-                <div class="radio-selection"></div>
-            </div>
+            <custom-radio data-presenter="custom-radio" data-name="doc-source" data-value="upload"></custom-radio>
             <label class="source-toggle-label">Upload files</label>
         </div>
     </div>
@@ -27,13 +23,13 @@
         <input class="form-input" name="documentTitle" data-id="documentTitle" pattern=".*\S+.*" type="text" id="documentTitle" maxlength="50" required placeholder="Title of Document">
     </div>
     <div class="form-item">
-        <label class="form-label" for="category">Category</label>
-        <select class="form-input" name="category" id="category" required>
-            $$categoriesOptions
-        </select>
+        <label class="form-label">Category</label>
+        <div class="select-container-modal">
+
+        </div>
     </div>
-    <div class="modal-footer">
-        <div class="general-button create-button" data-local-action="addDocument">Create</div>
+    <div class="add-document-footer">
+        <div class="general-button create-button disabled" data-local-action="addDocument">Create</div>
     </div>
 </form>
 <form class="add-document-form modal-body" id="uploadDoc" style="display: none;">

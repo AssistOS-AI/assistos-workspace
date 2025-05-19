@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "custom-select",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "CustomSelect"
+        },
+        {
+            "name": "custom-radio",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "CustomRadio"
+        },
+        {
             "name": "comment-modal",
             "directory": "document",
             "type": "modals",

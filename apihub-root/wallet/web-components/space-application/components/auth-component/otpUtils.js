@@ -125,9 +125,9 @@ async function setupTotp(email, referer) {
                            <div class="verification_section">
                             <p>Enter the 6-digit code from your authenticator:</p>
                             <div class="input_container">
-                                <input class="totp_verify_input app_input" type="text" pattern="[0-9]*" 
+                                <input class="totp_verify_input form-input" type="text" pattern="[0-9]*" 
                                        inputmode="numeric" maxlength="6" placeholder="Verification code">
-                                <button class="totp_verify_button app_button gold_background" disabled>Verify</button>
+                                <button class="totp_verify_button general-button" disabled>Verify</button>
                             </div>
                              </div>
                        </li>

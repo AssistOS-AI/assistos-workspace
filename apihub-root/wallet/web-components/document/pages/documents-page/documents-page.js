@@ -22,10 +22,6 @@ export class DocumentsPage {
     }
 
     beforeRender() {
-        this.documentCategoryOptions = `<option class="select-option" value="">All</option>`;
-        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
-            this.documentCategoryOptions += `<option class="select-option" value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
-        }
         this.tableRows = "";
         this.documents.forEach((document) => {
             this.tableRows += `<document-item data-presenter="document-item" data-id="${document.id}" data-local-action="editAction"></document-item>`;
@@ -38,36 +34,43 @@ export class DocumentsPage {
             });
         }
         if (this.tableRows === "") {
-            this.tableRows = `<div> There are no documents yet </div>`;
+            this.tableRows = `<div class="no-documents"> There are no documents yet </div>`;
         }
     }
 
     afterRender() {
-        this.setContext();
 
-        let select = document.querySelector(".documents-select");
-        let selectedOption = select.querySelector(`option[value="${this.selectedCtegory}"]`);
-        if (selectedOption) {
-            selectedOption.selected = true;
+        let documentTypesOptions = [{name: "All", value: ""}];
+        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
+            documentTypesOptions.push({
+                name: category,
+                value: constants.DOCUMENT_CATEGORIES[category]
+            })
         }
-        select.addEventListener("change", (event)=>{
-        this.selectedCtegory = event.target.value;
-        if(this.selectedCtegory === "") {
-            this.documents = this.Alldocuments;
-        } else {
-            this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
-        }
-        this.invalidate();
+        assistOS.UI.createElement("custom-select", ".select-container", {
+                options: documentTypesOptions,
+            },
+            {
+                "data-width": "230",
+                "data-name": "type",
+                "data-selected": this.selectedCtegory,
+            })
+        let customSelect = document.querySelector("custom-select");
+        customSelect.addEventListener("change", (event)=>{
+            if(event.value === this.selectedCtegory) {
+                return;
+            }
+            this.selectedCtegory = event.value;
+            if(this.selectedCtegory === "") {
+                this.documents = this.Alldocuments;
+            } else {
+                this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
+            }
+            this.invalidate();
         });
+
     }
 
-
-    setContext() {
-        assistOS.context = {
-            "location and available actions": "We are in the Documents page in OS. Here you can see the documents available for the space. You can add or delete documents.",
-            "available items": this.documents
-        }
-    }
 
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);

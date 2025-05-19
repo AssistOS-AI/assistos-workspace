@@ -6,8 +6,8 @@ export class LandingPage {
         this.invalidate();
     }
 
-    async beforeRender() {}
-
+    async beforeRender() {
+    }
 
     afterRender() {
         this.carousel = this.element.querySelector(".images");
@@ -15,6 +15,8 @@ export class LandingPage {
         setTimeout(async () => {
             await this.startSlideshow(0);
         });
+        this.pageContainer = this.element.querySelector(".page-container");
+        this.navigateToLandingPage();
     }
 
     async startSlideshow(milliseconds) {
@@ -65,7 +67,17 @@ export class LandingPage {
         }
     }
 
-    async navigateToLoginPage(targetElement, actionType) {
-        await assistOS.UI.changeToDynamicPage("login-page", `login-page`, {"authtype": actionType});
+    navigateToLoginPage(targetElement, actionType) {
+        this.pageContainer.innerHTML = `<auth-component data-presenter="auth-component" page-mode="${actionType}" auth-methods="emailCode,passkey,totp"></auth-component>`
+    }
+    navigateToLandingPage(targetElement, actionType) {
+        this.pageContainer.innerHTML = `<div class="logo-container">
+                                            <img class="logo" src="./wallet/assets/icons/assistos-logo.svg" alt="logo">
+                                        </div>
+                                        <div class="buttons-container">
+                                            <button class="general-button right-margin" data-local-action="navigateToLoginPage login">Login</button>
+                                            <button class="general-button" data-local-action="navigateToLoginPage signup">Register</button>
+                                        </div>`;
+
     }
 }
