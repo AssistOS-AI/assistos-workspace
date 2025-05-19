@@ -16,7 +16,11 @@ export class VariablesTab{
                  `<div class="cell">${variable.docId}</div>
                  <div class="cell">${variable.varName}</div>
                  <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
-                 <div class="cell pointer details" data-local-action="showDetails ${variable.id}">.........</div>`;
+                 <div class="cell last-cell">
+                    <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
+                        <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
+                    </div>
+                 </div>`;
         }
         this.variablesHTML = variablesHTML;
         this.docIdOptions = `<option value="">All</option>`;
@@ -44,7 +48,11 @@ export class VariablesTab{
                 `<div class="cell">${variable.varName}</div>
                  <div class="cell">${variable.varId}</div>
                  <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
-                 <div class="cell pointer details" data-local-action="showDetails ${variable.id}">.........</div>`;
+                 <div class="cell">
+                    <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
+                        <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
+                    </div>
+                 </div>`;
         }
         variablesTable.innerHTML = variablesHTML;
     }
