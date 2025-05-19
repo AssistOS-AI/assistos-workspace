@@ -1,0 +1,41 @@
+.custom-select {
+    padding: var(--button-padding);
+    font-size: 16px;
+    border-radius: 5px;
+    border: 0.5px solid var(--form-input-border);
+    background-color: var(--white);
+    color: var(--default-font-color);
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.current-option{
+    margin-right: 15px;
+}
+.options-list{
+    position: absolute;
+    overflow-y: auto;
+    width: 100%;
+    border: 1px solid var(--form-input-border);
+    background-color: var(--white);
+    top: 46px;
+    left: 0;
+    max-height: 330px;
+    border-radius: 5px;
+}
+.option{
+    padding: 10px;
+    font-size: 14px;
+}
+.option:hover{
+    background-color: var(--option-hover);
+}
+.option[data-selected="true"]{
+    background-color: var(--action-button-background);
+}
+.custom-select.focused {
+    border-color: var(--strong-blue);
+    outline: 2px solid var(--strong-blue);
+    outline-offset: -2px;
+}

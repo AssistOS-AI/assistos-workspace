@@ -79,6 +79,9 @@ add-document-modal {
 .radio-margin{
     margin-right: 10px;
 }
+.select-container-modal{
+    width: 230px;
+}
 .uploaded-files{
     border-radius: 5px;
     min-height: 75px;

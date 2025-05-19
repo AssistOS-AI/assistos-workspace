@@ -52,6 +52,9 @@ documents-page{
 .right-margin{
  margin-right: 10px;
 }
+.select-container{
+    width: 230px;
+}
 .placeholder-document{
     display: flex;
     align-items: center;
@@ -71,4 +74,7 @@ documents-page{
 .documents-select{
     margin: 0;
     width: 190px;
+}
+.no-documents{
+    padding-top: 20px;
 }

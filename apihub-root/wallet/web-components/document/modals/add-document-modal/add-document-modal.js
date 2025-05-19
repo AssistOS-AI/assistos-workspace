@@ -16,12 +16,6 @@ export class AddDocumentModal {
     }
 
     beforeRender() {
-        this.categoriesOptions = `<option class="select-option" value="document" selected>DOCUMENT</option>`;
-        let categories = Object.keys(constants.DOCUMENT_CATEGORIES);
-        categories = categories.filter(category => category !== "document");
-        for(let category of categories) {
-            this.categoriesOptions += `<option class="select-option" value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
-        }
         let supportedFormats = ["docx", "pptx", "pdf", "md", "txt", "xlsx"];
         this.supportedFormats = supportedFormats.join(", ");
         this.maxSize = 30 //MB
@@ -43,10 +37,26 @@ export class AddDocumentModal {
         this.uploadButton = this.element.querySelector('.upload-button');
         let docTitle = this.element.querySelector('#documentTitle');
         let createButton = this.element.querySelector('.create-button');
+        let documentTypesOptions = [];
+        for (let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
+            documentTypesOptions.push({
+                name: category,
+                value: constants.DOCUMENT_CATEGORIES[category]
+            })
+        }
+        assistOS.UI.createElement("custom-select", ".select-container-modal", {
+            options: documentTypesOptions,
+        },
+        {
+            "data-width": "230",
+            "data-name": "type",
+            "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
+        })
+
         docTitle.addEventListener('input', (e) => {
-            if(docTitle.value.trim() === '') {
+            if (docTitle.value.trim() === '') {
                 createButton.classList.add('disabled');
-            } else{
+            } else {
                 createButton.classList.remove('disabled');
             }
         })
@@ -79,6 +89,7 @@ export class AddDocumentModal {
             });
         })
     }
+
     removeFile(_target, fileId) {
         this.files = this.files.filter(file => file.id !== fileId);
         let fileItem = _target.closest('.file-item');
@@ -100,7 +111,10 @@ export class AddDocumentModal {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
             try {
-                let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, formData.data.category);
+                let typeSelect = this.element.querySelector('custom-select');
+                let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
+                let type = selectedOption.getAttribute('data-value');
+                let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, type);
                 assistOS.UI.closeModal(_target);
                 await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
             } catch (e) {

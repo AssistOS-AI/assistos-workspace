@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "custom-select",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "CustomSelect"
+        },
+        {
             "name": "custom-radio",
             "directory": "space-application",
             "type": "components",
