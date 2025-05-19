@@ -52,6 +52,14 @@ export class AddDocumentModal {
             "data-name": "type",
             "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
         })
+        assistOS.UI.createElement("custom-select", ".category-file-upload", {
+                options: documentTypesOptions,
+            },
+            {
+                "data-width": "230",
+                "data-name": "type",
+                "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
+            })
 
         docTitle.addEventListener('input', (e) => {
             if (docTitle.value.trim() === '') {

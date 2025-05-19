@@ -19,11 +19,6 @@ export class VariablesTab{
                  <div class="cell pointer details" data-local-action="showDetails ${variable.id}">.........</div>`;
         }
         this.variablesHTML = variablesHTML;
-        let categoryOptions = `<option value="">All</option>`;
-        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)){
-            categoryOptions += `<option value="${constants.DOCUMENT_CATEGORIES[category]}">${category}</option>`;
-        }
-        this.categoryOptions = categoryOptions;
         this.docIdOptions = `<option value="">All</option>`;
     }
     renderVariables(){
@@ -53,11 +48,50 @@ export class VariablesTab{
         }
         variablesTable.innerHTML = variablesHTML;
     }
+    insertDocIdSelect(documents){
+        let docIdSelect = this.element.querySelector(".doc-id-select");
+        docIdSelect.innerHTML = "";
+        let options = [{name: "All", value: ""}];
+        for(let document of documents) {
+            options.push({
+                name: document.docId,
+                value: document.docId
+            })
+        }
+        assistOS.UI.createElement("custom-select", ".doc-id-select", {
+                options: options,
+            },
+            {
+                "data-width": "230",
+                "data-name": "docId",
+                "data-selected": "",
+            });
+        let documentSelect = this.element.querySelector(".doc-id-select").firstElementChild;
+        documentSelect.addEventListener("change", (event) => {
+            this.selectedDocument = assistOS.UI.sanitize(event.value);
+            this.renderVariables();
+        });
+    }
     afterRender(){
-        let categorySelect = this.element.querySelector("#category");
-        let documentSelect = this.element.querySelector("#docId");
+        let documentTypesOptions = [{name: "All", value: ""}];
+        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
+            documentTypesOptions.push({
+                name: category,
+                value: constants.DOCUMENT_CATEGORIES[category]
+            })
+        }
+        assistOS.UI.createElement("custom-select", ".category-select", {
+                options: documentTypesOptions,
+            },
+            {
+                "data-width": "230",
+                "data-name": "type",
+                "data-selected": "",
+            })
+        this.insertDocIdSelect(this.documents);
+        let categorySelect = this.element.querySelector(".category-select").firstElementChild;
         categorySelect.addEventListener("change", (event) => {
-            let category = event.target.value;
+            let category = event.value;
             this.selectedCategory = category;
             this.selectedDocument = "";
             let docIdOptions = `<option value="">All</option>`;
@@ -68,23 +102,8 @@ export class VariablesTab{
             } else {
                 documents = this.documents.filter(doc => doc.category === category);
             }
-            for(let document of documents){
-                docIdOptions += `<option value="${document.docId}">${document.docId}</option>`;
-            }
-            documentSelect.innerHTML = docIdOptions;
+            this.insertDocIdSelect(documents);
         });
-        documentSelect.addEventListener("change", (event) => {
-            this.selectedDocument = event.target.value;
-            this.renderVariables();
-        })
-        let selectedCategory = categorySelect.querySelector(`option[value="${this.selectedCategory}"]`);
-        if(selectedCategory){
-            selectedCategory.selected = true;
-        }
-        let selectedDocument = documentSelect.querySelector(`option[value="${this.selectedDocument}"]`);
-        if(selectedDocument){
-            selectedDocument.selected = true;
-        }
     }
 
     async showDetails(_eventTarget, variableId) {

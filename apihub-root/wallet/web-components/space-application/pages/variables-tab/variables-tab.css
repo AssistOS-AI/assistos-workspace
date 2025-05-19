@@ -50,3 +50,7 @@
 .details{
     text-decoration: underline;
 }
+.category-select,
+.doc-id-select{
+    width: 230px;
+}
