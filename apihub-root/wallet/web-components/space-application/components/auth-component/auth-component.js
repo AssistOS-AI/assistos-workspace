@@ -72,7 +72,7 @@ export class AuthComponent {
             if (method === "emailCode") {
                 this.email_code_auth = "enabled";
                 option = `<label class="radio_container choice pointer emailCode">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="emailCode"></custom-radio>
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -80,7 +80,7 @@ export class AuthComponent {
             if (method === "passkey") {
                 this.passkey_auth = "enabled";
                 option = `<label class="radio_container choice pointer passkey">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="passkey">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey"></custom-radio>  
                                 <section class="label">Passkey</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -89,7 +89,7 @@ export class AuthComponent {
             if (method === "totp") {
                 this.totp_auth = "enabled";
                 option = `<label class="radio_container choice pointer totp">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="totp">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="totp"></custom-radio>
                                 <section class="label">Authenticator (OTP)</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -112,7 +112,7 @@ export class AuthComponent {
             if (method.type === "emailCode") {
                 this.email_code_auth = "enabled";
                 option = `<label class="radio_container choice pointer emailCode">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="emailCode">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="emailCode"></custom-radio>
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -120,7 +120,7 @@ export class AuthComponent {
             if (method.type === "passkey") {
                 this.passkey_auth = "enabled";
                 option = `<label class="radio_container choice pointer passkey">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="passkey" passkey-id="${method.id}">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey" passkey-id="${method.id}"></custom-radio>
                                 <section class="label">${method.name}</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -132,7 +132,7 @@ export class AuthComponent {
                 } else {
                     this.totp_auth = "enabled";
                     option = `<label class="radio_container choice pointer totp">
-                                <input type="radio"  class="custom_radio" name="auth_method" value="totp">
+                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="totp"></custom-radio>
                                 <section class="label">Authenticator (OTP)</section>
                                 <section class="icon"></section>
                             </label>`;
@@ -150,21 +150,31 @@ export class AuthComponent {
     }
 
     addAuthMethodsListeners() {
-        const radios = document.querySelectorAll('input[name="auth_method"]');
-
+        const radios = document.querySelectorAll('custom-radio[data-name="auth_method"]');
+        const labels = document.querySelectorAll('.radio_container');
+        labels.forEach(label => {
+            label.addEventListener('click', event => {
+                const radio = label.querySelector('custom-radio');
+                if (radio) {
+                    radio.webSkelPresenter.selectRadio(radio.firstElementChild);
+                }
+            });
+        })
         radios.forEach(radio => {
             radio.addEventListener('change', event => {
                 if (this.element.querySelector(".choice.selected")) {
                     this.element.querySelector(".choice.selected").classList.remove('selected');
                 }
                 event.target.parentElement.classList.add('selected');
-                this.element.querySelector(".auth_container").setAttribute("selected-auth", event.target.value);
-                this.selected_method = radio.value;
+                this.element.querySelector(".auth_container").setAttribute("selected-auth", event.value);
+                this.selected_method = event.value;
             });
-            if (radio.value === this.selected_method) {
-                radio.click();
+            let value = radio.getAttribute("data-value");
+            if (value === this.selected_method) {
+                radio.setAttribute("data-selected", "true");
+                radio.parentElement.classList.add('selected');
+                this.element.querySelector(".auth_container").setAttribute("selected-auth", value);
             }
-
         });
     }
     async cancelAuth() {
