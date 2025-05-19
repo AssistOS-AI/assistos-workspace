@@ -149,9 +149,18 @@ dialog {
     padding: 15px;
 
 }
+.form-item a{
+    cursor:pointer;
+    outline: none;
+    color: var(--strong-blue);
+}
 
 .modal-footer {
     position:absolute;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
     bottom:40px;
 }
 
@@ -188,12 +197,16 @@ dialog {
     display: flex;
     flex-direction: column;
 }
+.form-item-row{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 
+}
 .form-input {
     border-radius: 5px;
     border: 0.5px solid var(--form-input-border);
     width: 100%;
-    margin: 4px 0 8px;
     padding: 8px;
     font-size: 14px;
     color: var(--default-font-color);

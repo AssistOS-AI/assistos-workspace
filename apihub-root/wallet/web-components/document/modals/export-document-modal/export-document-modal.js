@@ -8,23 +8,18 @@ export class ExportDocumentModal {
         this.documentTitle = this.element.getAttribute('data-title');
         this.boundsOnCompleteExport = this.onCompleteExport.bind(this);
         this.invalidate();
-
-        this.formData = {};
-        this.settings = {
-            title: {font: 'Arial', bold: false, italic: false, fontSize: 20, color: '#000000'},
-            abstract: {font: 'Arial', bold: false, italic: false, fontSize: 14, color: '#000000'},
-            chapters: {font: 'Arial', bold: false, italic: false, fontSize: 18, color: '#000000'},
-            paragraphs: {font: 'Arial', bold: false, italic: false, fontSize: 14, color: '#000000'}
-        };
     }
 
-    beforeRender() {
-
+    async beforeRender() {
     }
 
     async afterRender(){
-        this.collectFormData();
-        this.setupDynamicSection();
+
+    }
+
+    async openSettingsPage(eventTarget){
+        await this.closeModal();
+        await assistOS.UI.changeToDynamicPage("settings-page",`${assistOS.space.id}/Space/settings-page`,{subpage:"settingsTab"});
     }
 
     async closeModal() {
@@ -71,7 +66,7 @@ export class ExportDocumentModal {
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this.taskId, this.boundsOnCompleteExport);
         } catch (e) {
             button.classList.remove('loading-icon');
-            button.innerHTML = 'Export';
+            button.innerHTML = 'Export as AOS';
         }
     }
 
@@ -118,107 +113,6 @@ export class ExportDocumentModal {
         a.download = `Space:${spaceId}_Document:${documentId}.docx`;
         a.click();
         window.URL.revokeObjectURL(url);
-    }
-
-    async showCustomizationModal() {
-        return new Promise((resolve) => {
-            const modal = document.getElementById("customizationModal");
-            modal.style.display = "block";
-            this.setupDynamicSection();
-
-            document.querySelectorAll("#customizationModal input, #customizationModal select").forEach(input => {
-                input.addEventListener("change", () => this.collectFormData());
-            });
-
-            document.getElementById("saveSettings").onclick = () => {
-                this.collectFormData();
-                modal.style.display = "none";
-                resolve(this.settings);
-            };
-
-            document.getElementById("cancelSettings").onclick = function () {
-                modal.style.display = "none";
-                resolve(null);
-            };
-        });
-    }
-
-    collectFormData() {
-        const section = document.getElementById("sectionSelector").value;
-
-        const getCheckedValue = (id) => document.getElementById(id).checked;
-
-        if (!this.settings) this.settings = {};
-
-        this.settings[section] = {
-            font: document.getElementById("dynamicFont").value || "Helvetica",
-            fontSize: document.getElementById("dynamicFontSize").value || 14,
-            color: document.getElementById("dynamicColor").value || "#000000",
-            bold: getCheckedValue("dynamicBoldStyle"),
-            italic: getCheckedValue("dynamicItalicStyle"),
-        };
-
-        this.settings.backgroundColor = document.getElementById("backgroundColor").value || "#FFFFFF";
-        this.settings.pageSize = document.getElementById("pageSize").value || "a4";
-        this.settings.orientation = document.getElementById("orientation").value || "portrait";
-        this.settings.paginationPosition = document.getElementById("paginationSelect").value || "center";
-        this.settings.paginationStyle = document.getElementById("paginationStyle").value || "number";
-
-        this.settings.topPadding = parseInt(document.getElementById("topPadding").value) || 10;
-        this.settings.bottomPadding = parseInt(document.getElementById("bottomPadding").value) || 10;
-        this.settings.leftPadding = parseInt(document.getElementById("leftPadding").value) || 10;
-        this.settings.rightPadding = parseInt(document.getElementById("rightPadding").value) || 10;
-
-        console.log("Form data collected:", this.settings);
-    }
-
-    setupDynamicSection() {
-        const sectionSelector = document.getElementById("sectionSelector");
-        const dynamicFont = document.getElementById("dynamicFont");
-        const dynamicBoldStyle = document.getElementById("dynamicBoldStyle");
-        const dynamicItalicStyle = document.getElementById("dynamicItalicStyle");
-        const dynamicFontSize = document.getElementById("dynamicFontSize");
-        const dynamicColor = document.getElementById("dynamicColor");
-
-        if (!this.settings) this.settings = {};
-
-        sectionSelector.addEventListener("change", () => {
-            const selectedSection = sectionSelector.value;
-            if (!this.settings[selectedSection]) {
-                this.settings[selectedSection] = {
-                    font: "Helvetica",
-                    fontSize: 14,
-                    color: "#000000",
-                    bold: false,
-                    italic: false,
-                };
-            }
-
-            const sectionSettings = this.settings[selectedSection];
-
-            dynamicFont.value = sectionSettings.font;
-            dynamicBoldStyle.checked = sectionSettings.bold;
-            dynamicItalicStyle.checked = sectionSettings.italic;
-            dynamicFontSize.value = sectionSettings.fontSize;
-            dynamicColor.value = sectionSettings.color;
-        });
-
-        const updateSettings = () => {
-            const selectedSection = sectionSelector.value;
-            this.settings[selectedSection] = {
-                font: dynamicFont.value,
-                bold: dynamicBoldStyle.checked,
-                italic: dynamicItalicStyle.checked,
-                fontSize: dynamicFontSize.value,
-                color: dynamicColor.value,
-            };
-        };
-
-        dynamicFont.addEventListener("change", updateSettings);
-        dynamicBoldStyle.addEventListener("change", updateSettings);
-        dynamicItalicStyle.addEventListener("change", updateSettings);
-        dynamicFontSize.addEventListener("change", updateSettings);
-        dynamicColor.addEventListener("change", updateSettings);
     }
 
     async exportHTML() {

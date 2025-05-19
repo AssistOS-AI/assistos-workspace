@@ -6,160 +6,16 @@
 </div>
 <form class="modal-body">
   <div class="form-item">
-    <label class="form-label" for="fullExport">Export full document (Otherwise attachments will only be referenced)</label>
-    <input class="form-input" type="checkbox" name="fullExport" id="fullExport">
+    <a data-local-action="openSettingsPage">Open Export Preferences</a>
+  </div>
+  <div class="form-item-row">
+    <label class="form-label" for="fullExport">Duplicate Attachments</label>
+    <input type="checkbox" name="fullExport" id="fullExport" style="cursor:pointer;" title="Copies all attachments into the new document instead of referencing them">
   </div>
   <div class="modal-footer">
-    <div class="export-button" data-local-action="exportDocument">Export</div>
-    <div class="export-button" data-local-action="exportDOCX">Export DOCX</div>
-    <div class="export-button" data-local-action="exportHTML">Export HTML</div>
-  </div>
-</form>
-
-<!-- Modal pentru Personalizare -->
-<form id="customizationModal">
-  <div class="modal-header">
-    <div>Customization Settings</div> <!-- Numele modalului -->
-    <div class="close" data-local-action="closeModal">
-      <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
-    </div>
-  </div>
-
-  <div class="modal-body">
-    <div class="modal-columns">
-      <div class="column">
-        <div class="section">
-          <h3>Select Section to Customize:</h3>
-          <select id="sectionSelector" name="sectionSelector">
-            <option value="title">▶ Title</option>
-            <option value="abstract">▶ Abstract</option>
-            <option value="chapters">▶ Chapters</option>
-            <option value="paragraphs">▶ Paragraphs</option>
-          </select>
-
-          <div class="bonus">    </div>
-
-          <div id="dynamicSection">
-            <div class="row">
-              <label for="dynamicFont">Font:</label>
-              <select id="dynamicFont" name="dynamicFont">
-                <option value="Arial">Arial</option>
-                <option value="Helvetica">Helvetica</option>
-                <option value="Times">Times</option>
-                <option value="Courier">Courier</option>
-              </select>
-            </div>
-
-            <div class="row">
-              <label>Font Style:</label>
-              <div class="font-style-container">
-                <div class="font-style-option">
-                  <input type="checkbox" id="dynamicBoldStyle" name="dynamicBoldStyle" value="bold">
-                  <label for="dynamicBoldStyle">Bold</label>
-                </div>
-                <div class="font-style-option">
-                  <input type="checkbox" id="dynamicItalicStyle" name="dynamicItalicStyle" value="italic">
-                  <label for="dynamicItalicStyle">Italic</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <label for="dynamicFontSize">Font Size:</label>
-              <input type="number" id="dynamicFontSize" name="dynamicFontSize" value="20" min="1">
-            </div>
-
-            <div class="row">
-              <label for="dynamicColor">Color:</label>
-              <input type="color" id="dynamicColor" name="dynamicColor" value="#000000">
-            </div>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Background Customization</h3>
-          <div class="row">
-            <label for="backgroundColor">Background Color:</label>
-            <input type="color" id="backgroundColor" name="backgroundColor" value="#FFFFFF">
-          </div>
-
-          <div class="row">
-            <label for="backgroundImage">Upload Background Image:</label>
-            <input type="file" id="backgroundImage" name="backgroundImage" accept="image/*">
-          </div>
-        </div>
-      </div>
-
-      <div class="column">
-        <div class="section">
-          <h3>Page Format</h3>
-          <div class="row">
-            <label for="pageSize">Page Size:</label>
-            <select id="pageSize" name="pageSize">
-              <option value="a4" selected>A4</option>
-              <option value="a5">A5</option>
-              <option value="a3">A3</option>
-            </select>
-          </div>
-
-          <div class="row">
-            <label for="orientation">Orientation:</label>
-            <select id="orientation" name="orientation">
-              <option value="p" selected>Portrait</option>
-              <option value="l">Landscape</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Pagination</h3>
-          <div class="row">
-            <label for="paginationSelect">Position:</label>
-            <select id="paginationSelect" name="paginationPosition">
-              <option value="left">Left</option>
-              <option value="center" selected>Center</option>
-              <option value="right">Right</option>
-            </select>
-          </div>
-
-          <div class="row">
-            <label for="paginationStyle">Select Pagination Style:</label>
-            <select id="paginationStyle" name="paginationStyle">
-              <option value="number">x</option>
-              <option value="fraction">x/y</option>
-              <option value="simple">Page x of y</option>
-              <option value="dashed">-- Page x of y --</option>
-              <option value="hyphenated">Page x - y</option>
-              <option value="formal">[ Page x of y ]</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="section">
-          <h3>Padding</h3>
-          <div class="row">
-            <label for="topPadding">Top (px):</label>
-            <input type="number" id="topPadding" name="topPadding" value="10" min="5">
-          </div>
-          <div class="row">
-            <label for="bottomPadding">Bottom (px):</label>
-            <input type="number" id="bottomPadding" name="bottomPadding" value="10" min="5">
-          </div>
-          <div class="row">
-            <label for="leftPadding">Left (px):</label>
-            <input type="number" id="leftPadding" name="leftPadding" value="10" min="5">
-          </div>
-          <div class="row">
-            <label for="rightPadding">Right (px):</label>
-            <input type="number" id="rightPadding" name="rightPadding" value="10" min="5">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="action-buttons">
-      <button type="button" id="saveSettings">Confirm Export</button>
-      <button type="button" id="cancelSettings">Cancel</button>
-    </div>
+    <div class="export-button" data-local-action="exportDocument">Export as DOCAI</div>
+    <div class="export-button" data-local-action="exportDOCX">Export as DOCX</div>
+    <div class="export-button" data-local-action="exportHTML">Export as HTML</div>
+    <div class="export-button" data-local-action="exportPDF">Export as PDF</div>
   </div>
 </form>

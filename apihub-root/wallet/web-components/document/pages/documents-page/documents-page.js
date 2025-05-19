@@ -107,6 +107,11 @@ export class DocumentsPage {
         await assistOS.UI.showModal("export-document-modal", {id: documentId, title: documentTitle});
     }
 
+    async printDocument(eventTarget){
+        let documentId = this.getDocumentId(eventTarget);
+        await assistOS.UI.showModal("print-document-modal", {documentId: documentId});
+    }
+
     async importDocument(_target) {
         const handleFile = async (file) => {
             const formData = new FormData();

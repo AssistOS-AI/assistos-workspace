@@ -23,7 +23,7 @@ export class AddSpaceCollaboratorModal {
                 <select class="select-role" id="role${this.lastEmailCount}" name="role${this.lastEmailCount}" required>
                     <option value="member" selected>Member</option>
                     <option value="admin">Admin</option>
-                    <option value="owner">Owner</option>
+                    <option value="owner">Guest</option>
                 </select>
             </div>`;
         addCollabBtn.insertAdjacentHTML("beforebegin", newCollabUnit);

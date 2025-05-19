@@ -1,159 +1,20 @@
-<div class="print-modal-wrapper">
-    <div id="printModal" class="print-modal">
-        <div class="print-modal-content">
-            <div class="modal-header">
-                <h2>Print Document Settings</h2>
-                <span class="close-print-modal" data-local-action="closePrintModal">&times;</span>
-            </div>
-
-            <form id="printSettingsForm">
-
-                <!-- Dynamic Select -->
-                <div class="section">
-                    <h3 id="dynamicSectionTitle">Select Section to Customize:</h3>
-                    <select id="sectionSelector">
-                        <option value="title">▶ Title</option>
-                        <option value="abstract">▶ Abstract</option>
-                        <option value="chapters">▶ Chapters</option>
-                        <option value="paragraphs">▶ Paragraphs</option>
-                    </select>
-                </div>
-
-                <div class="section" id="dynamicSection">
-                    <div class="row">
-                        <label for="dynamicFont">Font:</label>
-                        <select id="dynamicFont" name="dynamicFont">
-                            <option value="Helvetica">Helvetica</option>
-                            <option value="Times">Times</option>
-                            <option value="Courier">Courier</option>
-                            <option value="Symbol">Symbol</option>
-                            <option value="ZapfDingbats">ZapfDingbats</option>
-                        </select>
-                    </div>
-
-                    <div class="row">
-                        <label>Font Style:</label>
-                        <div class="font-style-container">
-                            <div class="font-style-option">
-                                <input type="checkbox" id="dynamicBoldStyle" name="dynamicFontStyle" value="bold">
-                                <label for="dynamicBoldStyle">Bold</label>
-                            </div>
-                            <div class="font-style-option">
-                                <input type="checkbox" id="dynamicItalicStyle" name="dynamicFontStyle" value="italic">
-                                <label for="dynamicItalicStyle">Italic</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <label for="dynamicFontSize">Font Size:</label>
-                        <input type="number" id="dynamicFontSize" name="dynamicFontSize" value="20" min="1">
-                    </div>
-
-                    <div class="row">
-                        <label for="dynamicColor">Color:</label>
-                        <input type="color" id="dynamicColor" name="dynamicColor" value="#000000">
-                    </div>
-                </div>
-
-                <!-- Background -->
-                <div class="section" id="backgroundCustomization">
-                    <h3>Background Customization</h3>
-                    <div class="row">
-                        <label for="backgroundColor">Background Color:</label>
-                        <input type="color" id="backgroundColor" name="backgroundColor" value="#FFFFFF">
-                    </div>
-
-                    <div class="row">
-                        <label for="backgroundImage">Upload Background Image:</label>
-                        <input type="file" id="backgroundImage" name="backgroundImage" accept="image/*">
-                    </div>
-                </div>
-
-                <div class="section" id="PageFormatCustomization">
-                    <h3>Format and orientation of the page</h3>
-                    <div class="row">
-                        <label for="pageSize">Choose the format of the page:</label>
-                        <select id="pageSize" name="pageSize">
-                            <option value="a4" selected>A4</option>
-                            <option value="a5">A5</option>
-                            <option value="a3">A3</option>
-                            <option value="tabloid">Tabloid</option>
-                        </select>
-                    </div>
-
-                    <div class="row">
-                        <label for="orientation">Choose the orientation of the page:</label>
-                        <select id="orientation" name="orientation">
-                            <option value="p" selected>Portrait</option>
-                            <option value="l">Landscape</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Pagination Placing-->
-                <div class="section" id="paginationSection">
-                    <h3>Pagination Position and Style</h3>
-                    <div class="row">
-                        <label for="paginationSelect">Select Pagination Position:</label>
-                        <select id="paginationSelect" name="paginationPosition">
-                            <option value="left">Left</option>
-                            <option value="center" selected>Center</option>
-                            <option value="right">Right</option>
-                        </select>
-                    </div>
-
-                    <div class="row">
-                        <label for="paginationStyle">Select Pagination Style:</label>
-                        <select id="paginationStyle" name="paginationStyle">
-                            <option value="number">x</option>
-                            <option value="fraction">x/y</option>
-                            <option value="simple">Page x of y</option>
-                            <option value="dashed">-- Page x of y --</option>
-                            <option value="hyphenated">Page x - y</option>
-                            <option value="formal">[ Page x of y ]</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="section" id="PaddingCustomization">
-                    <div class="section-title">
-                        <h3>Padding Customization</h3>
-                    </div>
-
-                    <div class="row">
-                        <label for="topPadding">Top (px):</label>
-                        <input type="number" id="topPadding" name="topPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="bottomPadding">Bottom  (px):</label>
-                        <input type="number" id="bottomPadding" name="bottomPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="leftPadding">Left (px):</label>
-                        <input type="number" id="leftPadding" name="leftPadding" value="10" min="5" />
-                    </div>
-
-                    <div class="row">
-                        <label for="rightPadding">Right (px):</label>
-                        <input type="number" id="rightPadding" name="rightPadding" value="10" min="5"/>
-                    </div>
-                </div>
-
-
-                <!-- Butoane de acțiune -->
-                <div class="action-buttons">
-                    <button type="button" data-local-action="PreviewDocument">Preview Document</button>
-                    <button type="button" data-local-action="convertToPDF">Convert to PDF and Print</button>
-                </div>
-            </form>
-        </div>
+<div class="modal-header">
+    <div>Print Document</div>
+    <div class="close" data-local-action="closeModal">
+        <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
     </div>
 </div>
+<form class="modal-body">
+    <div class="form-item">
+        <a data-local-action="openSettingsPage">Open Print Preferences</a>
+    </div>
+</form>
+<div class="modal-footer">
+    <div class="general-button" data-local-action="printDocument">Print</div>
+    <div class="general-button" data-local-action="previewDocument">Preview</div>
+</div>
 
-<!-- Scripturi -->
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/2.4.3/purify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>

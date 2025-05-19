@@ -33,7 +33,6 @@ export class DocumentViewPage {
     async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
-
     async addTableOfContents(targetElement) {
         if (!this._document) {
             console.error("Document data is not available.");

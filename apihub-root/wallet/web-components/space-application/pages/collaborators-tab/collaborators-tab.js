@@ -21,7 +21,7 @@ const mockCollaborators = [
     {
         email: "demoemail2@com",
         username: "Jane",
-        role: "owner",
+        role: "guest",
         documentsCreated: 2,
         tasksCreated: 100,
         tokensUsed: 50000
@@ -37,8 +37,8 @@ const mockCollaborators = [
 ]
 const roles = [
     "Member",
-    "Admin",
-    "Owner"
+    "Guest",
+    "Admin"
 ]
 function getAvatarHTML(name, size = 32) {
     let hue = Array.from(name).reduce((s,c)=>s+c.charCodeAt(0),0) % 360

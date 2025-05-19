@@ -142,6 +142,18 @@
             "presenterClassName": "MyAccount"
         },
         {
+            "name": "my-account-data",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "MyAccountData"
+        },
+        {
+            "name": "my-account-logins",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "MyAccountLogins"
+        },
+        {
             "name": "keys-tab",
             "directory": "space-application",
             "type": "pages",

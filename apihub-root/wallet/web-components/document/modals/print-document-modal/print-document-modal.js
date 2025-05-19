@@ -2,43 +2,28 @@ export class PrintDocumentModal {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.invalidate();
         this.documentId = this.element.getAttribute("data-documentId");
+        this.invalidate();
 
-        let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
-        this.document = documentPresenter._document;
-        console.log(this.document);
-
-        this.formData = {};
-        this.settings = {
-            title: { font: 'Helvetica', bold: false, italic: false, fontSize: 20, color: '#000000' },
-            abstract: { font: 'Helvetica', bold: false, italic: false, fontSize: 14, color: '#000000' },
-            chapters: { font: 'Helvetica', bold: false, italic: false, fontSize: 18, color: '#000000' },
-            paragraphs: { font: 'Helvetica', bold: false, italic: false, fontSize: 14, color: '#000000' }
-        };
     }
 
     async beforeRender() {
-        // Cod de initializare care ruleaza inainte de redarea paginii
     }
 
-    closePrintModal() {
+    closeModal() {
         assistOS.UI.closeModal(this.element);
     }
 
     async convertToPDF() {
-        console.log('convertToPDF called'); // Debugging
         this.collectFormData();
 
         const htmlContent = this.generateHTMLFromDocument();
         const cssContent = this.generateCSSFromForm();
 
-        // container temporar pentru HTML + CSS
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = `<style>${cssContent}</style>${htmlContent}`;
         document.body.appendChild(tempDiv);
 
-        // margini personalizate din formular
         const margins = {
             top: parseInt(this.formData.topPadding) || 10,
             bottom: parseInt(this.formData.bottomPadding) || 10,
@@ -46,12 +31,11 @@ export class PrintDocumentModal {
             right: parseInt(this.formData.rightPadding) || 10,
         };
 
-        // configurare optiuni html2pdf
         const options = {
             margin: [margins.top, margins.left, margins.bottom, margins.right],
             filename: 'document.pdf',
-            image: { type: 'png', quality: 0.98 },
-            html2canvas: { scale: 2 },
+            image: {type: 'png', quality: 0.98},
+            html2canvas: {scale: 2},
             jsPDF: {
                 unit: 'mm',
                 format: this.formData.pageSize || 'a4',
@@ -59,19 +43,15 @@ export class PrintDocumentModal {
             }
         };
 
-        // PDF cu html2pdf
         const pdf = await html2pdf().from(tempDiv).set(options).toPdf().get('pdf');
 
-        // font text paginare
-        const paginationFontSize = 10; // Dimensiunea fontului pentru paginare
+        const paginationFontSize = 10;
         pdf.setFontSize(paginationFontSize);
 
-        // footer-ului in fct de dimensiunea textului
         const paginationText = `Page 1 of 1`;
         const textDimensions = pdf.getTextDimensions(paginationText);
         const footerHeight = textDimensions.h + 2;
 
-        //paginare + footer -> jsPDF
         const pageCount = pdf.internal.getNumberOfPages();
         const paginationPosition = this.formData.paginationPosition;
         const paginationStyle = this.formData.paginationStyle || 'number';
@@ -106,12 +86,11 @@ export class PrintDocumentModal {
                 xPosition = margins.left;
             }
 
-            // footer-ul deasupra marginii inferioare
             pdf.text(
                 paginationText,
                 xPosition,
                 pdf.internal.pageSize.height - margins.bottom + (footerHeight / 2),
-                { align: paginationPosition }
+                {align: paginationPosition}
             );
         }
 
@@ -120,7 +99,12 @@ export class PrintDocumentModal {
         document.body.removeChild(tempDiv);
     }
 
-    async PreviewDocument() {
+    async openSettingsPage(eventTarget) {
+        await this.closeModal();
+        await assistOS.UI.changeToDynamicPage("settings-page", `${assistOS.space.id}/Space/settings-page`, {subpage: "settingsTab"});
+    }
+
+    async previewDocument() {
         this.collectFormData();
         const cssContent = this.generateCSSFromForm();
         const htmlContent = this.generateHTMLFromDocument();
@@ -137,59 +121,50 @@ export class PrintDocumentModal {
     }
 
     collectFormData() {
-        const form = document.getElementById('printSettingsForm');
-        if (!form) {
-            console.error("Form not found!");
-            return;
-        }
-
-        const formData = new FormData(form);
 
         this.formData = {
             title: {
-                font: formData.get('dynamicFont') || 'Helvetica',
-                fontSize: `${formData.get('dynamicFontSize') || 20}px`,
-                color: formData.get('dynamicColor') || '#000000',
-                bold: formData.get('dynamicBoldStyle') === 'bold',
-                italic: formData.get('dynamicItalicStyle') === 'italic'
+                font: 'Helvetica',
+                fontSize: `20px`,
+                color: '#000000',
+                bold: true,
+                italic: false
             },
             abstract: {
-                font: formData.get('abstractFont') || 'Helvetica',
-                fontSize: `${formData.get('abstractFontSize') || 14}px`,
-                color: formData.get('abstractColor') || '#000000',
-                bold: formData.get('abstractBold') === 'bold',
-                italic: formData.get('abstractItalic') === 'italic'
+                font: 'Helvetica',
+                fontSize: `14px`,
+                color: '#000000',
+                bold: true,
+                italic: false
             },
             chapter: {
-                font: formData.get('chapterFont') || 'Helvetica',
-                fontSize: `${formData.get('chapterFontSize') || 18}px`,
-                color: formData.get('chapterColor') || '#000000',
-                bold: formData.get('chapterBold') === 'bold',
-                italic: formData.get('chapterItalic') === 'italic'
+                font: 'Helvetica',
+                fontSize: `18px`,
+                color: '#000000',
+                bold: true,
+                italic: false
             },
             paragraph: {
-                font: formData.get('paragraphFont') || 'Helvetica',
-                fontSize: `${formData.get('paragraphFontSize') || 14}px`,
-                color: formData.get('paragraphColor') || '#000000',
-                bold: formData.get('paragraphBold') === 'bold',
-                italic: formData.get('paragraphItalic') === 'italic'
+                font: 'Helvetica',
+                fontSize: `14px`,
+                color: '#000000',
+                bold: true,
+                italic: false
             },
-            backgroundColor: formData.get('backgroundColor') || '#FFFFFF',
-            backgroundImage: formData.get('backgroundImage'),
-            topPadding: formData.get('topPadding') || 10,
-            bottomPadding: formData.get('bottomPadding') || 10,
-            leftPadding: formData.get('leftPadding') || 10,
-            rightPadding: formData.get('rightPadding') || 10,
-            pageSize: formData.get('pageSize') || 'a4',
-            orientation: formData.get('orientation') || 'portrait',
-            paginationPosition: formData.get('paginationPosition') || 'center',
-            paginationStyle: formData.get('paginationStyle') || 'number'
+            backgroundColor: '#FFFFFF',
+            topPadding: 10,
+            bottomPadding: 10,
+            leftPadding: 10,
+            rightPadding: 10,
+            pageSize: 'a4',
+            orientation: 'portrait',
+            paginationPosition: 'center',
+            paginationStyle: 'number'
         };
-        console.log(formData);
     }
 
     generateCSSFromForm() {
-        const { title, abstract, chapters, paragraphs } = this.settings;
+        const {title, abstract, chapters, paragraphs} = this.settings;
 
         let cssContent = `
         body {
@@ -234,7 +209,7 @@ export class PrintDocumentModal {
             return "";
         }
 
-        const { title, abstract, chapters } = this.document;
+        const {title, abstract, chapters} = this.document;
 
         let htmlContent = `<h1>${title}</h1>`;
 
@@ -244,7 +219,7 @@ export class PrintDocumentModal {
 
         if (Array.isArray(chapters)) {
             chapters.forEach((chapter) => {
-                const { title: chapterTitle, paragraphs } = chapter;
+                const {title: chapterTitle, paragraphs} = chapter;
 
                 htmlContent += `<br><h2>${chapterTitle}</h2>`;
 
@@ -305,34 +280,34 @@ export class PrintDocumentModal {
         });
     }
 
-    async afterRender() {
-        this.collectFormData();
-        try {
-            await this.loadJsPDF();
-            await this.loadDompurify();
-            await this.loadHTML2Canvas();
-            await this.loadHTML2PDF();
-            console.log("All scripts loaded successfully.");
-        } catch (error) {
-            console.error(error);
-        }
+    /*  async afterRender() {
+          this.collectFormData();
+          try {
+              await this.loadJsPDF();
+              await this.loadDompurify();
+              await this.loadHTML2Canvas();
+              await this.loadHTML2PDF();
+              console.log("All scripts loaded successfully.");
+          } catch (error) {
+              console.error(error);
+          }
 
-        try {
-            const htmlOutput = this.generateHTMLFromDocument();
-            console.log(htmlOutput);
-        } catch (error) {
-            console.error("Failed to create the HTML string:", error);
-        }
+          try {
+              const htmlOutput = this.generateHTMLFromDocument();
+              console.log(htmlOutput);
+          } catch (error) {
+              console.error("Failed to create the HTML string:", error);
+          }
 
-        try {
-            const cssOutput = this.generateCSSFromForm();
-            console.log(cssOutput);
-        } catch (error) {
-            console.error("Failed to create the CSS string:", error);
-        }
+          try {
+              const cssOutput = this.generateCSSFromForm();
+              console.log(cssOutput);
+          } catch (error) {
+              console.error("Failed to create the CSS string:", error);
+          }
 
-        this.setupDynamicSection();
-    }
+          this.setupDynamicSection();
+      }*/
 
     loadDompurify() {
         return this.loadExternalScript("./wallet/lib/dompurify/purify.js", "dompurify");

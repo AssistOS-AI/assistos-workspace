@@ -1,10 +1,9 @@
-.modal-footer {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    align-items: center;
+export-document-modal{
+    display:flex;
+    flex-direction:column;
+    width: 856px;
+    height: 448px;
 }
-
 .export-button {
     cursor: pointer;
     padding: 6px;

@@ -8,7 +8,7 @@ my-account{
     flex-direction: column;
     width: 40%;
     max-width: 500px;
-    height: 100%;
+    height: calc(100% - 60px);
     gap: 30px;
 }
 .accountData .general-button{
