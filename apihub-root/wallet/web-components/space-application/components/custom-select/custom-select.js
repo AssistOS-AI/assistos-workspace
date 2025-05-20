@@ -5,6 +5,7 @@ export class CustomSelect{
         this.element.style.width = this.width + "px" || "auto";
         this.props = props;
         this.defaultSelected = this.element.getAttribute("data-selected");
+        this.name = this.element.getAttribute("data-name");
         this.invalidate();
     }
     beforeRender() {
@@ -32,7 +33,7 @@ export class CustomSelect{
         document.addEventListener("click", boundCloseSelect, {signal: this.controller.signal});
     }
     closeSelect(event){
-        if(!event.target.closest("custom-select")){
+        if(!event.target.closest(`custom-select[data-name="${this.name}"]`)){
             let optionsList = this.element.querySelector(".options-list");
             optionsList.classList.add("hidden");
             this.element.firstElementChild.classList.remove("focused");

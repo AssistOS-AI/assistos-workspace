@@ -9,6 +9,10 @@ export class BuildErrors {
     async beforeRender(){
         //this.errors = await spaceModule.getErrorsFromLastBuild(assistOS.space.id);
         this.errors = [];
-        this.buildErrors = JSON.stringify(this.errors, null, 2);
+        if(this.errors.length === 0){
+            this.buildErrors = `[No errors from last build]`;
+        } else {
+            this.buildErrors = JSON.stringify(this.errors, null, 2);
+        }
     }
 }
