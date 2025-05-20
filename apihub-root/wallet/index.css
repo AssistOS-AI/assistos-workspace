@@ -117,9 +117,16 @@ dialog {
     border: 1px solid var(--light-gray-border);
 }
 
+
+.close-icon{
+    width: 13px;
+}
+.modal {
+    border: none;
+}
 .modal-header {
     align-items: center;
-    padding: 15px;
+    padding: 15px 25px;
     display: flex;
     color: var(--header-font-color);
     font-weight: 700;
@@ -129,43 +136,14 @@ dialog {
     letter-spacing: 0;
     border-bottom: 1px solid var(--light-gray-border);
 }
-
-.close {
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.modal-title {
-}
-.close-icon{
-    width: 13px;
-}
 .modal-body {
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    padding: 15px;
-
+    padding: 25px;
 }
-.form-item a{
-    cursor:pointer;
-    outline: none;
-    color: var(--strong-blue);
-}
-
 .modal-footer {
-    position:absolute;
-    display: flex;
+  /*  display: flex;
     gap: 10px;
     justify-content: center;
-    align-items: center;
-    bottom:40px;
-}
-
-.modal {
-    border: none;
+    align-items: center;*/
 }
 
 .modal-full-screen {
@@ -184,13 +162,15 @@ dialog {
 }
 
 /*forms*/
+.form-item a{
+    cursor:pointer;
+    outline: none;
+    color: var(--strong-blue);
+}
 .form-label {
     color: var(--default-font-color);
     font-size: 16px;
     font-weight: 600;
-    line-height: 100%;
-    letter-spacing: 0;
-    vertical-align: middle;
 }
 
 .form-item {

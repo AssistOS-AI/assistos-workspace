@@ -14,13 +14,7 @@ dialog{
     display: flex;
     justify-content: space-between;
 }
-.modal-title {
-    color: var(--white-text);
-    font-size: 18px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
+
 
 .close {
     padding: 0;
