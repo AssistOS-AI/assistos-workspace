@@ -398,16 +398,16 @@ export function changeSelectedPageFromSidebar(url) {
         element.removeAttribute('id');
         let paths = element.querySelectorAll("path");
         paths.forEach((path) => {
-            if (path.getAttribute("stroke-linejoin") === "round") {
-                path.setAttribute("stroke", "var(--left-sidebar-icons)");
+            if (path.getAttribute("stroke-linejoin") === "round" || path.getAttribute("stroke-linecap") === "round") {
+                path.setAttribute("stroke", "var(--plugin-focus)");
             } else {
-                path.setAttribute("fill", "var(--left-sidebar-icons)");
+                path.setAttribute("fill", "var(--plugin-focus)");
             }
         });
         let appFocus = element.querySelector('.app-focus');
         appFocus.classList.add("hidden");
     }
-    let divs = document.querySelectorAll('.feature');
+    let divs = document.querySelectorAll('.sidebar-item');
     for (let div of divs) {
         let dataAction = div.getAttribute('data-local-action');
         let page = dataAction.split(" ")[1];
@@ -417,10 +417,10 @@ export function changeSelectedPageFromSidebar(url) {
             div.setAttribute('id', 'selected-page');
             let paths = div.querySelectorAll("path");
             paths.forEach((path) => {
-                if (path.getAttribute("stroke-linejoin") === "round") {
-                    path.setAttribute("stroke", "#ffffff");
+                if (path.getAttribute("stroke-linejoin") === "round" || path.getAttribute("stroke-linecap") === "round") {
+                    path.setAttribute("stroke", "#08C");
                 } else {
-                    path.setAttribute("fill", "#ffffff");
+                    path.setAttribute("fill", "#08C");
                 }
             });
             return;

@@ -15,11 +15,7 @@ left-sidebar {
     flex-direction: column;
 }
 
-.features-list-wrapper {
-    display: flex;
-    flex-direction: column;
-}
-.features-list{
+.pages-list{
     display: flex;
     flex-direction: column;
     width: 100%;
@@ -48,6 +44,7 @@ left-sidebar {
 }
 
 .sidebar-item {
+    position: relative;
     display:flex;
     align-items: center;
     cursor: pointer;
@@ -55,7 +52,9 @@ left-sidebar {
     border-radius: 5px;
     width: 100%;
     justify-content: center;
+    padding: 5px 0;
 }
+
 .sidebar-item-title {
     margin-left: 12px;
     color: var(--default-font-color);
@@ -88,7 +87,7 @@ left-sidebar {
     z-index: 2;
 }
 
-.feature{
+.page{
     cursor: pointer;
     position: relative;
     align-items: center;
@@ -124,10 +123,11 @@ left-sidebar {
 .page-logo {
     position: relative;
     border-radius: 50%;
-    width: 26px;
-    height: 26px;
     object-fit: cover;
     transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .user-photo {
@@ -151,7 +151,7 @@ left-sidebar {
 .item {
     font-size:10pt;
     margin-top: 15px;
-    color: var(--left-sidebar-icons);
+    color: var(--plugin-focus);
 }
 .spaces-list{
     color: var(--white-text);
@@ -236,4 +236,15 @@ html[theme="dark"] {
     padding: 10px;
     flex-direction: column;
     justify-content: end;
+}
+.svg-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+}
+.sidebar-item:hover .svg-container {
+    background-color: var(--gray-button-text);
 }
