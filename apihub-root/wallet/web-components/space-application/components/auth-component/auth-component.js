@@ -7,6 +7,21 @@ function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email)
 }
+async function checkPasskeyAvailability() {
+    let available = true;
+    if (window.PublicKeyCredential) {
+        try {
+            available = await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable();
+        } catch (err) {
+            available = false;
+            console.error("Error checking platform authenticator availability:", err);
+        }
+    } else {
+        available = false;
+        console.log("WebAuthn is not supported in this browser.");
+    }
+    return available;
+}
 export class AuthComponent {
     constructor(element, invalidate) {
         this.element = element;
@@ -65,7 +80,7 @@ export class AuthComponent {
         this.setAuthStep(this.auth_step);
     }
 
-    setRegisterOptions() {
+    async setRegisterOptions() {
         this.auth_options = "";
         for (const method of this.authMethods) {
             let option = "";
@@ -78,6 +93,12 @@ export class AuthComponent {
                             </label>`;
             }
             if (method === "passkey") {
+                let available = await checkPasskeyAvailability()
+
+                if (!available) {
+                    this.selected_method = this.authMethods[0];
+                    continue;
+                }
                 this.passkey_auth = "enabled";
                 option = `<label class="radio_container choice pointer passkey">
                                 <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey"></custom-radio>  
@@ -273,7 +294,7 @@ export class AuthComponent {
             const result = await userModule.getAuthTypes(this.email);
             this.setLoginOptions(result.authMethods);
         } else {
-            this.setRegisterOptions();
+            await this.setRegisterOptions();
             this.element.querySelector(".auth_container").setAttribute("selected-auth", this.selected_method);
         }
     }
