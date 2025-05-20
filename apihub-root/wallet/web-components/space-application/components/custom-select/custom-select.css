@@ -1,3 +1,6 @@
+custom-select{
+    display: block;
+}
 .custom-select {
     padding: var(--button-padding);
     font-size: 16px;
