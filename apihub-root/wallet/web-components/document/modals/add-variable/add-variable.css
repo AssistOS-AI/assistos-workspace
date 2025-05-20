@@ -45,7 +45,7 @@ add-variable{
 .search-icon{
     position: absolute;
     right: 10px;
-    top: 12px;
+    top: 7px;
 }
 .select-options{
     width: 100%;
@@ -68,4 +68,7 @@ add-variable{
 }
 .option.selected{
     background-color: var(--action-button-background);
+}
+add-variable .form-item{
+    margin-bottom: 20px;
 }

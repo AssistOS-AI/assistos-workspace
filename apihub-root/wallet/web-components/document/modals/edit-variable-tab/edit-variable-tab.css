@@ -1,6 +1,9 @@
 edit-variable-tab{
     height: 100%;
 }
+edit-variable-tab .form-item{
+    margin-bottom: 20px;
+}
 .expression-multi-line {
     resize: none;
 }
@@ -45,7 +48,7 @@ edit-variable-tab{
 .search-icon{
     position: absolute;
     right: 10px;
-    top: 12px;
+    top: 7px;
 }
 .select-options{
     width: 100%;

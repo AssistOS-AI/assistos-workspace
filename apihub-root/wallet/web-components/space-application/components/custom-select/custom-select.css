@@ -9,7 +9,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 4px 0 8px;
+    margin-top: 2px;
 }
 .current-option{
     margin-right: 15px;

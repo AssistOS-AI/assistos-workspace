@@ -24,7 +24,5 @@ export class ApplicationsMarketplacePage {
             "available items": JSON.stringify(assistOS.applications)
         }
     }
-    async addMarketplace(){
-        await assistOS.UI.showModal( "add-marketplace-modal", { presenter: "add-marketplace-modal"});
-    }
+
 }

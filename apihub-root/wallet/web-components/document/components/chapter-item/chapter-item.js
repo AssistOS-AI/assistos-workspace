@@ -424,11 +424,6 @@ export class ChapterItem {
     }
 
 
-
-    async showBackgroundAudio(){
-        await assistOS.UI.showModal("chapter-background-audio", {"chapter-id": this.chapter.id});
-    }
-
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         this.actionBox = await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }

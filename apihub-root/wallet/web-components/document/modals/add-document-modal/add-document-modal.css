@@ -1,9 +1,10 @@
 add-document-modal {
     display: block;
-    min-height: 540px;
     width: 860px;
 }
-
+add-document-modal .form-item{
+    margin-bottom: 20px;
+}
 .tabs {
     display: flex;
     gap: 16px;
@@ -12,7 +13,7 @@ add-document-modal {
 }
 
 .source-toggle {
-    padding: 15px 15px 10px 15px;
+    padding: 15px 25px 10px 25px;
     background: inherit;
     color: var(--default-font-color);
 }
@@ -114,4 +115,7 @@ add-document-modal {
 }
 .remove-file{
     width: 11px;
+}
+.category-file-upload{
+    margin-bottom: 20px;
 }

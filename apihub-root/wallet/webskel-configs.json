@@ -249,12 +249,6 @@
             "presenterClassName": "NotificationToast"
         },
         {
-            "name": "chapter-background-audio",
-            "directory": "document",
-            "type": "modals",
-            "presenterClassName": "ChapterBackgroundAudio"
-        },
-        {
             "name": "fb-musicgen-sm-model-page",
             "directory": "space-application",
             "type": "pages",
@@ -495,12 +489,6 @@
             "directory": "space-application",
             "type": "modals",
             "presenterClassName": "GitCredentialsModal"
-        },
-        {
-            "name": "add-marketplace-modal",
-            "directory": "application",
-            "type": "modals",
-            "presenterClassName": "AddMarketplaceModal"
         },
         {
             "name": "client-disconnect-modal",

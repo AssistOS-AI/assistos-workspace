@@ -1,6 +1,9 @@
 documents-page{
     overflow: scroll;
 }
+documents-page .custom-select{
+    margin: 0;
+}
 .page-title{
     color: var(--header-font-color);
     font-size: var(--page-header-font-size);
