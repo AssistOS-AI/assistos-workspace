@@ -21,6 +21,7 @@ document-view-page {
     display: flex;
     align-items: center;
     padding-bottom: 10px;
+    height: 43px;
 }
 
 .book-comment-container{
@@ -49,13 +50,17 @@ document-view-page {
     position: relative;
     scrollbar-width: thin;
     overflow-y: scroll;
+    overflow-x: hidden;
     height: calc(100vh - 70px);
     padding: 10px 20px 10px 40px;
 }
 
-.document-editor {
+.left-section-doc-info{
+    display: flex;
+    padding-left: 8px;
+    width: 67%;
+    margin-right: 10px;
 }
-
 .document-page-header {
     z-index: 10;
     border-bottom: 1px solid var(--very-light-gray);

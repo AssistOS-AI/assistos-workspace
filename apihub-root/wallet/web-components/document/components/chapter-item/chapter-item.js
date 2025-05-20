@@ -230,6 +230,9 @@ export class ChapterItem {
         let insertElements = this.element.querySelector(".add-elements");
         this.documentPresenter.attachTooltip(insertElements,"Insert Elements");
 
+        let comments = this.element.querySelector(".comment-menu");
+        this.documentPresenter.attachTooltip(comments,"Comments");
+
         let deleteChapter = this.element.querySelector(".delete-chapter");
         this.documentPresenter.attachTooltip(deleteChapter,"Delete Chapter");
 
@@ -394,14 +397,11 @@ export class ChapterItem {
     }
 
     async changeChapterDisplay(_target) {
-        await this.documentPresenter.changeCurrentElement(this.element, this.focusOutHandler.bind(this));
-        await this.highlightChapter(_target);
         if (!this.isVisible) {
             this.changeChapterVisibility(true);
         } else {
             this.changeChapterVisibility(false);
         }
-
     }
 
     changeChapterVisibility(isVisible) {

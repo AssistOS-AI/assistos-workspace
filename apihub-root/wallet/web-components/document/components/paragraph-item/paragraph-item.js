@@ -63,7 +63,8 @@ export class ParagraphItem {
 
         let commentMenu = this.element.querySelector(".comment-menu");
         this.documentPresenter.attachTooltip(commentMenu,"Comments");
-
+        let deleteParagraph = this.element.querySelector(".delete-paragraph");
+        this.documentPresenter.attachTooltip(deleteParagraph,"Delete Paragraph");
         if(this.paragraph.commands.files && this.paragraph.commands.files.length > 0){
             let filesMenu = this.element.querySelector(".files-menu");
             filesMenu.classList.add("highlight-attachment");
