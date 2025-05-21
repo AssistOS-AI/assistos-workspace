@@ -344,11 +344,13 @@ export class DocumentViewPage {
         //let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
         let scriptArgs = this.element.querySelector(".script-modal");
         let buildIcon = this.element.querySelector(".build-document");
+        let commentsIcon = this.element.querySelector(".comments-icon-container");
         //this.attachTooltip(this.undoButton, "Undo");
         //this.attachTooltip(this.redoButton, "Redo");
         //this.attachTooltip(tasksMenu, "Tasks");
         //this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
+        this.attachTooltip(commentsIcon, "Comments");
         this.attachTooltip(buildIcon, "Build Document");
         if(this.viewMode ==="demo"){
             this.element.querySelector('.document-page-header')?.remove();
@@ -368,6 +370,16 @@ export class DocumentViewPage {
         containerElement.addEventListener("mouseout", async ()=>{
             containerElement.querySelector(".tooltip-name").style.display = "none";
         });
+    }
+    async changeDocInfoDisplay(arrow) {
+        let documentInfo = this.element.querySelector(".document-infoText");
+        if(documentInfo.classList.contains("hidden")){
+            documentInfo.classList.remove("hidden");
+            arrow.classList.remove("rotate");
+        } else {
+            documentInfo.classList.add("hidden");
+            arrow.classList.add("rotate");
+        }
     }
     async removeFocusHandler(event) {
         let closestContainer = event.target.closest(".document-editor");

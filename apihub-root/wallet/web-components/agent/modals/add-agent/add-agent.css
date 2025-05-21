@@ -9,3 +9,6 @@ textarea#description {
 .modal-footer{
     margin-top: 10px;
 }
+add-agent .form-item{
+    margin-bottom: 20px;
+}

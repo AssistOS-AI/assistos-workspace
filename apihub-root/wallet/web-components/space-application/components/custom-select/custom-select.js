@@ -2,7 +2,6 @@ export class CustomSelect{
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
-        this.element.style.width = this.width + "px" || "auto";
         this.props = props;
         this.defaultSelected = this.element.getAttribute("data-selected");
         this.name = this.element.getAttribute("data-name");
@@ -20,6 +19,7 @@ export class CustomSelect{
             }
         }
         this.width = parseInt(this.element.getAttribute("data-width"));
+        this.element.style.width = this.width + "px" || "auto";
     }
     openSelect(){
         let optionsList = this.element.querySelector(".options-list");

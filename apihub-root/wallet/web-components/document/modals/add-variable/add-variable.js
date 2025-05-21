@@ -20,13 +20,6 @@ export class AddVariable {
     }
     async beforeRender(){
         this.commands = await spaceModule.getCommands(assistOS.space.id);
-
-        let types = await spaceModule.getCustomTypes(assistOS.space.id);
-        let variableTypeOptions = `<option value="" selected disabled>Select Type</option>`;
-        for(let type of types){
-            variableTypeOptions += `<option value="${type}">${type}</option>`;
-        }
-        this.variableTypeOptions = variableTypeOptions;
     }
     changeExpressionInputToMultiLine(){
         let expressionInput = this.element.querySelector(".expression-input");
@@ -52,7 +45,23 @@ export class AddVariable {
         let parametersInput = this.element.querySelector(".multi-line-expr-parameters");
         parametersInput.classList.add("hidden");
     }
-    afterRender(){
+    async afterRender(){
+        let types = await spaceModule.getCustomTypes(assistOS.space.id);
+        let variableTypeOptions = [{name: "Select a type", value: ""}];
+        for(let type of types){
+            variableTypeOptions.push({
+                name: type,
+                value: type
+            })
+        }
+        assistOS.UI.createElement("custom-select", ".select-type-container", {
+                options: variableTypeOptions,
+            },
+            {
+                "data-width": "230",
+                "data-name": "type",
+                "data-selected": "",
+            })
         let commandInput = this.element.querySelector("#command");
         let selectOptions = this.element.querySelector(".select-options");
         commandInput.value = "assign"
@@ -123,6 +132,10 @@ export class AddVariable {
             return;
         }
         let variableName = formData.data.name;
+        let typeSelect = this.element.querySelector('custom-select');
+        let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
+        let type = selectedOption.getAttribute('data-value');
+
         let commandInput = this.element.querySelector("#command");
         let valid = commandInput.getAttribute("data-valid");
         if(valid === "false"){
@@ -133,11 +146,11 @@ export class AddVariable {
         expression = assistOS.UI.unsanitize(expression);
 
         if(command === "new"){
-            let variableType = formData.data.type;
+            let variableType = type;
             if(!variableType){
                 return alert("Please select a type");
             }
-            expression += `${variableType} `;
+            expression = `${variableType} ${expression}`;
         } else if(command === "assign"){
             command = ":=";
         } else if(command === "macro" || command === "jsdef"){

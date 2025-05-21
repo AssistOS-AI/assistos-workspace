@@ -9,7 +9,6 @@
     --form-input-border: #BDBDBD;
     --very-light-gray: #c2c2c299;
     --error-modal-border: #E5E5E5;
-    --left-sidebar-icons: #7B7B7B;
     --left-sidebar-background: #2C2C2C;
     --header-font-color: #222222;
     --strong-blue: #08C;
@@ -25,7 +24,7 @@
     --application-marketplace-background: #F8F8F8;
     --application-marketplace-border: #DDDDDD;
     --gray-button-background: #EDEDED;
-    --gray-button-text: #333333;
+    --gray-button-text: #454545;
     --gray-button-border: #CCCCCC;
     --menu-backgroud: #F5F5F5;
     /*auth component*/
@@ -117,7 +116,12 @@ dialog {
     border: 1px solid var(--light-gray-border);
 }
 
-
+.close{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
 .close-icon{
     width: 13px;
 }
@@ -305,14 +309,6 @@ select{
     }
 }
 
-.page-logo {
-    display: inherit;
-    justify-content: center;
-    align-items: center;
-    padding: 0;
-    margin: 0;
-}
-
 .page-name {
     margin-left: 14px;
     color: var(--white-text);
@@ -352,51 +348,6 @@ select{
 .rotate {
     transform: rotate(-90deg);
 }
-
-.sidebar-item {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 10px 0;
-    white-space: nowrap;
-    cursor: pointer;
-    font-style: normal;
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 21px;
-    letter-spacing: 0;
-    text-align: left;
-}
-
-.sidebar-item:hover {
-    border-radius: 5px;
-    background: var(--form-input-border);
-}
-
-.sidebar-name-container, .item-list-container {
-    border: 1px solid var(--gray-border);
-    padding: 20px;
-}
-
-.item-list-container {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-.item-list {
-    background-color: var(--white-text);
-    height: 100%;
-    width: 100%;
-}
-
-.svg-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 20px;
-    height: 20px;
-}
-
 .disabled {
     opacity: 0.4;
     pointer-events: none;

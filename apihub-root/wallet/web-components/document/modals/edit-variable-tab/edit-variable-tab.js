@@ -16,13 +16,6 @@ export class EditVariableTab {
 
     async beforeRender() {
         this.commands = await spaceModule.getCommands(assistOS.space.id);
-
-        let types = await spaceModule.getCustomTypes(assistOS.space.id);
-        let variableTypeOptions = `<option value="" selected disabled>Select Type</option>`;
-        for(let type of types){
-            variableTypeOptions += `<option value="${type}">${type}</option>`;
-        }
-        this.variableTypeOptions = variableTypeOptions;
     }
     changeExpressionInputToMultiLine(){
         let expressionInput = this.element.querySelector(".expression-input");
@@ -98,7 +91,27 @@ export class EditVariableTab {
         }
     }
     /*search select*/
-    afterRender() {
+    insertTypeSelect(types, defaultSelected){
+        assistOS.UI.createElement("custom-select", ".select-type-container", {
+                options: types,
+            },
+            {
+                "data-width": "230",
+                "data-name": "type",
+                "data-selected": defaultSelected,
+            })
+    }
+    async afterRender() {
+
+        let types = await spaceModule.getCustomTypes(assistOS.space.id);
+        let variableTypeOptions = [{name: "Select a type", value: ""}];
+        for(let type of types){
+            variableTypeOptions.push({
+                name: type,
+                value: type
+            })
+        }
+
         let commandInput = this.element.querySelector("#command");
         let selectOptions = this.element.querySelector(".select-options");
         if(this.command === ":="){
@@ -123,16 +136,16 @@ export class EditVariableTab {
             let parameters = splitExpression[0].split(",");
             parametersInput.value = parameters.join(" ");
             this.expression = splitExpression.slice(1).join(" ");
+            this.insertTypeSelect(variableTypeOptions, "");
         } else if(this.command === "new"){
             let typeInput = this.element.querySelector(".form-item.type");
             typeInput.classList.remove("hidden");
             let splitExpression = this.expression.split(" ");
             let type = splitExpression[0];
             this.expression = splitExpression.slice(1).join(" ");
-            let selectedOption = typeInput.querySelector(`option[value="${type}"]`);
-            if(selectedOption){
-                selectedOption.selected = true;
-            }
+            this.insertTypeSelect(variableTypeOptions, type);
+        } else {
+            this.insertTypeSelect(variableTypeOptions, "");
         }
         let expressionInput = this.element.querySelector("#expression");
         expressionInput.value = this.expression;
@@ -151,9 +164,11 @@ export class EditVariableTab {
         let command = commandInput.value;
         let expression = formData.data.expression;
         expression = assistOS.UI.unsanitize(expression);
-
+        let typeSelect = this.element.querySelector('custom-select');
+        let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
+        let type = selectedOption.getAttribute('data-value');
         if(command === "new"){
-            let variableType = formData.data.type;
+            let variableType = type;
             if(!variableType){
                 return alert("Please select a type");
             }

@@ -1,7 +1,7 @@
 add-variable{
     display: block;
     width: 1100px;
-    height: 450px;
+    height: 465px;
 }
 .modal-body{
     height: calc(100% - 56px);
@@ -45,7 +45,7 @@ add-variable{
 .search-icon{
     position: absolute;
     right: 10px;
-    top: 12px;
+    top: 7px;
 }
 .select-options{
     width: 100%;
@@ -54,7 +54,7 @@ add-variable{
     position: absolute;
     top: 40px;
     left: 0;
-    max-height: 330px;
+    max-height: 300px;
     overflow-y: scroll;
     border-radius: 5px;
 }
@@ -68,4 +68,7 @@ add-variable{
 }
 .option.selected{
     background-color: var(--action-button-background);
+}
+add-variable .form-item{
+    margin-bottom: 20px;
 }
