@@ -33,31 +33,39 @@ export class LeftSidebar {
             this.applications += `
         <div class="sidebar-item" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.id}">
             <div class="app-focus hidden"></div>
+            <div class="page-name-toolip" id="${application.name.toLowerCase()}">${application.name}</div>
             <div class="page-logo">
                 ${svgImage}
-                <div class="app-name" id="${application.name.toLowerCase()}">
-                    ${application.name}
-                </div>
             </div>
         </div>`;
         }
         let stringHTML = "";
         let spaces = await userModule.listUserSpaces(assistOS.user.email);
         for(let space of spaces){
-            stringHTML += `<list-item data-local-action="swapSpace ${space.id}" data-name="${space.name}" data-highlight="dark-highlight"></list-item>`;
+            stringHTML += `
+            <div class="thin-line"></div>
+            <div class="space-item" data-local-action="swapSpace ${space.id}" data-name="${space.name}">${space.name}</div>`;
         }
         this.spaces = stringHTML;
+        this.userEmail = assistOS.user.id;
     }
     afterRender() {
         this.toastsContainer = this.element.querySelector(".toasts-container");
-        let features = this.element.querySelectorAll(".page");
+        let pages = this.element.querySelectorAll(".sidebar-item");
         let spacesContainer = this.element.querySelector(".spaces-container");
-        let focusSection = spacesContainer.querySelector("#space");
+        let focusSection = spacesContainer.querySelector(".spaces-menu");
         spacesContainer.addEventListener("mouseover", () => {
             focusSection.style.visibility = "visible";
             let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
             if(currentSpace) {
-                currentSpace.style.backgroundColor = "var(--black)";
+                currentSpace.classList.add("current-space");
+                if(!this.isCurrentSpaceVisible){
+                    currentSpace.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start"
+                    });
+                    this.isCurrentSpaceVisible = true;
+                }
             }
         });
         spacesContainer.addEventListener("mouseout", () => {
@@ -68,18 +76,18 @@ export class LeftSidebar {
                 focusSection.style.visibility = "hidden";
             }
         });
-        features.forEach((feature) => {
+        pages.forEach((page) => {
             let timeoutId;
-            feature.addEventListener("mouseover", () => {
+            page.addEventListener("mouseover", () => {
                 timeoutId = setTimeout(() => {
-                    let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                    name.style.visibility = "visible";
+                    let name = page.querySelector(`.page-name-toolip`);
+                    name.classList.remove("hidden");
                 }, 300);
             });
-            feature.addEventListener("mouseout", () => {
+            page.addEventListener("mouseout", () => {
                 clearTimeout(timeoutId);
-                let name = feature.querySelector(`[id=${feature.getAttribute("data-id")}]`);
-                name.style.visibility = "hidden";
+                let name = page.querySelector(`.page-name-toolip`);
+                name.classList.add("hidden");
             });
         });
 

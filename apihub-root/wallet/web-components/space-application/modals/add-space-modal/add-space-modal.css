@@ -1,1 +1,8 @@
+add-space-modal{
+    display: block;
+    width: 460px;
+}
 
+add-space-modal .modal-footer{
+    margin-top: 20px;
+}

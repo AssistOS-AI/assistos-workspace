@@ -1,5 +1,5 @@
 left-sidebar {
-    background-color: var(--left-sidebar-background);
+    background-color: var(--header-font-color);
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -42,7 +42,9 @@ left-sidebar {
 .installed-applications::-webkit-scrollbar-track {
     background: #f1f1f1;
 }
-
+.default-pages{
+    width: 100%;
+}
 .sidebar-item {
     position: relative;
     display:flex;
@@ -82,7 +84,7 @@ left-sidebar {
     top: 0;
     width: 200px;
     color: var(--white-text);
-    background-color: var(--left-sidebar-background);
+    background-color: var(--header-font-color);
     flex-direction: column;
     z-index: 2;
 }
@@ -97,7 +99,18 @@ left-sidebar {
     max-height: 100%;
     width:100%;
 }
-
+.page-name-toolip{
+    padding: 5px;
+    position: absolute;
+    top: 8px;
+    left: 60px;
+    background-color: var(--header-font-color);
+    color: var(--plugin-focus);
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    border: 1px solid var(--gray-button-text);
+}
 .page-logo:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
@@ -155,25 +168,50 @@ left-sidebar {
 }
 .spaces-list{
     color: var(--white-text);
-    max-width: 170px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: var(--left-sidebar-background);
+    background-color: var(--header-font-color);
+    overflow-y: scroll;
+    max-height: 180px;
 }
-.app-name {
-    padding: 5px;
+.space-item{
+    padding: 10px 10px 10px 25px;
+    color: var(--plugin-focus);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.space-item:hover{
+    background-color: var(--gray-button-text);
+    color: var(--option-hover);
+}
+.current-space{
+    background-color: var(--gray-button-text);
+    color: var(--option-hover);
+}
+.thin-line {
+    height: 0;
+    border-top: none;
+    box-shadow: 0 0 0 0.3px var(--plugin-focus);
+}
+.spaces-menu {
+    max-width: 177px;
     z-index: 1;
-    color: var(--white-text);
-    background: var(--left-sidebar-background);
-    border: 1px solid var(--light-gray-border);
+    color: var(--plugin-focus);
+    background: var(--header-font-color);
     border-radius: 5px;
     visibility: hidden;
     position: absolute;
-    left: 100%;
+    left: 102%;
+    top: 10px;
+    font-weight: 500;
+    font-size: 14px;
 }
-
+.user-email{
+    padding: 10px;
+    border-bottom: 2px solid var(--plugin-focus);
+}
+.spaces-label{
+    padding: 10px;
+}
 .notifications {
     cursor: pointer;
     position: relative;
@@ -202,13 +240,27 @@ html[theme="dark"] {
 
 }
 .app-separator{
-    background-color: #505050;
-    height: 2.5px;
+    background-color: var(--plugin-focus);
+    height: 2px;
     width: 42px;
     margin-block:10px;
 }
-.long{
-    width: 82%;
+.create-space,
+.logout{
+    padding: 10px;
+    border-top: 2px solid var(--plugin-focus);
+}
+.create-space:hover,
+.logout:hover{
+    background-color: var(--gray-button-text);
+    color: var(--option-hover);
+}
+.logout{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
 }
 .focus-bridge {
     position: absolute;

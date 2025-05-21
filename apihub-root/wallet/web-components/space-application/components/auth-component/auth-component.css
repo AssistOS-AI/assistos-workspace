@@ -8,7 +8,9 @@
     text-align: justify;
     width: 520px;
 }
-
+.submit_code_button{
+    margin-top: 10px;
+}
 .header .title {
     font-weight: 700;
     font-size: 36px;

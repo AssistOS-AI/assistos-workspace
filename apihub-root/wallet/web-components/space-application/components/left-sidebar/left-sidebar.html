@@ -1,5 +1,5 @@
 <section class="sidebar__upper">
-    <div class="spaces-container pointer">
+    <div class="spaces-container">
         <div class="page-logo">
             <svg width="30px" height="30px" viewBox="0 0 41 41" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M2.94629 27.771C1.99145 25.4658 1.5 22.9951 1.5 20.5C1.5 18.0049 1.99145 15.5342 2.94629 13.229C3.90113 10.9238 5.30066 8.82928 7.06497 7.06497C8.82928 5.30066 10.9238 3.90113 13.229 2.94629C15.5342 1.99145 18.0049 1.5 20.5 1.5C22.9951 1.5 25.4658 1.99145 27.771 2.94629C30.0762 3.90113 32.1707 5.30066 33.935 7.06497C35.6993 8.82928 37.0989 10.9238 38.0537 13.229C39.0086 15.5342 39.5 18.0049 39.5 20.5C39.5 22.9951 39.0086 25.4658 38.0537 27.771C37.0989 30.0762 35.6993 32.1707 33.935 33.935C32.1707 35.6993 30.0762 37.0989 27.771 38.0537C25.4658 39.0086 22.9951 39.5 20.5 39.5C18.0049 39.5 15.5342 39.0086 13.229 38.0537C10.9238 37.0989 8.82928 35.6993 7.06497 33.935C5.30066 32.1707 3.90113 30.0762 2.94629 27.771Z"
@@ -11,20 +11,23 @@
             </svg>
         </div>
         <div class="focus-bridge"></div>
-        <div class="app-name" id="space">
-            <div class="spaces-list">$$spaces</div>
-            <div class="app-separator long"></div>
-            <list-item data-local-action="addSpace" data-name="Create Space"
-                       data-highlight="dark-highlight"></list-item>
-            <list-item data-local-action="logout" data-name="Logout"
-                       data-highlight="dark-highlight"></list-item>
+        <div class="spaces-menu">
+            <div class="user-email">$$userEmail</div>
+            <div class="spaces-label">Spaces</div>
+            <div class="spaces-list pointer">$$spaces</div>
+            <div class="create-space pointer" data-local-action="addSpace">Create Space</div>
+            <div class="logout pointer" data-local-action="logout">
+                Logout
+                <img src="./wallet/assets/icons/logout.svg" alt="logout" class="logout-icon">
+            </div>
         </div>
     </div>
     <div class="pages-list">
         <div class="app-separator"></div>
-        <div class="installed-applications">
-            <div class="sidebar-item" data-local-action="navigateToPage documents-page" title="Documents">
+        <div class="default-pages">
+            <div class="sidebar-item" data-local-action="navigateToPage documents-page">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Documents</div>
                 <div class="svg-container">
                     <svg width="18" height="20" viewBox="0 0 16 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11 2.00018H2V18.0002H14V5.00018H11V2.00018ZM2 0.000183105H12L16 4.00018V18.0002C16 18.5306 15.7893 19.0393 15.4142 19.4144C15.0391 19.7895 14.5304 20.0002 14 20.0002H2C1.46957 20.0002 0.960859 19.7895 0.585786 19.4144C0.210714 19.0393 0 18.5306 0 18.0002V2.00018C0 1.46975 0.210714 0.961042 0.585786 0.585969C0.960859 0.210897 1.46957 0.000183105 2 0.000183105ZM4 9.00018H12V11.0002H4V9.00018ZM4 13.0002H12V15.0002H4V13.0002Z"
@@ -32,8 +35,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="sidebar-item" data-local-action="toggleChat" title="Chat">
+            <div class="sidebar-item" data-local-action="toggleChat">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Chat</div>
                 <div class="svg-container">
                     <svg class="pointer" width="20" height="20" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <g clip-path="url(#clip0_4665_5310)">
@@ -48,8 +52,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="sidebar-item" data-local-action="navigateToPage agents-page" title="Agents">
+            <div class="sidebar-item" data-local-action="navigateToPage agents-page">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Agents</div>
                 <div class="svg-container">
                     <svg width="20" height="20" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M11.7135 8C10.678 8 9.68488 7.57857 8.95266 6.82843C8.22044 6.07828 7.80908 5.06087 7.80908 4C7.80908 2.93913 8.22044 1.92172 8.95266 1.17157C9.68488 0.421427 10.678 0 11.7135 0C12.749 0 13.7421 0.421427 14.4743 1.17157C15.2066 1.92172 15.6179 2.93913 15.6179 4C15.6179 5.06087 15.2066 6.07828 14.4743 6.82843C13.7421 7.57857 12.749 8 11.7135 8ZM11.7135 1.6C10.4172 1.6 9.37085 2.672 9.37085 4C9.37085 5.328 10.4172 6.4 11.7135 6.4C13.0098 6.4 14.0562 5.328 14.0562 4C14.0562 2.672 13.0098 1.6 11.7135 1.6Z"
@@ -59,8 +64,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="sidebar-item" data-local-action="navigateToPage settings-page" title="Settings">
+            <div class="sidebar-item" data-local-action="navigateToPage settings-page">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Settings</div>
                 <div class="svg-container">
                     <svg width="20" height="20" viewBox="0 0 20 22" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M10.1721 7.38672C9.2349 7.38672 8.33671 7.76817 7.67495 8.44613C7.01329 9.12398 6.64209 10.0427 6.64209 11.0001C6.64209 11.9575 7.01329 12.8762 7.67495 13.5541C8.33671 14.232 9.2349 14.6135 10.1721 14.6135C11.1093 14.6135 12.0075 14.232 12.6693 13.5541C13.3309 12.8762 13.7021 11.9575 13.7021 11.0001C13.7021 10.0427 13.3309 9.12398 12.6693 8.44613C12.0075 7.76817 11.1093 7.38672 10.1721 7.38672ZM8.2541 11.0001C8.2541 10.4772 8.45689 9.97627 8.81693 9.60741C9.17688 9.23866 9.66441 9.03207 10.1721 9.03207C10.6798 9.03207 11.1673 9.23866 11.5273 9.60741C11.8873 9.97627 12.0901 10.4772 12.0901 11.0001C12.0901 11.523 11.8873 12.0239 11.5273 12.3928C11.1673 12.7615 10.6798 12.9681 10.1721 12.9681C9.66441 12.9681 9.17688 12.7615 8.81693 12.3928C8.45689 12.0239 8.2541 11.523 8.2541 11.0001Z"
@@ -80,8 +86,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="sidebar-item" data-local-action="navigateToPage applications-marketplace-page" title="Applications Marketplace">
+            <div class="sidebar-item" data-local-action="navigateToPage applications-marketplace-page">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Applications</div>
                 <div class="svg-container">
                     <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M13.7371 4.7619V4.8119H13.7871H15.6309C16.6158 4.8119 17.4247 5.64511 17.4247 6.66667V18.0952C17.4247 19.1168 16.6158 19.95 15.6309 19.95H2.72461C1.73969 19.95 0.930859 19.1168 0.930859 18.0952V6.66667C0.930859 5.64511 1.73969 4.8119 2.72461 4.8119H4.56837H4.61837V4.7619C4.61837 2.12131 6.62564 0.05 9.17776 0.05C11.7299 0.05 13.7371 2.12131 13.7371 4.7619ZM11.9434 4.8119H11.9934V4.7619C11.9934 3.11679 10.7741 1.85476 9.17776 1.85476C7.58143 1.85476 6.36212 3.11679 6.36212 4.7619V4.8119H6.41213H11.9434ZM15.6309 18.1452H15.6809V18.0952V6.66667V6.61667H15.6309H2.72461H2.67461V6.66667V18.0952V18.1452H2.72461H15.6309ZM13.7369 7.66905C13.7118 10.2857 11.7137 12.331 9.17776 12.331C6.64177 12.331 4.64376 10.2857 4.61861 7.66905H6.3625C6.38693 9.28967 7.59764 10.5262 9.17776 10.5262C10.7579 10.5262 11.9686 9.28967 11.993 7.66905H13.7369Z"
@@ -89,8 +96,9 @@
                     </svg>
                 </div>
             </div>
-            <div class="sidebar-item" data-local-action="navigateToPage build-page" title="Build">
+            <div class="sidebar-item" data-local-action="navigateToPage build-page">
                 <div class="app-focus hidden"></div>
+                <div class="page-name-toolip hidden">Build</div>
                 <div class="svg-container">
                     <svg width="20px" height="20px" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" fill="var(--plugin-focus)">
                         <g id="SVGRepo_bgCarrier" stroke-width="0"></g>

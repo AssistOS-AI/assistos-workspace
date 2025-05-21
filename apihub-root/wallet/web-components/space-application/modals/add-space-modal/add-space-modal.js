@@ -14,7 +14,8 @@ export class AddSpaceModal {
     async addSpace(_target) {
         let formData = await assistOS.UI.extractFormInformation(_target);
         if (formData.isValid) {
-            const spaceName=formData.data.name;
+            const spaceName = formData.data.name;
+            let loadingId = await assistOS.UI.showLoading();
             try {
                 await assistOS.createSpace(spaceName);
                 assistOS.UI.closeModal(_target);
@@ -22,6 +23,8 @@ export class AddSpaceModal {
             } catch (error) {
                 showApplicationError('Failed Creating Space', `Encountered an Issue creating the space ${formData.data.name}`,
                     assistOS.UI.sanitize(error.message));
+            } finally {
+                assistOS.UI.hideLoading(loadingId);
             }
         }
     }
