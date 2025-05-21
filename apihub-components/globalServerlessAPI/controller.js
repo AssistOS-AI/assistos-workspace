@@ -80,7 +80,7 @@ async function createSpace(request, response, server) {
         let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         let space;
         try {
-            space = await client.createSpace(spaceName);
+            space = await client.createSpace(spaceName, email);
         } catch (e) {
             return utils.sendResponse(response, 500, "text/plain", e.message);
         }
@@ -174,16 +174,23 @@ async function createSpacePlugins(pluginsStorage){
     await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
 }
 
-async function deleteSpace(request, response) {
+async function deleteSpace(request, response, server) {
     const spaceId = request.params.spaceId;
     let email = request.email;
     try {
-        let client = await getAPIClient(request, constants.WORKSPACE_PLUGIN);
-        let message = await client.deleteSpace(email, request.authKey, spaceId);
+        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let message = await client.deleteSpace(email, spaceId);
         if (!message) {
             //space deleted
+
+            //delete space folder
+            let spacePath = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
+            await fsPromises.rm(spacePath, {recursive: true, force: true});
+            await secrets.deleteSpaceSecrets(spaceId);
+
             let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
             SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
+            cookie.deleteCurrentSpaceCookie();
         }
         utils.sendResponse(response, 200, "text/plain", message || "");
     } catch (error) {

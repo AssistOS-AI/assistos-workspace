@@ -67,7 +67,9 @@ function Space(server) {
     server.post("/spaces", async (req, res)=>{
         await createSpace(req, res, server);
     });
-    server.delete("/spaces/:spaceId", deleteSpace);
+    server.delete("/spaces/:spaceId", async (req, res)=>{
+        await deleteSpace(req, res, server);
+    });
 
     /*API Keys*/
     server.get("/spaces/:spaceId/secrets", getSecretsMasked);

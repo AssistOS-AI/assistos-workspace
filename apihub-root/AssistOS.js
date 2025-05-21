@@ -58,10 +58,6 @@ const textFontFamilyMap = Object.freeze({
     "Verdana": "font-verdana"
 });
 const authPage = "landing-page";
-function getEmailCookie() {
-    const match = document.cookie.match(/(?:^|;\s*)email=([^;]*)/);
-    return match ? decodeURIComponent(match[1]) : null;
-}
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -179,7 +175,8 @@ class AssistOS {
 
     async initSpace(email, spaceId) {
         assistOS.user = await userModule.loadUser(email);
-        assistOS.user.id = getEmailCookie();
+        assistOS.user.id = localStorage.getItem("userEmail");
+        assistOS.user.email = localStorage.getItem("userEmail");
         let spaceStatus = await spaceModule.getSpaceStatus(spaceId);
         assistOS.space = Space.getInstance(spaceStatus);
         assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);

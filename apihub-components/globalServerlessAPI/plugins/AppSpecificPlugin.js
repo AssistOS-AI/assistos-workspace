@@ -1,3 +1,8 @@
+const roles = {
+    "ADMIN": "admin",
+    "MEMBER": "member",
+    "GUEST": "guest"
+}
 async function AppSpecificPlugin() {
     let self = {};
     self.rewardUser = async function (user, referrerId) {
@@ -6,7 +11,8 @@ async function AppSpecificPlugin() {
     const persistence = await $$.loadPlugin("StandardPersistence");
     persistence.configureTypes({
         spaceStatus: {
-            name: "string"
+            name: "string",
+            users: "array"
         }
     });
 
@@ -15,40 +21,34 @@ async function AppSpecificPlugin() {
         return await persistence.getEverySpaceStatus();
     }
 
-    self.createSpace = async function(spaceName){
+    self.createSpace = async function(spaceName, email){
         let spaceData = {
-            name: spaceName
+            name: spaceName,
+            users: [{email: email, role: roles.ADMIN}]
         }
         return await persistence.createSpaceStatus(spaceData);
     }
 
-    self.deleteSpace = async function (email, authKey, spaceId) {
-        // let userFile = await user.loadUser(email, authKey);
-        // let spacesNr = Object.keys(userFile.spaces).length;
-        // if (spacesNr === 1) {
-        //     return "You can't delete your last space";
-        // }
-        // let spaceStatus = await getSpaceStatusObject(spaceId);
-        // if (!spaceStatus.admins[email]) {
-        //     return "You dont have permission to delete this space";
-        // }
-        // //unlink space from all users
-        // for (let userId of Object.keys(spaceStatus.users)) {
-        //     await user.unlinkSpaceFromUser(email, authKey, spaceId);
-        // }
-        // //delete space folder
-        // let spacePath = getSpacePath(spaceId);
-        // await fsPromises.rm(spacePath, {recursive: true, force: true});
-        // //delete documents
-        // let documentsList = await documentService.getDocuments(spaceId);
-        // for (let document of documentsList) {
-        //     await documentService.deleteDocument(spaceId, document.id);
-        // }
-        // //delete api keys
-        // let keys = await secrets.getAPIKeys(spaceId);
-        // for (let keyType in keys) {
-        //     await secrets.deleteSpaceKey(spaceId, keyType);
-        // }
+    self.deleteSpace = async function (email, spaceId) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+        let res = await UserLogin.getUserInfo(email);
+        let spacesNr = res.userInfo.spaces.length;
+        if (spacesNr === 1) {
+            return "You can't delete your last space";
+        }
+        let spaceStatus = await self.getSpaceStatus(spaceId);
+        let user = spaceStatus.users.find(user => user.email === email);
+        if (!user) {
+            return "You dont have permission to delete this space";
+        }
+        if (user.role !== roles.ADMIN) {
+            return "You dont have permission to delete this space";
+        }
+        //unlink space from all users
+        for (let userId of Object.keys(spaceStatus.users)) {
+            await self.unlinkSpaceFromUser(email, spaceId);
+        }
+        await persistence.deleteSpaceStatus(spaceId);
     }
 
     self.getSpaceStatus = async function(spaceId){

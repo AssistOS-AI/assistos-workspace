@@ -81,7 +81,10 @@ async function deleteSecret(spaceId, secretKey) {
     delete spaceAPIKeyObject[secretKey];
     await secretsService.putSecretAsync(getContainerName(spaceId), spaceSecretName, spaceAPIKeyObject)
 }
-
+async function deleteSpaceSecrets(spaceId) {
+    const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
+    await secretsService.deleteSecretAsync(getContainerName(spaceId), spaceSecretName)
+}
 async function getAPIKeys(spaceId) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     return secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
@@ -112,5 +115,6 @@ module.exports = {
     getAPIKeys,
     addSecret,
     deleteSecret,
-    getSecretsMasked
+    getSecretsMasked,
+    deleteSpaceSecrets
 }
