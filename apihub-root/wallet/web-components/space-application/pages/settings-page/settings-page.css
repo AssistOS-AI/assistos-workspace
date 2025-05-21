@@ -7,7 +7,9 @@ settings-page {
     width: 100%;
     height: 100%;
 }
-
+#padding-bottom, #padding-left, #padding-right, #padding-top{
+    font-size:8px;
+}
 .settings-header {
     padding: var(--page-padding);
     font-size: var(--page-header-font-size);
@@ -15,7 +17,15 @@ settings-page {
     height: 80px;
     color: var(--black)
 }
-
+div .button-padding{
+    height:40px;
+    width: 40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius: 8px;
+    cursor:pointer;
+}
 .tabs-section {
     display: flex;
     height: 38px;
@@ -44,7 +54,7 @@ settings-page {
 .preference-row{
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 4px;
     width: 100%;
     height: 100%;
 }
@@ -58,6 +68,7 @@ settings-page {
     background: #ededed;
     border-radius: 8px;
 }
+
 add-key-modal,edit-apikey-modal{
     display:flex;
     position:relative;
@@ -311,17 +322,16 @@ add-key-modal,edit-apikey-modal{
     padding-block: 10px;
     height:60px;
 }
-
 .header-header {
     cursor: pointer;
     padding: 8px;
 
 }
-
 .header-header:hover {
     background: #ededed;
     border-radius: 8px;
 }
+
 .preferences-header {
     margin-bottom: 15px;
     font-size: 18px;
@@ -345,4 +355,17 @@ add-key-modal,edit-apikey-modal{
 }
 .horizontal-separator{
     border: 2px solid #EFEFEF;
+}
+.active:hover{
+    background:none;
+    border-radius:0px;
+    pointer-events: none;
+}
+.edit-apikey-form{
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 100%;
+    display: flex;
+    gap:8px;
+    flex-direction: column;
 }

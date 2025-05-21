@@ -31,4 +31,20 @@ export class MyAccountLogins {
     async afterRender() {
 
     }
+    async deleteAccount() {
+        let message = `Are you sure you want to delete your account ${localStorage.getItem("userEmail")||""}`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if (confirmation) {
+            let currentSpaceId;
+            let message = await assistOS.loadifyComponent(this.element, async () => {
+                return message;
+            });
+            if (message) {
+                await showApplicationError("Error deleting Account", message, "");
+            } else {
+                window.location.href = window.location.href.split("#")[0] + `#${currentSpaceId}`;
+                window.location.reload();
+            }
+        }
+    }
 }

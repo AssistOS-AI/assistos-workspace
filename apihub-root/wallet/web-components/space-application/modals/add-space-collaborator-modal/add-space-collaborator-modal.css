@@ -16,7 +16,7 @@ add-space-collaborator-modal {
     display:flex;
     flex-direction:column;
     gap:8px;
-    margin: 0 10px 10px 10px;
+    margin: 0 10px 10px 0;
     overflow: auto;
 }
 .add-collab{

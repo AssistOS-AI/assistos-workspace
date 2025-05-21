@@ -5,11 +5,4 @@ edit-apikey-modal{
     display: flex;
     flex-direction:column;
 }
-.edit-apikey-form{
-    padding-left: 20px;
-    padding-right: 20px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-}
 

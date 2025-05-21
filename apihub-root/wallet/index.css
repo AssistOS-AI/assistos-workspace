@@ -145,7 +145,6 @@ dialog {
     justify-content: center;
     align-items: center;*/
 }
-
 .modal-full-screen {
     width: 100% !important;
     height: 100% !important;
@@ -739,4 +738,9 @@ select{
 
 .hidden {
     display: none;
+}
+.expanded-row-buttons{
+    display:flex;
+    gap:12px;
+    margin-block-start:80px;
 }

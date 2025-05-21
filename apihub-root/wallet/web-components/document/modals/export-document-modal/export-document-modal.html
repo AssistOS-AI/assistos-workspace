@@ -9,13 +9,13 @@
     <a data-local-action="openSettingsPage">Open Export Preferences</a>
   </div>
   <div class="form-item-row">
-    <label class="form-label" for="fullExport">Duplicate Attachments</label>
+    <label class="form-label" for="fullExport"> Export full document (Otherwise attachments will only be referenced)</label>
     <input type="checkbox" name="fullExport" id="fullExport" style="cursor:pointer;" title="Copies all attachments into the new document instead of referencing them">
   </div>
-  <div class="modal-footer">
-    <div class="export-button" data-local-action="exportDocument">Export as DOCAI</div>
-    <div class="export-button" data-local-action="exportDOCX">Export as DOCX</div>
-    <div class="export-button" data-local-action="exportHTML">Export as HTML</div>
-    <div class="export-button" data-local-action="exportPDF">Export as PDF</div>
+  <div class="expanded-row-buttons">
+    <div class="general-button" data-local-action="exportDocument">Export as DOCAI</div>
+    <div class="general-button" data-local-action="exportDOCX">Export as DOCX</div>
+    <div class="general-button" data-local-action="exportHTML">Export as HTML</div>
+    <div class="general-button" data-local-action="exportPDF">Export as PDF</div>
   </div>
 </form>

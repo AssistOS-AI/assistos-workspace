@@ -2,7 +2,7 @@ const spaceModule = require('assistos').loadModule('space', {});
 
 const mockCollaborators = [
     {
-        username:"Alex",
+        username: "Alex",
         email: "demoemail@com",
         role: "member",
         documentsCreated: 0,
@@ -28,7 +28,7 @@ const mockCollaborators = [
     },
     {
         email: "demoemail3@com",
-        username:"Carlos",
+        username: "Carlos",
         role: "member",
         documentsCreated: 1,
         tasksCreated: 1,
@@ -40,10 +40,11 @@ const roles = [
     "Guest",
     "Admin"
 ]
+
 function getAvatarHTML(name, size = 32) {
-    let hue = Array.from(name).reduce((s,c)=>s+c.charCodeAt(0),0) % 360
+    let hue = Array.from(name).reduce((s, c) => s + c.charCodeAt(0), 0) % 360
     let bg = `hsl(${hue},60%,50%)`
-    return `<div class="avatar" style="background:${bg};width:${size}px;height:${size}px;font-size:${size*0.5}px">${name[0].toUpperCase()}</div>`
+    return `<div class="avatar" style="background:${bg};width:${size}px;height:${size}px;font-size:${size * 0.5}px">${name[0].toUpperCase()}</div>`
 }
 
 
@@ -68,9 +69,9 @@ export class CollaboratorsTab {
     }
 
     async beforeRender() {
-        // let collaborators = await spaceModule.getCollaborators(assistOS.space.id);
-        let collaborators = mockCollaborators;
-        this.collaboratorsHTML = collaborators.map(c => `
+        let collaborators = await spaceModule.getCollaborators(assistOS.space.id);
+        if (collaborators.length > 0) {
+            this.collaboratorsHTML = collaborators.map(c => `
         <tr>
               <td class="collaborator-user ">
       ${getAvatarHTML(c.username)}
@@ -81,7 +82,7 @@ export class CollaboratorsTab {
     </td>
             <td>
                 <select class="collaborator-role" data-user-email="${c.email}">
-                    ${roles.map(r=>`<option value="${r.toLowerCase()}"${c.role===r.toLowerCase()?' selected':''}>${r}</option>`).join('')}
+                    ${roles.map(r => `<option value="${r.toLowerCase()}"${c.role === r.toLowerCase() ? ' selected' : ''}>${r}</option>`).join('')}
                 </select>
             </td>
             <td>${c.documentsCreated}</td>
@@ -90,6 +91,9 @@ export class CollaboratorsTab {
             <td class="actions-button">${getDeleteButton(c.email)}</td>
         </tr>
     `).join('')
+        } else {
+            this.collaboratorsHTML = ``;
+        }
     }
 
     afterRender() {
@@ -101,7 +105,7 @@ export class CollaboratorsTab {
                 let email = e.target.dataset.userEmail
                 let role = e.target.value
                 let msg = await spaceModule.setCollaboratorRole(assistOS.space.id, email, role)
-                if(msg) alert(msg)
+                if (msg) alert(msg)
                 this.invalidate()
             })
         })
@@ -110,6 +114,7 @@ export class CollaboratorsTab {
     async showActionBox(_target, primaryKey, componentName, insertionMode) {
         await assistOS.UI.showActionBox(_target, primaryKey, componentName, insertionMode);
     }
+
     addCollaborator() {
         assistOS.UI.showModal("add-space-collaborator-modal");
     }

@@ -1,8 +1,8 @@
 export-document-modal{
     display:flex;
     flex-direction:column;
-    width: 856px;
-    height: 448px;
+    width: 600px;
+    height: 320px;
 }
 .export-button {
     cursor: pointer;

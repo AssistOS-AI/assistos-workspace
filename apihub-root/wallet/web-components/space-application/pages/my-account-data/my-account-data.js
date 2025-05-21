@@ -1,5 +1,3 @@
-const name = "Nicoleta";
-const email = "nicoleta@axiologic.net";
 function getAvatarHTML(name, size = 32) {
     let hue = Array.from(name).reduce((s, c) => s + c.charCodeAt(0), 0) % 360
     let bg = `hsl(${hue},60%,50%)`
@@ -15,9 +13,9 @@ export class MyAccountData {
     }
 
     async beforeRender() {
-        this.name = name;
-        this.email = email;
-        this.icon = getAvatarHTML(name, 100);
+        this.email = localStorage.getItem("userEmail");
+        this.name = this.email.split("@")[0];
+        this.icon = getAvatarHTML(this.name, 100);
     }
 
     async afterRender() {

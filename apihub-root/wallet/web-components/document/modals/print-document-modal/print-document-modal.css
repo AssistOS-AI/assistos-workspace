@@ -1,8 +1,6 @@
 print-document-modal{
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    padding: 20px;
-    width: 856px;
-    height: 448px;
+    display:flex;
+    flex-direction:column;
+    width: 600px;
+    height: 240px;
 }
