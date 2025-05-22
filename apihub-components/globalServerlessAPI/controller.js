@@ -49,9 +49,9 @@ async function getSpaceStatus(request, response) {
         let spaceId;
         let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         const email = request.email;
-        if (request.params.spaceId) {
+        if (request.params.spaceId && request.params.spaceId !== "undefined") {
             spaceId = request.params.spaceId;
-        } else if (request.currentSpaceId) {
+        } else if (request.currentSpaceId && request.currentSpaceId !== "undefined") {
             spaceId = request.currentSpaceId;
         } else {
             spaceId = await client.getDefaultSpaceId(email);
