@@ -328,7 +328,8 @@ export class AuthComponent {
 
     }
 
-    async signupSubmit() {
+    async signupSubmit(button) {
+        button.classList.add("disabled");
         try {
             if (this.selected_method === "emailCode") {
                 this.createSpace = true;
@@ -371,6 +372,8 @@ export class AuthComponent {
                     });
                 }
             }
+        } finally {
+            button.classList.remove("disabled");
         }
     }
 

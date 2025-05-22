@@ -3,7 +3,7 @@
 }
 .table-labels{
     display: flex;
-    padding: 10px 0;
+    padding-top: 10px;
     font-weight: bold;
     font-size: 16px;
 }
