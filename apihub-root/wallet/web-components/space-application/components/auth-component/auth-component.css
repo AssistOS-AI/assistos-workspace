@@ -42,7 +42,9 @@ input:focus, input:focus-visible {
 .input_container {
 }
 
-.email_input, .code_input, .totp_input, .totp_verify_input {
+.email_input:-webkit-autofill {
+    box-shadow: 0 0 0 50px white inset !important;
+    -webkit-text-fill-color: #000 !important;
 }
 .gray-background{
     background-color: var(--light-gray-border) !important;

@@ -48,7 +48,6 @@ export class AddDocumentModal {
             options: documentTypesOptions,
         },
         {
-            "data-width": "230",
             "data-name": "type",
             "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
         })
@@ -56,7 +55,6 @@ export class AddDocumentModal {
                 options: documentTypesOptions,
             },
             {
-                "data-width": "230",
                 "data-name": "type",
                 "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
             })

@@ -8,7 +8,9 @@
     margin-right: 0;
     margin-left: 15px;
 }
-
+.close-plugin{
+    width: 14px;
+}
 .icon-container.locked-item{
     background-color: var(--very-light-gray);
     /*pointer-events: none;*/
@@ -51,7 +53,7 @@
     filter: invert(1) brightness(2);
 }
 .options-container{
-    top: 20px;
+    top: 15px;
     right: 5px;
     position: absolute;
     display: flex;
