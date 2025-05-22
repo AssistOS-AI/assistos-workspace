@@ -1,5 +1,5 @@
-const galleryModule = require("assistos").loadModule("gallery", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const galleryModule = assistOS.loadModule("gallery");
+const spaceModule = assistOS.loadModule("space");
 
 export class InsertImageModal {
     constructor(element, invalidate) {

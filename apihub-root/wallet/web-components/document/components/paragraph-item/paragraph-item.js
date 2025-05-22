@@ -1,4 +1,4 @@
-const documentModule = require("assistos").loadModule("document", {});
+const documentModule = assistOS.loadModule("document");
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class ParagraphItem {
@@ -246,11 +246,17 @@ export class ParagraphItem {
             window.cutParagraph.commands,
             window.cutParagraph.comments);
         this.invalidate(async () => {
-            this.paragraph = await this.chapter.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
+            this.paragraph = await this.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
             delete window.cutParagraph;
         });
     }
-
+    async refreshParagraph(spaceId, documentId, paragraphId){
+        const documentModule = assistOS.loadModule("document");
+        let paragraphData = await documentModule.getParagraph(assistOS.space.id, documentId, paragraphId);
+        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
+        this.chapter.paragraphs[paragraphIndex] = new documentModule.Paragraph(paragraphData);
+        return this.chapter.paragraphs[paragraphIndex];
+    }
     menus = {
         "insert-document-element": `
                 <div>

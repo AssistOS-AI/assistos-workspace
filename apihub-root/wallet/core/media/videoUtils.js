@@ -1,5 +1,5 @@
 import {CustomAudio, videoUtils} from "../../imports.js";
-const spaceModule = require("assistos").loadModule("space", {});
+const spaceModule = assistOS.loadModule("space");
 async function playEffects(effectsCopy, mediaPlayer, self) {
     if(effectsCopy.length === 0){
         return;

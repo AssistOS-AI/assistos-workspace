@@ -1,4 +1,4 @@
-const spaceModule = require('assistos').loadModule('space', {});
+const spaceModule = assistOS.loadModule("space");
 
 const getPageRows = async function (spaceId) {
     return await spaceModule.getWebAssistantConfigurationPages(spaceId);

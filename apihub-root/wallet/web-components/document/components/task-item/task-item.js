@@ -1,5 +1,5 @@
-const utilModule = require("assistos").loadModule("util", {});
-const documentModule = require("assistos").loadModule("document", {});
+const utilModule = assistOS.loadModule("util");
+const documentModule = assistOS.loadModule("document");
 
 export class TaskItem{
     constructor(element, invalidate){

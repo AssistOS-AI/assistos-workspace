@@ -1,5 +1,5 @@
-const spaceModule = require('assistos').loadModule('space', {});
-const userModule = require('assistos').loadModule('user', {});
+const spaceModule = assistOS.loadModule("space");
+const userModule = assistOS.loadModule("user");
 
 export class AdvancedSettings {
     constructor(element, invalidate) {

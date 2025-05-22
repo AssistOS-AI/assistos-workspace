@@ -1,6 +1,6 @@
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
-const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = assistOS.loadModule("document");
+const spaceModule = assistOS.loadModule("space");
 import {decodePercentCustom} from "./../../../../imports.js";
 export class EditVariables {
     constructor(element, invalidate){

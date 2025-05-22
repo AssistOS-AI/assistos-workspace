@@ -8,7 +8,7 @@ const getChatIframe = (spaceId, personalityId, pageID) => {
     </iframe>`
 }
 
-const spaceModule = require('assistos').loadModule('space', {});
+const spaceModule = assistOS.loadModule("space");
 
 const getConfiguration = async function (spaceId) {
     const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)

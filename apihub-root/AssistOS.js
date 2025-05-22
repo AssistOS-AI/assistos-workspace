@@ -6,13 +6,6 @@ let currentTheme = localStorage.getItem('theme');
 const htmlElement = document.getElementsByTagName('html')[0];
 htmlElement.setAttribute('theme', currentTheme);
 
-const userModule = require('assistos').loadModule('user', {});
-const spaceModule = require('assistos').loadModule('space', {});
-const applicationModule = require('assistos').loadModule('application', {});
-const personalityModule = require('assistos').loadModule('agent', {});
-const flowModule = require('assistos').loadModule('flow', {});
-const Space = spaceModule.Space;
-
 const textIndentMap = Object.freeze({
     0: "text-indent-0",
     2: "text-indent-2",
@@ -71,6 +64,7 @@ class AssistOS {
             textIndentMap: textIndentMap
         };
         this.NotificationRouter = new NotificationManager();
+        this.user = {};
         AssistOS.instance = this;
         return AssistOS.instance;
     }
@@ -88,6 +82,7 @@ class AssistOS {
     }
 
     async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
+        const applicationModule = this.loadModule("application");
         const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
         const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
         let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath);
@@ -103,6 +98,7 @@ class AssistOS {
 
     async startApplication(appName, applicationLocation, isReadOnly) {
         const initialiseApplication = async () => {
+            const applicationModule = this.loadModule("application");
             assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
             if (assistOS.initialisedApplications[appName].manager) {
                 let ManagerModule = await applicationModule.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
@@ -151,10 +147,6 @@ class AssistOS {
         }
     }
 
-    async login(email, password) {
-        await userModule.loginUser(email, password);
-    }
-
     async logout() {
         const removeSidebar = () => {
             let sidebar = document.querySelector("left-sidebar");
@@ -163,6 +155,7 @@ class AssistOS {
             }
         }
         await this.NotificationRouter.closeSSEConnection();
+        const userModule = this.loadModule("user");
         await userModule.logoutUser();
         removeSidebar();
         await this.refresh();
@@ -174,10 +167,13 @@ class AssistOS {
 
 
     async initSpace(email, spaceId) {
+        const userModule = this.loadModule("user");
         assistOS.user = await userModule.loadUser(email);
         assistOS.user.email = localStorage.getItem("userEmail");
-        let spaceStatus = await spaceModule.getSpaceStatus(spaceId);
-        assistOS.space = Space.getInstance(spaceStatus);
+        assistOS.user.id = localStorage.getItem("userEmail");
+        const spaceModule = this.loadModule("space");
+        assistOS.space = await spaceModule.getSpaceStatus(spaceId);
+        const applicationModule = this.loadModule("application");
         assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;
         let defaultPlugins = await fetch("./wallet/core/plugins/defaultPlugins.json");
@@ -202,11 +198,12 @@ class AssistOS {
             }
         }
         let agent;
+        const agentModule = this.loadModule("agent");
 
         try {
-            agent = await personalityModule.getAgent(spaceId, agentId);
+            agent = await agentModule.getAgent(spaceId, agentId);
         } catch (error) {
-            agent = await  personalityModule.getDefaultAgent(spaceId);
+            agent = await  agentModule.getDefaultAgent(spaceId);
         }
         localStorage.setItem("agent", agent.name);
         assistOS.agent = agent;
@@ -240,6 +237,7 @@ class AssistOS {
     }
 
     async createSpace(spaceName) {
+        const spaceModule = this.loadModule("space");
         let spaceId = await spaceModule.createSpace(spaceName);
         await this.loadPage(assistOS.user.email, spaceId);
     }
@@ -296,13 +294,14 @@ class AssistOS {
             }
             await this.initPage(applicationName, applicationLocation);
         } catch (error) {
-            console.log("unauthorized");
+            console.error(error);
             hidePlaceholders();
             await assistOS.UI.changeToDynamicPage(authPage, authPage);
         }
     }
 
     async inviteCollaborators(collaboratorEmails) {
+        const spaceModule = this.loadModule("space");
         return await this.loadifyFunction(spaceModule.addCollaborators, assistOS.user.email, assistOS.space.id, collaboratorEmails, assistOS.space.name);
     }
 
@@ -346,17 +345,29 @@ class AssistOS {
     }
 
     loadModule(moduleName) {
+        let securityContext = {
+            userId: assistOS.user.id,
+            email: assistOS.user.email,
+        }
         switch (moduleName) {
             case "space":
-                return require("assistos").loadModule("space", {});
+                return require("assistos").loadModule("space", securityContext);
             case "user":
-                return require("assistos").loadModule("user", {});
-            case "personality":
-                return require("assistos").loadModule("agent", {});
+                return require("assistos").loadModule("user", securityContext);
+            case "agent":
+                return require("assistos").loadModule("agent", securityContext);
             case "document":
-                return require("assistos").loadModule("document", {});
+                return require("assistos").loadModule("document", securityContext);
             case "application":
-                return require("assistos").loadModule("application", {});
+                return require("assistos").loadModule("application", securityContext);
+            case "llm":
+                return require("assistos").loadModule("llm", securityContext);
+            case "webassistant":
+                return require("assistos").loadModule("webassistant", securityContext);
+            case "util":
+                return require("assistos").loadModule("util", securityContext);
+            case "chat":
+                return require("assistos").loadModule("chat", securityContext);
             default:
                 throw new Error("Module doesn't exist");
         }

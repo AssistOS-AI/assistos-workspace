@@ -1,4 +1,4 @@
-const documentModule = require("assistos").loadModule("document", {});
+const documentModule = assistOS.loadModule("document");
 import {formatTimeAgo} from "../../../../utils/utils.js";
 export class DocumentSnapshotsModal{
     constructor(element, invalidate) {

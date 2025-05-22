@@ -1,5 +1,5 @@
 import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
-const applicationModule = require("assistos").loadModule("application", {});
+const applicationModule = assistOS.loadModule("application", {});
 async function openPlugin(componentName, type, context, presenter, selectionItemId, autoPin = false) {
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);

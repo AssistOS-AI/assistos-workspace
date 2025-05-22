@@ -1,4 +1,4 @@
-const documentModule = require("assistos").loadModule("document", {});
+const documentModule = assistOS.loadModule("document");
 const constants = require("assistos").constants;
 export class DocumentsPage {
     constructor(element, invalidate) {

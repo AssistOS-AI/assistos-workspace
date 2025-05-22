@@ -1,5 +1,5 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const agentModule = require("assistos").loadModule("agent", {});
+const spaceModule = assistOS.loadModule("space");
+const agentModule = assistOS.loadModule("agent");
 import {generateAvatar} from "../../../../imports.js";
 
 export class AddAgent {

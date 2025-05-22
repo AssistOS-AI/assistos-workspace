@@ -1,4 +1,4 @@
-const spaceModule = require('assistos').loadModule('space', {});
+const spaceModule = assistOS.loadModule("space");
 
 export class KeysTab {
     constructor(element, invalidate) {

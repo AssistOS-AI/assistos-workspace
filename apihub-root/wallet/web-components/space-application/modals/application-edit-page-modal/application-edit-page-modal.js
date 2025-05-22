@@ -1,5 +1,5 @@
-const applicationModule = require('assistos').loadModule('application', {});
-const spaceModule = require('assistos').loadModule('space', {});
+const applicationModule = assistOS.loadModule("application");
+const spaceModule = assistOS.loadModule("space");
 
 const getWidgets = async function (spaceId) {
     const widgets = await applicationModule.getWidgets(spaceId);

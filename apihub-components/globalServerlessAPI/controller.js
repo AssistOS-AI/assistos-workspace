@@ -23,7 +23,10 @@ const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
 
 async function getAPIClient(request, pluginName, serverlessId){
-    return await getAPIClientSDK(request.userId, pluginName, serverlessId, {sessionId: request.sessionId});
+    return await getAPIClientSDK(request.userId, pluginName, serverlessId, {
+        sessionId: request.sessionId,
+        email: request.email,
+    });
 }
 async function listUserSpaces(req, res){
     let {email} = req.query;
