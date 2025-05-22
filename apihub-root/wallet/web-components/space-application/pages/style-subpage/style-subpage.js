@@ -11,17 +11,12 @@ export class StyleSubpage {
         this.selectedColor = localStorage.getItem("document-font-color") || "#000000";
         const selectedDocumentTitleSize = parseInt(localStorage.getItem("document-title-font-size"), 10) ?? 24;
         const selectedChapterTitleSize = parseInt(localStorage.getItem("chapter-title-font-size"), 10) ?? 20;
-        const selectedAbstractSize = parseInt(localStorage.getItem("abstract-font-size"), 10) ?? 14;
         const selectedParagraphIndent = parseInt(localStorage.getItem("document-indent-size"), 10) ?? 12;
         this.docTitleFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72].map(size => `
                         <option value="${size}" ${size === selectedDocumentTitleSize ? "selected" : ""}>${size}px</option>`).join("");
         this.chapterTitleFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
             .map(size => `
                         <option value="${size}" ${size === selectedChapterTitleSize ? "selected" : ""}>${size}px</option>`)
-            .join("");
-        this.documentInfoFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
-            .map(size => `
-                        <option value="${size}" ${size === selectedAbstractSize ? "selected" : ""}>${size}px</option>`)
             .join("");
         this.documentFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
             .map(size => `
@@ -70,8 +65,6 @@ export class StyleSubpage {
                 localStorage.setItem("document-title-font-size", event.target.value);
             } else if (id === "document-chapter-title-font-size") {
                 localStorage.setItem("chapter-title-font-size", event.target.value);
-            } else if (id === "document-abstract-font-size") {
-                localStorage.setItem("abstract-font-size", event.target.value);
             } else if (id === "document-indent-size") {
                 localStorage.setItem("document-indent-size", event.target.value);
             }

@@ -493,118 +493,118 @@ select{
     100% { transform: rotate(360deg); }
 }
 .xx-small{
-    font-size:8px;
+    font-size:8px !important;
 }
 .x-small {
-    font-size: 10px;
+    font-size: 10px !important;
 }
 .small {
-    font-size: 12px;
+    font-size: 12px !important;
 }
 .medium {
-    font-size: 14px;
+    font-size: 14px !important;
 }
 .large {
-    font-size: 16px;
+    font-size: 16px !important;
 }
 .x-large {
-    font-size: 18px;
+    font-size: 18px !important;
 }
 .xx-large {
-    font-size: 20px;
+    font-size: 20px !important;
 }
 .xxx-large {
-    font-size: 22px;
+    font-size: 22px !important;
 }
 .xxxx-large {
-    font-size: 24px;
+    font-size: 24px !important;
 }
 .xxxxx-large {
-    font-size: 28px;
+    font-size: 28px !important;
 }
 .xxxxxx-large {
-    font-size: 32px;
+    font-size: 32px !important;
 }
 .xxxxxxx-large {
-    font-size: 36px;
+    font-size: 36px !important;
 }
 .xxxxxxxx-large {
-    font-size: 48px;
+    font-size: 48px !important;
 }
 .xxxxxxxxx-large {
-    font-size: 72px;
+    font-size: 72px !important;
 }
 .font-georgia{
-    font-family: Georgia, serif;
+    font-family: Georgia, serif !important;
 }
 .font-arial{
-    font-family: Arial, sans-serif;
+    font-family: Arial, sans-serif !important;
 }
 .font-times-new-roman{
-    font-family: Times New Roman, serif;
+    font-family: Times New Roman, serif !important;
 }
 .font-verdana{
-    font-family: Verdana, sans-serif;
+    font-family: Verdana, sans-serif !important;
 }
 .font-courier-new{
-    font-family: Courier New, monospace;
+    font-family: Courier New, monospace !important;
 }
 .font-color{
-    color: var(--document-font-color);
+    color: var(--document-font-color) !important;
 }
 .text-indent-0 {
-    text-indent: 0;
+    text-indent: 0 !important;
 }
 .text-indent-2 {
-    text-indent: 2px;
+    text-indent: 2px !important;
 }
 .text-indent-4 {
-    text-indent: 4px;
+    text-indent: 4px !important;
 }
 .text-indent-6 {
-    text-indent: 6px;
+    text-indent: 6px !important;
 }
 .text-indent-8 {
-    text-indent: 8px;
+    text-indent: 8px !important;
 }
 .text-indent-10 {
-    text-indent: 10px;
+    text-indent: 10px !important;
 }
 .text-indent-12 {
-    text-indent: 12px;
+    text-indent: 12px !important;
 }
 .text-indent-14 {
-    text-indent: 14px;
+    text-indent: 14px !important;
 }
 .text-indent-16 {
-    text-indent: 16px;
+    text-indent: 16px !important;
 }
 .text-indent-18 {
-    text-indent: 18px;
+    text-indent: 18px !important;
 }
 .text-indent-20 {
-    text-indent: 20px;
+    text-indent: 20px !important;
 }
 .text-indent-22 {
-    text-indent: 22px;
+    text-indent: 22px !important;
 }
 .text-indent-24 {
-    text-indent: 24px;
+    text-indent: 24px !important;
 }
 .text-indent-28 {
-    text-indent: 28px;
+    text-indent: 28px !important;
 }
 .text-indent-32 {
-    text-indent: 32px;
+    text-indent: 32px !important;
 }
 .text-indent-36 {
-    text-indent: 36px;
+    text-indent: 36px !important;
 }
 .text-indent-48 {
-    text-indent: 48px;
+    text-indent: 48px !important;
 }
 .text-indent-72 {
-    text-indent: 72px;
+    text-indent: 72px !important;
 }
 
 

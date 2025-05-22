@@ -281,8 +281,11 @@ export class DocumentViewPage {
     async beforeRender() {
         this.documentFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("document-title-font-size") || "24px"];
         this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
+        this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
         this.infoTextFontFamily = this.documentFontFamily
         this.infoTextFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("infoText-font-size") || "16px"];
+        const textFontSize = localStorage.getItem("document-font-size")??16;
+        this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
         this.chaptersContainer = "";
         this.category = this._document.category;
         this.docTitle = this._document.title;
