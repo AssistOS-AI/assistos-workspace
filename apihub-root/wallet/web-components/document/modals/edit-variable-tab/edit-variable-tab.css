@@ -26,7 +26,7 @@ edit-variable-tab .form-item{
     height: 140px;
 }
 .save-variable{
-    margin-top: auto;
+    margin-top: 55px;
     align-self: flex-start;
 }
 #type{
@@ -57,7 +57,7 @@ edit-variable-tab .form-item{
     position: absolute;
     top: 40px;
     left: 0;
-    max-height: 330px;
+    max-height: 195px;
     overflow-y: scroll;
     border-radius: 5px;
 }

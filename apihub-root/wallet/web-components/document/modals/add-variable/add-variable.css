@@ -1,7 +1,6 @@
 add-variable{
     display: block;
     width: 1100px;
-    height: 465px;
 }
 .modal-body{
     height: calc(100% - 56px);
@@ -23,7 +22,7 @@ add-variable{
     margin-right: 10px;
 }
 .add-variable{
-    margin-top: auto;
+    margin-top: 55px;
     align-self: flex-start;
 }
 #type{
@@ -54,7 +53,7 @@ add-variable{
     position: absolute;
     top: 40px;
     left: 0;
-    max-height: 300px;
+    max-height: 195px;
     overflow-y: scroll;
     border-radius: 5px;
 }

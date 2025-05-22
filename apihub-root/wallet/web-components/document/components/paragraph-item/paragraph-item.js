@@ -63,8 +63,8 @@ export class ParagraphItem {
         let insert = this.element.querySelector(".insert");
         this.documentPresenter.attachTooltip(insert,"Insert Elements");
 
-        let attachFiles = this.element.querySelector(".files-menu");
-        this.documentPresenter.attachTooltip(attachFiles,"Attach Files");
+        // let attachFiles = this.element.querySelector(".files-menu");
+        // this.documentPresenter.attachTooltip(attachFiles,"Attach Files");
 
         let commentMenu = this.element.querySelector(".comment-menu");
         this.documentPresenter.attachTooltip(commentMenu,"Comments");
