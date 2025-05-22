@@ -90,11 +90,17 @@ export class EditVariables {
         pluginUtils.renderPluginDefaultOptions(this.element);
         if(this.pinned){
             let pin = this.element.querySelector(".pin");
+            pin.setAttribute("data-local-action", "unpinPlugin");
             pluginUtils.pinPlugin(pin, this.element);
         }
     }
     pinPlugin(pin){
+        pin.setAttribute("data-local-action", "unpinPlugin");
         pluginUtils.pinPlugin(pin, this.element);
+    }
+    unpinPlugin(pin){
+        pin.setAttribute("data-local-action", "pinPlugin");
+        pluginUtils.unpinPlugin(pin, this.element);
     }
     async openAddVariableModal(){
         let confirmation = await assistOS.UI.showModal("add-variable", {
