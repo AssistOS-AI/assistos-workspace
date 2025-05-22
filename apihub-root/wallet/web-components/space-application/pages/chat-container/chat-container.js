@@ -7,7 +7,7 @@ export class ChatContainer {
     }
     async beforeRender(){
         // const chatId = assistOS.agent.agentData.selectedChat||assistOS.agent.agentData.chats[0];
-        // this.chatPage =`<chat-page data-chatId="${chatId}" data-agentId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
+        // this.chatPage =`<chat-page data-chatId="${chatId}" data-agentId="${assistOS.agent.agentData.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.email}" data-presenter="chat-page" tabindex="0"></chat-page>`
         // this.agents = await agentModule.getAgents(assistOS.space.id)
         // let agentsHTML = "";
         // for (let agent of this.agents) {

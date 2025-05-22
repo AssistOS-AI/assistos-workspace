@@ -47,7 +47,7 @@ export class LeftSidebar {
             <div class="space-item" data-local-action="swapSpace ${space.id}" data-name="${space.name}">${space.name}</div>`;
         }
         this.spaces = stringHTML;
-        this.userEmail = assistOS.user.id;
+        this.userEmail = assistOS.user.email;
     }
     afterRender() {
         this.toastsContainer = this.element.querySelector(".toasts-container");

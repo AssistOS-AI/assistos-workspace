@@ -5,7 +5,7 @@ export class AccountSettingsPage{
         this.invalidate();
     }
     beforeRender(){
-        this.userImage=`/users/profileImage/${assistOS.user.id}`
+        this.userImage=`/users/profileImage/${assistOS.user.email}`
         this.username=assistOS.user.name;
         this.email=assistOS.user.email;
         this.creationDate=assistOS.user.createdDate||"Unknown";

@@ -175,7 +175,6 @@ class AssistOS {
 
     async initSpace(email, spaceId) {
         assistOS.user = await userModule.loadUser(email);
-        assistOS.user.id = localStorage.getItem("userEmail");
         assistOS.user.email = localStorage.getItem("userEmail");
         let spaceStatus = await spaceModule.getSpaceStatus(spaceId);
         assistOS.space = Space.getInstance(spaceStatus);

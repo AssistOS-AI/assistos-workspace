@@ -8,7 +8,7 @@ export class SpaceApplicationPage {
 
     async beforeRender() {
         const chatId = assistOS.agent.selectedChat || assistOS.agent.chats[0];
-        this.chatPage = `<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.id}" data-presenter="chat-page" tabindex="0"></chat-page>`
+        this.chatPage = `<chat-page data-chatId="${chatId}" data-personalityId="${assistOS.agent.id}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.email}" data-presenter="chat-page" tabindex="0"></chat-page>`
     }
 
     async afterRender() {

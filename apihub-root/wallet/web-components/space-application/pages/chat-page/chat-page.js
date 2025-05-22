@@ -319,7 +319,7 @@ class BaseChatFrame {
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
             let currentMessageIndex = this.chatMessages.length - 1;
-            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId,assistOS.user.id,userRequestMessage);
+            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId,assistOS.user.email,userRequestMessage);
             this.chatMessages[currentMessageIndex]= await chatModule.getChatMessage(this.spaceId, this.chatId, id);
             const responseElement = streamLocationElement.closest('chat-item');
             responseElement.setAttribute(`id`, id);
@@ -334,7 +334,7 @@ class BaseChatFrame {
             responseElement.setAttribute(`id`, responseMessageId);
             responseElement.webSkelPresenter.invalidate();*/
         } else {
-            messageId = await chatModule.sendMessage(this.spaceId, this.chatId, assistOS.user.id, userRequestMessage, "user")
+            messageId = await chatModule.sendMessage(this.spaceId, this.chatId, assistOS.user.email, userRequestMessage, "user")
             element.setAttribute(`id`, messageId);
             element.webSkelPresenter.invalidate();
         }
