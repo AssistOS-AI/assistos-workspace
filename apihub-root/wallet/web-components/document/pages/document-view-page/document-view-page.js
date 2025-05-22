@@ -12,12 +12,12 @@ export class DocumentViewPage {
         this.observers = [];
         const documentId = this.element.getAttribute("documentId");
         this.invalidate(async () => {
-            if(documentId==="demo"){
-               const documents = await documentModule.getDocuments(assistOS.space.id);
-               const docId= documents[documents.length-1].id;
-               this._document= await documentModule.loadDocument(assistOS.space.id, docId);
-               this.viewMode="demo";
-            }else{
+            if (documentId === "demo") {
+                const documents = await documentModule.getDocuments(assistOS.space.id);
+                const docId = documents[documents.length - 1].id;
+                this._document = await documentModule.loadDocument(assistOS.space.id, docId);
+                this.viewMode = "demo";
+            } else {
                 this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             }
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
@@ -33,6 +33,7 @@ export class DocumentViewPage {
     async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
+
     async addTableOfContents(targetElement) {
         if (!this._document) {
             console.error("Document data is not available.");
@@ -139,6 +140,7 @@ export class DocumentViewPage {
 
         console.log("Table of Contents added as standalone element between title and infoText");
     }
+
     async removeTableOfContents() {
         const tocContainer = this.element.querySelector(".toc-container");
         if (tocContainer) {
@@ -170,10 +172,11 @@ export class DocumentViewPage {
         await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextTitleId, this.boundSelectInfoTextTitleHandler);
     }
 
-    async getPersonalityName(personalityId){
+    async getPersonalityName(personalityId) {
         let personality = this.agents.find(personality => personality.id === personalityId);
         return personality.name;
     }
+
     async getPersonalityImageByName(personalityName) {
         let personality = this.agents.find(personality => personality.name === personalityName);
         let personalityImageId;
@@ -279,12 +282,17 @@ export class DocumentViewPage {
     }
 
     async beforeRender() {
-        this.documentFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("document-title-font-size") || "24px"];
-        this.documentFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")] || "Arial";
-        this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
+        if (window.assistOS.stylePreferenceCache) {
+            this.stylePreferences = window.assistOS.stylePreferenceCache
+        } else {
+            this.stylePreferences = await documentModule.getStylePreferences(assistOS.user.email);
+        }
+        this.documentFontSize = assistOS.constants.fontSizeMap[this.stylePreferences["document-title-font-size"]] || "24px";
+        this.documentFontFamily = assistOS.constants.fontFamilyMap[this.stylePreferences["document-font-family"]] || "Arial";
+        this.chapterFontSize = assistOS.constants.fontSizeMap[this.stylePreferences["chapter-title-font-size"]] || "20px"
         this.infoTextFontFamily = this.documentFontFamily
-        this.infoTextFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("infoText-font-size") || "16px"];
-        const textFontSize = localStorage.getItem("document-font-size")??16;
+        this.infoTextFontSize = assistOS.constants.fontSizeMap[this.stylePreferences["infoText-font-size"]] || "16px";
+        const textFontSize = this.stylePreferences["document-font-size"] ?? 16;
         this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
         this.chaptersContainer = "";
         this.category = this._document.category;
@@ -298,9 +306,11 @@ export class DocumentViewPage {
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#646464");
         await this.refreshVariables();
     }
-    async refreshVariables(){
+
+    async refreshVariables() {
         this.variables = await documentModule.getDocumentVariables(assistOS.space.id, this._document.docId);
     }
+
     renderDocumentTitle() {
         let documentTitle = this.element.querySelector(".document-title");
         documentTitle.value = unescapeHtmlEntities(this._document.title);
@@ -312,15 +322,15 @@ export class DocumentViewPage {
         infoText.style.height = "auto";
         infoText.style.height = infoText.scrollHeight + 'px';
         infoText.addEventListener("paste", async () => {
-            setTimeout(()=>{
+            setTimeout(() => {
                 infoText.style.height = infoText.scrollHeight + 'px';
-            },0)
+            }, 0)
         });
     }
 
     async afterRender() {
-        if(this.element.getAttribute('reducePadding')){
-            this.element.querySelector('.document-editor-container').style.padding= "0px";
+        if (this.element.getAttribute('reducePadding')) {
+            this.element.querySelector('.document-editor-container').style.padding = "0px";
         }
         let documentPluginsContainer = this.element.querySelector(".document-plugins-container");
         await pluginUtils.renderPluginIcons(documentPluginsContainer, "document");
@@ -355,28 +365,31 @@ export class DocumentViewPage {
         this.attachTooltip(scriptArgs, "Run Script");
         this.attachTooltip(commentsIcon, "Comments");
         this.attachTooltip(buildIcon, "Build Document");
-        if(this.viewMode ==="demo"){
+        if (this.viewMode === "demo") {
             this.element.querySelector('.document-page-header')?.remove();
         }
     }
+
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
     }
+
     attachTooltip(containerElement, tooltip) {
         let tooltipDiv = document.createElement("div");
         tooltipDiv.classList.add("tooltip-name");
         tooltipDiv.innerHTML = tooltip;
         containerElement.appendChild(tooltipDiv);
-        containerElement.addEventListener("mouseover", async ()=>{
+        containerElement.addEventListener("mouseover", async () => {
             containerElement.querySelector(".tooltip-name").style.display = "block";
         });
-        containerElement.addEventListener("mouseout", async ()=>{
+        containerElement.addEventListener("mouseout", async () => {
             containerElement.querySelector(".tooltip-name").style.display = "none";
         });
     }
+
     async changeDocInfoDisplay(arrow) {
         let documentInfo = this.element.querySelector(".document-infoText");
-        if(documentInfo.classList.contains("hidden")){
+        if (documentInfo.classList.contains("hidden")) {
             documentInfo.classList.remove("hidden");
             arrow.classList.remove("rotate");
         } else {
@@ -384,6 +397,7 @@ export class DocumentViewPage {
             arrow.classList.add("rotate");
         }
     }
+
     async removeFocusHandler(event) {
         let closestContainer = event.target.closest(".document-editor");
         if (!closestContainer && !event.target.closest(".maintain-focus")) {
@@ -414,9 +428,11 @@ export class DocumentViewPage {
         await documentModule.changeChapterOrder(assistOS.space.id, this._document.id, currentChapterId, position);
         this.changeChapterOrder(currentChapterId, position);
     }
-    async openScriptModal(){
+
+    async openScriptModal() {
         await assistOS.UI.showModal("run-script");
     }
+
     async saveInfoText(infoTextElement) {
         let infoText = assistOS.UI.sanitize(infoTextElement.value);
         if (infoText !== this._document.infoText) {
@@ -429,12 +445,14 @@ export class DocumentViewPage {
                 this._document.comments);
         }
     }
+
     async saveInfoTextTitle(input) {
         let infoTextTitle = assistOS.UI.sanitize(input.value);
         if (infoTextTitle !== this._document.infoTextTitle) {
             //TODO update infoTextTitle
         }
     }
+
     async addChapter(targetElement, direction) {
         let position = this._document.chapters.length;
         if (assistOS.space.currentChapterId) {
@@ -454,7 +472,7 @@ export class DocumentViewPage {
         await this.insertNewChapter(assistOS.space.currentChapterId, position);
         let allChapters = this.element.querySelectorAll("chapter-item");
         for (let chapter of allChapters) {
-            if(chapter.webSkelPresenter){
+            if (chapter.webSkelPresenter) {
                 chapter.webSkelPresenter.updateChapterNumber();
             }
         }
@@ -523,14 +541,15 @@ export class DocumentViewPage {
         this.changeToolbarView(element, "off");
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
-        if(!pluginElement){
+        if (!pluginElement) {
             return;
         }
-        if(pluginElement.classList.contains("pinned")){
+        if (pluginElement.classList.contains("pinned")) {
             return;
         }
         this.currentPlugin = this.closePlugin("", true);
     }
+
     async focusOutHandlerTitle(element, itemId) {
         let container = element.closest(".container-element");
         container.classList.remove("focused");
@@ -545,14 +564,16 @@ export class DocumentViewPage {
         infoText.style.height = "auto";
         infoText.style.height = infoText.scrollHeight + 'px';
     }
+
     changeToolbarView(targetElement, mode) {
         let containerElement = targetElement.closest(".container-element");
         let toolbar = containerElement.querySelector(".right-section");
-        if(!toolbar){
+        if (!toolbar) {
             return;
         }
         mode === "on" ? toolbar.style.display = "flex" : toolbar.style.display = "none";
     }
+
     async highlightInfoText(targetElement) {
         if (!this.boundControlInfoTextHeight) {
             this.boundControlInfoTextHeight = this.controlInfoTextHeight.bind(this, targetElement);
@@ -565,10 +586,11 @@ export class DocumentViewPage {
         await selectionUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
         this.currentSelectItem = this.infoTextId;
         this.changeToolbarView(targetElement, "on");
-        if(this.currentPlugin){
+        if (this.currentPlugin) {
             await this.openPlugin("", "infoText", this.currentPlugin);
         }
     }
+
     async highlightInfoTextTitle(targetElement) {
         await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextTitleId));
         let containerElement = targetElement.closest(".container-element");
@@ -577,10 +599,11 @@ export class DocumentViewPage {
         await selectionUtils.selectItem(true, this.infoTextTitleId, this.infoTextClass, this);
         this.currentSelectItem = this.infoTextTitleId;
         this.changeToolbarView(targetElement, "on");
-        if(this.currentPlugin){
+        if (this.currentPlugin) {
             await this.openPlugin("", "infoText", this.currentPlugin);
         }
     }
+
     async editItem(targetElement, type) {
         if (targetElement.getAttribute("id") === "current-selection") {
             return;
@@ -610,11 +633,10 @@ export class DocumentViewPage {
         } else if (type === "infoText") {
             await this.highlightInfoText(targetElement);
             saveFunction = this.saveInfoText.bind(this, targetElement);
-        }else if (type === "infoTextTitle") {
+        } else if (type === "infoTextTitle") {
             await this.highlightInfoTextTitle(targetElement);
             saveFunction = this.saveInfoTextTitle.bind(this, targetElement);
-        }
-        else if (type === "chapterTitle") {
+        } else if (type === "chapterTitle") {
             targetElement.classList.add("focused")
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             saveFunction = chapterPresenter.saveTitle.bind(chapterPresenter, targetElement);
@@ -623,13 +645,13 @@ export class DocumentViewPage {
             await chapterPresenter.highlightChapterHeader();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
             await selectionUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
-        } else if(type === "chapterHeader"){
+        } else if (type === "chapterHeader") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
             await selectionUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
-        }else if (type === "paragraphText") {
+        } else if (type === "paragraphText") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
             let paragraphPresenter = paragraphItem.webSkelPresenter;
@@ -733,11 +755,12 @@ export class DocumentViewPage {
         const tasksMenu = this.element.querySelector(".tasks-menu");
         tasksMenu.insertAdjacentHTML("beforeend", newTasksBadge);
     }
-    async openCommentModal(){
+
+    async openCommentModal() {
         let comments = await assistOS.UI.showModal("comment-modal", {
             comments: this._document.comments
         }, true);
-        if(comments !== undefined){
+        if (comments !== undefined) {
             this._document.comments = comments;
             await documentModule.updateDocument(
                 assistOS.space.id,
@@ -773,21 +796,23 @@ export class DocumentViewPage {
         }
         document.removeEventListener("click", this.boundRemoveFocusHandler);
     }
-    async translateDocument(){
+
+    async translateDocument() {
         await assistOS.UI.showModal("translate-document-modal", {id: this._document.id});
     }
+
     async openPlugin(targetElement, type, pluginName, autoPin) {
         let pluginContainer = this.element.querySelector(`.${type}-plugin-container`);
         let pluginElement = pluginContainer.firstElementChild;
-        if(pluginElement && pluginElement.tagName.toLowerCase() === pluginName){
+        if (pluginElement && pluginElement.tagName.toLowerCase() === pluginName) {
             return;
         }
-        if(type === "document"){
+        if (type === "document") {
             let context = {
                 documentId: this._document.id
             }
             await pluginUtils.openPlugin(pluginName, "document", context, this);
-        } else if(type === "infoText"){
+        } else if (type === "infoText") {
             let itemId = `${this.infoTextId}_${pluginName}`;
             let context = {
                 infoText: ""
@@ -801,38 +826,40 @@ export class DocumentViewPage {
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
         let pluginElement = pluginContainer.firstElementChild;
-        if(!pluginElement){
+        if (!pluginElement) {
             return;
         }
         let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("infoText", this);
-        if(focusoutClose){
+        if (focusoutClose) {
             return pluginName;
         }
     }
 
-    async undoOperation(targetElement){
+    async undoOperation(targetElement) {
         this.toggleEditingState(false);
         let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
-        if(success){
+        if (success) {
             assistOS.showToast("Undo successful.", "success");
         } else {
             assistOS.showToast("Nothing to undo.", "info");
             this.toggleEditingState(true);
         }
     }
-    async redoOperation(targetElement){
+
+    async redoOperation(targetElement) {
         this.toggleEditingState(false);
         let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
-        if(success){
+        if (success) {
             assistOS.showToast("Redo successful.", "success");
         } else {
             assistOS.showToast("Nothing to redo.", "info");
             this.toggleEditingState(true);
         }
     }
-    async buildForDocument(button){
+
+    async buildForDocument(button) {
         button.classList.add("disabled");
         try {
             await spaceModule.buildForDocument(assistOS.space.id, this._document.docId);
@@ -845,11 +872,13 @@ export class DocumentViewPage {
             this.notifyObservers("variables")
         }
     }
+
     observeChange(elementId, callback, callbackAsyncParamFn) {
         let obj = {elementId: elementId, callback: callback, param: callbackAsyncParamFn};
         callback.refferenceObject = obj;
         this.observers.push(new WeakRef(obj));
     }
+
     notifyObservers(prefix) {
         this.observers = this.observers.reduce((accumulator, item) => {
             if (item.deref()) {

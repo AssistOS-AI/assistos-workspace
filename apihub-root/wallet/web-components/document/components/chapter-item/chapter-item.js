@@ -87,8 +87,13 @@ export class ChapterItem {
     }
 
     async beforeRender() {
-        this.chapterFontSize = assistOS.constants.fontSizeMap[localStorage.getItem("chapter-title-font-size")||"20px"]
-        this.chapterFontFamily = assistOS.constants.fontFamilyMap[localStorage.getItem("document-font-family")||"Arial"];
+        if (window.assistOS.stylePreferenceCache) {
+            this.stylePreferences = window.assistOS.stylePreferenceCache
+        } else {
+            this.stylePreferences = await documentModule.getStylePreferences(assistOS.user.email);
+        }
+        this.chapterFontSize = assistOS.constants.fontSizeMap[this.stylePreferences["chapter-title-font-size"]]||"20px"
+        this.chapterFontFamily = assistOS.constants.fontFamilyMap[this.stylePreferences["document-font-family"]]||"Arial";
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
         let index = this._document.getChapterIndex(this.chapter.id);

@@ -28,9 +28,14 @@ export class ParagraphItem {
     }
 
     async beforeRender() {
-        const textFontSize = localStorage.getItem("document-font-size")??16;
-        const textFontFamily = localStorage.getItem("document-font-family")??"Arial";
-        const textIndent = localStorage.getItem("document-indent-size")??"12";
+        if (window.assistOS.stylePreferenceCache) {
+            this.stylePreferences = window.assistOS.stylePreferenceCache
+        } else {
+            this.stylePreferences = await documentModule.getStylePreferences(assistOS.user.email);
+        }
+        const textFontSize = this.stylePreferences["document-font-size"]??16;
+        const textFontFamily = this.stylePreferences["document-font-family"]??"Arial";
+        const textIndent =this.stylePreferences["document-indent-size"]??"12";
         this.fontFamily = assistOS.constants.fontFamilyMap[textFontFamily]
         this.fontSize = assistOS.constants.fontSizeMap[textFontSize]
         this.textIndent = assistOS.constants.textIndentMap[textIndent]

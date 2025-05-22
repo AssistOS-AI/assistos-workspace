@@ -1,3 +1,4 @@
+const documentModule = require('assistos').loadModule("document", {});
 export class PrintSubpage {
     constructor(element, invalidate) {
         this.element = element;
@@ -6,52 +7,53 @@ export class PrintSubpage {
     }
 
     async beforeRender() {
-        const selectedSection = localStorage.getItem("section") || "Header";
+        const printPreferences = await documentModule.getPrintPreferences(assistOS.user.email);
+        const selectedSection = printPreferences["section"] || "Header";
         this.sections = ["Header", "Footer", "Body"].map(section =>
             `<option value="${section}" ${section === selectedSection ? "selected" : ""}>${section}</option>`
         ).join("");
 
-        const selectedFont = localStorage.getItem("font") || "Arial";
+        const selectedFont = printPreferences["font"] || "Arial";
         this.fonts = ["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"].map(font =>
             `<option value="${font}" ${font === selectedFont ? "selected" : ""}>${font}</option>`
         ).join("");
 
-        const selectedFontStyle = localStorage.getItem("font-style") || "Normal";
+        const selectedFontStyle = printPreferences["font-style"] || "Normal";
         this.fontStyles = ["Normal", "Italic", "Bold", "Bold Italic"].map(style =>
             `<option value="${style}" ${style === selectedFontStyle ? "selected" : ""}>${style}</option>`
         ).join("");
 
-        const selectedFontSize = parseInt(localStorage.getItem("font-size"), 10) || 12;
+        const selectedFontSize = parseInt(printPreferences["font-size"], 10) || 12;
         this.fontSizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72].map(size =>
             `<option value="${size}" ${size === selectedFontSize ? "selected" : ""}>${size}px</option>`
         ).join("");
 
-        const selectedPosition = localStorage.getItem("position") || "Left";
+        const selectedPosition = printPreferences["position"] || "Left";
         this.positions = ["Left", "Center", "Right", "Top", "Bottom"].map(pos =>
             `<option value="${pos}" ${pos === selectedPosition ? "selected" : ""}>${pos}</option>`
         ).join("");
 
-        const selectedStyle = localStorage.getItem("style") || "Default";
+        const selectedStyle = printPreferences["style"] || "Default";
         this.styles = ["Default", "Simple", "Fancy"].map(style =>
             `<option value="${style}" ${style === selectedStyle ? "selected" : ""}>${style}</option>`
         ).join("");
 
-        const selectedPadding = parseInt(localStorage.getItem("padding-top"), 10) || 0;
+        const selectedPadding = parseInt(printPreferences["padding-top"], 10) || 0;
         this.paddings = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72].map(size =>
             `<option value="${size}" ${size === selectedPadding ? "selected" : ""}>${size}px</option>`
         ).join("");
 
-        const selectedFormat = localStorage.getItem("format") || "A4";
+        const selectedFormat = printPreferences["format"] || "A4";
         this.formats = ["A4", "Letter", "Legal", "Tabloid"].map(format =>
             `<option value="${format}" ${format === selectedFormat ? "selected" : ""}>${format}</option>`
         ).join("");
 
-        const selectedOrientation = localStorage.getItem("orientation") || "Portrait";
+        const selectedOrientation = printPreferences["orientation"] || "Portrait";
         this.orientations = ["Portrait", "Landscape"].map(orientation =>
             `<option value="${orientation}" ${orientation === selectedOrientation ? "selected" : ""}>${orientation}</option>`
         ).join("");
 
-        this.selectedColor = localStorage.getItem("document-font-color") || "#000000";
+        this.selectedColor = printPreferences["document-font-color"]|| "#000000";
     }
 
     async afterRender() {
@@ -84,9 +86,32 @@ export class PrintSubpage {
         });
 
         this.element.addEventListener("change", (event) => {
-            const id = event.target.id;
-            localStorage.setItem(id, event.target.value);
-            document.querySelector('document-view-page').webSkelPresenter.invalidate();
+            this.element.querySelector('.general-button').classList.remove('disabled');
         });
+    }
+    getPreferences() {
+        const preferences = {
+            section: this.element.querySelector("#section").value,
+            font: this.element.querySelector("#font").value,
+            "font-style": this.element.querySelector("#font-style").value,
+            "font-size": this.element.querySelector("#font-size").value,
+            "document-font-color": this.element.querySelector("#document-font-color").value,
+            position: this.element.querySelector("#position").value,
+            style: this.element.querySelector("#style").value,
+            "padding-top": this.element.querySelector("#padding-top").value,
+            "padding-right": this.element.querySelector("#padding-right").value,
+            "padding-bottom": this.element.querySelector("#padding-bottom").value,
+            "padding-left": this.element.querySelector("#padding-left").value,
+            format: this.element.querySelector("#format").value,
+            orientation: this.element.querySelector("#orientation").value,
+            "print-document-font-color": this.element.querySelector("#print-document-font-color").value
+        };
+        return preferences;
+    }
+    async save(eventTarget) {
+        await assistOS.loadifyFunction(async () => {
+            const preferences = this.getPreferences();
+            await documentModule.updatePrintPreferences(assistOS.user.email, preferences);
+        })
     }
 }
