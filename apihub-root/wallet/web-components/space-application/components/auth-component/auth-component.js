@@ -1,7 +1,7 @@
-let userModule = require("assistos").loadModule("user", {});
-let spaceModule = require("assistos").loadModule("space", {});
+let userModule = require("assistos").loadModule("user", { userId: "*" });
+let spaceModule = require("assistos").loadModule("space", { userId: "*" });
 
-import {passKeyLogin, passKeyRegister} from "./passkeyUtils.js";
+import { passKeyLogin, passKeyRegister } from "./passkeyUtils.js";
 
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -208,7 +208,7 @@ export class AuthComponent {
             // Store the email in localStorage for later use
             localStorage.setItem("userEmail", this.email);
             let spaceId;
-            if(this.createSpace){
+            if (this.createSpace) {
                 let spaceName = this.email.split('@')[0];
                 await assistOS.UI.showLoading();
                 spaceId = await spaceModule.createSpace(spaceName);
@@ -234,7 +234,7 @@ export class AuthComponent {
         this.element.querySelector(".auth_type_wrapper").style.display = "none";
         this.element.querySelector(".code_submit_section").style.display = "flex";
         let codeInput = this.element.querySelector(".code_input");
-        if(resp.code){
+        if (resp.code) {
             codeInput.value = resp.code;
             let submitCodeButton = this.element.querySelector(".submit_code_button");
             submitCodeButton.classList.remove('disabled');
@@ -393,7 +393,7 @@ export class AuthComponent {
         const result = await userModule.verifyTotp(token, this.email);
         if (result.operation === "success") {
             let spaceId;
-            if(createSpace){
+            if (createSpace) {
                 let spaceName = this.email.split('@')[0];
                 await assistOS.UI.showLoading();
                 spaceId = await spaceModule.createSpace(spaceName);

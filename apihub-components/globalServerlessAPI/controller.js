@@ -129,6 +129,7 @@ async function createSpace(request, response, server) {
 
         const serverSideSecurityContext = assistOSSDK.ServerSideSecurityContext;
         const securityContext = new serverSideSecurityContext(request);
+        securityContext.userId = "*"
         const ApplicationModule=assistOSSDK.loadModule("application",securityContext);
 
         for (const application of defaultApplications) {
