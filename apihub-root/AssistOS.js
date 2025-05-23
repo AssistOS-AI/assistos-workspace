@@ -239,6 +239,7 @@ class AssistOS {
     async createSpace(spaceName) {
         const spaceModule = this.loadModule("space");
         let spaceId = await spaceModule.createSpace(spaceName);
+        window.location.hash = "#" + spaceId;
         await this.loadPage(assistOS.user.email, spaceId);
     }
 
