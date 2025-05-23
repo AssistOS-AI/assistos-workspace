@@ -103,6 +103,8 @@ async function AppSpecificPlugin() {
         let UserLogin = await $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
+        console.debug("DEBUG--------------------------------");
+        console.debug("UserInfo: ", JSON.stringify(result));
         if(!result.userInfo.currentSpaceId || result.userInfo.currentSpaceId === "undefined"){
             result.userInfo.currentSpaceId = result.userInfo.spaces[0];
             await UserLogin.setUserInfo(email, result.userInfo);
