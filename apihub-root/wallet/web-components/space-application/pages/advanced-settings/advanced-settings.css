@@ -1,14 +1,15 @@
-advanced-settings{
-    margin:12px;
+advanced-settings {
+    margin: 12px;
 }
-.tab-footer{
-    display:flex;
-    margin-left:12px;
+
+.tab-footer {
+    display: flex;
+    margin-left: 12px;
 }
-.left-part{
-    display:flex;
-    width:50%;
-    margin-left:12px;
-    justify-content:flex-start;
-    text-align:justify;
+
+.left-part {
+    display: flex;
+    margin-left: 12px;
+    justify-content: flex-start;
+    text-align: justify;
 }

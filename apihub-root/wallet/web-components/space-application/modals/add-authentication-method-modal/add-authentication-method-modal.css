@@ -1,0 +1,17 @@
+add-authentication-method-modal{
+    display:flex;
+    flex-direction:column;
+    width:862px;
+    height:250px;
+}
+.form-item{
+    gap:16px;
+}
+.form-item span{
+    font-family: Inter;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 100%;
+    letter-spacing: 0;
+    color: #646464;
+}

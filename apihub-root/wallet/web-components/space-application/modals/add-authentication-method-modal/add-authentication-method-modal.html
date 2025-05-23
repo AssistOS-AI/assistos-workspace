@@ -1,0 +1,32 @@
+<div class="modal-header">
+    <div>Choose Authentication Method</div>
+    <div class="close" data-local-action="closeModal" aria-label="Close">
+        <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
+    </div>
+</div>
+<form class="modal-body">
+    <div class="form-item">
+        <span>Select a new authentication method</span>
+        <div class="radio-item">
+            <custom-radio data-presenter="custom-radio" data-name="loginMethod" data-value="passkey">
+                <div class="custom-radio radio-margin" data-local-action="selectRadio" data-name="loginMethod"
+                     data-value="passkey">
+                    <div class="radio-selection"></div>
+                </div>
+            </custom-radio>
+            <label class="source-toggle-label">Passkey</label>
+        </div>
+        <div class="radio-item">
+            <custom-radio data-presenter="custom-radio" data-name="loginMethod" data-value="otp">
+                <div class="custom-radio radio-margin selected" data-local-action="selectRadio"
+                     data-name="loginMethod" data-value="otp">
+                    <div class="radio-selection"></div>
+                </div>
+            </custom-radio>
+            <label class="source-toggle-label">One Time Password (OTP)</label>
+        </div>
+    </div>
+    <div class="form-item">
+        <button type="button" class="general-button fit-content" data-local-action="addLoginMethod">Next</button>
+    </div>
+</form>

@@ -303,6 +303,7 @@ add-key-modal,edit-apikey-modal{
     background: #C80001;
     gap: 10px;
     padding: 14px;
+    margin-block-start:20px;
     border: 1px solid #C80001;
     border-radius: 2px;
 }

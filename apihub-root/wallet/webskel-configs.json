@@ -686,6 +686,12 @@
             "type": "modals"
         },
         {
+            "name": "add-authentication-method-modal",
+            "directory": "space-application",
+            "presenterClassName": "AddAuthenticationMethodModal",
+            "type": "modals"
+        },
+        {
             "name": "application-edit-menu-modal",
             "directory": "space-application",
             "presenterClassName": "ApplicationEditMenuModal",
