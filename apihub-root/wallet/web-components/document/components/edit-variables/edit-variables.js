@@ -30,6 +30,11 @@ export class EditVariables {
             if(command.command === "assign"){
                 command.command = ":="
             }
+            for(let i = 0; i < command.inputVars.length; i++){
+                if(command.varTypes[i] === "var"){
+                    command.inputVars[i] = `$${command.inputVars[i]}`;
+                }
+            }
             let inputVars = command.inputVars.map(inputVar => inputVar).join(" ");
             if(command.command === "macro" || command.command === "jsdef"){
                 inputVars = decodePercentCustom(inputVars);
@@ -76,10 +81,10 @@ export class EditVariables {
                     <div class="cell">${variable.status || "......."}</div>
                     <div class="cell actions-cell">
                         <div class="icon-container right-margin" data-local-action="openEditor ${variable.varName}">
-                            <img src="./wallet/assets/icons/eye-edit.svg" class="pointer" alt="edit">
+                            <img src="./wallet/assets/icons/eye-edit.svg" class="pointer variable-icon" alt="edit">
                         </div>
                         <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">
-                            <img src="./wallet/assets/icons/trash-can.svg" class="pointer delete-icon" alt="delete">
+                            <img src="./wallet/assets/icons/trash-can.svg" class="pointer variable-icon" alt="delete">
                         </div>
                     </div>
                 `;

@@ -21,7 +21,9 @@ paragraph-item {
 .paragraph-container{
     padding: 0 5px;
 }
-
+.icon-container.delete-paragraph{
+    width: initial;
+}
 .paragraph-header-container {
     width: 100%;
 }
