@@ -1,4 +1,3 @@
-const agentModule = require("assistos").loadModule("agent", {});
 export class ChatContainer {
     constructor(element,invalidate){
         this.element=element;

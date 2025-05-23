@@ -1,4 +1,4 @@
-const documentModule = require('assistos').loadModule("document", {});
+const documentModule = assistOS.loadModule("document");
 
 export class StyleSubpage {
     constructor(element, invalidate) {

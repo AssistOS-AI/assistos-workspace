@@ -1,4 +1,4 @@
-const spaceModule = require('assistos').loadModule('space', {});
+const spaceModule = assistOS.loadModule("space");
 
 const themeContract = {
     '--bg': { type: 'color', default: '#ffffff', label: 'Background' },

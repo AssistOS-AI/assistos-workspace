@@ -90,16 +90,12 @@ edit-variables .focused-field{
     margin-right: 68px;
 }
 .delete-button-container{
-    border-radius: 2px;
-    background-color: var(--red);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 6px;
 }
-.delete-icon{
-    filter: invert(1) brightness(2);
-    width: 14px;
+.variable-icon{
+    width: 20px;
 }
 .right-margin{
     margin-right: 5px;

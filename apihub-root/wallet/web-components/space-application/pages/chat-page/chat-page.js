@@ -1,5 +1,5 @@
-const agentModule = require("assistos").loadModule("agent", {});
-const chatModule = require("assistos").loadModule("chat", {});
+const agentModule = assistOS.loadModule("agent")
+const chatModule = assistOS.loadModule("chat")
 
 const generateRequest = function (method, headers = {}, body = null) {
     return async function (url) {

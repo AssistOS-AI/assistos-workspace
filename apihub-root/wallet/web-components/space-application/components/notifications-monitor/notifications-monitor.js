@@ -1,4 +1,4 @@
-const utilModule = require('assistos').loadModule('util', {});
+const utilModule = assistOS.loadModule("util");
 
 export class NotificationsMonitor {
     constructor(element, invalidate) {

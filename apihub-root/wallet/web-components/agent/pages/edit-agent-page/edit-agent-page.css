@@ -76,7 +76,6 @@ edit-agent-page{
 .page-footer{
     padding: var(--page-padding);
     display: flex;
-    gap: 15px;
     margin-top: auto;
     align-self: flex-end;
 }

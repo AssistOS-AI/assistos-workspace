@@ -1,5 +1,5 @@
-const agentModule = require("assistos").loadModule("agent", {});
-const llmModule = require("assistos").loadModule("llm", {});
+const agentModule = assistOS.loadModule("agent");
+const llmModule = assistOS.loadModule("llm");
 const constants = require("assistos").constants;
 
 export class EditAgentPage {

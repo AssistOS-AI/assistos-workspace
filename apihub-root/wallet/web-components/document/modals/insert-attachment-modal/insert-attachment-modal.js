@@ -1,5 +1,5 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const galleryModule = require("assistos").loadModule("gallery", {});
+const spaceModule = assistOS.loadModule("space");
+const galleryModule = assistOS.loadModule("gallery");
 import {videoUtils} from "../../../../imports.js";
 
 export class InsertAttachmentModal {

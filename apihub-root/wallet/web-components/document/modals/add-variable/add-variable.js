@@ -1,5 +1,5 @@
-const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = assistOS.loadModule("document");
+const spaceModule = assistOS.loadModule("space");
 export class AddVariable {
     constructor(element, invalidate) {
         this.invalidate = invalidate;

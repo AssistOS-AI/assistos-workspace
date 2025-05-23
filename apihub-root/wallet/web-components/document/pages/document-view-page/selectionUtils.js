@@ -1,6 +1,6 @@
 import {generateId} from "../../../../imports.js";
-const spaceModule = require("assistos").loadModule("space", {});
-const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = assistOS.loadModule("space");
+const documentModule = assistOS.loadModule("document");
 function lockItem(itemClass, presenter) {
     let editableItem = presenter.element.querySelector(`.${itemClass}`);
     editableItem.classList.add("locked-item");

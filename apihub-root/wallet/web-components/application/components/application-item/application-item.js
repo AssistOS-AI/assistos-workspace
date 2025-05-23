@@ -1,4 +1,4 @@
-const applicationModule = require("assistos").loadModule("application", {});
+const applicationModule = assistOS.loadModule("application");
 
 export class ApplicationItem {
     constructor(element, invalidate) {

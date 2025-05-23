@@ -1,5 +1,5 @@
 import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
-const applicationModule = require("assistos").loadModule("application", {});
+const applicationModule = assistOS.loadModule("application", {});
 async function openPlugin(componentName, type, context, presenter, selectionItemId, autoPin = false) {
     if(selectionItemId){
         await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
@@ -118,13 +118,13 @@ function renderPluginDefaultOptions(pluginElement){
 }
 function pinPlugin(pin, pluginElement){
     let path = pin.querySelector('path');
-    if(pluginElement.classList.contains("pinned")){
-        path.setAttribute("fill", "");
-        pluginElement.classList.remove("pinned");
-    } else {
-        path.setAttribute("fill", "#646464");
-        pluginElement.classList.add("pinned");
-    }
+    path.setAttribute("fill", "#646464");
+    pluginElement.classList.add("pinned");
+}
+function unpinPlugin(pin, pluginElement){
+    let path = pin.querySelector('path');
+    path.setAttribute("fill", "");
+    pluginElement.classList.remove("pinned");
 }
 export default {
     openPlugin,
@@ -133,5 +133,6 @@ export default {
     loadPluginComponent,
     removeHighlightPlugin,
     renderPluginDefaultOptions,
-    pinPlugin
+    pinPlugin,
+    unpinPlugin
 }

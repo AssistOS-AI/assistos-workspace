@@ -1,4 +1,4 @@
-const WebAssistant = require('assistos').loadModule('webassistant', {});
+const WebAssistant = assistOS.loadModule("WebAssistant");
 
 const getChatIframe = (spaceId, personalityId) => {
     return `<iframe

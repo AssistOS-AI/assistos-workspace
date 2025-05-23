@@ -1,6 +1,6 @@
-const documentModule = require("assistos").loadModule("document", {});
-const agentModule = require("assistos").loadModule("agent", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = assistOS.loadModule("document");
+const agentModule = assistOS.loadModule("agent");
+const spaceModule = assistOS.loadModule("space");
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
 import selectionUtils from "./selectionUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
@@ -734,7 +734,7 @@ export class DocumentViewPage {
     }
 
     async lipsyncVideo(targetElement) {
-        const llmModule = require('assistos').loadModule('llm', {});
+        const llmModule = assistOS.loadModule("llm")
         const response = (await llmModule.lipsync(assistOS.space.id, "sync-1.6.0", {}))
     }
 

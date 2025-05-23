@@ -1,6 +1,5 @@
 import {changeSelectedPageFromSidebar, generateAvatar} from "../../../../imports.js";
-const spaceModule = require("assistos").loadModule("space", {});
-const userModule = require("assistos").loadModule("user", {});
+const userModule = assistOS.loadModule("user");
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;

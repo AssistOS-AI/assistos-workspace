@@ -1,5 +1,7 @@
-const documentModule = require("assistos").loadModule("document", {});
+const documentModule = assistOS.loadModule("document");
 let constants = require("assistos").constants;
+const spaceModule = assistOS.loadModule("space");
+
 import {generateId} from "./../../../../imports.js";
 export class AddDocumentModal {
     constructor(element, invalidate) {
@@ -175,8 +177,7 @@ export class AddDocumentModal {
                     // Upload images if any
                     if (images.length > 0) {
                         console.log('Uploading images...');
-                        const spaceModule = require("assistos").loadModule("space", {});
-                        
+
                         // Get the docs converter URL from assistOS config
                         let assistOSConfigs;
                         try {

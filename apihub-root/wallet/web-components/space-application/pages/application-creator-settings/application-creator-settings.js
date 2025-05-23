@@ -1,6 +1,6 @@
-const personalityModule = require('assistos').loadModule('agent', {});
-const applicationModule = require('assistos').loadModule('application', {});
-const WebAssistant = require('assistos').loadModule('webassistant', {})
+const personalityModule = assistOS.loadModule("personality");
+const applicationModule = assistOS.loadModule("application");
+const WebAssistant = assistOS.loadModule("WebAssistant");
 
 /*
 const getWidgets = async function (spaceId) {

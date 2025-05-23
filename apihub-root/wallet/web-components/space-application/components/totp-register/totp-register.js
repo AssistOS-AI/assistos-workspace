@@ -1,4 +1,4 @@
-let userModule = require("assistos").loadModule("user", {});
+let userModule = assistOS.loadModule("user");
 
 export class TotpRegister {
     constructor(element, invalidate) {

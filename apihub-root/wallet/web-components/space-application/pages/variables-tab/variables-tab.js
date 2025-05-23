@@ -1,5 +1,5 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const documentModule = require("assistos").loadModule("document", {});
+const spaceModule = assistOS.loadModule("space")
+const documentModule = assistOS.loadModule("document")
 const constants = require("assistos").constants;
 export class VariablesTab{
     constructor(element,invalidate){

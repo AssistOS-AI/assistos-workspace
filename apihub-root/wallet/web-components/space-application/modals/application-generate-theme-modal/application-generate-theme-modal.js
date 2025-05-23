@@ -1,5 +1,5 @@
-const spaceModule = require('assistos').loadModule('space', {});
-const llmModule = require('assistos').loadModule('llm', {});
+const spaceModule = assistOS.loadModule("space");
+const llmModule = assistOS.loadModule('llm');
 
 const themeContract = {
     '--bg': { type: 'color', default: '#ffffff', label: 'Background' },

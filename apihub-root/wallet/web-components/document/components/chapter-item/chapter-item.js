@@ -1,8 +1,8 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
-const documentModule = require("assistos").loadModule("document", {});
-const spaceModule = require("assistos").loadModule("space", {});
+const documentModule = assistOS.loadModule("document");
+const spaceModule = assistOS.loadModule("space");
 
 
 export class ChapterItem {
@@ -14,7 +14,7 @@ export class ChapterItem {
         let chapterId = this.element.getAttribute("data-chapter-id");
         this.chapter = this._document.getChapter(chapterId);
         this.refreshChapter = async () => {
-            this.chapter = await this._document.refreshChapter(this._document.id, this.chapter.id);
+            this.chapter = await this.refreshChapter(this._document.id, this.chapter.id);
         };
         this.addParagraphOrChapterOnKeyPress = this.addParagraphOrChapterOnKeyPress.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
@@ -29,7 +29,18 @@ export class ChapterItem {
             await  assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
         });
     }
-
+    async refreshChapter(documentId, chapterId) {
+        const documentModule = assistOS.loadModule("document");
+        const chapter = await documentModule.getChapter(assistOS.space.id, documentId, chapterId);
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === chapterId);
+        if (chapterIndex !== -1) {
+            this._document.chapters[chapterIndex] = new documentModule.Chapter(chapter);
+            return this._document.chapters[chapterIndex];
+        } else {
+            console.warn(`${chapterId} not found`);
+            return null;
+        }
+    }
     showChapterOptions(targetElement) {
         let hideMoveArrows = this._document.chapters.length === 1 ? "hide" : "show";
         let downloadVideoClass;
