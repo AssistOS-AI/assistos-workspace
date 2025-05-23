@@ -217,16 +217,14 @@ export class AuthComponent {
             await assistOS.loadPage(this.email, spaceId);
         } catch (err) {
             if (err.details && err.details.status === 403) {
-                let lockModal = await assistOS.UI.showModal("lock-login", {
-                    message: `Exceeded number of attempts. Login is locked for ${new Date(err.details.detailsData.lockTime).getMinutes()} minutes`,
-                })
+                let modal = await showApplicationError("Exceeded number of attempts", `Exceeded number of attempts. Login is locked for ${new Date(err.details.detailsData.lockTime).getMinutes()} minutes`);
                 setTimeout(async () => {
-                    if (lockModal) {
-                        await assistOS.UI.closeModal(lockModal);
+                    if (modal) {
+                        await assistOS.UI.closeModal(modal);
                     }
                 }, err.details.detailsData.lockTime);
             } else {
-                assistOS.UI.notificationHandler.reportUserRelevantError(err);
+                await showApplicationError("Error", "error", assistOS.UI.sanitize(err.details || err.message));
             }
         }
     }

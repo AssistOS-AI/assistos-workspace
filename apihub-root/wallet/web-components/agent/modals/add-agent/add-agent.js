@@ -23,17 +23,13 @@ export class AddAgent {
     }
 
     async addAgentSubmitForm(_target) {
-        const verifyPhotoSize = (element) => {
-            return !element.files[0]? true : element.files[0].size <= 1048576;
-        };
-        const conditions = {"verifyPhotoSize": {fn:verifyPhotoSize, errorMessage:"Image too large! Image max size: 1MB"} };
-        let formInfo = await assistOS.UI.extractFormInformation(_target, conditions);
+        let formInfo = await assistOS.UI.extractFormInformation(_target);
         if(formInfo.isValid) {
-            let uint8Array = await generateAvatar(formInfo.data.name);
-            let imageId = await spaceModule.putImage(uint8Array);
+            //let uint8Array = await generateAvatar(formInfo.data.name);
+            //let imageId = await spaceModule.putImage(uint8Array);
             let agentData = {
                 name: formInfo.data.name,
-                imageId: imageId,
+                //imageId: imageId,
                 description: formInfo.data.description,
             };
             try {
