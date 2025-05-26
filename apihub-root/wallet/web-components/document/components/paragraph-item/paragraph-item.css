@@ -1,7 +1,8 @@
 paragraph-item {
     position: relative;
     background-color: var(--inactive-element);
-    margin-bottom: 5px;
+    /*margin-bottom: 5px;*/
+    margin-top: 5px;
     margin-left: 1px;
     margin-right: 1px;
 }

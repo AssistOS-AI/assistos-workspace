@@ -35,5 +35,9 @@
         <input class="form-input expression-input" id="expression" type="text" name="expression">
         <textarea class="form-input expression-multi-line hidden"></textarea>
     </div>
-    <button class="general-button add-variable" data-local-action="addVariable">Add</button>
+    <div class="form-item">
+        <label class="form-label">Preview</label>
+        <textarea tabindex="-1" class="form-input expression-preview" readonly></textarea>
+    </div>
+    <button class="general-button save-variable" data-local-action="addVariable">Add</button>
 </form>

@@ -5,7 +5,7 @@ chapter-item {
     flex-direction: column;
     min-width: 0;
     position: relative;
-    background-color: var(--inactive-element);
+    /*background-color: var(--inactive-element);*/
     margin-bottom: 15px;
     outline: 2px var(--light-gray-border) solid;
     outline-offset: -1px;
@@ -38,7 +38,7 @@ chapter-item {
     padding: 10px;
     width: 100%;
     background-color: var(--inactive-element);
-    margin-bottom: 5px;
+    /*margin-bottom: 5px;*/
 }
 .chapter-plugin-container{
     background-color: var(--white);
