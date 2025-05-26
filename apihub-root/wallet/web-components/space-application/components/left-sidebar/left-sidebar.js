@@ -1,5 +1,7 @@
 import {changeSelectedPageFromSidebar, generateAvatar} from "../../../../imports.js";
+
 const userModule = assistOS.loadModule("user");
+
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -14,18 +16,19 @@ export class LeftSidebar {
         } else {
             this.themeIcon = "wallet/assets/icons/moon.svg";
         }
-        this.invalidate(async ()=>{
+        this.invalidate(async () => {
             //this.tasks = await utilModule.getTasks(assistOS.space.id);
             this.tasks = []
             await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
+
     async beforeRender() {
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
         this.userName = assistOS.user.name;
         for (let application of assistOS.space.applications) {
-            if(application.skipUI){
+            if (application.skipUI) {
                 continue;
             }
             let svgImage = application.svg;
@@ -40,7 +43,7 @@ export class LeftSidebar {
         }
         let stringHTML = "";
         let spaces = await userModule.listUserSpaces(assistOS.user.email);
-        for(let space of spaces){
+        for (let space of spaces) {
             stringHTML += `
             <div class="thin-line"></div>
             <div class="space-item" data-local-action="swapSpace ${space.id}" data-name="${space.name}">${space.name}</div>`;
@@ -48,6 +51,7 @@ export class LeftSidebar {
         this.spaces = stringHTML;
         this.userEmail = assistOS.user.email;
     }
+
     afterRender() {
         this.toastsContainer = this.element.querySelector(".toasts-container");
         let pages = this.element.querySelectorAll(".sidebar-item");
@@ -56,9 +60,9 @@ export class LeftSidebar {
         spacesContainer.addEventListener("mouseover", () => {
             focusSection.style.visibility = "visible";
             let currentSpace = focusSection.querySelector(`[data-name="${assistOS.space.name}"]`);
-            if(currentSpace) {
+            if (currentSpace) {
                 currentSpace.classList.add("current-space");
-                if(!this.isCurrentSpaceVisible){
+                if (!this.isCurrentSpaceVisible) {
                     currentSpace.scrollIntoView({
                         behavior: "smooth",
                         block: "start"
@@ -71,7 +75,7 @@ export class LeftSidebar {
             focusSection.style.visibility = "hidden";
         });
         focusSection.addEventListener("mouseout", (event) => {
-            if(!focusSection.contains(event.relatedTarget)){
+            if (!focusSection.contains(event.relatedTarget)) {
                 focusSection.style.visibility = "hidden";
             }
         });
@@ -103,44 +107,60 @@ export class LeftSidebar {
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
     }
+
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
             `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);
     }
+
     async navigateToPage(_target, page) {
         assistOS.navigateToPage(page);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
-   toggleChat(_target, mode) {
+    toggleChat(_target, mode) {
         const chatPage = document.querySelector("chat-page");
         let chatPresenter = chatPage.webSkelPresenter;
         let chatState = localStorage.getItem("chatState");
-        if (chatState !== "minimized") {
-            chatPresenter.toggleMinimizeScreen();
+        if (chatState === "minimized") {
+            const previousChatState = localStorage.getItem("previousChatState");
+            switch (previousChatState) {
+                case "third":
+                    return chatPresenter.toggleThirdScreen();
+                case "second":
+                    return chatPresenter.toggleHalfScreen();
+                case "full":
+                    return chatPresenter.toggleFullScreen();
+                case "half":
+                    return chatPresenter.toggleHalfScreen();
+                default:
+                    return chatPresenter.toggleThirdScreen();
+            }
         } else {
-            chatPresenter.toggleHalfScreen();
+            return chatPresenter.toggleMinimizeScreen();
         }
     }
 
     showTaskNotification(data) {
-        if(data.name === "DocumentToVideo"){
-           this.handleDocumentToVideoTask(data);
-        } else if(data.name === "ExportDocument"){
+        if (data.name === "DocumentToVideo") {
+            this.handleDocumentToVideoTask(data);
+        } else if (data.name === "ExportDocument") {
             this.handleExportDocumentTask(data);
         }
     }
+
     handleDocumentToVideoTask(task) {
-        if(task.status === "completed"){
+        if (task.status === "completed") {
             this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "video.mp4");
-        } else if(task.status === "failed"){
+        } else if (task.status === "failed") {
             this.showNotificationToast(`Task ${task.name} has failed`);
         }
     }
-    handleExportDocumentTask(task){
-        if(task.status === "completed"){
+
+    handleExportDocumentTask(task) {
+        if (task.status === "completed") {
             this.showNotificationToast(`Task ${task.name} has been completed`, task.result, "document.docai");
-        } else if(task.status === "failed"){
+        } else if (task.status === "failed") {
             this.showNotificationToast(`Task ${task.name} has failed`);
         }
     }
@@ -168,6 +188,7 @@ export class LeftSidebar {
     changeBaseURL(newBaseURL) {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);
     }
+
     async openAccountSettings() {
         function hideDropdown() {
             dropdownMenu.style.display = "none";
@@ -179,6 +200,7 @@ export class LeftSidebar {
         hideDropdown();
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
     }
+
     openUserActions(_target) {
         let userPhotoContainer = this.element.querySelector(".user-photo-container");
         let dropdownMenu = this.element.querySelector(".user-action-menu");
@@ -192,16 +214,17 @@ export class LeftSidebar {
 
         userPhotoContainer.addEventListener('mouseleave', hideDropdown);
 
-        document.addEventListener("click", function(event) {
+        document.addEventListener("click", function (event) {
             if (!userPhotoContainer.contains(event.target)) {
                 hideDropdown();
             }
-        }, { once: true });
+        }, {once: true});
     }
 
     async logout() {
         await assistOS.logout();
     }
+
     async addSpace() {
         await assistOS.UI.showModal("add-space-modal", {presenter: "add-space-modal"});
     }
@@ -218,7 +241,7 @@ export class LeftSidebar {
     };
 
     async swapSpace(_target, id) {
-        if(assistOS.space.id === id){
+        if (assistOS.space.id === id) {
             return;
         }
         window.location.href = window.location.href.split("#")[0] + `#${id}`;

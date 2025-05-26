@@ -17,11 +17,8 @@ const addToLocalContext = async (spaceId, chatId, messageId) => {
     const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
 }
 const createNewChat = async (spaceId, personalityId) => {
- await chatModule.create
+
 };
-
-
-
 
 const resetChat = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
@@ -126,12 +123,12 @@ class BaseChatFrame {
         this.currentPersonalityName = this.agent.name;
 
         let llmName = this.agent.selectedChatLlm;
-        if(llmName){
+        if (llmName) {
             llmName = llmName.split("/")[0];
-        }else{
+        } else {
             llmName = "No LLM Configured";
         }
-        this.personalityLLM=llmName
+        this.personalityLLM = llmName
 
 
         this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
@@ -265,27 +262,27 @@ class BaseChatFrame {
     }
 
     async sendQuery(spaceId, chatId, personalityId, prompt, responseContainerLocation) {
-         const controller = new AbortController();
-         const requestData={prompt}
-         const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
-               method: 'POST',
-               headers: {
-                   'Content-Type': 'application/json',
-               },
-               signal: controller.signal,
-               body: JSON.stringify(requestData),
-           });
-           if (!response.ok) {
-               const error = await response.json();
-               alert(`Error: ${error.message}`);
-               return;
-           }
-           const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
-           const {
-               userMessageId,
-               responseMessageId
-           } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
-           return {userMessageId, responseMessageId};
+        const controller = new AbortController();
+        const requestData = {prompt}
+        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            signal: controller.signal,
+            body: JSON.stringify(requestData),
+        });
+        if (!response.ok) {
+            const error = await response.json();
+            alert(`Error: ${error.message}`);
+            return;
+        }
+        const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
+        const {
+            userMessageId,
+            responseMessageId
+        } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
+        return {userMessageId, responseMessageId};
     };
 
     async sendMessage(_target) {
@@ -319,20 +316,20 @@ class BaseChatFrame {
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
             let currentMessageIndex = this.chatMessages.length - 1;
-            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId,assistOS.user.email,userRequestMessage);
-            this.chatMessages[currentMessageIndex]= await chatModule.getChatMessage(this.spaceId, this.chatId, id);
+            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId, assistOS.user.email, userRequestMessage);
+            this.chatMessages[currentMessageIndex] = await chatModule.getChatMessage(this.spaceId, this.chatId, id);
             const responseElement = streamLocationElement.closest('chat-item');
             responseElement.setAttribute(`id`, id);
             responseElement.webSkelPresenter.invalidate();
-         /*   const {
-                userMessageId,
-                responseMessageId
-            } = await this.sendQuery(this.spaceId, this.chatId, this.agentId, userRequestMessage, streamLocationElement)
-            element.setAttribute(`id`, userMessageId);
-            element.webSkelPresenter.invalidate();
-            const responseElement = streamLocationElement.closest('chat-item');
-            responseElement.setAttribute(`id`, responseMessageId);
-            responseElement.webSkelPresenter.invalidate();*/
+            /*   const {
+                   userMessageId,
+                   responseMessageId
+               } = await this.sendQuery(this.spaceId, this.chatId, this.agentId, userRequestMessage, streamLocationElement)
+               element.setAttribute(`id`, userMessageId);
+               element.webSkelPresenter.invalidate();
+               const responseElement = streamLocationElement.closest('chat-item');
+               responseElement.setAttribute(`id`, responseMessageId);
+               responseElement.webSkelPresenter.invalidate();*/
         } else {
             messageId = await chatModule.sendMessage(this.spaceId, this.chatId, assistOS.user.email, userRequestMessage, "user")
             element.setAttribute(`id`, messageId);
@@ -593,7 +590,7 @@ if (IFrameContext) {
                 await this.toggleHalfScreen();
             } else if (chatState === "third") {
                 await this.toggleThirdScreen();
-            } else  {
+            } else {
                 await this.toggleFullScreen();
             }
         }
@@ -649,6 +646,10 @@ if (IFrameContext) {
             this.spaceContainer.style.display = "flex";
             this.spaceContainer.style.width = "calc(100vw - 70px)";
             this.spaceContainer.style.minWidth = "calc(100vw - 70px)";
+            if (localStorage.getItem("chatState") === "minimized") {
+                return;
+            }
+            localStorage.setItem("previousChatState", localStorage.getItem("chatState"));
             localStorage.setItem("chatState", "minimized");
         }
 
