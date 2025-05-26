@@ -1,5 +1,10 @@
 const documentModule = assistOS.loadModule("document");
 const spaceModule = assistOS.loadModule("space");
+import {
+    attachEventListeners, constructFullExpression,
+    openSearchSelect,
+    selectOption
+} from "../edit-variable-tab/varUtilsUI.js";
 export class AddVariable {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
@@ -63,104 +68,24 @@ export class AddVariable {
                 "data-selected": "",
             })
         let commandInput = this.element.querySelector("#command");
-        let selectOptions = this.element.querySelector(".select-options");
-        commandInput.value = "assign"
-        commandInput.addEventListener("input", (event) => {
-            let value = event.target.value;
-            let foundCommands = this.commands.filter(command => command.toLowerCase().includes(value.toLowerCase()));
-            if(foundCommands.length === 0){
-                commandInput.setAttribute("data-valid", false);
-            } else {
-                commandInput.setAttribute("data-valid", true);
-            }
-            this.renderSelectOptions(selectOptions, foundCommands);
-        });
+        commandInput.value = "assign";
+        attachEventListeners(this);
     }
     /*search select*/
     openSearchSelect(){
-        let selectOptions = this.element.querySelector(".select-options");
-        if(!selectOptions.classList.contains("hidden")){
-            return;
-        }
-        this.renderSelectOptions(selectOptions, this.commands);
-        let commandInput = this.element.querySelector("#command");
-        let currentValue = commandInput.value;
-        selectOptions.classList.remove("hidden");
-        this.controller = new AbortController();
-        let selectedOption = selectOptions.querySelector(`.option[data-value="${currentValue}"]`);
-        if(selectedOption){
-            selectedOption.classList.add("selected");
-        }
-        let boundCloseSearchSelect = this.closeSearchSelect.bind(this, selectOptions);
-        document.addEventListener("click", boundCloseSearchSelect, {signal: this.controller.signal});
-    }
-    closeSearchSelect(selectOptions, event){
-        if(!event.target.closest(".search-select-input")){
-            selectOptions.innerHTML = "";
-            selectOptions.classList.add("hidden");
-            this.controller.abort();
-        }
-    }
-    renderSelectOptions(selectOptions, commands){
-        let variableCommandOptions = "";
-        for(let command of commands){
-            variableCommandOptions += `<div class="option" data-local-action="selectOption" data-value="${command}">${command}</div>`;
-        }
-        selectOptions.innerHTML = variableCommandOptions;
+        openSearchSelect(this);
     }
     selectOption(option){
-        let value = option.getAttribute("data-value");
-        let searchSelect = option.closest(".search-select");
-        let input = searchSelect.querySelector("input");
-        input.value = value;
-        let typeInput = this.element.querySelector(".form-item.type");
-        if(value === "new"){
-            typeInput.classList.remove("hidden");
-        } else {
-            typeInput.classList.add("hidden");
-        }
-        if(value === "macro" || value === "jsdef"){
-            this.changeExpressionInputToMultiLine();
-        } else {
-            this.changeMultiLineToSingleLine();
-        }
+        selectOption(this, option);
     }
     /*search select*/
     async addVariable(targetElement){
-        let formData = await assistOS.UI.extractFormInformation(targetElement);
-        if(!formData.isValid){
+        let result = constructFullExpression(this);
+        if(!result.ok){
             return;
         }
-        let variableName = formData.data.name;
-        let typeSelect = this.element.querySelector('custom-select');
-        let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
-        let type = selectedOption.getAttribute('data-value');
-
-        let commandInput = this.element.querySelector("#command");
-        let valid = commandInput.getAttribute("data-valid");
-        if(valid === "false"){
-            return;
-        }
-        let command = commandInput.value;
-        let expression = formData.data.expression;
-        expression = assistOS.UI.unsanitize(expression);
-
-        if(command === "new"){
-            let variableType = type;
-            if(!variableType){
-                return alert("Please select a type");
-            }
-            expression = `${variableType} ${expression}`;
-        } else if(command === "assign"){
-            command = ":=";
-        } else if(command === "macro" || command === "jsdef"){
-            let parameters = assistOS.UI.unsanitize(formData.data.parameters);
-            expression = `${parameters}\n \t${expression}\n end`;
-        }
-        let fullCommand = `@${variableName} ${command} ${expression}`;
-
         if(this.paragraphId){
-            this.paragraph.commands += fullCommand;
+            this.paragraph.commands += result.fullExpression;
             this.paragraph.commands += `\n`;
             await documentModule.updateParagraph(assistOS.space.id, this.chapterId,
                 this.paragraphId,
@@ -168,14 +93,14 @@ export class AddVariable {
                 this.paragraph.commands,
                 this.paragraph.comments)
         } else if(this.chapterId){
-            this.chapter.commands += fullCommand;
+            this.chapter.commands += result.fullExpression;
             this.chapter.commands += `\n`;
             await documentModule.updateChapter(assistOS.space.id, this.chapterId,
                 this.chapter.title,
                 this.chapter.commands,
                 this.chapter.comments);
         } else {
-            this.document.commands += fullCommand;
+            this.document.commands += result.fullExpression;
             this.document.commands += `\n`;
             await documentModule.updateDocument(assistOS.space.id, this.documentId,
                 this.document.title,
