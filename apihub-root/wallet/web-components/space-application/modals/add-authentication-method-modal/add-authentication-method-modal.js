@@ -87,7 +87,6 @@ export class AddAuthenticationMethodModal {
 
             const uri = setupData.uri;
             const secret = setupData.secret;
-
             this.element.innerHTML = `
             <div class="modal-header">
                 <div>Set up an authenticator app</div>
