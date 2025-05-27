@@ -160,8 +160,8 @@ export class EditVariables {
         } else {
             this.document.commands = commands;
             await documentModule.updateDocument(assistOS.space.id,
-                this.document.docId,
                 this.document.title,
+                this.document.docId,
                 this.document.category,
                 this.document.infoText,
                 this.document.commands,

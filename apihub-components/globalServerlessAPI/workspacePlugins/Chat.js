@@ -29,7 +29,7 @@ async function Chat() {
     }
 
     self.createChat = async function (docId) {
-        const document = await Document.createDocument(docId, "chat");
+        const document = await Document.createDocument(docId, "chat", docId);
         await Promise.all([
             Document.createChapter(document.id, "Messages", "", [], 0),
             Document.createChapter(document.id, "Context", "", [], 1)

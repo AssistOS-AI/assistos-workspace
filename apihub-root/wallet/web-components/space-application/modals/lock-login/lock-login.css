@@ -13,7 +13,7 @@ dialog[class="modal"] {
 #notification_modal {
     width: 500px;
     margin: auto;
-    background-color: var(--body-bg-color);
+    background-color: var(--white);
     padding: 20px;
 }
 
@@ -28,7 +28,7 @@ dialog[class="modal"] {
     font-size: 26px;
     font-weight: 700;
     text-align: center;
-    color: var(--app-theme-color);
+    color: var(--header-font-color);
 }
 
 #notification_modal_header img {
