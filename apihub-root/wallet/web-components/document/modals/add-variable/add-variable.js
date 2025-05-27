@@ -104,6 +104,7 @@ export class AddVariable {
             this.document.commands += `\n`;
             await documentModule.updateDocument(assistOS.space.id, this.documentId,
                 this.document.title,
+                this.document.docId,
                 this.document.category,
                 this.document.infoText,
                 this.document.commands,

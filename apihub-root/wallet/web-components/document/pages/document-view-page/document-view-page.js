@@ -439,6 +439,7 @@ export class DocumentViewPage {
             this._document.infoText = infoText;
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
                 this._document.title,
+                this._document.docId,
                 this._document.category,
                 infoText,
                 this._document.commands,
@@ -498,6 +499,7 @@ export class DocumentViewPage {
             this._document.title = titleText;
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
                 titleText,
+                this._document.docId,
                 this._document.category,
                 this._document.infoText,
                 this._document.commands,
@@ -766,6 +768,7 @@ export class DocumentViewPage {
                 assistOS.space.id,
                 this._document.id,
                 this._document.title,
+                this._document.docId,
                 this._document.category,
                 this._document.infoText,
                 this._document.commands,

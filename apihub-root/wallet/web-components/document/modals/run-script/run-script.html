@@ -7,16 +7,27 @@
     </div>
 </div>
 <div class="modal-body">
-    <button class="general-button run-script" data-local-action="runScript">Run script</button>
+    <div class="form-item">
+        <div class="form-label" for="docID">DocID</div>
+        <input class="form-input" type="text" name="docID" id="docID" value="$$docID">
+    </div>
+    <div class="general-button save-doc-id hidden" data-local-action="saveDocId">Save</div>
     <div class="args-section">
-        <span class="ars-header">Arguments</span>
-        <div class="args-list">
-            <div class="arg-item">
-                <div class="delete-arg" data-local-action="deleteArg">-</div>
-                <span class="arg-label">arg1</span>
-                <input type="text" class="arg-input">
+        <div class="args-header">
+            <div class="form-label">Arguments</div>
+            <div class="action-button-container pointer" data-local-action="addArg">
+                <img class="add-buton" src="./wallet/assets/icons/plus.svg" alt="add">
             </div>
         </div>
-        <button class="general-button" data-local-action="addArg">Add Argument</button>
+        <div class="args-list">
+            <div class="arg-item last-arg-item maintain-focus">
+                <span class="arg-label">arg1</span>
+                <input type="text" class="arg-input form-input">
+                <div class="delete-arg">
+                    <img data-local-action="deleteArg" src="./wallet/assets/icons/trash-can.svg" alt="delete">
+                </div>
+            </div>
+        </div>
     </div>
+    <button class="general-button run-script" data-local-action="runScript">Run script</button>
 </div>
