@@ -52,7 +52,7 @@ document-view-page {
     overflow-y: scroll;
     overflow-x: hidden;
     height: calc(100vh - 70px);
-    padding: 10px 20px 10px 40px;
+    padding: 10px 25px 10px 40px;
 }
 
 .left-section-doc-info{
@@ -112,6 +112,8 @@ document-view-page {
     outline-offset: -1px;
     margin-bottom: 15px;
     background-color: var(--inactive-element);
+    width: 100%;
+    position: relative;
 }
 
 .paragraph-controls {
@@ -259,10 +261,6 @@ document-view-page {
 
 .infoText-section, .path-button, .chapter-item {
     padding: 10px;
-}
-
-.infoText-section {
-    width: 100%;
 }
 
 .thirty-px-horizontal-space {
@@ -467,4 +465,15 @@ html[theme="dark"] input.document-title{
     width: 30px;
     height: 30px;
     position: relative;
+}
+.preview-icons{
+    pointer-events: none;
+    position: absolute;
+    left: -31px;
+    top: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
 }

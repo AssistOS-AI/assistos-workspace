@@ -123,6 +123,10 @@ export class AddDocumentModal {
                 let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
                 let type = selectedOption.getAttribute('data-value');
                 let document = await documentModule.addDocument(assistOS.space.id, formData.data.documentTitle, type);
+                let chapterTitle = assistOS.UI.sanitize("New Chapter");
+                let chapter = await documentModule.addChapter(assistOS.space.id, document.id, chapterTitle);
+                let paragraph = await documentModule.addParagraph(assistOS.space.id, chapter.id, "");
+                assistOS.space.currentParagraphId = paragraph.id;
                 assistOS.UI.closeModal(_target);
                 await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${document.id}`);
             } catch (e) {

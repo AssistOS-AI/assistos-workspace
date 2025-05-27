@@ -92,8 +92,19 @@ export class ParagraphItem {
                 selectionUtils.lockItem(this.textClass, this);
             }
         }
+        this.changeCommentIndicator();
     }
-
+    changeCommentIndicator() {
+        let previewIcons = this.element.querySelector(".preview-icons");
+        if(this.paragraph.comments){
+            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
+        } else {
+            let commentIndicator = previewIcons.querySelector(".comment-indicator");
+            if(commentIndicator){
+                commentIndicator.remove();
+            }
+        }
+    }
     async onParagraphUpdate(type) {
         this.paragraph = await documentModule.getParagraph(assistOS.space.id, this.paragraph.id);
         let paragraphText = this.element.querySelector(".paragraph-text");
@@ -319,6 +330,7 @@ export class ParagraphItem {
         }, true);
         if(comments !== undefined){
             this.paragraph.comments = comments;
+            this.changeCommentIndicator();
             await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
                 this.paragraph.text,
                 this.paragraph.commands,

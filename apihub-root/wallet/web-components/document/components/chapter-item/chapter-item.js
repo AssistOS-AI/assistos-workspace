@@ -143,10 +143,11 @@ export class ChapterItem {
         }, true);
         if(comments !== undefined){
             this.chapter.comments = comments;
+            this.changeCommentIndicator();
             await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
                 this.chapter.title,
-                this.chapter.comments,
-                this.chapter.commands);
+                this.chapter.commands,
+                this.chapter.comments);
         }
     }
 
@@ -252,7 +253,27 @@ export class ChapterItem {
         let deleteChapter = this.element.querySelector(".delete-chapter");
         this.documentPresenter.attachTooltip(deleteChapter,"Delete Chapter");
 
-
+        this.changeChapterDeleteAvailability();
+        this.changeCommentIndicator();
+    }
+    changeCommentIndicator() {
+        let previewIcons = this.element.querySelector(".preview-icons");
+        if(this.chapter.comments){
+            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
+        } else {
+            let commentIndicator = previewIcons.querySelector(".comment-indicator");
+            if(commentIndicator){
+                commentIndicator.remove();
+            }
+        }
+    }
+    changeChapterDeleteAvailability() {
+        let deleteChapter = this.element.querySelector(".delete-chapter");
+        if(this._document.chapters.length === 1){
+            deleteChapter.classList.add("hidden");
+        } else {
+            deleteChapter.classList.remove("hidden");
+        }
     }
     async addParagraph(_target, direction) {
         let position = this.chapter.paragraphs.length;
@@ -286,6 +307,7 @@ export class ChapterItem {
         // Check if Ctrl + Shift + Enter is pressed to add a chapter
         if (event.ctrlKey && event.shiftKey && event.key === "Enter") {
             await this.documentPresenter.addChapter("", "below");
+            this.changeChapterDeleteAvailability();
             // Else, if only Ctrl + Enter is pressed, add a paragraph
         } else if (event.ctrlKey && !event.shiftKey && event.key === "Enter") {
             await this.addParagraph("", "below");

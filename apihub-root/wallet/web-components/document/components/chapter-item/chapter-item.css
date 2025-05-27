@@ -35,6 +35,7 @@ chapter-item {
     padding: 10px;
 }
 .chapter-header-container {
+    position: relative;
     padding: 10px;
     width: 100%;
     background-color: var(--inactive-element);

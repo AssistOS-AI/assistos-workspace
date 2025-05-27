@@ -242,6 +242,7 @@ export class DocumentViewPage {
         let allChapters = this.element.querySelectorAll("chapter-item");
         for (let chapter of allChapters) {
             chapter.webSkelPresenter.updateChapterNumber();
+            chapter.webSkelPresenter.changeChapterDeleteAvailability();
         }
     }
 
@@ -368,8 +369,19 @@ export class DocumentViewPage {
         if (this.viewMode === "demo") {
             this.element.querySelector('.document-page-header')?.remove();
         }
+        this.changeCommentIndicator();
     }
-
+    changeCommentIndicator() {
+        let previewIcons = this.element.querySelector(".preview-icons");
+        if(this._document.comments){
+            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
+        } else {
+            let commentIndicator = previewIcons.querySelector(".comment-indicator");
+            if(commentIndicator){
+                commentIndicator.remove();
+            }
+        }
+    }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
     }
@@ -475,18 +487,9 @@ export class DocumentViewPage {
         for (let chapter of allChapters) {
             if (chapter.webSkelPresenter) {
                 chapter.webSkelPresenter.updateChapterNumber();
+                chapter.webSkelPresenter.changeChapterDeleteAvailability();
             }
         }
-    }
-
-    async addParagraphTable(targetElement, mode) {
-        let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
-        let mockEvent = {
-            ctrlKey: true,
-            key: "Enter",
-            target: targetElement
-        }
-        chapterPresenter.addParagraphOrChapterOnKeyPress(mockEvent, "table");
     }
 
     async openDocumentsPage() {
@@ -764,6 +767,7 @@ export class DocumentViewPage {
         }, true);
         if (comments !== undefined) {
             this._document.comments = comments;
+            this.changeCommentIndicator();
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
                 this._document.title,
                 this._document.docId,

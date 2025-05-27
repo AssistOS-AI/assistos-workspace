@@ -241,17 +241,6 @@ html[theme="dark"] textarea.paragraph-text{
 .paragraph-plugins-icons{
     display: flex;
 }
-.preview-icons{
-    pointer-events: none;
-    position: absolute;
-    left: -35px;
-    top: 0;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
 .plugin-open{
     margin-bottom: 20px;
 }
