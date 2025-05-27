@@ -14,7 +14,7 @@
     --strong-blue: #08C;
     --inactive-element: #F9F9F9;
     --action-button-background: #E9E9E9;
-    --red: #C80001EE;
+    --red: #C80001;
     --light-gray-border: #EFEFEF;
     --plugin-focus: #919191;
     --document-font-color: #646464;
@@ -452,7 +452,7 @@ select{
 .error-message {
     display: block;
     color: #f8d7da;
-    background-color: darkred;
+    background-color: var(--red);
     border: 1px solid #f5c6cb;
     border-radius: 2px;
     padding: 2px 8px;
@@ -645,11 +645,11 @@ select{
 
 .timeout-toast.info{
     background-color: #D9ECFF;
-    color: #007BFF;
-    border-color: #007BFF;
+    color: var(--strong-blue);
+    border-color: var(--strong-blue);
 }
 .timeout-toast.info .message-type{
-    color: #007BFF;
+    color: var(--strong-blue);
 }
 
 .timeout-toast.warning{
@@ -664,10 +664,10 @@ select{
 .timeout-toast.error{
     background-color: #F8D7DA;
     color: #DC3545;
-    border-color: #DC3545;
+    border-color: var(--red);
 }
 .timeout-toast.error .message-type{
-    color: #DC3545;
+    color: var(--red);
 }
 
 .invisible {

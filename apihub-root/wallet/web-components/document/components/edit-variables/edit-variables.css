@@ -14,7 +14,7 @@
     font-size: 16px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    padding: 10px 0;
+    padding-top: 10px;
 }
 .empty-table{
     grid-template-columns: repeat(2, 1fr);
@@ -53,6 +53,8 @@
 }
 
 .cell {
+    display: flex;
+    align-items: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

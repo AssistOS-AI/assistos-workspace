@@ -17,6 +17,6 @@ export class VariableValuesTab {
         let valueInput = this.element.querySelector("#value");
         typeof this.variable.value === "object" ? valueInput.value = JSON.stringify(this.variable.value, null, 2) : valueInput.value = this.variable.value;
         let errorsInput = this.element.querySelector("#errors");
-        errorsInput.value = this.variable.buildError;
+        errorsInput.value = this.variable.errorInfo;
     }
 }

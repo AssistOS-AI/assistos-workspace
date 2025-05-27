@@ -17,6 +17,9 @@ export class VariablesTab{
                  <div class="cell">${variable.varName}</div>
                  <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                  <div class="cell last-cell">
+                    ${variable.errorInfo ? `<div class="error-icon-container">
+                                        <img src="./wallet/assets/icons/error.svg" alt="error" class="error-icon pointer"">
+                                        </div>`: ""}
                     <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
                         <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
                     </div>

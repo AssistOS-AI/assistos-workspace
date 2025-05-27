@@ -41,6 +41,7 @@ export class EditVariables {
             }
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
             commands.push({
+                errorInfo: variable.errorInfo,
                 varName: varName,
                 command: command.command,
                 expression: inputVars,
@@ -74,11 +75,15 @@ export class EditVariables {
             this.emptyTableClass = "empty-table"
         }
         for(let variable of this.commandsArr){
+            let statusImg = "";
+            if(variable.errorInfo){
+                statusImg = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`
+            }
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
                     <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
                     <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
-                    <div class="cell">${variable.status || "......."}</div>
+                    <div class="cell">${statusImg}</div>
                     <div class="cell actions-cell">
                         <div class="icon-container right-margin" data-local-action="openEditor ${variable.varName}">
                             <img src="./wallet/assets/icons/eye-edit.svg" class="pointer variable-icon" alt="edit">
@@ -159,7 +164,7 @@ export class EditVariables {
                 this.chapter.comments);
         } else {
             this.document.commands = commands;
-            await documentModule.updateDocument(assistOS.space.id,
+            await documentModule.updateDocument(assistOS.space.id, this.document.id,
                 this.document.title,
                 this.document.docId,
                 this.document.category,

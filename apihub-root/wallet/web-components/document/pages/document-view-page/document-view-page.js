@@ -764,9 +764,7 @@ export class DocumentViewPage {
         }, true);
         if (comments !== undefined) {
             this._document.comments = comments;
-            await documentModule.updateDocument(
-                assistOS.space.id,
-                this._document.id,
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
                 this._document.title,
                 this._document.docId,
                 this._document.category,
