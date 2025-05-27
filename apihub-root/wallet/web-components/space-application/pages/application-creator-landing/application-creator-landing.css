@@ -91,9 +91,14 @@ application-creator-landing {
     color: #2d3748;
 }
 
+.application-form-split {
+    display: grid;
+    grid-template-columns: calc(50% - 10px) calc(50% - 10px);
+    gap: 20px;
+}
+
 .application-form-content {
     display: flex;
-    width: 100%;
     flex-direction: column;
     gap: 28px;
 }
@@ -201,6 +206,9 @@ application-creator-landing {
     background: #ffffff;
     color: #1a202c;
 }
+ .textarea-large{
+    min-height:200px;
+}
 
 .application-form-item input[type="text"]:focus,
 .application-form-item textarea:focus {
@@ -210,7 +218,6 @@ application-creator-landing {
 }
 
 .application-form-item textarea {
-    min-height: 120px;
     line-height: 1.5;
 }
 
@@ -1128,6 +1135,7 @@ input:checked + .toggle-slider:before {
     align-items: center;
     gap: 4px;
 }
+
 input:focus {
     outline: none;
     border: 2px solid #0088cc;
@@ -1141,8 +1149,9 @@ input:focus {
 .width-25 {
     width: 25%;
 }
-.application-form-subitem{
-    display:flex;
-    flex-direction:column;
-    gap:4px;
+
+.application-form-subitem {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }

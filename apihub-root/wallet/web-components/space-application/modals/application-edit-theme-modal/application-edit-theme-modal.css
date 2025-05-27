@@ -1,5 +1,6 @@
 application-edit-theme-modal{
     display:flex;
+    flex-direction: column;
     width:100%;
     height:100%;
 }
@@ -53,7 +54,6 @@ application-edit-theme-modal{
 
 .tab-content {
     padding: 16px;
-    height:90%;
 }
 
 .type-selector {
@@ -64,9 +64,4 @@ application-edit-theme-modal{
     width: 100%;
     min-height: 100px;
 }
-.data-tabs-container{
-    height:600px;
-}
-.textarea-large{
-    height:100% !important;
-}
+

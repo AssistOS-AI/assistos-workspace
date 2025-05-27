@@ -143,6 +143,37 @@ dialog {
 .modal-body {
     padding: 25px 25px 25px 30px;
 }
+.modal-body textarea {
+    resize: none;
+    overflow-y: auto;
+    min-height: 120px;
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--form-input-border, #d0d5dd);
+    background-color: var(--white, #ffffff);
+    color: var(--default-font-color, #333333);
+    font-size: 14px;
+    line-height: 1.5;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 1px 2px rgba(16, 24, 40, 0.05);
+}
+
+.modal-body textarea:focus {
+    border-color: var(--strong-blue, #2970ff);
+    outline: 2px solid rgba(41, 112, 255, 0.2);
+    outline-offset: -2px;
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1);
+}
+
+.modal-body textarea::placeholder {
+    color: var(--placeholder-color, #9ca3af);
+    opacity: 0.8;
+}
+
+.modal-body textarea:hover:not(:focus) {
+    border-color: var(--hover-border, #b3b8c2);
+}
 .modal-footer {
   /*  display: flex;
     gap: 10px;
