@@ -65,11 +65,29 @@ async function selectItem(lockItem, itemId, itemClass, presenter){
         });
     }, 6000 * 10);
 }
+function changeCommentIndicator(element, commentMessages) {
+    let previewIcons = element.querySelector(".preview-icons");
+    if(commentMessages.length > 0) {
+        let commentIndicator = previewIcons.querySelector(".comment-icon-container");
+        if(commentIndicator) {
+            return;
+        }
+        previewIcons.innerHTML += `<div class="comment-icon-container pointer" data-local-action="showComments">
+                                            <img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">
+                                        </div>`
+    } else {
+        let commentIndicator = previewIcons.querySelector(".comment-icon-container");
+        if(commentIndicator){
+            commentIndicator.remove();
+        }
+    }
+}
 export default {
     lockItem,
     unlockItem,
     setUserIcon,
     removeUserIcon,
     deselectItem,
-    selectItem
+    selectItem,
+    changeCommentIndicator
 };

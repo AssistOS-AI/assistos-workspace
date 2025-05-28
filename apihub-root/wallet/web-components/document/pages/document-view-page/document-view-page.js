@@ -2,7 +2,7 @@ const documentModule = assistOS.loadModule("document");
 const agentModule = assistOS.loadModule("agent");
 const spaceModule = assistOS.loadModule("space");
 import {executorTimer, unescapeHtmlEntities} from "../../../../imports.js";
-import selectionUtils from "./selectionUtils.js";
+import UIUtils from "./UIUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 
 export class DocumentViewPage {
@@ -215,7 +215,7 @@ export class DocumentViewPage {
 
     changeChapterOrder(chapterId, position) {
         let chapters = this._document.chapters;
-        let currentChapterIndex = this._document.getChapterIndex(chapterId);
+        let currentChapterIndex = this._document.chapters.findIndex((chapter => chapter.id === chapterId));
 
         let [chapter] = chapters.splice(currentChapterIndex, 1);
         chapters.splice(position, 0, chapter);
@@ -364,24 +364,14 @@ export class DocumentViewPage {
         //this.attachTooltip(tasksMenu, "Tasks");
         //this.attachTooltip(snapshotsButton, "Snapshots");
         this.attachTooltip(scriptArgs, "Run Script");
-        this.attachTooltip(commentsIcon, "Comments");
+        this.attachTooltip(commentsIcon, "Add Comment");
         this.attachTooltip(buildIcon, "Build Document");
         if (this.viewMode === "demo") {
             this.element.querySelector('.document-page-header')?.remove();
         }
-        this.changeCommentIndicator();
+        UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
     }
-    changeCommentIndicator() {
-        let previewIcons = this.element.querySelector(".preview-icons");
-        if(this._document.comments){
-            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
-        } else {
-            let commentIndicator = previewIcons.querySelector(".comment-indicator");
-            if(commentIndicator){
-                commentIndicator.remove();
-            }
-        }
-    }
+    
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
     }
@@ -426,7 +416,7 @@ export class DocumentViewPage {
     async moveChapter(targetElement, direction) {
         const currentChapterElement = assistOS.UI.reverseQuerySelector(targetElement, "chapter-item");
         const currentChapterId = currentChapterElement.getAttribute('data-chapter-id');
-        const currentChapterIndex = this._document.getChapterIndex(currentChapterId);
+        const currentChapterIndex = this._document.chapters.findIndex((chapter => chapter.id === currentChapterId));
 
         const getNewPosition = (index, chapters) => {
             if (direction === "up") {
@@ -561,7 +551,7 @@ export class DocumentViewPage {
         element.removeEventListener('keydown', this.titleKeyDownHandler);
         element.classList.remove("focused");
         this.stopTimer.bind(this, true);
-        await selectionUtils.deselectItem(itemId, this);
+        await UIUtils.deselectItem(itemId, this);
         delete this.currentSelectItem;
     }
 
@@ -588,7 +578,7 @@ export class DocumentViewPage {
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        await selectionUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
+        await UIUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
         this.currentSelectItem = this.infoTextId;
         this.changeToolbarView(targetElement, "on");
         if (this.currentPlugin) {
@@ -601,7 +591,7 @@ export class DocumentViewPage {
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        await selectionUtils.selectItem(true, this.infoTextTitleId, this.infoTextClass, this);
+        await UIUtils.selectItem(true, this.infoTextTitleId, this.infoTextClass, this);
         this.currentSelectItem = this.infoTextTitleId;
         this.changeToolbarView(targetElement, "on");
         if (this.currentPlugin) {
@@ -620,7 +610,7 @@ export class DocumentViewPage {
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
             await paragraphPresenter.highlightParagraph();
-            await selectionUtils.selectItem(false, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
+            await UIUtils.selectItem(false, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             await chapterPresenter.highlightChapter();
             return;
         }
@@ -633,7 +623,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, this.focusOutHandlerTitle.bind(this, targetElement, this.titleId));
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
-            await selectionUtils.selectItem(true, this.titleId, this.titleClass, this);
+            await UIUtils.selectItem(true, this.titleId, this.titleClass, this);
             this.currentSelectItem = this.titleId;
         } else if (type === "infoText") {
             await this.highlightInfoText(targetElement);
@@ -649,13 +639,13 @@ export class DocumentViewPage {
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
-            await selectionUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
+            await UIUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
         } else if (type === "chapterHeader") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
-            await selectionUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
+            await UIUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
         } else if (type === "paragraphText") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
@@ -663,7 +653,7 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await paragraphPresenter.highlightParagraph();
-            await selectionUtils.selectItem(true, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
+            await UIUtils.selectItem(true, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         }
@@ -762,12 +752,10 @@ export class DocumentViewPage {
     }
 
     async openCommentModal() {
-        let comments = await assistOS.UI.showModal("comment-modal", {
-            comments: this._document.comments
-        }, true);
-        if (comments !== undefined) {
-            this._document.comments = comments;
-            this.changeCommentIndicator();
+        let comment = await assistOS.UI.showModal("add-comment", {}, true);
+        if (comment !== undefined) {
+            this._document.comments.messages.push(comment);
+            UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
             await documentModule.updateDocument(assistOS.space.id, this._document.id,
                 this._document.title,
                 this._document.docId,
@@ -777,27 +765,51 @@ export class DocumentViewPage {
                 this._document.comments);
         }
     }
-
+    showComments(iconContainer){
+        assistOS.UI.createElement("comments-section", iconContainer, {
+                comments: this._document.comments.messages,
+                documentId: this._document.id,
+            })
+    }
+    async updateComments(comments) {
+        this._document.comments.messages = comments;
+        await documentModule.updateDocument(assistOS.space.id, this._document.id,
+            this._document.title,
+            this._document.docId,
+            this._document.category,
+            this._document.infoText,
+            this._document.commands,
+            this._document.comments);
+        if(this._document.comments.messages.length === 0){
+            this.closeComments();
+            UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
+        }
+    }
+    closeComments(){
+        let iconContainer = this.element.querySelector(".comment-icon-container");
+        let commentsSection = iconContainer.querySelector("comments-section");
+        commentsSection.remove();
+    }
     async handleUserSelection(itemClass, data) {
         if (typeof data === "string") {
             return;
         }
         if (data.selected) {
-            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
+            await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             if (data.lockOwner && data.lockOwner !== this.selectId) {
-                return selectionUtils.lockItem(itemClass, this);
+                return UIUtils.lockItem(itemClass, this);
             }
         } else {
-            selectionUtils.removeUserIcon(data.selectId, this);
+            UIUtils.removeUserIcon(data.selectId, this);
             if (!data.lockOwner) {
-                selectionUtils.unlockItem(itemClass, this);
+                UIUtils.unlockItem(itemClass, this);
             }
         }
     }
 
     async afterUnload() {
         if (this.selectionInterval) {
-            await selectionUtils.deselectItem(this.currentSelectItem, this);
+            await UIUtils.deselectItem(this.currentSelectItem, this);
         }
         document.removeEventListener("click", this.boundRemoveFocusHandler);
     }

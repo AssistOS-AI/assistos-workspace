@@ -1,8 +1,7 @@
 import {unescapeHtmlEntities} from "../../../../imports.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
-import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
+import UIUtils from "../../pages/document-view-page/UIUtils.js";
 const documentModule = assistOS.loadModule("document");
-const spaceModule = assistOS.loadModule("space");
 
 
 export class ChapterItem {
@@ -12,7 +11,7 @@ export class ChapterItem {
         this.documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this._document = this.documentPresenter._document;
         let chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(chapterId);
+        this.chapter = this._document.chapters.find(chapter => chapter.id === chapterId);
         this.refreshChapter = async () => {
             this.chapter = await this.refreshChapter(this._document.id, this.chapter.id);
         };
@@ -41,61 +40,6 @@ export class ChapterItem {
             return null;
         }
     }
-    showChapterOptions(targetElement) {
-        let hideMoveArrows = this._document.chapters.length === 1 ? "hide" : "show";
-        let downloadVideoClass;
-        let compileVideoClass;
-        let deleteVideoClass;
-        if(this.chapter.commands.compileVideo){
-            if(this.chapter.commands.compileVideo.id){
-                downloadVideoClass = "show";
-                deleteVideoClass = "show";
-                compileVideoClass = "hide";
-            } else {
-                downloadVideoClass = "hide";
-                deleteVideoClass = "hide";
-                compileVideoClass = "show";
-            }
-        } else {
-            compileVideoClass = "show";
-            downloadVideoClass = "hide";
-            deleteVideoClass = "hide";
-        }
-        let chapterOptions = `<action-box-chapter data-move-arrows="${hideMoveArrows}" data-download-video="${downloadVideoClass}" data-compile-video="${compileVideoClass}" data-delete-video="${deleteVideoClass}"></action-box-chapter>`;
-        targetElement.insertAdjacentHTML("afterbegin", chapterOptions);
-        let controller = new AbortController();
-        this.boundHideChapterOptions = this.hideChapterOptions.bind(this, controller);
-        document.addEventListener('click', this.boundHideChapterOptions, {signal: controller.signal});
-    }
-    hideChapterOptions(controller, event) {
-        controller.abort();
-        let options = this.element.querySelector(`action-box-chapter`);
-        if (options) {
-            options.remove();
-        }
-    }
-    async downloadCompiledVideo() {
-        let videoURL = await spaceModule.getVideoURL(this.chapter.commands.compileVideo.id);
-        const response = await fetch(videoURL);
-        const blob = await response.blob();
-        let chapterIndex = this._document.getChapterIndex(this.chapter.id);
-        const link = document.createElement('a');
-        const blobUrl = URL.createObjectURL(blob);
-        link.href = blobUrl;
-        link.download = `chapter_${chapterIndex + 1}_${this.chapter.title}.mp4`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(blobUrl);
-    }
-
-    async deleteCompiledVideo(){
-        alert("TO BE DONE")
-    }
-
-    async compileChapterVideo(){
-        alert("TO BE DONE")
-    }
 
     async beforeRender() {
         if (window.assistOS.stylePreferenceCache) {
@@ -107,7 +51,7 @@ export class ChapterItem {
         this.chapterFontFamily = assistOS.constants.fontFamilyMap[this.stylePreferences["document-font-family"]]||"Arial";
         this.titleMetadata = this.element.variables["data-title-metadata"];
         this.chapterContent = "";
-        let index = this._document.getChapterIndex(this.chapter.id);
+        let index = this._document.chapters.findIndex(chapter => chapter.id === this.chapter.id);
         this.chapterNumber = index + 1;
         this.chapter.paragraphs.forEach((paragraph) => {
             this.chapterContent += `<paragraph-item data-local-action="editItem paragraph" data-presenter="paragraph-item" data-paragraph-id="${paragraph.id}" data-chapter-id="${this.chapter.id}"></paragraph-item>`;
@@ -138,22 +82,42 @@ export class ChapterItem {
     }
 
     async openCommentModal(){
-        let comments = await assistOS.UI.showModal("comment-modal", {
-            comments: this.chapter.comments
-        }, true);
-        if(comments !== undefined){
-            this.chapter.comments = comments;
-            this.changeCommentIndicator();
+        let comment = await assistOS.UI.showModal("add-comment", {}, true);
+        if(comment !== undefined){
+            this.chapter.comments.messages.push(comment)
+            UIUtils.changeCommentIndicator(this.element, this.chapter.comments.messages);
             await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
                 this.chapter.title,
                 this.chapter.commands,
                 this.chapter.comments);
         }
     }
+    async updateComments(comments) {
+        this.chapter.comments.messages = comments;
+        await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+            this.chapter.title,
+            this.chapter.commands,
+            this.chapter.comments);
+        if(this.chapter.comments.messages.length === 0){
+            this.closeComments();
+            UIUtils.changeCommentIndicator(this.element, this.chapter.comments.messages);
+        }
+    }
+    showComments(iconContainer){
+        assistOS.UI.createElement("comments-section", iconContainer, {
+            comments: this.chapter.comments.messages,
+            chapterId: this.chapter.id,
+        })
+    }
+    closeComments(){
+        let iconContainer = this.element.querySelector(".comment-icon-container");
+        let commentsSection = iconContainer.querySelector("comments-section");
+        commentsSection.remove();
+    }
 
     changeParagraphOrder(paragraphId, position) {
         let paragraphs = this.chapter.paragraphs;
-        let currentParagraphIndex = this.chapter.getParagraphIndex(paragraphId);
+        let currentParagraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
         if (currentParagraphIndex === -1 || position < 0 || position >= paragraphs.length) {
             throw new Error("Invalid paragraphId or position");
         }
@@ -196,7 +160,7 @@ export class ChapterItem {
                     break;
                 }
                 default: {
-                    let chapterIndex = this._document.getChapterIndex(this.chapter.id);
+                    let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === this.chapter.id);
                     console.error(`chapterItem index ${chapterIndex}: Unknown update type: ${data}`);
                     break;
                 }
@@ -254,19 +218,9 @@ export class ChapterItem {
         this.documentPresenter.attachTooltip(deleteChapter,"Delete Chapter");
 
         this.changeChapterDeleteAvailability();
-        this.changeCommentIndicator();
+        UIUtils.changeCommentIndicator(this.element, this.chapter.comments.messages);
     }
-    changeCommentIndicator() {
-        let previewIcons = this.element.querySelector(".preview-icons");
-        if(this.chapter.comments){
-            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
-        } else {
-            let commentIndicator = previewIcons.querySelector(".comment-indicator");
-            if(commentIndicator){
-                commentIndicator.remove();
-            }
-        }
-    }
+
     changeChapterDeleteAvailability() {
         let deleteChapter = this.element.querySelector(".delete-chapter");
         if(this._document.chapters.length === 1){
@@ -278,7 +232,7 @@ export class ChapterItem {
     async addParagraph(_target, direction) {
         let position = this.chapter.paragraphs.length;
         if (assistOS.space.currentParagraphId) {
-            position = this.chapter.getParagraphIndex(assistOS.space.currentParagraphId);
+            position = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === assistOS.space.currentParagraphId);
             if(direction === "above"){
                 if(position < 0){
                     position = 0;
@@ -360,7 +314,7 @@ export class ChapterItem {
     async focusOutHandlerTitle(chapterTitle){
         this.focusOutHandler()
         chapterTitle.classList.remove("focused");
-        await selectionUtils.deselectItem(this.titleId, this);
+        await UIUtils.deselectItem(this.titleId, this);
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.remove("highlighted-header");
         let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
@@ -491,7 +445,7 @@ export class ChapterItem {
     }
 
     updateChapterNumber() {
-        let chapterIndex = this._document.getChapterIndex(this.chapter.id);
+        let chapterIndex = this._document.chapters.findIndex(chapter => chapter.id === this.chapter.id);
         let chapterNumber = this.element.querySelector(".data-chapter-number");
         chapterNumber.innerHTML = `${chapterIndex + 1}.`;
     }
@@ -500,20 +454,20 @@ export class ChapterItem {
             return;
         }
         if(data.selected){
-            await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, this.titleClass, this);
+            await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, this.titleClass, this);
             if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return selectionUtils.lockItem(this.titleClass, this);
+                return UIUtils.lockItem(this.titleClass, this);
             }
         } else {
-            selectionUtils.removeUserIcon(data.selectId, this);
+            UIUtils.removeUserIcon(data.selectId, this);
             if(!data.lockOwner){
-                selectionUtils.unlockItem(this.titleClass, this);
+                UIUtils.unlockItem(this.titleClass, this);
             }
         }
     }
     async afterUnload(){
         if(this.selectionInterval){
-            await selectionUtils.deselectItem(this.titleId, this);
+            await UIUtils.deselectItem(this.titleId, this);
         }
     }
 }

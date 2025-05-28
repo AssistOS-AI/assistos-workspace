@@ -1,8 +1,8 @@
-import selectionUtils from "../../web-components/document/pages/document-view-page/selectionUtils.js";
+import UIUtils from "../../web-components/document/pages/document-view-page/UIUtils.js";
 const applicationModule = assistOS.loadModule("application", {});
 async function openPlugin(componentName, type, context, presenter, selectionItemId, autoPin = false) {
     if(selectionItemId){
-        await selectionUtils.selectItem(true, selectionItemId, componentName, presenter);
+        await UIUtils.selectItem(true, selectionItemId, componentName, presenter);
     }
     let plugin = assistOS.space.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
@@ -19,7 +19,7 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
         removeHighlightPlugin(type, presenter);
     }
     if(selectionItemId){
-        await selectionUtils.deselectItem(selectionItemId, presenter);
+        await UIUtils.deselectItem(selectionItemId, presenter);
     }
 }
 function removeHighlightPlugin(type, presenter) {

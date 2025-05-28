@@ -69,7 +69,7 @@ export class TaskItem{
 
     scrollDocument(){
         let paragraphId = this.paragraphPresenter.paragraph.id;
-        let paragraphIndex = this.paragraphPresenter.chapter.getParagraphIndex(paragraphId);
+        let paragraphIndex = this.paragraphPresenter.chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
         if (paragraphIndex === this.paragraphPresenter.chapter.paragraphs.length - 1) {
             return this.paragraphItem.scrollIntoView({behavior: "smooth", block: "nearest"});
         }
