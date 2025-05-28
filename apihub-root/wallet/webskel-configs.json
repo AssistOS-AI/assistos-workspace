@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "comments-section",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "CommentsSection"
+        },
+        {
             "name": "custom-select",
             "directory": "space-application",
             "type": "components",
@@ -16,10 +22,10 @@
             "presenterClassName": "CustomRadio"
         },
         {
-            "name": "comment-modal",
+            "name": "add-comment",
             "directory": "document",
             "type": "modals",
-            "presenterClassName": "CommentModal"
+            "presenterClassName": "AddComment"
         },
         {
             "name": "login-page",

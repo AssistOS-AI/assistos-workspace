@@ -466,8 +466,10 @@ html[theme="dark"] input.document-title{
     height: 30px;
     position: relative;
 }
+.comment-icon-container{
+    height: 20px;
+}
 .preview-icons{
-    pointer-events: none;
     position: absolute;
     left: -31px;
     top: 0;

@@ -8,7 +8,6 @@ chapter-item {
     /*background-color: var(--inactive-element);*/
     margin-bottom: 15px;
     outline: 2px var(--light-gray-border) solid;
-    outline-offset: -1px;
 }
 .chapter-title-container {
     height: 43px;

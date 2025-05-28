@@ -1,5 +1,5 @@
 const documentModule = assistOS.loadModule("document");
-import selectionUtils from "../../pages/document-view-page/selectionUtils.js";
+import UIUtils from "../../pages/document-view-page/UIUtils.js";
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 export class ParagraphItem {
     constructor(element, invalidate) {
@@ -9,8 +9,8 @@ export class ParagraphItem {
         this._document = this.documentPresenter._document;
         let paragraphId = this.element.getAttribute("data-paragraph-id");
         let chapterId = this.element.getAttribute("data-chapter-id");
-        this.chapter = this._document.getChapter(chapterId);
-        this.paragraph = this.chapter.getParagraph(paragraphId);
+        this.chapter = this._document.chapters.find(chapter => chapter.id === chapterId);
+        this.paragraph = this.chapter.paragraphs.find(paragraph => paragraph.id === paragraphId);
         this.invalidate(this.subscribeToParagraphEvents.bind(this));
     }
 
@@ -70,10 +70,6 @@ export class ParagraphItem {
         this.documentPresenter.attachTooltip(commentMenu,"Comments");
         let deleteParagraph = this.element.querySelector(".delete-paragraph");
         this.documentPresenter.attachTooltip(deleteParagraph,"Delete Paragraph");
-        if(this.paragraph.commands.files && this.paragraph.commands.files.length > 0){
-            let filesMenu = this.element.querySelector(".files-menu");
-            filesMenu.classList.add("highlight-attachment");
-        }
 
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.innerHTML = this.paragraph.text;
@@ -86,24 +82,13 @@ export class ParagraphItem {
         let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
         if (selected) {
             for (let selection of selected.users) {
-                await selectionUtils.setUserIcon(selection.userImageId, selection.userEmail, selection.selectId, this.textClass, this);
+                await UIUtils.setUserIcon(selection.userImageId, selection.userEmail, selection.selectId, this.textClass, this);
             }
             if (selected.lockOwner) {
-                selectionUtils.lockItem(this.textClass, this);
+                UIUtils.lockItem(this.textClass, this);
             }
         }
-        this.changeCommentIndicator();
-    }
-    changeCommentIndicator() {
-        let previewIcons = this.element.querySelector(".preview-icons");
-        if(this.paragraph.comments){
-            previewIcons.innerHTML += `<img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">`;
-        } else {
-            let commentIndicator = previewIcons.querySelector(".comment-indicator");
-            if(commentIndicator){
-                commentIndicator.remove();
-            }
-        }
+        UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
     }
     async onParagraphUpdate(type) {
         this.paragraph = await documentModule.getParagraph(assistOS.space.id, this.paragraph.id);
@@ -122,7 +107,7 @@ export class ParagraphItem {
             }
         }
 
-        let currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        let currentParagraphIndex = this.chapter.this.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
         await documentModule.deleteParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id);
         if (this.chapter.paragraphs.length > 0) {
             if (currentParagraphIndex === 0) {
@@ -149,7 +134,7 @@ export class ParagraphItem {
             return;
         }
         await this.documentPresenter.stopTimer(false);
-        const currentParagraphIndex = this.chapter.getParagraphIndex(this.paragraph.id);
+        const currentParagraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
         const position = this.getNewPosition(currentParagraphIndex, direction);
         await documentModule.changeParagraphOrder(assistOS.space.id, this.chapter.id, this.paragraph.id, position);
         let chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
@@ -221,7 +206,7 @@ export class ParagraphItem {
                     await this.saveParagraph(paragraphText);
                 }
                 assistOS.space.currentParagraphId = null;
-                await selectionUtils.deselectItem(this.paragraph.id, this);
+                await UIUtils.deselectItem(this.paragraph.id, this);
 
                 let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
                 let pluginElement = pluginContainer.firstElementChild;
@@ -325,17 +310,38 @@ export class ParagraphItem {
         menuComponent.boundCloseMenu = boundCloseMenu;
     }
     async openCommentModal(){
-        let comments = await assistOS.UI.showModal("comment-modal", {
-            comments: this.paragraph.comments
-        }, true);
-        if(comments !== undefined){
-            this.paragraph.comments = comments;
-            this.changeCommentIndicator();
+        let comment = await assistOS.UI.showModal("add-comment", {}, true);
+        if(comment !== undefined){
+            this.paragraph.comments.messages.push(comment);
+            UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
             await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
                 this.paragraph.text,
                 this.paragraph.commands,
                 this.paragraph.comments);
         }
+    }
+    async updateComments(comments) {
+        this.paragraph.comments.messages = comments;
+        await documentModule.updateParagraph(assistOS.space.id, this.chapter.id,
+            this.paragraph.id,
+            this.paragraph.text,
+            this.paragraph.commands,
+            this.paragraph.comments);
+        if(this.paragraph.comments.messages.length === 0){
+            this.closeComments();
+            UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
+        }
+    }
+    showComments(iconContainer){
+        assistOS.UI.createElement("comments-section", iconContainer, {
+            comments: this.paragraph.comments.messages,
+            paragraphId: this.paragraph.id,
+        })
+    }
+    closeComments(){
+        let iconContainer = this.element.querySelector(".comment-icon-container");
+        let commentsSection = iconContainer.querySelector("comments-section");
+        commentsSection.remove();
     }
     closeMenu(controller, targetElement, menuName, event) {
         if (event.target.closest(`.toolbar-menu.${menuName}`) || event.target.closest(".insert-modal")) {
@@ -354,25 +360,25 @@ export class ParagraphItem {
         }
         if (data.selected) {
             if (!this.plugins[itemClass]) {
-                await selectionUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
+                await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
             }
             if (data.lockOwner && data.lockOwner !== this.selectId) {
-                return selectionUtils.lockItem(itemClass, this);
+                return UIUtils.lockItem(itemClass, this);
             }
         } else {
             if (!this.plugins[itemClass]) {
-                selectionUtils.removeUserIcon(data.selectId, this);
+                UIUtils.removeUserIcon(data.selectId, this);
             }
 
             if (!data.lockOwner) {
-                selectionUtils.unlockItem(itemClass, this);
+                UIUtils.unlockItem(itemClass, this);
             }
         }
     }
 
     async afterUnload() {
         if (this.selectionInterval) {
-            await selectionUtils.deselectItem(this.paragraph.id, this);
+            await UIUtils.deselectItem(this.paragraph.id, this);
         }
     }
 }
