@@ -86,13 +86,7 @@ export class RunScript {
     async saveDocId(button) {
         let input = this.element.querySelector("#docID");
         this._document.docId = input.value;
-        await documentModule.updateDocument(assistOS.space.id, this._document.id,
-            this._document.title,
-            this._document.docId,
-            this._document.category,
-            this._document.infoText,
-            this._document.commands,
-            this._document.comments);
+        await documentModule.updateDocId(assistOS.space.id, this._document.id, this._document.docId);
         button.classList.add("hidden");
     }
     async runScript(button) {
