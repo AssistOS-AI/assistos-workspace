@@ -20,9 +20,7 @@ export class ApplicationCreatorThemes {
             return `
             <div class="page-item">
             <span class="page-item-name">${themeData.name}</span>
-            <div class="page-item-application">
-            <span class="page-item-application-name">${themeData.applicationName}</span>
-            </div>
+           
             <div class="page-item-description-container">
             <div class="page-item-description">
             ${themeData.description}

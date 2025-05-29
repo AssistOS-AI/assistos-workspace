@@ -2,15 +2,11 @@ export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.activeTab = this.element.getAttribute("data-subpage") || "myaccountTab";
+        this.activeTab = this.element.getAttribute("data-subpage") || "collaboratorsTab";
         this.invalidate();
     }
 
     async beforeRender() {
-        if (this.activeTab === "myaccountTab") {
-            this.tabContent = `<my-account data-presenter="my-account"></my-account>`;
-            this.subpageName = "My Account";
-        }
         if (this.activeTab === "keysTab") {
             this.tabContent = `<keys-tab data-presenter="keys-tab"></keys-tab>`;
             this.subpageName = "Secrets";

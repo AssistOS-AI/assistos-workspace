@@ -108,12 +108,13 @@ async function WebAssistant() {
         const newPage = await Persistence.createWebAssistantConfigurationPage(page);
         const config = await Persistence.getWebAssistant("whatever");
         config.pages.push(newPage.id);
-        await Persistence.updateWebAssistant("config", config);
+        await Persistence.updateWebAssistant("whatever", config);
         return newPage;
     };
 
     self.getWebAssistantConfigurationPages = async function () {
         const config = await Persistence.getWebAssistant("whatever");
+
         return Promise.all(config.pages.map(id => Persistence.getWebAssistantConfigurationPage(id)));
     };
 
@@ -125,12 +126,7 @@ async function WebAssistant() {
         return await Persistence.updateWebAssistantConfigurationPage(pageId, page);
     };
 
-    self.deleteWebAssistantConfigurationPage = async function (pageId) {
-        const config = await Persistence.getWebAssistant("whatever");
-        config.pages = config.pages.filter(id => id !== pageId);
-        await Persistence.updateWebAssistant("whatever", config);
-        await Persistence.deleteWebAssistantConfigurationPage(pageId);
-    };
+
 
     self.addWebAssistantConfigurationPageMenuItem = async function (pageId, menuItem) {
         if (!menuItem.icon) {
@@ -156,9 +152,22 @@ async function WebAssistant() {
     };
 
     self.updateWebAssistantConfigurationPageMenuItem = async function (menuItemId, menuItem) {
-        return await Persistence.updateWebAssistantConfigurationPageMenuItem(menuItemId, menuItem);
+        const menuIt = await self.getWebAssistantConfigurationPageMenuItem(menuItemId);
+        const menuItemToUpdate = {...menuIt, ...menuItem};
+        return await Persistence.updateWebAssistantConfigurationPageMenuItem(menuItemId, menuItemToUpdate);
     };
-
+    self.deleteWebAssistantConfigurationPage = async function (pageId) {
+        const config = await Persistence.getWebAssistant("whatever");
+        config.pages = config.pages.filter(id => id !== pageId);
+        await Persistence.updateWebAssistant("whatever", config);
+        await Persistence.deleteWebAssistantConfigurationPage(pageId);
+        const menuItems = await self.getWebAssistantConfigurationPageMenu();
+        for (const item of menuItems) {
+            if (item.targetPage === pageId) {
+                await self.deleteWebAssistantConfigurationPageMenuItem(item.id);
+            }
+        }
+    };
     self.deleteWebAssistantConfigurationPageMenuItem = async function (menuItemId) {
         const config = await Persistence.getWebAssistant("whatever");
         config.menu = config.menu.filter(id => id !== menuItemId);

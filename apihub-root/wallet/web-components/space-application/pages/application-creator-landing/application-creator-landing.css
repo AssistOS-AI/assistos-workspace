@@ -83,7 +83,6 @@ application-creator-landing {
 
 .application-form {
     display: flex;
-    height: 100%;
     width: 100%;
     flex-direction: column;
     gap: 40px;
@@ -93,6 +92,7 @@ application-creator-landing {
 
 .application-form-split {
     display: grid;
+    height:100%;
     grid-template-columns: calc(50% - 10px) calc(50% - 10px);
     gap: 20px;
 }
@@ -100,6 +100,7 @@ application-creator-landing {
 .application-form-content {
     display: flex;
     flex-direction: column;
+    height:100%;
     gap: 28px;
 }
 
@@ -541,7 +542,6 @@ application-creator-landing {
     gap: 20px;
     flex: 1;
     overflow-y: auto;
-    max-height: 60vh;
 }
 
 .modal-footer {

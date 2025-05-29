@@ -81,7 +81,6 @@ export class ApplicationEditThemeModal {
 
         const themeData = await getThemeData(this.spaceId, this.id);
         this.name = themeData.name;
-        this.applicationName = themeData.name;
         this.description = themeData.description;
         this.themeVars = themeData.themeVars;
         this.customCSS = themeData.customCSS;
@@ -101,11 +100,9 @@ export class ApplicationEditThemeModal {
             const value = this.themeVars[key] ?? config.default ?? '';
             const wrapper = document.createElement('div');
             wrapper.className = 'theme-var-item';
-
             const label = document.createElement('label');
             label.textContent = key;
             wrapper.appendChild(label);
-
             let input;
             if (config.type === 'color' || config.type === 'text') {
                 input = document.createElement('input');
@@ -123,7 +120,6 @@ export class ApplicationEditThemeModal {
                     input.appendChild(option);
                 });
             }
-
             wrapper.appendChild(input);
             container.appendChild(wrapper);
         });
@@ -154,7 +150,6 @@ export class ApplicationEditThemeModal {
                 name: formData.data["theme-name"],
                 description,
                 themeVars,
-                applicationName: formData.data["application-name"],
                 customCSS: this.element.querySelector('#custom-css').value
             };
             if (mode === 'add') {
@@ -162,7 +157,6 @@ export class ApplicationEditThemeModal {
             } else {
                 await WebAssistant.updateWebChatTheme(this.spaceId, this.id, themeData);
             }
-
             await this.closeModal();
         }
     }

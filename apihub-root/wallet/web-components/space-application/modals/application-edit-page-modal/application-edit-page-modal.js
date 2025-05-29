@@ -1,49 +1,14 @@
 const applicationModule = assistOS.loadModule("application");
-const spaceModule = assistOS.loadModule("space");
+const WebAssistant = assistOS.loadModule("webassistant",{});
 
 const getWidgets = async function (spaceId) {
     const widgets = await applicationModule.getWidgets(spaceId);
     return widgets;
 }
-
-
 const getPageData = async function (spaceId, pageId) {
-    return mockPages.find(p => p.id === pageId);
-    const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
+    const page = await WebAssistant.getWebAssistantConfigurationPage(spaceId, pageId);
     return page;
 }
-const mockWidgets = {
-    crm:   [{name:'contacts'},{name:'leads'}],
-    sales: [{name:'dashboard'}]
-}
-applicationModule.getWidgets = async spaceId => mockWidgets
-
-const mockPages = [
-    {
-        id:'home',
-        name:'Home',
-        description:'Pagina principală',
-        widget:'crm/contacts',
-        chatSize:'30',
-        generalSettings:'',
-        data:''
-    }
-]
-
-spaceModule.getWebAssistantConfigurationPage = async (spaceId,pageId) =>
-    mockPages.find(p=>p.id===pageId)
-
-spaceModule.addWebAssistantConfigurationPage = async (spaceId,pageData) => {
-    mockPages.push({id:crypto.randomUUID(),...pageData})
-    return true
-}
-
-spaceModule.updateWebAssistantConfigurationPage = async (spaceId,pageId,pageData) => {
-    const i=mockPages.findIndex(p=>p.id===pageId)
-    if(i>-1) mockPages[i]={...mockPages[i],...pageData}
-    return true
-}
-
 
 export class ApplicationEditPageModal {
     constructor(element, invalidate) {
@@ -67,7 +32,6 @@ export class ApplicationEditPageModal {
         this.modalName = "Add Page";
         this.actionButton = "Add";
         this.actionFn = `addPage`;
-
         this.widgets = Object.entries(
             (await getWidgets(this.spaceId)))
             .map(([app, widgets]) =>
@@ -86,14 +50,11 @@ export class ApplicationEditPageModal {
     async handleEditRender() {
         const pageData = await getPageData(this.spaceId, this.id);
         this.name = pageData.name;
-
-
         this.description = pageData.description;
         this.widget = pageData.widget;
         this.data = pageData.data;
         this.chatSize = pageData.chatSize;
         this.generalSettings = pageData.generalSettings;
-
         this.modalName = "Edit Page";
         this.actionButton = "Save";
         this.actionFn = `editPage`;
@@ -208,7 +169,7 @@ export class ApplicationEditPageModal {
     }
 
     async addPage(_target) {
-        const form = this.element.querySelector('.application-form');
+        const form = this.element.querySelector('form');
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
@@ -220,14 +181,14 @@ export class ApplicationEditPageModal {
                 generalSettings: this.dataStructure["General Settings"].value,
                 data: this.dataStructure["Data"].value
             }
-            await spaceModule.addWebAssistantConfigurationPage(this.spaceId, pageData);
+            await WebAssistant.addWebAssistantConfigurationPage(this.spaceId, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }
     }
 
     async editPage() {
-        const form = this.element.querySelector('.application-form');
+        const form = this.element.querySelector('form');
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
@@ -239,7 +200,7 @@ export class ApplicationEditPageModal {
                 generalSettings: this.dataStructure["General Settings"].value,
                 data: this.dataStructure["Data"].value
             }
-            await spaceModule.updateWebAssistantConfigurationPage(this.spaceId, this.id, pageData);
+            await WebAssistant.updateWebAssistantConfigurationPage(this.spaceId, this.id, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }

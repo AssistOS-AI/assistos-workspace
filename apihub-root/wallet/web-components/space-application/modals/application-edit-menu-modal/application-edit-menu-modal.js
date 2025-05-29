@@ -1,50 +1,14 @@
-const spaceModule = assistOS.loadModule("space");
+const WebAssistant = assistOS.loadModule("webassistant",{});
 
 const getPageRows = async function (spaceId) {
-    return await spaceModule.getWebAssistantConfigurationPages(spaceId);
+    return await WebAssistant.getWebAssistantConfigurationPages(spaceId);
 }
 const getMenuItem = async function (spaceId,menuItemId) {
-    return await spaceModule.getWebAssistantConfigurationPageMenuItem(spaceId,  menuItemId);
+    return await WebAssistant.getWebAssistantConfigurationPageMenuItem(spaceId,  menuItemId);
 }
 const getPage = async function (spaceId, pageId) {
-    const page = await spaceModule.getWebAssistantConfigurationPage(spaceId, pageId);
+    const page = await WebAssistant.getWebAssistantConfigurationPage(spaceId, pageId);
     return page;
-}
-/* — mock store — */
-const mockPages = [
-    {id:'home', name:'Home'},
-    {id:'faq',  name:'FAQ'}
-]
-
-const mockMenuItems = [
-    {id:'m1', name:'Start', icon:'/static/start.svg', targetPage:'home', itemLocation:'assistant'},
-    {id:'m2', name:'FAQ',  icon:'/static/faq.svg',  targetPage:'faq',  itemLocation:'assistant'}
-]
-
-spaceModule.getWebAssistantConfigurationPages = async spaceId => mockPages
-
-spaceModule.getWebAssistantConfigurationPage = async (spaceId,pageId) =>
-    mockPages.find(p=>p.id===pageId)
-
-spaceModule.getWebAssistantConfigurationPageMenuItem = async (spaceId,itemId) =>
-    mockMenuItems.find(m=>m.id===itemId)
-
-spaceModule.addWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,item) => {
-    const id = crypto.randomUUID()
-    mockMenuItems.push({...item,id})
-    return {id}
-}
-
-spaceModule.updateWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,itemId,data) => {
-    const i = mockMenuItems.findIndex(m=>m.id===itemId)
-    if(i>-1) mockMenuItems[i] = {...mockMenuItems[i],...data}
-    return true
-}
-
-spaceModule.deleteWebAssistantConfigurationPageMenuItem = async (spaceId,pageId,itemId) => {
-    const i = mockMenuItems.findIndex(m=>m.id===itemId)
-    if(i>-1) mockMenuItems.splice(i,1)
-    return true
 }
 
 export class ApplicationEditMenuModal {
@@ -92,13 +56,11 @@ export class ApplicationEditMenuModal {
         this.actionFn = `editMenuItem`;
         const pages = await getPageRows(this.spaceId);
         this.targetPages = `
-        <select class="application-form-item-select" data-name="targetPage" id="targetPage"
-        ${pages.map(pageData => {
-            return `<option value="${pageData.id}" data-name="${pageData.name}">${pageData.name}</option>`
-        })
-            .join('')}
-        </select>`
-
+    <select class="application-form-item-select" data-name="targetPage" id="targetPage">
+        ${pages.map(pageData =>
+            `<option value="${pageData.id}" data-name="${pageData.name}">${pageData.name}</option>`
+        ).join('')}
+    </select>`;
         this.menuTypes = `
         <select class="application-form-item-select" data-name="itemLocation" id="itemLocation">
             <option value="chat">Chat</option>
@@ -165,7 +127,7 @@ export class ApplicationEditMenuModal {
                 targetPage: this.lastTargetPage,
                 itemLocation: locationSelect.value
             }
-            await spaceModule.addWebAssistantConfigurationPageMenuItem(this.spaceId, this.currentPage, menuItem)
+            await WebAssistant.addWebAssistantConfigurationPageMenuItem(this.spaceId, this.currentPage, menuItem)
             this.shouldInvalidate = true;
             await this.closeModal();
         }
@@ -180,7 +142,7 @@ export class ApplicationEditMenuModal {
                 name: formData.data["display-name"],
                 targetPage: this.lastTargetPage
             }
-            await spaceModule.updateWebAssistantConfigurationPageMenuItem(this.spaceId, this.pageId, this.id, menuItem)
+            await WebAssistant.updateWebAssistantConfigurationPageMenuItem(this.spaceId,this.id, menuItem)
             this.shouldInvalidate = true;
             await this.closeModal();
         }

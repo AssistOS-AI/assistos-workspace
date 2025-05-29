@@ -1,11 +1,8 @@
 application-edit-page-modal {
     display: flex;
     flex-direction: column;
-    height:620px;
+    height:800px;
     width: 1200px;
-}
-.data-container{
-    height:220px;
 }
 .data-tabs-container {
     border: 1px solid #ccc;

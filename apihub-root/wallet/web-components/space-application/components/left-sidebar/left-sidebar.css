@@ -246,12 +246,14 @@ html[theme="dark"] {
     margin-block:10px;
 }
 .create-space,
-.logout{
+.logout,
+.my-account{
     padding: 10px;
     border-top: 2px solid var(--plugin-focus);
 }
 .create-space:hover,
-.logout:hover{
+.logout:hover,
+.my-account:hover{
     background-color: var(--gray-button-text);
     color: var(--option-hover);
 }
@@ -268,6 +270,7 @@ html[theme="dark"] {
     width: 90px;
     height: 50px;
     z-index: 2;
+    cursor:pointer;
 }
 #space{
     left: 65px;

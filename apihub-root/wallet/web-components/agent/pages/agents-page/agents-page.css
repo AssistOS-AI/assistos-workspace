@@ -1,17 +1,7 @@
 agents-page {
     overflow: scroll;
 }
-.page-header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: var(--page-padding);
-}
 
-.agents-header{
-    font-size: var(--page-header-font-size);
-    font-weight: 600;
-}
 .line-separator{
     margin-top: 0;
     border: none;
