@@ -77,6 +77,23 @@ export class EditVariables {
          }
          return statusImg;
     }
+    isEditableValue(varName){
+        let docVariable = this.documentPresenter.variables.find(docVariable => docVariable.varName === varName);
+        if(docVariable) {
+            let parsedCommand = docVariable.parsedCommand;
+            if(parsedCommand.command === "assign"){
+                if(parsedCommand.varTypes.includes("var")){
+                    return false;
+                }
+                return true;
+            } else if(parsedCommand.command === "new"){
+                if(parsedCommand.inputVars[0] === "Table"){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
     async beforeRender(){
         this.initVariables();
         this.commandsArr = await this.splitCommands();
@@ -85,10 +102,10 @@ export class EditVariables {
         this.emptyTableClass = "";
         if(this.commandsArr.length > 0){
             this.variablesHeader = `
+                <div class="cell table-label">Status</div>
                 <div class="cell table-label">Name</div>
                 <div class="cell table-label">Expression</div>
-                <div class="cell table-label">Value</div>
-                <div class="cell table-label">Status</div>`;
+                <div class="cell table-label">Value</div>`;
         } else {
             this.emptyTableClass = "empty-table"
         }
@@ -101,13 +118,18 @@ export class EditVariables {
             if(variable.value === undefined){
                 variable.value = "";
             }
+            let editableValue = this.isEditableValue(variable.varName);
+            let valueCell = `<div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>`
+            if(editableValue){
+                valueCell = `<div class="cell pointer" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
+            }
             variablesHTML += `
+                    <div class="cell">${statusImg}</div>
                     <div class="cell">${variable.varName}</div>
                     <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
-                    <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
-                    <div class="cell">${statusImg}</div>
+                    ${valueCell}
                     <div class="cell actions-cell">
-                        <div class="icon-container right-margin" data-local-action="openEditor ${variable.varName}">
+                        <div class="icon-container open-editor" data-local-action="openEditor ${variable.varName}">
                             <img src="./wallet/assets/icons/eye-edit.svg" class="pointer variable-icon" alt="edit">
                         </div>
                         <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">
@@ -148,6 +170,22 @@ export class EditVariables {
         if(confirmation){
             this.invalidate();
             await this.documentPresenter.refreshVariables();
+        }
+    }
+    async openEditValue(valueCell, varName){
+        let docVariable = this.documentPresenter.variables.find(variable => variable.varName === varName);
+        let value = await assistOS.UI.showModal("edit-variable-value", {
+            "var-name": varName
+        }, true);
+        if(value){
+            docVariable.value = value;
+            let isEditable = this.isEditableValue(varName);
+            if(!isEditable){
+                valueCell.classList.remove("pointer");
+                valueCell.removeAttribute("data-local-action");
+            }
+            valueCell.innerHTML = value;
+            await documentModule.setVarValue(assistOS.space.id, this.document.docId, varName, value);
         }
     }
     async deleteVariable(targetElement, varName){

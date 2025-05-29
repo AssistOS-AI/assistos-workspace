@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "edit-variable-value",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "EditVariableValue"
+        },
+        {
             "name": "comments-section",
             "directory": "document",
             "type": "components",

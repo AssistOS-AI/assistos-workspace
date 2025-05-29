@@ -1,0 +1,13 @@
+edit-variable-value{
+    display: block;
+    width: 700px;
+}
+#value{
+    height: 200px;
+}
+edit-variable-value .form-item{
+    margin-bottom: 20px;
+}
+.modal-footer{
+    display: flex;
+}
