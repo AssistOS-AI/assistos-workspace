@@ -1,4 +1,4 @@
-const spaceModule = assistOS.loadModule("space");
+const WebAssistant = assistOS.loadModule("webassistant",{});
 
 const themeContract = {
     '--bg': { type: 'color', default: '#ffffff', label: 'Background' },
@@ -41,12 +41,10 @@ const themeContract = {
     '--gap': { type: 'text', default: '1rem', label: 'Grid Gap' }
 };
 
-
 const getThemeData = async function (spaceId, pageId) {
-    const theme = await spaceModule.getWebAssistantTheme(spaceId, pageId);
+    const theme = await WebAssistant.getWebChatTheme(spaceId, pageId);
     return theme;
 }
-
 
 export class ApplicationEditThemeModal {
     constructor(element, invalidate) {
@@ -70,8 +68,6 @@ export class ApplicationEditThemeModal {
         }
     }
 
-
-
     async handleAddRender() {
         this.modalName = "Add Theme";
         this.actionButton = "Add";
@@ -85,6 +81,7 @@ export class ApplicationEditThemeModal {
 
         const themeData = await getThemeData(this.spaceId, this.id);
         this.name = themeData.name;
+        this.applicationName = themeData.name;
         this.description = themeData.description;
         this.themeVars = themeData.themeVars;
         this.customCSS = themeData.customCSS;
@@ -157,12 +154,13 @@ export class ApplicationEditThemeModal {
                 name: formData.data["theme-name"],
                 description,
                 themeVars,
+                applicationName: formData.data["application-name"],
                 customCSS: this.element.querySelector('#custom-css').value
             };
             if (mode === 'add') {
-                await spaceModule.addWebAssistantTheme(this.spaceId, themeData);
+                await WebAssistant.addWebChatTheme(this.spaceId, themeData);
             } else {
-                await spaceModule.updateWebAssistantTheme(this.spaceId, this.id, themeData);
+                await WebAssistant.updateWebChatTheme(this.spaceId, this.id, themeData);
             }
 
             await this.closeModal();

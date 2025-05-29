@@ -1,67 +1,27 @@
-const personalityModule = require('assistos').loadModule("agent",{});
-const applicationModule = require('assistos').loadModule("application",{});
-const WebAssistant = require('assistos').loadModule("WebAssistant",{});
+const personalityModule = assistOS.loadModule("agent",{});
+const applicationModule = assistOS.loadModule("application",{});
+const WebAssistant = assistOS.loadModule("webassistant",{});
 
-/*
+
 const getWidgets = async function (spaceId) {
     const widgets = await applicationModule.getWidgets(spaceId);
     return widgets;
 }
-*/
 
 const getPersonalities = async function (spaceId) {
     const personalities = await personalityModule.getAgents(spaceId);
     return personalities;
 }
-const getConfiguration = async spaceId => ({
-    settings: {
-        primaryColor: '#000000',
-        textColor: '#ffffff',
-        initialPrompt: '',
-        chatIndications: '',
-        theme: '',
-        personality: '',
-        header: '',
-        footer: ''
-    }
-})
-
-const getWidgets = async spaceId => ({
-    crm: [{ name: 'contacts' }, { name: 'leads' }],
-    sales: [{ name: 'dashboard' }]
-})
-
-const getThemes = async spaceId => ([
-    { id: 'light', name: 'Light', description: '', theme: {} },
-    { id: 'dark',  name: 'Dark',  description: '', theme: {} }
-])
-
-
-const updateConfigurationSettings = async (spaceId, data) => true
-/*
-
 const getConfiguration = async function (spaceId) {
-    //const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
-    const configuration = {
-        settings: {
-            primaryColor: "#000000",
-            textColor: "#ffffff",
-            initialPrompt: "",
-            chatIndications: "",
-            theme: "",
-            personality: "",
-            header: "",
-            footer: ""
-        }
-    }
+    const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
     return configuration;
 }
 
 const getThemes = async function (spaceId) {
-    const themes = await spaceModule.getWebAssistantThemes(spaceId);
+    const themes = await WebAssistant.getWebAssistantThemes(spaceId);
     return themes;
 }
-*/
+
 
 export class ApplicationCreatorSettings {
     constructor(element, invalidate) {
@@ -81,7 +41,7 @@ export class ApplicationCreatorSettings {
         this.chatIndications = settings.chatIndications;
         this.theme = settings.theme;
         this.personality = settings.personality;
-
+        this.knowledge = settings.knowledge;
         this.header = settings.header;
         this.footer = settings.footer;
 
@@ -114,10 +74,12 @@ export class ApplicationCreatorSettings {
         let formData = await assistOS.UI.extractFormInformation(form);
         const initialPrompt = this.element.querySelector('#initial-prompt').value;
         const chatIndications = this.element.querySelector('#chat-indications').value;
+        const knowledge = this.element.querySelector('#knowledge').value;
         if (formData.isValid) {
             const settingsData = {
                 primaryColor: formData.data.color,
                 textColor: formData.data["text-color"],
+                knowledge: knowledge,
                 theme: formData.data.selectedTheme,
                 personality: formData.data.selectedPersonality,
                 header: formData.data.selectedHeader,
@@ -125,7 +87,7 @@ export class ApplicationCreatorSettings {
                 chatIndications: chatIndications,
                 initialPrompt: initialPrompt
             }
-            await spaceModule.updateWebAssistantConfigurationSettings(this.spaceId, settingsData);
+            await WebAssistant.updateWebAssistantConfigurationSettings(this.spaceId, settingsData);
             this.invalidate();
         }
     }

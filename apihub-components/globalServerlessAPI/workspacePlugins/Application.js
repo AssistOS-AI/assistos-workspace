@@ -184,7 +184,7 @@ async function Application() {
 
     self.loadApplicationConfig = async function (applicationId) {
         const applications = self.getAvailableApps();
-        const application = applications.find(app => app.id === applicationId);
+        const application = applications.find(app => app.name === applicationId);
         if (!application) {
             throw new Error("Application not Found");
 
@@ -261,7 +261,7 @@ async function Application() {
     }
 
     self.getWidgets = async function () {
-        const installedSpaceApplications = await WorkspacePlugin.getSpaceApplications();
+        const installedSpaceApplications = await self.getApplications();
         const widgets = {}
         for (const application of installedSpaceApplications) {
             const applicationWidgets = await self.getApplicationWidget(application.name);

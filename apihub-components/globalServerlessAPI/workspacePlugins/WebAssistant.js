@@ -7,9 +7,10 @@ async function WebAssistant() {
 
     await Persistence.configureTypes({
         webAssistant: {
-            id: "random",
+            id: "singleton WEBASSISTANT",
             name: "string",
             description: "string",
+            alias: "string",
             themeId: "string",
             configurationId: "string",
             settings: "any",
@@ -39,14 +40,18 @@ async function WebAssistant() {
         }
     });
 
-    if (!await Persistence.hasWebAssistant("config")) {
+    await Persistence.createIndex("webAssistant", "alias");
+    await Persistence.createIndex("webChatTheme", "id");
+
+    if (!await Persistence.hasWebAssistant("whatever")) {
         await Persistence.createWebAssistant({
-            id: "config",
+            alias: "whatever",
             settings: {
                 header: "",
                 initialPrompt: "",
                 chatIndications: "",
                 personality: "",
+                knowledge:"",
                 theme: "light",
                 primaryColor: "#007bff",
                 textColor: "#000000"
@@ -56,27 +61,20 @@ async function WebAssistant() {
             menu: []
         });
     }
-    await Persistence.createIndex("webAssistant", "id");
-    self.getWebAssistantConfiguration = async function () {
-        return {
-            id: "config",
-            settings: {
-                header: "",
-                initialPrompt: "",
-                chatIndications: "",
-                personality: "",
-                theme: "light",
-                primaryColor: "#007bff",
-                textColor: "#000000"
-            },
-            themes: [],
-            pages: [],
-            menu: []
-        };
-        return await Persistence.getWebAssistantById("config");
+
+    self.updateWebAssistantConfigurationSettings = async function (settings) {
+        const config = await Persistence.getWebAssistant("whatever");
+        config.settings = {...config.settings, ...settings};
+        return await Persistence.updateWebAssistant("whatever", config);
     }
+    self.getWebAssistantConfiguration = async function () {
+        const configuration = await Persistence.getWebAssistant("whatever");
+        return configuration;
+    }
+
     self.getWebChatThemes = async function () {
-        return await Persistence.getEveryWebChatTheme();
+        const webChatThemes = await Persistence.getEveryWebChatThemeObject();
+        return webChatThemes
     };
 
     self.getWebChatTheme = async function (themeId) {
@@ -96,26 +94,26 @@ async function WebAssistant() {
     };
 
     self.getWebChatConfiguration = async function () {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         return config.settings;
     };
 
     self.updateWebChatConfiguration = async function (settings) {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         config.settings = {...config.settings, ...settings};
-        return await Persistence.updateWebAssistant("config", config);
+        return await Persistence.updateWebAssistant("whatever", config);
     };
 
     self.addWebAssistantConfigurationPage = async function (page) {
         const newPage = await Persistence.createWebAssistantConfigurationPage(page);
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         config.pages.push(newPage.id);
         await Persistence.updateWebAssistant("config", config);
         return newPage;
     };
 
     self.getWebAssistantConfigurationPages = async function () {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         return Promise.all(config.pages.map(id => Persistence.getWebAssistantConfigurationPage(id)));
     };
 
@@ -128,9 +126,9 @@ async function WebAssistant() {
     };
 
     self.deleteWebAssistantConfigurationPage = async function (pageId) {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         config.pages = config.pages.filter(id => id !== pageId);
-        await Persistence.updateWebAssistant("config", config);
+        await Persistence.updateWebAssistant("whatever", config);
         await Persistence.deleteWebAssistantConfigurationPage(pageId);
     };
 
@@ -142,14 +140,14 @@ async function WebAssistant() {
         }
         menuItem.pageId = pageId;
         const newItem = await Persistence.createWebAssistantConfigurationPageMenuItem(menuItem);
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         config.menu.push(newItem.id);
-        await Persistence.updateWebAssistant("config", config);
+        await Persistence.updateWebAssistant("whatever", config);
         return newItem;
     };
 
     self.getWebAssistantConfigurationPageMenu = async function () {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         return Promise.all(config.menu.map(id => Persistence.getWebAssistantConfigurationPageMenuItem(id)));
     };
 
@@ -162,9 +160,9 @@ async function WebAssistant() {
     };
 
     self.deleteWebAssistantConfigurationPageMenuItem = async function (menuItemId) {
-        const config = await Persistence.getWebAssistant("config");
+        const config = await Persistence.getWebAssistant("whatever");
         config.menu = config.menu.filter(id => id !== menuItemId);
-        await Persistence.updateWebAssistant("config", config);
+        await Persistence.updateWebAssistant("whatever", config);
         await Persistence.deleteWebAssistantConfigurationPageMenuItem(menuItemId);
     };
 
