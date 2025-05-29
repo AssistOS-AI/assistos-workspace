@@ -11,9 +11,11 @@ export class EditVariables {
         this.documentPresenter.observeChange("variables", this.invalidate);
         this.document = this.documentPresenter._document;
         if(this.context.chapterId){
+            this.chapterPresenter = this.element.closest("chapter-item").webSkelPresenter;
             this.chapter = this.document.chapters.find(chapter => chapter.id === this.context.chapterId);
         }
         if(this.context.paragraphId){
+            this.paragraphPresenter = this.element.closest("paragraph-item").webSkelPresenter;
             this.paragraph = this.chapter.paragraphs.find(paragraph => paragraph.id === this.context.paragraphId);
         }
         this.element.classList.add("maintain-focus");
@@ -78,6 +80,7 @@ export class EditVariables {
             let statusImg = "";
             if(variable.errorInfo){
                 statusImg = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`
+                this.showErrorIndicator();
             }
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
@@ -147,7 +150,15 @@ export class EditVariables {
         await this.updateCommands(this.commands);
         this.invalidate();
     }
-
+    showErrorIndicator(){
+        if(this.paragraph){
+            this.paragraphPresenter.showErrorIndicator();
+        } else if(this.chapter){
+            this.chapterPresenter.showErrorIndicator();
+        } else {
+            this.documentPresenter.showErrorIndicator();
+        }
+    }
     async updateCommands(commands){
         if(this.paragraph){
             this.paragraph.commands = commands;
