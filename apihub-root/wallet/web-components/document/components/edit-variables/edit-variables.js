@@ -42,8 +42,15 @@ export class EditVariables {
                 inputVars = decodePercentCustom(inputVars);
             }
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
+            let status = "Uncomputed";
+            if(variable){
+                status = "ok";
+                if(variable.errorInfo){
+                    status = "error";
+                }
+            }
             commands.push({
-                errorInfo: variable ? variable.errorInfo : undefined,
+                status: status,
                 varName: varName,
                 command: command.command,
                 expression: inputVars,
@@ -60,6 +67,15 @@ export class EditVariables {
         } else {
             this.commands = this.document.commands;
         }
+    }
+    getStatusImg(status){
+         let statusImg= "Uncomputed";
+         if(status === "ok"){
+            statusImg = `<img src="./wallet/assets/icons/success.svg" class="success-icon">`;
+         } else if(status === "error"){
+             statusImg = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`
+         }
+         return statusImg;
     }
     async beforeRender(){
         this.initVariables();
@@ -78,9 +94,8 @@ export class EditVariables {
         }
         let showError = false;
         for(let variable of this.commandsArr){
-            let statusImg = "";
-            if(variable.errorInfo){
-                statusImg = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`
+            let statusImg = this.getStatusImg(variable.status);
+            if(variable.status === "error"){
                 showError = true;
             }
             if(variable.value === undefined){
