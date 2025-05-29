@@ -72,14 +72,36 @@ function changeCommentIndicator(element, commentMessages) {
         if(commentIndicator) {
             return;
         }
-        previewIcons.innerHTML += `<div class="comment-icon-container pointer" data-local-action="showComments">
+        commentIndicator = `<div class="comment-icon-container pointer" data-local-action="showComments">
                                             <img class="comment-indicator" src="./wallet/assets/icons/comment-indicator.svg">
-                                        </div>`
+                                        </div>`;
+        previewIcons.insertAdjacentHTML("afterbegin", commentIndicator);
     } else {
         let commentIndicator = previewIcons.querySelector(".comment-icon-container");
         if(commentIndicator){
             commentIndicator.remove();
         }
+    }
+}
+function displayCurrentStatus(element, comments, level) {
+    let previewIcons = element.querySelector(".preview-icons");
+    if(comments.status === "error"){
+        let errorStatus = "error";
+        let plugin = assistOS.space.plugins[`${level}`].find(plugin => plugin.component === comments.plugin);
+        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${errorStatus} pointer" data-local-action="openPlugin paragraph ${comments.plugin} ${plugin.autoPin || false}" src="./wallet/assets/icons/${errorStatus}.svg">`);
+    }
+}
+function changeStatusIcon(element, status, pluginName, autoPin = false) {
+    let previewIcons = element.querySelector(".preview-icons");
+    let statusIcon = previewIcons.querySelector(`.status-icon`);
+    if(statusIcon){
+        if(statusIcon.classList.contains(status)){
+            return; // Status already set
+        }
+        statusIcon.remove();
+    }
+    if(status !== "ok"){
+        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${status} pointer" data-local-action="openPlugin paragraph ${pluginName} ${autoPin}" src="./wallet/assets/icons/${status}.svg">`);
     }
 }
 export default {
@@ -89,5 +111,7 @@ export default {
     removeUserIcon,
     deselectItem,
     selectItem,
-    changeCommentIndicator
+    changeCommentIndicator,
+    displayCurrentStatus,
+    changeStatusIcon
 };

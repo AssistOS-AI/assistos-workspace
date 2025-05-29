@@ -370,8 +370,20 @@ export class DocumentViewPage {
             this.element.querySelector('.document-page-header')?.remove();
         }
         UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
+        UIUtils.displayCurrentStatus(this.element, this._document.comments, "infoText");
     }
-    
+    async updateStatus(status, type, pluginName, autoPin) {
+        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        this._document.comments.status = status;
+        this._document.comments.plugin = pluginName;
+        await documentModule.updateDocument(assistOS.space.id, this._document.id,
+            this._document.title,
+            this._document.docId,
+            this._document.category,
+            this._document.infoText,
+            this._document.commands,
+            this._document.comments);
+    }
     async openSnapshotsModal(targetElement) {
         await assistOS.UI.showModal("document-snapshots-modal");
     }

@@ -219,8 +219,18 @@ export class ChapterItem {
 
         this.changeChapterDeleteAvailability();
         UIUtils.changeCommentIndicator(this.element, this.chapter.comments.messages);
+        UIUtils.displayCurrentStatus(this.element, this.chapter.comments, "chapter");
     }
 
+    async updateStatus(status, type, pluginName, autoPin) {
+        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        this.chapter.comments.status = status;
+        this.chapter.comments.plugin = pluginName;
+        await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+            this.chapter.title,
+            this.chapter.commands,
+            this.chapter.comments);
+    }
     changeChapterDeleteAvailability() {
         let deleteChapter = this.element.querySelector(".delete-chapter");
         if(this._document.chapters.length === 1){

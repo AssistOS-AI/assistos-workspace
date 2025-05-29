@@ -43,11 +43,11 @@ export class EditVariables {
             }
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
             commands.push({
-                errorInfo: variable.errorInfo,
+                errorInfo: variable ? variable.errorInfo : undefined,
                 varName: varName,
                 command: command.command,
                 expression: inputVars,
-                value: variable ? variable.value : undefined,
+                value: variable ? variable.value : "",
             });
         }
         return commands;
@@ -76,11 +76,15 @@ export class EditVariables {
         } else {
             this.emptyTableClass = "empty-table"
         }
+        let showError = false;
         for(let variable of this.commandsArr){
             let statusImg = "";
             if(variable.errorInfo){
                 statusImg = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`
-                this.showErrorIndicator();
+                showError = true;
+            }
+            if(variable.value === undefined){
+                variable.value = "";
             }
             variablesHTML += `
                     <div class="cell">${variable.varName}</div>
@@ -96,6 +100,11 @@ export class EditVariables {
                         </div>
                     </div>
                 `;
+        }
+        if(showError){
+            this.updateStatus("error");
+        } else {
+            this.updateStatus("ok");
         }
         this.variablesHTML = variablesHTML;
     }
@@ -150,13 +159,13 @@ export class EditVariables {
         await this.updateCommands(this.commands);
         this.invalidate();
     }
-    showErrorIndicator(){
+    async updateStatus(status){
         if(this.paragraph){
-            this.paragraphPresenter.showErrorIndicator();
+            await this.paragraphPresenter.updateStatus(status, "paragraph", "edit-variables", true);
         } else if(this.chapter){
-            this.chapterPresenter.showErrorIndicator();
+            await this.chapterPresenter.updateStatus(status, "chapter", "edit-variables", true);
         } else {
-            this.documentPresenter.showErrorIndicator();
+            await this.documentPresenter.updateStatus(status, "infoText", "edit-variables", true);
         }
     }
     async updateCommands(commands){

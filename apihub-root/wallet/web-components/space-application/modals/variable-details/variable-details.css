@@ -1,4 +1,9 @@
 variable-details{
     display: block;
-    width: 700px;
+    width: 1000px;
+}
+variable-details pre{
+    overflow: auto;
+    max-height: 600px;
+    white-space: pre-wrap;
 }

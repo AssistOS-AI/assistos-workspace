@@ -89,6 +89,17 @@ export class ParagraphItem {
             }
         }
         UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
+        UIUtils.displayCurrentStatus(this.element, this.paragraph.comments, "paragraph");
+    }
+
+    async updateStatus(status, type, pluginName, autoPin) {
+        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        this.paragraph.comments.status = status;
+        this.paragraph.comments.plugin = pluginName;
+        await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+            this.paragraph.text,
+            this.paragraph.commands,
+            this.paragraph.comments);
     }
     async onParagraphUpdate(type) {
         this.paragraph = await documentModule.getParagraph(assistOS.space.id, this.paragraph.id);
@@ -107,7 +118,7 @@ export class ParagraphItem {
             }
         }
 
-        let currentParagraphIndex = this.chapter.this.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
+        let currentParagraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === this.paragraph.id);
         await documentModule.deleteParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id);
         if (this.chapter.paragraphs.length > 0) {
             if (currentParagraphIndex === 0) {
