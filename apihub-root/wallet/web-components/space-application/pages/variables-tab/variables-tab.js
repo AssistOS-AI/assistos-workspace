@@ -1,3 +1,5 @@
+import {isEditableValue} from "./../../../../imports.js";
+
 const spaceModule = assistOS.loadModule("space")
 const documentModule = assistOS.loadModule("document")
 const constants = require("assistos").constants;
@@ -12,10 +14,18 @@ export class VariablesTab{
         this.documents = await documentModule.getDocuments(assistOS.space.id);
         let variablesHTML = "";
         for (let variable of this.variables) {
+            let editableValue = isEditableValue(variable.varName,  this.variables);
+            if(variable.value === undefined) {
+                variable.value = "";
+            }
+            let valueCell = `<div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>`
+            if(editableValue){
+                valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
+            }
             variablesHTML +=
                  `<div class="cell">${variable.docId}</div>
                  <div class="cell">${variable.varName}</div>
-                 <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
+                 ${valueCell}
                  <div class="cell last-cell">
                     ${variable.errorInfo ? `<div class="error-icon-container">
                                         <img src="./wallet/assets/icons/error.svg" alt="error" class="error-icon pointer"">
@@ -47,10 +57,18 @@ export class VariablesTab{
         }
         variables = variables.sort((a, b) => a.varId.localeCompare(b.varId));
         for(let variable of variables) {
+            let editableValue = isEditableValue(variable.varName,  variables);
+            if(variable.value === undefined) {
+                variable.value = "";
+            }
+            let valueCell = `<div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>`
+            if(editableValue){
+                valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
+            }
             variablesHTML +=
                 `<div class="cell">${variable.varName}</div>
                  <div class="cell">${variable.varId}</div>
-                 <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
+                 ${valueCell}
                  <div class="cell">
                     <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
                         <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
@@ -116,7 +134,22 @@ export class VariablesTab{
             this.insertDocIdSelect(documents);
         });
     }
-
+    async openEditValue(valueCell, varName){
+        let docVariable = this.variables.find(variable => variable.varName === varName);
+        let value = await assistOS.UI.showModal("edit-variable-value", {
+            "var-name": varName
+        }, true);
+        if(value){
+            docVariable.value = value;
+            let isEditable = isEditableValue(varName, this.variables);
+            if(!isEditable){
+                valueCell.classList.remove("editable");
+                valueCell.removeAttribute("data-local-action");
+            }
+            valueCell.innerHTML = value;
+            await documentModule.setVarValue(assistOS.space.id, docVariable.docId, varName, value);
+        }
+    }
     async showDetails(_eventTarget, variableId) {
         await assistOS.UI.showModal("variable-details", {
              "variable-id": variableId

@@ -223,7 +223,10 @@ export class ChapterItem {
     }
 
     async updateStatus(status, type, pluginName, autoPin) {
-        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        UIUtils.changeStatusIcon(this.element, status, type, pluginName, autoPin);
+        if(status === this.chapter.comments.status && pluginName === this.chapter.comments.plugin){
+            return; // No change in status or plugin
+        }
         this.chapter.comments.status = status;
         this.chapter.comments.plugin = pluginName;
         await documentModule.updateChapter(assistOS.space.id, this.chapter.id,

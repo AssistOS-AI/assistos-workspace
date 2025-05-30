@@ -1,7 +1,7 @@
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 const documentModule = assistOS.loadModule("document");
 const spaceModule = assistOS.loadModule("space");
-import {decodePercentCustom} from "./../../../../imports.js";
+import {decodePercentCustom, isEditableValue} from "./../../../../imports.js";
 export class EditVariables {
     constructor(element, invalidate){
         this.element = element;
@@ -42,9 +42,11 @@ export class EditVariables {
                 inputVars = decodePercentCustom(inputVars);
             }
             let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
-            let status = "Uncomputed";
+            let status = "";
             if(variable){
-                status = "ok";
+                if(variable.value !== undefined){
+                    status = "ok";
+                }
                 if(variable.errorInfo){
                     status = "error";
                 }
@@ -69,7 +71,7 @@ export class EditVariables {
         }
     }
     getStatusImg(status){
-         let statusImg= "Uncomputed";
+         let statusImg= "";
          if(status === "ok"){
             statusImg = `<img src="./wallet/assets/icons/success.svg" class="success-icon">`;
          } else if(status === "error"){
@@ -77,23 +79,7 @@ export class EditVariables {
          }
          return statusImg;
     }
-    isEditableValue(varName){
-        let docVariable = this.documentPresenter.variables.find(docVariable => docVariable.varName === varName);
-        if(docVariable) {
-            let parsedCommand = docVariable.parsedCommand;
-            if(parsedCommand.command === "assign"){
-                if(parsedCommand.varTypes.includes("var")){
-                    return false;
-                }
-                return true;
-            } else if(parsedCommand.command === "new"){
-                if(parsedCommand.inputVars[0] === "Table"){
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
+
     async beforeRender(){
         this.initVariables();
         this.commandsArr = await this.splitCommands();
@@ -118,10 +104,10 @@ export class EditVariables {
             if(variable.value === undefined){
                 variable.value = "";
             }
-            let editableValue = this.isEditableValue(variable.varName);
+            let editableValue = isEditableValue(variable.varName,  this.documentPresenter.variables);
             let valueCell = `<div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>`
             if(editableValue){
-                valueCell = `<div class="cell pointer" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
+                valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
             }
             variablesHTML += `
                     <div class="cell">${statusImg}</div>
@@ -179,9 +165,9 @@ export class EditVariables {
         }, true);
         if(value){
             docVariable.value = value;
-            let isEditable = this.isEditableValue(varName);
+            let isEditable = isEditableValue(varName, this.documentPresenter.variables);
             if(!isEditable){
-                valueCell.classList.remove("pointer");
+                valueCell.classList.remove("editable");
                 valueCell.removeAttribute("data-local-action");
             }
             valueCell.innerHTML = value;

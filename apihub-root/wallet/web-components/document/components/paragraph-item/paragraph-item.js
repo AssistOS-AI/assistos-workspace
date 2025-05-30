@@ -93,7 +93,10 @@ export class ParagraphItem {
     }
 
     async updateStatus(status, type, pluginName, autoPin) {
-        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        UIUtils.changeStatusIcon(this.element, status, type, pluginName, autoPin);
+        if(status === this.paragraph.comments.status && pluginName === this.paragraph.comments.plugin){
+            return; // No change in status or plugin
+        }
         this.paragraph.comments.status = status;
         this.paragraph.comments.plugin = pluginName;
         await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
