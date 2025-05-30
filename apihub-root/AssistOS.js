@@ -154,10 +154,9 @@ class AssistOS {
                 sidebar.remove();
             }
         }
-        await this.NotificationRouter.closeSSEConnection();
+        this.NotificationRouter.closeSSEConnection();
         const userModule = this.loadModule("user");
         await userModule.logoutUser();
-        removeSidebar();
         await this.refresh();
     }
 

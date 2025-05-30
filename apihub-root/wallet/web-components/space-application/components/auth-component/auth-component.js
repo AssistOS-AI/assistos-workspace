@@ -1,12 +1,13 @@
-let userModule = require("assistos").loadModule("user", { userId: "*" });
-let spaceModule = require("assistos").loadModule("space", { userId: "*" });
+let userModule = require("assistos").loadModule("user", {userId: "*"});
+let spaceModule = require("assistos").loadModule("space", {userId: "*"});
 
-import { passKeyLogin, passKeyRegister } from "./passkeyUtils.js";
+import {passKeyLogin, passKeyRegister} from "./passkeyUtils.js";
 
 function isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email)
 }
+
 async function checkPasskeyAvailability() {
     let available = true;
     if (window.PublicKeyCredential) {
@@ -22,6 +23,7 @@ async function checkPasskeyAvailability() {
     }
     return available;
 }
+
 export class AuthComponent {
     constructor(element, invalidate) {
         this.element = element;
@@ -41,7 +43,6 @@ export class AuthComponent {
     }
 
     async afterRender() {
-        // Query elements relative to this.element
         const emailInput = this.element.querySelector(".email_input");
         const submitEmailButton = this.element.querySelector(".submit_email_button");
         const codeInput = this.element.querySelector(".code_input");
@@ -81,48 +82,15 @@ export class AuthComponent {
     }
 
     async setRegisterOptions() {
-        this.auth_options = "";
-        for (const method of this.authMethods) {
-            let option = "";
-            if (method === "emailCode") {
-                this.email_code_auth = "enabled";
-                option = `<label class="radio_container choice pointer emailCode">
+        this.auth_options = `<label class="radio_container choice pointer emailCode">
                                 <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="emailCode"></custom-radio>
                                 <section class="label">Email Code</section>
                                 <section class="icon"></section>
                             </label>`;
-            }
-            if (method === "passkey") {
-                let available = await checkPasskeyAvailability()
-
-                if (!available) {
-                    this.selected_method = this.authMethods[0];
-                    continue;
-                }
-                this.passkey_auth = "enabled";
-                option = `<label class="radio_container choice pointer passkey">
-                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="passkey"></custom-radio>  
-                                <section class="label">Passkey</section>
-                                <section class="icon"></section>
-                            </label>`;
-            }
-
-            if (method === "totp") {
-                this.totp_auth = "enabled";
-                option = `<label class="radio_container choice pointer totp">
-                                <custom-radio data-presenter="custom-radio" data-name="auth_method" data-value="totp"></custom-radio>
-                                <section class="label">Authenticator (OTP)</section>
-                                <section class="icon"></section>
-                            </label>`;
-            }
-            this.auth_options = `${this.auth_options} ${option}`;
-
-        }
         this.element.querySelector(".auth_methods_section").innerHTML = `${this.auth_options}`;
         this.element.querySelector(".actions_container").innerHTML = `
         <button class="submit_auth_method_button auth-button" data-local-action="signupSubmit">Register</button>
         <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="signup">Cancel</button>`;
-
         this.addAuthMethodsListeners();
     }
 
@@ -198,14 +166,15 @@ export class AuthComponent {
             }
         });
     }
+
     async cancelAuth() {
         await assistOS.UI.changeToDynamicPage("landing-page", "landing-page");
     }
+
     async submitCode() {
         clearTimeout(this.timeout);
         try {
-            await userModule.walletLogin(this.email, this.element.querySelector(".code_input").value, "emailCode");
-            // Store the email in localStorage for later use
+            await userModule.emailLogin(this.email, this.element.querySelector(".code_input").value);
             localStorage.setItem("userEmail", this.email);
             let spaceId;
             if (this.createSpace) {
@@ -239,7 +208,6 @@ export class AuthComponent {
             let submitCodeButton = this.element.querySelector(".submit_code_button");
             submitCodeButton.classList.remove('disabled');
         }
-        // Use .bind(this) to ensure 'this' inside activateCodeButton refers to the LoginPage instance
         this.timeout = setTimeout(() => {
             window.location.reload()
         }, 2 * 60 * 1000);
@@ -248,7 +216,6 @@ export class AuthComponent {
     totpLogin() {
         this.element.querySelector(".auth_type_wrapper").style.display = "none";
         this.element.querySelector(".totp_login_section").style.display = "flex";
-        // Setup TOTP input validation
         const totpInput = document.querySelector(".totp_login_section .totp_input");
         const totpButton = document.querySelector(".totp_login_section .totp_action_button");
         totpInput.addEventListener("input", (event) => {
@@ -259,9 +226,11 @@ export class AuthComponent {
             }
         });
     }
+
     changeAuthType(_target) {
         this.setAuthStep(_target.getAttribute("auth-type"));
     }
+
     setAuthStep(stepName) {
         this.auth_step = stepName;
         sessionStorage.setItem("auth_step", this.auth_step);
@@ -292,8 +261,7 @@ export class AuthComponent {
             const result = await userModule.getAuthTypes(this.email);
             this.setLoginOptions(result.authMethods);
         } else {
-            await this.setRegisterOptions();
-            this.element.querySelector(".auth_container").setAttribute("selected-auth", this.selected_method);
+            await this.signupSubmit();
         }
     }
 
@@ -326,32 +294,10 @@ export class AuthComponent {
 
     }
 
-    async signupSubmit(button) {
-        button.classList.add("disabled");
+    async signupSubmit() {
         try {
-            if (this.selected_method === "emailCode") {
-                this.createSpace = true;
-                await this.waitGetCode(this.email, this.referer);
-            }
-            if (this.selected_method === "passkey") {
-                await passKeyRegister(this.email, this.referer);
-            }
-            if (this.selected_method === "totp") {
-                this.element.querySelector(".auth_type_wrapper").style.display = "none";
-                let totpResult = await userModule.generateAuthCode(this.email, this.referer || "", "totp");
-                totpResult = encodeURIComponent(JSON.stringify(totpResult));
-                this.element.querySelector(".totp_register_section").innerHTML = `<totp-register data-presenter="totp-register" totp-result="${totpResult}" email="${this.email}"></totp-register>`
-                this.element.querySelector(".totp_register_section").style.display = "block";
-                this.element.addEventListener("totp-verified", async (event) => {
-                    try {
-                        await this.submitTotpCode(event.detail.token, true);
-                    } catch (e) {
-                        console.log("Error submitting TOTP code", e);
-                        this.element.querySelector(".totp_register_section").style.display = "none";
-                        this.element.querySelector(".totp_login_section").style.display = "flex";
-                    }
-                })
-            }
+            this.createSpace = true;
+            await this.waitGetCode(this.email, this.referer);
         } catch (err) {
             if (err.details && err.details.status === 403) {
                 let lockModal = await assistOS.UI.showModal("lock-login", {
@@ -370,8 +316,6 @@ export class AuthComponent {
                     });
                 }
             }
-        } finally {
-            button.classList.remove("disabled");
         }
     }
 
@@ -389,8 +333,7 @@ export class AuthComponent {
         if (!token || !/^\d{6}$/.test(token)) {
             throw new Error("Please enter a valid 6-digit code");
         }
-        // Verify TOTP code for login
-        const result = await userModule.verifyTotp(token, this.email);
+        const result = await userModule.totpLogin( this.email,token);
         if (result.operation === "success") {
             let spaceId;
             if (createSpace) {
@@ -434,7 +377,6 @@ export class AuthComponent {
                 }
             }
             await this.submitStep1();
-            //await this.signupSubmit(this.selected_method, this.email);
         }
         if (this.auth_step === "login") {
             if (!this.accountCheck.account_exists) {
@@ -445,7 +387,7 @@ export class AuthComponent {
                 if (signUpConfirmation) {
                     this.auth_step = "signup";
                     await this.submitStep1();
-                    return //await this.signupSubmit(this.selected_method, this.email);
+                    return
                 } else {
                     return;
                 }
