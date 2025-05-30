@@ -88,10 +88,10 @@ function displayCurrentStatus(element, comments, level) {
     if(comments.status === "error"){
         let errorStatus = "error";
         let plugin = assistOS.space.plugins[`${level}`].find(plugin => plugin.component === comments.plugin);
-        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${errorStatus} pointer" data-local-action="openPlugin paragraph ${comments.plugin} ${plugin.autoPin || false}" src="./wallet/assets/icons/${errorStatus}.svg">`);
+        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${errorStatus} pointer" data-local-action="openPlugin ${level} ${comments.plugin} ${plugin.autoPin || false}" src="./wallet/assets/icons/${errorStatus}.svg">`);
     }
 }
-function changeStatusIcon(element, status, pluginName, autoPin = false) {
+function changeStatusIcon(element, status, level, pluginName, autoPin = false) {
     let previewIcons = element.querySelector(".preview-icons");
     let statusIcon = previewIcons.querySelector(`.status-icon`);
     if(statusIcon){
@@ -101,7 +101,7 @@ function changeStatusIcon(element, status, pluginName, autoPin = false) {
         statusIcon.remove();
     }
     if(status !== "ok"){
-        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${status} pointer" data-local-action="openPlugin paragraph ${pluginName} ${autoPin}" src="./wallet/assets/icons/${status}.svg">`);
+        previewIcons.insertAdjacentHTML("beforeend", `<img class="status-icon ${status} pointer" data-local-action="openPlugin ${level} ${pluginName} ${autoPin}" src="./wallet/assets/icons/${status}.svg">`);
     }
 }
 export default {

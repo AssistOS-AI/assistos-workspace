@@ -37,11 +37,6 @@ export class BuildPage {
             this.invalidate();
         }
     }
-    async showDetails(_eventTarget, variableId) {
-        // await showModal("variable-details", {
-        //     "variable-id": variableId
-        // })
-    }
     getTabHTMLTag(tabName){
         return `<${tabName} data-presenter="${tabName}"></${tabName}>`;
     }

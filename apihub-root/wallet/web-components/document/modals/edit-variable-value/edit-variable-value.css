@@ -8,6 +8,7 @@ edit-variable-value{
 edit-variable-value .form-item{
     margin-bottom: 20px;
 }
-.modal-footer{
+edit-variable-value .modal-footer{
+    margin-top: 55px;
     display: flex;
 }

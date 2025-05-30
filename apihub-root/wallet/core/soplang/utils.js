@@ -12,3 +12,20 @@ export function decodePercentCustom(encodedStr) {
         return String.fromCharCode(charCode);
     });
 }
+export function isEditableValue(varName, variables){
+    let docVariable = variables.find(docVariable => docVariable.varName === varName);
+    if(docVariable) {
+        let parsedCommand = docVariable.parsedCommand;
+        if(parsedCommand.command === "assign"){
+            if(parsedCommand.varTypes.includes("var")){
+                return false;
+            }
+            return true;
+        } else if(parsedCommand.command === "new"){
+            if(parsedCommand.inputVars[0] === "Table"){
+                return true;
+            }
+        }
+    }
+    return false;
+}

@@ -81,3 +81,9 @@
     left: -25px;
     top: 17px;
 }
+.editable{
+    cursor: pointer;
+}
+.editable:hover{
+    background-color: var(--light-gray-border);
+}

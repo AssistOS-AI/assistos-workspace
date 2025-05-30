@@ -110,3 +110,9 @@ edit-variables .close{
 .add-buton{
     width: 13px;
 }
+.editable{
+    cursor: pointer;
+}
+.editable:hover{
+    background-color: var(--light-gray-border);
+}

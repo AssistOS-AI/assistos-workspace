@@ -373,7 +373,10 @@ export class DocumentViewPage {
         UIUtils.displayCurrentStatus(this.element, this._document.comments, "infoText");
     }
     async updateStatus(status, type, pluginName, autoPin) {
-        UIUtils.changeStatusIcon(this.element, status, pluginName, autoPin);
+        UIUtils.changeStatusIcon(this.element, status, type, pluginName, autoPin);
+        if(status === this._document.comments.status && pluginName === this._document.comments.plugin){
+            return; // No change in status or plugin
+        }
         this._document.comments.status = status;
         this._document.comments.plugin = pluginName;
         await documentModule.updateDocument(assistOS.space.id, this._document.id,

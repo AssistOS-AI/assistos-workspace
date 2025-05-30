@@ -2,10 +2,17 @@ export class EditVariableValue {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        let docViewPage = document.querySelector("document-view-page");
-        this.documentPresenter = docViewPage.webSkelPresenter;
         let varName = this.element.getAttribute('data-var-name');
-        this.variable = this.documentPresenter.variables.find(v => v.varName === varName);
+        let docViewPage = document.querySelector("document-view-page");
+        if(docViewPage) {
+            let documentPresenter = docViewPage.webSkelPresenter;
+            this.variable = documentPresenter.variables.find(v => v.varName === varName);
+        } else {
+            let varsTab = document.querySelector("variables-tab");
+            let varsTabPresenter = varsTab.webSkelPresenter;
+            this.variable = varsTabPresenter.variables.find(v => v.varName === varName);
+        }
+
         this.element.classList.add("maintain-focus");
         this.invalidate();
     }
