@@ -27,11 +27,11 @@
 }
 .table-labels{
     display: grid;
-    grid-template-columns: 1fr 1fr 2fr auto;
+    grid-template-columns: 1fr 1fr 1fr 6fr auto;
 }
 .variables-table{
     display: grid;
-    grid-template-columns: 1fr 1fr 2fr auto;
+    grid-template-columns: 1fr 1fr 1fr 6fr auto;
 }
 .last-label{
     width: 55px;
