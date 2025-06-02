@@ -23,6 +23,7 @@ export class EditVariableTab {
 
     async beforeRender() {
         this.commands = await spaceModule.getCommands(assistOS.space.id);
+        this.commands.sort();
     }
     /*search select*/
     openSearchSelect(){

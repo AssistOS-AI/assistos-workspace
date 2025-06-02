@@ -115,7 +115,7 @@ export class EditVariables {
                     <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
                     ${valueCell}
                     <div class="cell actions-cell">
-                        <div class="icon-container open-editor" data-local-action="openEditor ${variable.varName}">
+                        <div class="open-editor" data-local-action="openEditor ${variable.varName}">
                             <img src="./wallet/assets/icons/eye-edit.svg" class="pointer variable-icon" alt="edit">
                         </div>
                         <div class="delete-button-container" data-local-action="deleteVariable ${variable.varName}">
@@ -164,14 +164,16 @@ export class EditVariables {
             "var-name": varName
         }, true);
         if(value){
-            docVariable.value = value;
-            let isEditable = isEditableValue(varName, this.documentPresenter.variables);
-            if(!isEditable){
-                valueCell.classList.remove("editable");
-                valueCell.removeAttribute("data-local-action");
-            }
-            valueCell.innerHTML = value;
-            await documentModule.setVarValue(assistOS.space.id, this.document.docId, varName, value);
+            await assistOS.loadifyComponent(this.element, async ()=>{
+                docVariable.value = value;
+                let isEditable = isEditableValue(varName, this.documentPresenter.variables);
+                if(!isEditable){
+                    valueCell.classList.remove("editable");
+                    valueCell.removeAttribute("data-local-action");
+                }
+                valueCell.innerHTML = value;
+                await documentModule.setVarValue(assistOS.space.id, this.document.docId, varName, value);
+            });
         }
     }
     async deleteVariable(targetElement, varName){
@@ -237,7 +239,9 @@ export class EditVariables {
         let variable = this.commandsArr.find(variable => variable.varName === varName);
         let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, command: variable.command, expression: variable.expression }, true);
         if(inputs){
-            await this.saveVariable(varName, inputs.expression);
+            await assistOS.loadifyComponent(this.element, async ()=>{
+                await this.saveVariable(varName, inputs.expression);
+            })
             this.invalidate();
         }
     }

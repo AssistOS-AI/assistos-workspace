@@ -25,6 +25,7 @@ export class AddVariable {
     }
     async beforeRender(){
         this.commands = await spaceModule.getCommands(assistOS.space.id);
+        this.commands.sort();
     }
     changeExpressionInputToMultiLine(){
         let expressionInput = this.element.querySelector(".expression-input");
@@ -79,38 +80,47 @@ export class AddVariable {
         selectOption(this, option);
     }
     /*search select*/
-    async addVariable(targetElement){
-        let result = constructFullExpression(this);
-        if(!result.ok){
-            return;
+    async addVariable(button){
+        try {
+            let result = constructFullExpression(this);
+            button.classList.add("disabled");
+            if(!result.ok){
+                return;
+            }
+            if(this.paragraphId){
+                this.paragraph.commands += result.fullExpression;
+                this.paragraph.commands += `\n`;
+                await documentModule.updateParagraph(assistOS.space.id, this.chapterId,
+                    this.paragraphId,
+                    this.paragraph.text,
+                    this.paragraph.commands,
+                    this.paragraph.comments)
+            } else if(this.chapterId){
+                this.chapter.commands += result.fullExpression;
+                this.chapter.commands += `\n`;
+                await documentModule.updateChapter(assistOS.space.id, this.chapterId,
+                    this.chapter.title,
+                    this.chapter.commands,
+                    this.chapter.comments);
+            } else {
+                this.document.commands += result.fullExpression;
+                this.document.commands += `\n`;
+                await documentModule.updateDocument(assistOS.space.id, this.documentId,
+                    this.document.title,
+                    this.document.docId,
+                    this.document.category,
+                    this.document.infoText,
+                    this.document.commands,
+                    this.document.comments);
+            }
+            await assistOS.UI.closeModal(this.element, true);
+        } catch (e) {
+            assistOS.showToast(e.message, "error", 7000);
+            throw e;
+        } finally {
+            button.classList.remove("disabled");
         }
-        if(this.paragraphId){
-            this.paragraph.commands += result.fullExpression;
-            this.paragraph.commands += `\n`;
-            await documentModule.updateParagraph(assistOS.space.id, this.chapterId,
-                this.paragraphId,
-                this.paragraph.text,
-                this.paragraph.commands,
-                this.paragraph.comments)
-        } else if(this.chapterId){
-            this.chapter.commands += result.fullExpression;
-            this.chapter.commands += `\n`;
-            await documentModule.updateChapter(assistOS.space.id, this.chapterId,
-                this.chapter.title,
-                this.chapter.commands,
-                this.chapter.comments);
-        } else {
-            this.document.commands += result.fullExpression;
-            this.document.commands += `\n`;
-            await documentModule.updateDocument(assistOS.space.id, this.documentId,
-                this.document.title,
-                this.document.docId,
-                this.document.category,
-                this.document.infoText,
-                this.document.commands,
-                this.document.comments);
-        }
-        await assistOS.UI.closeModal(this.element, true);
+
     }
     async closeModal(){
         await assistOS.UI.closeModal(this.element);

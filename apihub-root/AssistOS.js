@@ -165,11 +165,7 @@ class AssistOS {
     }
 
 
-    async initSpace(email, spaceId) {
-        const userModule = this.loadModule("user");
-        assistOS.user = await userModule.loadUser(email);
-        assistOS.user.email = localStorage.getItem("userEmail");
-        assistOS.user.id = localStorage.getItem("userEmail");
+    async initSpace(spaceId) {
         const spaceModule = this.loadModule("space");
         assistOS.space = await spaceModule.getSpaceStatus(spaceId);
         const applicationModule = this.loadModule("application");
@@ -260,6 +256,12 @@ class AssistOS {
         }
     }
 
+    async initUser(email) {
+        const userModule = this.loadModule("user");
+        assistOS.user = await userModule.loadUser(email);
+        assistOS.user.email = localStorage.getItem("userEmail");
+        assistOS.user.id = localStorage.getItem("userEmail");
+    }
     async loadPage(email, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
 
@@ -275,7 +277,8 @@ class AssistOS {
         }
 
         try {
-            await assistOS.initSpace(email, spaceId);
+            await assistOS.initUser(email);
+            await assistOS.initSpace(spaceId);
             try {
                 this.NotificationRouter.createSSEConnection();
                 this.NotificationRouter.getEventSource().onopen = async () => {

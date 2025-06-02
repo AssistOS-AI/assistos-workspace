@@ -32,36 +32,26 @@
     margin-right: 10px;
 }
 .variables-table-container{
-    overflow: auto;
-    max-height: calc(100vh - 450px);
-}
-.variables-table-container::-webkit-scrollbar {
-    display: block;
-}
-.variables-table-container::-webkit-scrollbar-thumb {
-    background-color: #888;
-    border-radius: 10px;
-}
-.variables-table-container::-webkit-scrollbar-track {
-    background: #f1f1f1;
-    border-radius: 10px;
+
 }
 
 .variables-table{
     display: grid;
     grid-template-columns: 1fr 2fr 6fr 6fr 2fr;
+    overflow: auto;
+    max-height: calc(100vh - 450px);
 }
 .open-editor{
-    margin-right: 10px;
+    margin-right: 13px;
 }
 .cell {
-    display: flex;
-    align-items: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
+    padding-top: 11px;
     border-bottom: 1px solid var(--light-gray-border);
+    height: 41px;
 }
 .table-label{
     font-size: 16px;
