@@ -778,4 +778,9 @@ select{
     margin-block-start:20px;
     border: 1px solid #C80001;
     border-radius: 2px;
-}
+}.color-swatch {
+     width:26%;
+     height: 18px;
+     border-radius: 6px;
+     border-width: 1px;
+ }

@@ -101,12 +101,24 @@ textarea.form-input {
     height: 32px;
 }
 
-.theme-var-item .color-picker .color-swatch {
-    width: 20px;
-    height: 20px;
+.theme-var-item{
     border-radius: 4px;
     margin-right: 8px;
     flex-shrink: 0;
+}
+.color-picker{
+    border: 1px solid #ccc;
+    display:flex;
+    align-items:center;
+    padding-inline: 8px;
+}
+.color-swatch{
+    width: 40px;
+    border-radius: 6px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    height: 18px;
+    border-width: 1px;
 }
 
 .theme-var-item .color-picker input[type="text"] {

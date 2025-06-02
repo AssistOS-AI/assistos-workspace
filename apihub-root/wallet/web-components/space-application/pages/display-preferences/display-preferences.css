@@ -130,12 +130,7 @@ input[type="range"]::-moz-range-thumb {
     right:12px;
 }
 
-.color-swatch {
-    width:26%;
-    height: 18px;
-    border-radius: 6px;
-    border-width: 1px;
-}
+
 
 #document-font-color, #export-document-font-color, #print-document-font-color {
     width:74%;
