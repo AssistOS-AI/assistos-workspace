@@ -10,6 +10,10 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.observers = [];
+
+        this.tocState = false;
+        this.torState = false;
+
         const documentId = this.element.getAttribute("documentId");
         this.invalidate(async () => {
             if (documentId === "demo") {
@@ -20,6 +24,12 @@ export class DocumentViewPage {
             } else {
                 this._document = await documentModule.loadDocument(assistOS.space.id, window.location.hash.split("/")[3]);
             }
+
+            this.documentId = this._document.id;
+            this.loadPluginStates();
+            this.loadReferencesFromLocalStorage();
+            this.refreshTableOfReferences();
+
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
             assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.agents = await agentModule.getAgents(assistOS.space.id);
@@ -32,129 +42,6 @@ export class DocumentViewPage {
 
     async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
-    }
-
-    async addTableOfContents(targetElement) {
-        if (!this._document) {
-            console.error("Document data is not available.");
-            return;
-        }
-
-        let tocContainer = this.element.querySelector(".toc-container");
-
-        if (!tocContainer) {
-            tocContainer = document.createElement("div");
-            tocContainer.className = "toc-container";
-
-            const tocHeader = document.createElement("h3");
-            tocHeader.className = "toc-header";
-            tocHeader.textContent = "Table of Contents";
-
-            const deleteButton = document.createElement("button");
-            deleteButton.className = "toc-delete-btn";
-            deleteButton.innerHTML = "×";
-            deleteButton.addEventListener("click", async () => {
-                await this.removeTableOfContents();
-            });
-
-            const tocContent = document.createElement("div");
-            tocContent.className = "toc-content";
-
-            const headerContainer = document.createElement("div");
-            headerContainer.className = "toc-header-container";
-            headerContainer.appendChild(tocHeader);
-            headerContainer.appendChild(deleteButton);
-
-            tocContainer.appendChild(headerContainer);
-            tocContainer.appendChild(tocContent);
-
-            const infoTextSection = this.element.querySelector(".infoText-section");
-            infoTextSection.insertAdjacentElement("afterend", tocContainer)
-        }
-
-        const tocContent = tocContainer.querySelector(".toc-content");
-        tocContent.innerHTML = "";
-
-        if (this._document.title) {
-            const titleItem = document.createElement("a");
-            titleItem.className = "toc-item toc-title";
-            titleItem.href = "#document-title";
-            titleItem.textContent = assistOS.UI.unsanitize(this._document.title);
-            titleItem.addEventListener("click", (e) => {
-                e.preventDefault();
-                document.querySelector(".document-title").scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            });
-            tocContent.appendChild(titleItem);
-        }
-
-        if (this._document.infoText) {
-            const infoTextItem = document.createElement("a");
-            infoTextItem.className = "toc-item toc-infoText";
-            infoTextItem.href = "#document-infoText";
-            infoTextItem.textContent = "Document Info";
-            infoTextItem.addEventListener("click", (e) => {
-                e.preventDefault();
-                document.querySelector(".document-infoText").scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-            });
-            tocContent.appendChild(infoTextItem);
-        }
-
-        if (this._document.chapters && this._document.chapters.length > 0) {
-            this._document.chapters.forEach((chapter, index) => {
-                const chapterItem = document.createElement("a");
-                chapterItem.className = "toc-item toc-chapter";
-                chapterItem.href = `#chapter-${chapter.id}`;
-                chapterItem.textContent = `Chapter ${index + 1}: ${assistOS.UI.unsanitize(chapter.title)}`;
-                chapterItem.addEventListener("click", (e) => {
-                    e.preventDefault();
-                    const chapterElement = document.querySelector(`chapter-item[data-chapter-id="${chapter.id}"]`);
-                    if (chapterElement) {
-                        chapterElement.scrollIntoView({
-                            behavior: "smooth",
-                            block: "start"
-                        });
-                    }
-                });
-                tocContent.appendChild(chapterItem);
-            });
-        } else {
-            const noChapters = document.createElement("div");
-            noChapters.className = "toc-item toc-empty";
-            noChapters.textContent = "No chapters available";
-            tocContent.appendChild(noChapters);
-        }
-
-        this._document.hasTableOfContents = true;
-        await documentModule.updateDocumentProperty(
-            assistOS.space.id,
-            this._document.id,
-            "hasTableOfContents",
-            true
-        );
-
-        console.log("Table of Contents added as standalone element between title and infoText");
-    }
-
-    async removeTableOfContents() {
-        const tocContainer = this.element.querySelector(".toc-container");
-        if (tocContainer) {
-            tocContainer.remove();
-
-            await documentModule.updateDocumentProperty(
-                assistOS.space.id,
-                this._document.id,
-                "hasTableOfContents",
-                false
-            );
-
-            console.log("Table of Contents removed from document.");
-        }
     }
 
     async initTitleInfoTextSelection() {
@@ -233,6 +120,9 @@ export class DocumentViewPage {
         for (let chapter of allChapters) {
             chapter.webSkelPresenter.updateChapterNumber();
         }
+        if (this.tocState) {
+            this.refreshTableOfContents();
+        }
     }
 
     deleteChapter(chapterId) {
@@ -244,16 +134,28 @@ export class DocumentViewPage {
             chapter.webSkelPresenter.updateChapterNumber();
             chapter.webSkelPresenter.changeChapterDeleteAvailability();
         }
+        if (this.tocState) {
+            this.refreshTableOfContents();
+        }
     }
 
     async onDocumentUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
                 await this.insertNewChapter(data.chapterId, data.position);
+                if (this.tocState) {
+                    this.refreshTableOfContents();
+                }
             } else if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
+                if (this.tocState) {
+                    this.refreshTableOfContents();
+                }
             } else if (data.operationType === "swap") {
                 this.changeChapterOrder(data.chapterId, data.swapChapterId, data.direction);
+                if (this.tocState) {
+                    this.refreshTableOfContents();
+                }
             }
         } else {
             switch (data) {
@@ -265,6 +167,9 @@ export class DocumentViewPage {
                     let document = await documentModule.getDocument(assistOS.space.id, this._document.id);
                     this._document.title = document.title;
                     this.renderDocumentTitle();
+                    if (this.tocState) {
+                        this.refreshTableOfContents();
+                    }
                     break;
                 case "infoText":
                     let documentUpdated = await documentModule.getDocument(assistOS.space.id, this._document.id);
@@ -298,12 +203,13 @@ export class DocumentViewPage {
         this.chaptersContainer = "";
         this.category = this._document.category;
         this.docTitle = this._document.title;
+        this.loadReferencesFromLocalStorage();
+        this.refreshTableOfReferences();
         if (this._document.chapters.length > 0) {
             this._document.chapters.forEach((item) => {
                 this.chaptersContainer += `<chapter-item data-chapter-id="${item.id}" data-presenter="chapter-item"></chapter-item>`;
             });
         }
-        this.hasTableOfContents = this._document.hasTableOfContents || false;
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#646464");
         await this.refreshVariables();
     }
@@ -339,6 +245,12 @@ export class DocumentViewPage {
         await pluginUtils.renderPluginIcons(infoTextPluginsContainer, "infoText");
         this.renderDocumentTitle();
         this.renderInfoText();
+        if (this.tocState) {
+            this.showTableOfContents();
+        }
+        if (this.torState) {
+            this.showTableOfReferences();
+        }
         if (assistOS.space.currentChapterId) {
             let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${assistOS.space.currentChapterId}"]`);
             if (chapter) {
@@ -356,6 +268,8 @@ export class DocumentViewPage {
         //this.redoButton = this.element.querySelector(".redo-button");
         //let tasksMenu = this.element.querySelector(".tasks-menu");
         //let snapshotsButton = this.element.querySelector(".document-snapshots-modal");
+        this.tableOfContents = this.element.querySelector(".table-of-contents");
+        this.tableOfReferences = this.element.querySelector(".table-of-references");
         let scriptArgs = this.element.querySelector(".script-modal");
         let buildIcon = this.element.querySelector(".build-document");
         let commentsIcon = this.element.querySelector(".comments-icon-container");
@@ -363,6 +277,8 @@ export class DocumentViewPage {
         //this.attachTooltip(this.redoButton, "Redo");
         //this.attachTooltip(tasksMenu, "Tasks");
         //this.attachTooltip(snapshotsButton, "Snapshots");
+        this.attachTooltip(this.tableOfContents, "Table of Contents");
+        this.attachTooltip(this.tableOfReferences, "References");
         this.attachTooltip(scriptArgs, "Run Script");
         this.attachTooltip(commentsIcon, "Add Comment");
         this.attachTooltip(buildIcon, "Build Document");
@@ -372,6 +288,7 @@ export class DocumentViewPage {
         UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
         UIUtils.displayCurrentStatus(this.element, this._document.comments, "infoText");
     }
+
     async updateStatus(status, type, pluginName, autoPin) {
         UIUtils.changeStatusIcon(this.element, status, type, pluginName, autoPin);
         if(status === this._document.comments.status && pluginName === this._document.comments.plugin){
@@ -494,6 +411,9 @@ export class DocumentViewPage {
                 chapter.webSkelPresenter.updateChapterNumber();
                 chapter.webSkelPresenter.changeChapterDeleteAvailability();
             }
+        }
+        if (this.tocState) {
+            this.refreshTableOfContents();
         }
     }
 
@@ -923,6 +843,629 @@ export class DocumentViewPage {
             if (observer && observer.elementId.startsWith(prefix)) {
                 observer.callback(observer.param);
             }
+        }
+    }
+
+
+    // Table of Contents + References
+    savePluginStates() {
+        const storageKey = `doc_${this._document.id}_states`;
+        const states = {
+            tocState: this.tocState,
+            torState: this.torState,
+            torContentCollapsed: this.torContentCollapsed || false,
+            references: this.references
+        };
+        localStorage.setItem(storageKey, JSON.stringify(states));
+    }
+    loadPluginStates() {
+        try {
+            const storageKey = `doc_${this._document.id}_states`;
+            const stored = localStorage.getItem(storageKey);
+            if (stored) {
+                const states = JSON.parse(stored);
+                this.tocState = states.tocState || false;
+                this.torState = states.torState || false;
+                this.torContentCollapsed = states.torContentCollapsed || false;
+                this.references = states.references || [];
+            } else {
+                this.tocState = false;
+                this.torState = false;
+                this.torContentCollapsed = false;
+                this.references = [];
+            }
+        } catch (e) {
+            console.error("Failed to load plugin states from localStorage:", e);
+            this.tocState = false;
+            this.torState = false;
+            this.torContentCollapsed = false;
+            this.references = [];
+        }
+    }
+
+
+    toggleTableOfContents() {
+        this.tocState = !this.tocState;
+
+        const tocButton = this.element.querySelector('.toc-toggle-btn');
+        if (tocButton) {
+            tocButton.classList.toggle('active', this.tocState);
+        }
+
+        if (this.tocState) {
+            this.showTableOfContents();
+        } else {
+            this.hideTableOfContents();
+        }
+
+        this.savePluginStates();
+    }
+    showTableOfContents() {
+        let tocContainer = this.element.querySelector('.toc-container');
+
+        if (!tocContainer) {
+            tocContainer = document.createElement('div');
+            tocContainer.className = 'toc-container';
+            tocContainer.innerHTML = `
+            <div class="toc-header-container">
+            <div class="toc-title-container">
+            <div class="toc-visibility-arrow pointer" data-local-action="toggleTocVisibility"></div>
+                <h3 class="toc-header">Table of Contents</h3>
+                <div class="toc-actions">
+                    <button class="toc-close-btn pointer" data-local-action="deleteToc">
+                        <img src="./wallet/assets/icons/trash-can.svg" 
+                        alt="close toc" 
+                        loading="lazy" 
+                        class="pointer black-icon">
+                    </button>
+                </div>
+            </div>
+            </div>
+            <div class="toc-content">
+            </div>`;
+
+            tocContainer.querySelector('.toc-close-btn').addEventListener('click', () => {
+                this.toggleTableOfContents();
+            });
+
+            const infoTextSection = this.element.querySelector('.infoText-section');
+            infoTextSection.insertAdjacentElement('afterend', tocContainer);
+
+            document.querySelector('.toc-visibility-arrow')?.addEventListener('click', function() {
+                const tocContent = document.querySelector('.toc-content');
+                if (tocContent) {
+                    tocContent.style.display = tocContent.style.display === 'none' ? 'flex' : 'none';
+                    this.classList.toggle('collapsed');
+                }
+            });
+        }
+
+        this.refreshTableOfContents();
+    }
+    hideTableOfContents() {
+        const tocContainer = this.element.querySelector('.toc-container');
+        if (tocContainer) {
+            tocContainer.remove();
+        }
+    }
+    refreshTableOfContents() {
+        const tocContent = this.element.querySelector('.toc-content');
+        if (!tocContent) return;
+
+        tocContent.innerHTML = '';
+
+        if (this._document.chapters && this._document.chapters.length > 0) {
+            this._document.chapters.forEach((chapter, index) => {
+                const chapterItem = document.createElement('a');
+                chapterItem.className = 'toc-item toc-chapter';
+                chapterItem.href = `#chapter-${chapter.id}`;
+                chapterItem.textContent = `Chapter ${index + 1}: ${assistOS.UI.unsanitize(chapter.title)}`;
+                chapterItem.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const chapterElement = this.element.querySelector(`chapter-item[data-chapter-id="${chapter.id}"]`);
+                    if (chapterElement) {
+                        chapterElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+                tocContent.appendChild(chapterItem);
+            });
+        } else {
+            const noChapters = document.createElement('div');
+            noChapters.className = 'toc-item toc-empty';
+            noChapters.textContent = 'No chapters available';
+            tocContent.appendChild(noChapters);
+        }
+    }
+
+
+    toggleTableOfReferences() {
+        this.torState = !this.torState;
+
+        const torButton = this.element.querySelector('.tor-toggle-btn');
+        if (torButton) {
+            torButton.classList.toggle('active', this.torState);
+        }
+
+        if (this.torState) {
+            this.showTableOfReferences();
+        } else {
+            this.hideTableOfReferences();
+        }
+
+        this.savePluginStates();
+    }
+    showTableOfReferences() {
+        let torContainer = this.element.querySelector(".tor-container");
+
+        if (!torContainer) {
+            torContainer = document.createElement("div");
+            torContainer.className = "tor-container";
+            torContainer.innerHTML = `
+            <div class="tor-header-container">
+                <div class="tor-title-container">
+                    <img class="tor-visibility-arrow pointer unfocusable black-icon" 
+                        data-local-action="toggleTorVisibility" 
+                        src="./wallet/assets/icons/arrow-down.svg" 
+                        alt="toggle tor">
+                    <h3 class="tor-header">References</h3>
+                    <div class="tor-actions">
+                        <button class="add-reference-btn" data-local-action="add-reference">
+                            <img class="black-icon" loading="lazy" src="./wallet/assets/icons/square-plus.svg" alt="icon">
+                        </button>
+                        <button class="tor-close-btn pointer" data-local-action="deleteTor">
+                            <img src="./wallet/assets/icons/trash-can.svg" 
+                                alt="close tor" 
+                                loading="lazy" 
+                                class="pointer black-icon">
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="tor-content"></div>`;
+
+            torContainer.querySelector('.tor-close-btn').addEventListener('click', () => {
+                this.toggleTableOfReferences();
+            });
+
+            const visibilityArrow = torContainer.querySelector('.tor-visibility-arrow');
+            if (visibilityArrow) {
+                visibilityArrow.addEventListener('click', () => {
+                    const torContent = torContainer.querySelector('.tor-content');
+                    if (torContent) {
+                        const isHidden = torContent.style.display === 'none';
+                        torContent.style.display = isHidden ? 'block' : 'none';
+                        visibilityArrow.classList.toggle('collapsed', !isHidden);
+                        this.torContentCollapsed = !isHidden;
+                        this.savePluginStates();
+                    }
+                });
+            }
+
+            const addRefButton = torContainer.querySelector(".add-reference-btn");
+            if (addRefButton) {
+                addRefButton.addEventListener("click", () => this.addReference());
+            }
+
+            const documentEditor = this.element.querySelector(".document-editor");
+            if (documentEditor) {
+                documentEditor.appendChild(torContainer);
+            } else {
+                this.element.appendChild(torContainer);
+            }
+        }
+
+        torContainer.style.display = "block";
+        if (this.torContentCollapsed) {
+            const torContent = torContainer.querySelector('.tor-content');
+            const visibilityArrow = torContainer.querySelector('.tor-visibility-arrow');
+            if (torContent && visibilityArrow) {
+                torContent.style.display = 'none';
+                visibilityArrow.classList.add('collapsed');
+            }
+        }
+        this.refreshTableOfReferences();
+
+        if (!this.element.querySelector("#reference-modal")) {
+            const modalHTML = document.createElement("div");
+            modalHTML.id = "reference-modal";
+            modalHTML.innerHTML = `
+            <div class="modal-overlay hidden">
+                <div class="modal-window reference-modal-window">
+                    <h3 class="modal-title">Add/Edit Reference</h3>
+                    
+                    <div class="reference-type-section">
+                        <label>Reference Type:</label>
+                        <select id="reference-type-select" class="modal-input">
+                            <option value="journal">Journal Article</option>
+                            <option value="book">Book</option>
+                            <option value="website">Website</option>
+                            <option value="report">Report</option>
+                        </select>
+                    </div>
+    
+                    <div class="reference-fields">
+                        <div class="field-group">
+                            <label>Author(s) <span class="required">*</span></label>
+                            <input type="text" id="reference-authors" class="modal-input" placeholder="Last, F. M., & Last, F. M." />
+                            <small class="field-help">Format: Last, F. M., or Last, F. M., & Last, F. M. for multiple authors</small>
+                        </div>
+        
+                        <div class="field-group">
+                            <label>Publication Year <span class="required">*</span></label>
+                            <input type="number" id="reference-year" class="modal-input" min="1900" max="2025" />
+                        </div>
+        
+                        <div class="field-group">
+                            <label>Title <span class="required">*</span></label>
+                            <input type="text" id="reference-title" class="modal-input" />
+                        </div>
+        
+                        <!-- Journal-specific fields -->
+                        <div class="field-group journal-field">
+                            <label>Volume</label>
+                            <input type="text" id="reference-volume" class="modal-input" />
+                        </div>
+        
+                        <div class="field-group journal-field">
+                            <label>Pages</label>
+                            <input type="text" id="reference-pages" class="modal-input" placeholder="123-145" />
+                        </div>
+        
+                        <!-- Book-specific fields -->
+                        <div class="field-group book-field">
+                            <label>Publisher <span class="required">*</span></label>
+                            <input type="text" id="reference-publisher" class="modal-input" />
+                        </div>
+        
+                        <div class="field-group book-field">
+                            <label>Publisher Location</label>
+                            <input type="text" id="reference-location" class="modal-input" />
+                        </div>
+        
+                        <!-- Website-specific fields -->
+                        <div class="field-group website-field">
+                            <label>Website Name</label>
+                            <input type="text" id="reference-website" class="modal-input" />
+                        </div>
+        
+                        <div class="field-group website-field">
+                            <label>Access Date</label>
+                            <input type="date" id="reference-access-date" class="modal-input" />
+                        </div>
+        
+                        <!-- Common URL field -->
+                        <div class="field-group">
+                            <label>URL/DOI</label>
+                            <input type="text" id="reference-url" class="modal-input" placeholder="https://... or doi:..." />
+                        </div>
+                    </div>
+        
+                    <div class="citation-preview">
+                        <h4>Citation Preview:</h4>
+                        <div id="citation-preview-text" class="preview-text"></div>
+                    </div>
+        
+                    <div class="modal-actions">
+                        <button id="save-reference-btn" class="btn-primary">Save Reference</button>
+                        <button id="cancel-reference-btn" class="btn-secondary">Cancel</button>
+                    </div>
+                </div>
+            </div>`;
+
+            this.element.appendChild(modalHTML);
+
+            const overlay = modalHTML.querySelector(".modal-overlay");
+            const cancelBtn = modalHTML.querySelector("#cancel-reference-btn");
+            const typeSelect = modalHTML.querySelector("#reference-type-select");
+
+            // Show/hide fields based on reference type
+            typeSelect.addEventListener("change", () => {
+                this.toggleReferenceFields(typeSelect.value);
+                this.updateCitationPreview();
+            });
+
+            // Real-time preview update
+            const inputs = modalHTML.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', () => this.updateCitationPreview());
+            });
+
+            cancelBtn.addEventListener("click", () => {
+                overlay.classList.add("hidden");
+            });
+
+            modalHTML.querySelector(".modal-overlay").addEventListener("click", (e) => {
+                if (e.target.classList.contains("modal-overlay")) {
+                    overlay.classList.add("hidden");
+                }
+            });
+        }
+    }
+    hideTableOfReferences() {
+        const torContainer = this.element.querySelector('.tor-container');
+        if (torContainer) {
+            torContainer.remove();
+        }
+    }
+    refreshTableOfReferences() {
+        const torContent = this.element.querySelector('.tor-content');
+        if (!torContent) return;
+
+        torContent.innerHTML = '';
+
+        if (this.references.length === 0) {
+            const emptyMessage = document.createElement('div');
+            emptyMessage.className = 'tor-empty';
+            emptyMessage.textContent = 'No references available. Click \'Add Reference\' to add one.';
+            torContent.appendChild(emptyMessage);
+            return;
+        }
+
+        // Sort references alphabetically by author for APA style
+        const sortedReferences = [...this.references].sort((a, b) => {
+            const authorA = a.authors || a.name || '';
+            const authorB = b.authors || b.name || '';
+            return authorA.localeCompare(authorB);
+        });
+
+        sortedReferences.forEach((reference, index) => {
+            const referenceItem = document.createElement('div');
+            referenceItem.className = 'tor-item';
+
+            const citation = reference.authors ?
+                this.generateAPACitation(reference) :
+                `${reference.name} - ${reference.link}`;
+
+            referenceItem.innerHTML = `
+            <div class="tor-row">
+                <div class="reference-content">
+                    <span class="reference-number">[${index + 1}]</span>
+                    <span class="reference-citation">${citation}</span>
+                </div>
+                <div class="reference-actions">
+                   <button class="edit-reference-btn" data-reference-id="${reference.id}">Edit</button>
+                   <button class="delete-reference-btn" data-reference-id="${reference.id}">Delete</button>
+                </div>
+            </div>`;
+
+            referenceItem.querySelector('.edit-reference-btn').addEventListener('click', () => {
+                this.editReference(reference.id);
+            });
+
+            referenceItem.querySelector('.delete-reference-btn').addEventListener('click', () => {
+                this.deleteReference(reference.id);
+            });
+
+            torContent.appendChild(referenceItem);
+        });
+    }
+
+
+    toggleReferenceFields(type) {
+        const modal = this.element.querySelector("#reference-modal");
+        const allFields = modal.querySelectorAll('.field-group');
+
+        allFields.forEach(field => {
+            if (field.classList.contains('journal-field') ||
+                field.classList.contains('book-field') ||
+                field.classList.contains('website-field')) {
+                field.style.display = 'none';
+            }
+        });
+
+        const fieldsToShow = modal.querySelectorAll(`.${type}-field`);
+        fieldsToShow.forEach(field => {
+            field.style.display = 'block';
+        });
+    }
+    updateCitationPreview() {
+        const modal = this.element.querySelector("#reference-modal");
+        if (!modal) return;
+
+        const getValue = (id) => modal.querySelector(`#${id}`)?.value?.trim() || '';
+
+        const data = {
+            type: getValue('reference-type-select'),
+            authors: getValue('reference-authors'),
+            year: getValue('reference-year'),
+            title: getValue('reference-title'),
+            volume: getValue('reference-volume'),
+            pages: getValue('reference-pages'),
+            publisher: getValue('reference-publisher'),
+            location: getValue('reference-location'),
+            website: getValue('reference-website'),
+            accessDate: getValue('reference-access-date'),
+            url: getValue('reference-url')
+        };
+
+        const citation = this.generateAPACitation(data);
+        const previewElement = modal.querySelector('#citation-preview-text');
+        if (previewElement) {
+            previewElement.textContent = citation;
+        }
+    }
+    generateAPACitation(data) {
+        if (!data.authors || !data.year || !data.title) {
+            return "Please fill in required fields to see preview";
+        }
+
+        let citation = `${data.authors} (${data.year}). `;
+
+        switch (data.type) {
+            case 'journal':
+                citation += `${data.title}. `;
+                if (data.journal) {
+                    citation += `*${data.journal}*`;
+                    if (data.volume) citation += `, ${data.volume}`;
+                    if (data.pages) citation += `, ${data.pages}`;
+                    citation += '. ';
+                }
+                break;
+
+            case 'book':
+                citation += `*${data.title}*. `;
+                if (data.publisher) {
+                    if (data.location) citation += `${data.location}: `;
+                    citation += `${data.publisher}. `;
+                }
+                break;
+
+            case 'website':
+                citation += `${data.title}. `;
+                if (data.website) citation += `*${data.website}*. `;
+                if (data.accessDate) {
+                    const date = new Date(data.accessDate);
+                    citation += `Retrieved ${date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}. `;
+                }
+                break;
+
+            case 'report':
+                citation += `*${data.title}*`;
+                if (data.publisher) citation += ` (Report). ${data.publisher}`;
+                citation += '. ';
+                break;
+
+            default:
+                citation += `*${data.title}*. `;
+        }
+
+        if (data.url) {
+            if (data.url.startsWith('doi:')) {
+                citation += `https://doi.org/${data.url.substring(4)}`;
+            } else {
+                citation += data.url;
+            }
+        }
+
+        return citation;
+    }
+
+
+    addReference() {
+        this.openReferenceModal();
+    }
+    editReference(referenceId) {
+        const ref = this.references.find(r => r.id === referenceId);
+        if (ref) {
+            this.openReferenceModal(ref);
+        }
+    }
+    deleteReference(referenceId) {
+        if (confirm('Are you sure you want to delete this reference?')) {
+            this.references = this.references.filter(ref => ref.id !== referenceId);
+            this.refreshTableOfReferences();
+            this.savePluginStates();
+            this.saveReferencesToLocalStorage();
+            this.refreshTableOfReferences();
+        }
+    }
+
+
+
+    openReferenceModal(reference = null) {
+
+        const overlay = this.element.querySelector("#reference-modal .modal-overlay");
+        const saveBtn = this.element.querySelector("#save-reference-btn");
+
+        if (reference) {
+            const fields = [
+                'reference-type-select', 'reference-authors', 'reference-year', 'reference-title',
+                'reference-volume', 'reference-pages',
+                'reference-publisher', 'reference-location', 'reference-website',
+                'reference-access-date', 'reference-url'
+            ];
+
+            fields.forEach(fieldId => {
+                const element = this.element.querySelector(`#${fieldId}`);
+                if (element && reference[fieldId.replace('reference-', '').replace('-', '_')]) {
+                    element.value = reference[fieldId.replace('reference-', '').replace('-', '_')];
+                }
+            });
+
+            if (reference.type) this.element.querySelector('#reference-type-select').value = reference.type;
+            if (reference.access_date) this.element.querySelector('#reference-access-date').value = reference.access_date;
+        } else {
+            const inputs = this.element.querySelectorAll('#reference-modal input, #reference-modal select');
+            inputs.forEach(input => input.value = '');
+        }
+
+        const typeSelect = this.element.querySelector('#reference-type-select');
+        this.toggleReferenceFields(typeSelect.value);
+        this.updateCitationPreview();
+
+        overlay.classList.remove("hidden");
+
+        const saveHandler = () => {
+            const getValue = (id) => this.element.querySelector(`#${id}`)?.value?.trim() || '';
+
+            const authors = getValue('reference-authors');
+            const year = getValue('reference-year');
+            const title = getValue('reference-title');
+
+            if (!authors || !year || !title) {
+                alert("Authors, Year, and Title are required fields.");
+                return;
+            }
+
+            const newReference = {
+                id: reference?.id || Date.now().toString(),
+                type: getValue('reference-type-select'),
+                authors,
+                year: parseInt(year),
+                title,
+                volume: getValue('reference-volume'),
+                pages: getValue('reference-pages'),
+                publisher: getValue('reference-publisher'),
+                location: getValue('reference-location'),
+                website: getValue('reference-website'),
+                access_date: getValue('reference-access-date'),
+                url: getValue('reference-url')
+            };
+
+            if (reference) {
+                const index = this.references.findIndex(r => r.id === reference.id);
+                if (index !== -1) {
+                    this.references[index] = newReference;
+                }
+            } else {
+                this.references.push(newReference);
+            }
+
+            overlay.classList.add("hidden");
+            this.refreshTableOfReferences();
+            this.savePluginStates();
+            this.saveReferencesToLocalStorage();
+
+            saveBtn.removeEventListener("click", saveHandler);
+        };
+
+        saveBtn.addEventListener("click", saveHandler);
+    }
+    saveReferencesToLocalStorage() {
+        try {
+            const storedDict = localStorage.getItem('documentReferencesDict');
+            const dict = storedDict ? JSON.parse(storedDict) : {};
+            dict[this.documentId] = this.references;
+            localStorage.setItem('documentReferencesDict', JSON.stringify(dict));
+        } catch (e) {
+            console.error("Failed to save references to localStorage:", e);
+        }
+    }
+    loadReferencesFromLocalStorage() {
+        try {
+            const storedDict = localStorage.getItem('documentReferencesDict');
+            if (storedDict) {
+                const dict = JSON.parse(storedDict);
+                this.references = dict[this.documentId] || [];
+            } else {
+                this.references = [];
+            }
+        } catch (e) {
+            console.error("Failed to load references from localStorage:", e);
+            this.references = [];
         }
     }
 }
