@@ -8,29 +8,29 @@
 </div>
 <div class="modal-body">
     <form class="application-form">
-        <div class="application-form-content">
-            <div class="application-form-item">
-                <label for="theme-name">Theme Name</label>
-                <input type="text" id="theme-name" name="theme-name" value="$$name">
+        <div class="form-row">
+            <div class="form-item">
+                <label class="form-label" for="theme-name">Theme name</label>
+                <input class="form-input" type="text" id="theme-name" name="theme-name" value="$$name">
             </div>
-            <div class="application-form-item">
-                <label for=description>Description</label>
-                <textarea class="no-resize" id="description" placeholder="">$$description</textarea>
+            <div class="form-item">
+                <label class="form-label" for="description">Description</label>
+                <textarea class="form-input" id="description">$$description</textarea>
             </div>
         </div>
-        <div class="application-form-item">
-            <label>Theme Variables</label>
+
+        <div class="form-item full-width">
+            <label class="form-label" for="custom-css">Custom CSS</label>
+            <textarea class="form-input custom-css-textarea" id="custom-css">$$customCSS</textarea>
+        </div>
+
+        <div class="form-item full-width">
+            <label class="form-label">Theme Variables</label>
             <div class="theme-vars-container">
                 $$themeVarsControls
             </div>
         </div>
-        <div class="application-form-item">
-            <label for="custom-css">Custom CSS</label>
-            <textarea class="no-resize" id="custom-css" placeholder="">$$customCSS</textarea>
-        </div>
+
+        <button type="button" class="general-button" data-local-action="$$actionFn">$$actionButton</button>
     </form>
 </div>
-<button type="button" class="application-form-button" data-local-action="$$actionFn">$$actionButton
-</button>
-
-

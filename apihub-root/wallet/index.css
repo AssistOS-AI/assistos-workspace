@@ -130,7 +130,9 @@ dialog {
     resize: none;
     overflow-y: auto;
 }
-
+.no-resize{
+    resize: none;
+}
 .modal-footer {
   /*  display: flex;
     gap: 10px;
