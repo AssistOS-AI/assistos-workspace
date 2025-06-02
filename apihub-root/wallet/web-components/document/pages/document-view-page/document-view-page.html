@@ -43,8 +43,8 @@
 <!--                    <img src="./wallet/assets/icons/add.svg" alt="add chapter" loading="lazy">-->
 <!--                    <span>Add Chapter</span>-->
 <!--                </div>-->
-                <div data-local-action="addTableOfContents" class="menu-item">
-                    <img src="./wallet/assets/icons/list.svg" alt="icon" loading="lazy">
+                <div data-local-action="toggleTableOfContents" class="menu-item">
+                    <img src="./wallet/assets/icons/tableOfContents.svg" alt="icon" loading="lazy">
                     <span>Add Table of Contents</span>
                 </div>
             </div>
@@ -65,6 +65,12 @@
                     <input data-local-action="editItem infoTextTitle" type="text" class="infoText-input font-color $$infoTextFontFamily $$chapterFontSize" value="Document Info">
                 </div>
                 <div class="right-section">
+                    <div data-local-action="toggleTableOfContents" class="icon-container plugin-circle toolbar-margin table-of-contents">
+                        <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/tableOfContents.svg" alt="icon">
+                    </div>
+                    <div data-local-action="toggleTableOfReferences" class="icon-container plugin-circle toolbar-margin table-of-references">
+                        <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/references.svg" alt="icon">
+                    </div>
                     <div data-local-action="openScriptModal" class="icon-container script-modal toolbar-margin">
                         <img class="pointer black-icon" loading="lazy" src="./wallet/assets/icons/script.svg" alt="icon">
                     </div>
@@ -89,5 +95,3 @@
     </div>
 </div>
 <div class="document-plugin-container"></div>
-
-
