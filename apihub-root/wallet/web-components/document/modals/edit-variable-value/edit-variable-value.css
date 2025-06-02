@@ -12,3 +12,12 @@ edit-variable-value .modal-footer{
     margin-top: 55px;
     display: flex;
 }
+edit-variable-value .cell {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+    border-bottom: 1px solid var(--light-gray-border);
+}

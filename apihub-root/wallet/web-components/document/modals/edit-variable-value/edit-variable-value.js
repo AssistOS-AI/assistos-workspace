@@ -21,11 +21,12 @@ export class EditVariableValue {
     }
 
     async afterRender(){
-        if(this.variable.parsedCommand.command === "assign"){
+        let parsedCommand = this.variable.parsedCommand;
+        if(parsedCommand.command === "assign"){
             let textAreaItem = this.element.querySelector('.textarea');
             textAreaItem.classList.remove('hidden');
             let textarea = this.element.querySelector('#value');
-            textarea.value = this.variable.parsedCommand.value || "";
+            textarea.value = parsedCommand.value || "";
             textarea.addEventListener("input",(e) => {
                 let value = e.target.value;
                 let saveButton = this.element.querySelector('.general-button');
@@ -35,6 +36,21 @@ export class EditVariableValue {
                     saveButton.classList.remove("disabled");
                 }
             })
+        } else if(parsedCommand.command === "new"){
+            let inputVars = parsedCommand.inputVars;
+            if(inputVars[0] === "Table"){
+                let columnsHTML = "";
+                for(let i = 1; i < inputVars.length; i++){
+                    columnsHTML+= `<div class="cell">${inputVars[i]}</div>`;
+                }
+                let table = document.createElement("div", );
+                table.classList.add("table");
+                table.style.display = "grid";
+                table.style.gridTemplateColumns = `repeat(${inputVars.length - 1}, 1fr)`;
+                table.innerHTML = columnsHTML;
+                let tableContainer = this.element.querySelector('.table-container');
+                tableContainer.insertAdjacentElement("afterbegin", table);
+            }
         }
     }
     saveVarValue(targetElement) {

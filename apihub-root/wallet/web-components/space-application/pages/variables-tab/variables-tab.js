@@ -7,7 +7,18 @@ export class VariablesTab{
     constructor(element,invalidate){
         this.element = element;
         this.invalidate = invalidate;
+        this.selectedCategory = "";
         this.invalidate();
+    }
+    getVarStatus(variable) {
+        let status = "";
+        if(variable.value !== undefined){
+            status = `<img src="./wallet/assets/icons/success.svg" class="success-icon">`;
+        }
+        if(variable.errorInfo){
+            status = `<img src="./wallet/assets/icons/error.svg" class="error-icon">`;
+        }
+        return status;
     }
     async beforeRender(){
         this.variables = await spaceModule.getVariables(assistOS.space.id);
@@ -22,14 +33,13 @@ export class VariablesTab{
             if(editableValue){
                 valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
             }
+            let varStatus = this.getVarStatus(variable);
             variablesHTML +=
-                 `<div class="cell">${variable.docId}</div>
+                 `<div class="cell">${varStatus}</div>
+                 <div class="cell">${variable.docId}</div>
                  <div class="cell">${variable.varName}</div>
                  ${valueCell}
                  <div class="cell last-cell">
-                    ${variable.errorInfo ? `<div class="error-icon-container">
-                                        <img src="./wallet/assets/icons/error.svg" alt="error" class="error-icon pointer"">
-                                        </div>`: ""}
                     <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
                         <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
                     </div>
@@ -65,8 +75,10 @@ export class VariablesTab{
             if(editableValue){
                 valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
             }
+            let varStatus = this.getVarStatus(variable);
             variablesHTML +=
-                `<div class="cell">${variable.varName}</div>
+                `<div class="cell">${varStatus}</div>
+                 <div class="cell">${variable.varName}</div>
                  <div class="cell">${variable.varId}</div>
                  ${valueCell}
                  <div class="cell">
@@ -127,7 +139,7 @@ export class VariablesTab{
             this.renderVariables();
             let documents;
             if(category === ""){
-                documents = [];
+                documents = this.documents;
             } else {
                 documents = this.documents.filter(doc => doc.category === category);
             }
