@@ -53,7 +53,11 @@ export class EditVariableTab {
             let params = this.variable.params.join(" ");
             expression = params + "\n \t" + expressionWithoutParameters + "\n end";
         }
-        previewInput.value = `@${this.variable.varName} ${this.variable.command} ${expression}`;
+        let command = this.variable.command;
+        if(this.variable.conditional){
+            command = `?${command}`;
+        }
+        previewInput.value = `@${this.variable.varName} ${command} ${expression}`;
         previewInput.style.height = "auto";
         previewInput.style.height = previewInput.scrollHeight + "px";
     }
@@ -87,6 +91,10 @@ export class EditVariableTab {
         commandInput.value = command;
         let expressionInput = this.element.querySelector("#expression");
         expressionInput.value = this.variable.expression;
+        let conditionalCheckbox = this.element.querySelector("#conditional");
+        if(this.variable.conditional){
+            conditionalCheckbox.checked = true;
+        }
         attachEventListeners(this);
     }
     async editVariable(targetElement){

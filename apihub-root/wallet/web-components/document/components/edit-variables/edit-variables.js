@@ -67,12 +67,16 @@ export class EditVariables {
     }
     getExpression(variable){
         let expression;
+        let command = variable.command;
+        if(variable.conditional){
+            command = "?" + command;
+        }
         if(variable.command === "macro" || variable.command === "jsdef"){
-           expression = variable.params.join(" ") + " " + variable.expression;
+           expression = command + " " + variable.params.join(" ") + " " + variable.expression;
         } else if(variable.command === "new"){
-            expression = variable.customType + " " + variable.expression;
+            expression = command + " " + variable.customType + " " + variable.expression;
         } else {
-            expression = variable.expression;
+            expression = command + " " + variable.expression;
         }
         return expression;
     }
@@ -109,7 +113,7 @@ export class EditVariables {
             variablesHTML += `
                     <div class="cell">${statusImg}</div>
                     <div class="cell">${variable.varName}</div>
-                    <div class="cell" data-name="${variable.varName}">${variable.command} ${expression}</div>
+                    <div class="cell" data-name="${variable.varName}">${expression}</div>
                     ${valueCell}
                     <div class="cell actions-cell">
                         <div class="open-editor" data-local-action="openEditor ${variable.varName}">
@@ -183,6 +187,9 @@ export class EditVariables {
         let commandIndex = splitCommands.findIndex(command => command.includes(`@${varName}`));
         let splitCommand = splitCommands[commandIndex].split(" ");
         let command = splitCommand[1];
+        if(command.startsWith("?")){
+            command = command.slice(1);
+        }
         if(command === "macro" || command === "jsdef"){
             for(let i = commandIndex; i < splitCommands.length; i++){
                 if(splitCommands[i].trim() === "end"){
@@ -249,8 +256,11 @@ export class EditVariables {
     async saveVariable(varName, newExpression){
         let splitCommands = this.commands.split("\n");
         let foundVariable = splitCommands.find(command => command.includes(`@${varName}`));
-        let oldCommand = foundVariable.split(" ")[1];
-        if(oldCommand === "macro" || oldCommand === "jsdef"){
+        let command = foundVariable.split(" ")[1];
+        if(command.startsWith("?")){
+            command = command.slice(1);
+        }
+        if(command === "macro" || command === "jsdef"){
             const regex = new RegExp(`@${varName}[\\s\\S]*?end`, 'g');
             this.commands = this.commands.replace(regex, newExpression);
         } else {

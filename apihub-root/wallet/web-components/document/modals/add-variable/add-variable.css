@@ -11,8 +11,12 @@ add-variable{
     display: flex;
     gap: 10px;
 }
-.grouped-inputs > div {
+.half-width{
     width: 50%;
+}
+.conditional-command-item{
+    flex-direction: row;
+    align-items: center;
 }
 .expression-multi-line {
     resize: none;
