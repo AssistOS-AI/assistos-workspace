@@ -21,12 +21,11 @@ export class EditVariableValue {
     }
 
     async afterRender(){
-        let parsedCommand = this.variable.parsedCommand;
-        if(parsedCommand.command === "assign"){
+        if(this.variable.command === ":="){
             let textAreaItem = this.element.querySelector('.textarea');
             textAreaItem.classList.remove('hidden');
             let textarea = this.element.querySelector('#value');
-            textarea.value = parsedCommand.value || "";
+            textarea.value = this.variable.value || "";
             textarea.addEventListener("input",(e) => {
                 let value = e.target.value;
                 let saveButton = this.element.querySelector('.general-button');
@@ -36,17 +35,17 @@ export class EditVariableValue {
                     saveButton.classList.remove("disabled");
                 }
             })
-        } else if(parsedCommand.command === "new"){
-            let inputVars = parsedCommand.inputVars;
-            if(inputVars[0] === "Table"){
+        } else if(this.variable.command === "new"){
+            if(this.variable.customType === "Table"){
                 let columnsHTML = "";
-                for(let i = 1; i < inputVars.length; i++){
-                    columnsHTML+= `<div class="cell">${inputVars[i]}</div>`;
+                let columns = this.variable.expression.split(" ");
+                for(let i = 1; i < columns.length; i++){
+                    columnsHTML+= `<div class="cell">${columns[i]}</div>`;
                 }
                 let table = document.createElement("div", );
                 table.classList.add("table");
                 table.style.display = "grid";
-                table.style.gridTemplateColumns = `repeat(${inputVars.length - 1}, 1fr)`;
+                table.style.gridTemplateColumns = `repeat(${columns.length - 1}, 1fr)`;
                 table.innerHTML = columnsHTML;
                 let tableContainer = this.element.querySelector('.table-container');
                 tableContainer.insertAdjacentElement("afterbegin", table);

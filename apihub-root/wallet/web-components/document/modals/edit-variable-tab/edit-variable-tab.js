@@ -15,9 +15,9 @@ export class EditVariableTab {
         let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
         this.document = documentPresenter._document;
         this.element.classList.add("maintain-focus");
-        this.varName = this.element.getAttribute("data-name");
-        this.expression = this.element.getAttribute("data-expression");
-        this.command = this.element.getAttribute("data-command");
+        let varName = this.element.getAttribute("data-name");
+        this.variable = documentPresenter.variables.find(v => v.varName === varName);
+        this.varName = varName;
         this.invalidate();
     }
 
@@ -47,17 +47,13 @@ export class EditVariableTab {
 
     constructFullExpressionInitial(){
         let previewInput = this.element.querySelector(".expression-preview");
-        let expression = this.expression;
-        if(this.command === "macro" || this.command === "jsdef"){
-            let splitExpression = expression.split(" ");
-            let parameters = splitExpression[0].split(",");
-            let separatedParameters = parameters.join(" ");
-            let expressionWithoutParameters = splitExpression.slice(1);
-            expressionWithoutParameters = expressionWithoutParameters.join(" ")
-            expressionWithoutParameters = expressionWithoutParameters.replace(/\n/g, '\n\t');
-            expression = separatedParameters + "\n \t" + expressionWithoutParameters + "\n end";
+        let expression = this.variable.expression;
+        if(this.variable.command === "macro" || this.variable.command === "jsdef"){
+            let expressionWithoutParameters = this.variable.expression.replace(/\n/g, '\n\t');
+            let params = this.variable.params.join(" ");
+            expression = params + "\n \t" + expressionWithoutParameters + "\n end";
         }
-        previewInput.value = `@${this.varName} ${this.command} ${expression}`;
+        previewInput.value = `@${this.variable.varName} ${this.variable.command} ${expression}`;
         previewInput.style.height = "auto";
         previewInput.style.height = previewInput.scrollHeight + "px";
     }
@@ -71,29 +67,26 @@ export class EditVariableTab {
                 value: type
             })
         }
-        if(this.command === "macro" || this.command === "jsdef"){
+        if(this.variable.command === "macro" || this.variable.command === "jsdef"){
             let parametersInput = this.element.querySelector("#parameters");
             changeExpressionInputToMultiLine(this);
-            let splitExpression = this.expression.split(" ");
-            let parameters = splitExpression[0].split(",");
-            parametersInput.value = parameters.join(" ");
-            this.expression = splitExpression.slice(1).join(" ");
+            parametersInput.value = this.variable.params.join(" ");
             this.insertTypeSelect(variableTypeOptions, "");
-        } else if(this.command === "new"){
+        } else if(this.variable.command === "new"){
             let typeInput = this.element.querySelector(".form-item.type");
             typeInput.classList.remove("hidden");
-            let splitExpression = this.expression.split(" ");
-            let type = splitExpression[0];
-            this.expression = splitExpression.slice(1).join(" ");
-            this.insertTypeSelect(variableTypeOptions, type);
+            this.insertTypeSelect(variableTypeOptions, this.variable.customType);
         } else {
             this.insertTypeSelect(variableTypeOptions, "");
         }
         let commandInput = this.element.querySelector("#command");
-        if(this.command === ":="){
-            this.command = "assign";
+        let command = this.variable.command;
+        if(command === ":="){
+            command = "assign";
         }
-        commandInput.value = this.command;
+        commandInput.value = command;
+        let expressionInput = this.element.querySelector("#expression");
+        expressionInput.value = this.variable.expression;
         attachEventListeners(this);
     }
     async editVariable(targetElement){

@@ -1,6 +1,5 @@
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 const documentModule = assistOS.loadModule("document");
-const spaceModule = assistOS.loadModule("space");
 import {decodePercentCustom, isEditableValue} from "./../../../../imports.js";
 export class EditVariables {
     constructor(element, invalidate){
@@ -24,42 +23,29 @@ export class EditVariables {
         this.invalidate();
     }
 
-    async splitCommands(){
-        let parsedCommands = await spaceModule.parseCommands(assistOS.space.id, this.context.chapterId, this.context.paragraphId, this.commands);
-        let commands = [];
-        for(let command of parsedCommands){
-            let varName = command.outputVars[0];
-            if(command.command === "assign"){
-                command.command = ":="
-            }
-            for(let i = 0; i < command.inputVars.length; i++){
-                if(command.varTypes[i] === "var"){
-                    command.inputVars[i] = `$${command.inputVars[i]}`;
-                }
-            }
-            let inputVars = command.inputVars.map(inputVar => inputVar).join(" ");
-            if(command.command === "macro" || command.command === "jsdef"){
-                inputVars = decodePercentCustom(inputVars);
-            }
-            let variable = this.documentPresenter.variables.find(variable => variable.varName === varName);
+    getVariables(){
+        let docVars = this.documentPresenter.getVariables(this.context.chapterId, this.context.paragraphId);
+        let variables = [];
+        for(let variable of docVars){
             let status = "";
-            if(variable){
-                if(variable.value !== undefined){
-                    status = "ok";
-                }
-                if(variable.errorInfo){
-                    status = "error";
-                }
+            if(variable.value !== undefined){
+                status = "ok";
             }
-            commands.push({
+            if(variable.errorInfo){
+                status = "error";
+            }
+            variables.push({
                 status: status,
-                varName: varName,
-                command: command.command,
-                expression: inputVars,
+                varName: variable.varName,
+                command: variable.command,
+                conditional: variable.conditional || false,
+                expression: variable.expression,
+                params: variable.params || undefined,
+                customType: variable.customType || undefined,
                 value: variable ? variable.value : "",
             });
         }
-        return commands;
+        return variables;
     }
     initVariables(){
         if(this.context.paragraphId){
@@ -79,14 +65,24 @@ export class EditVariables {
          }
          return statusImg;
     }
-
+    getExpression(variable){
+        let expression;
+        if(variable.command === "macro" || variable.command === "jsdef"){
+           expression = variable.params.join(" ") + " " + variable.expression;
+        } else if(variable.command === "new"){
+            expression = variable.customType + " " + variable.expression;
+        } else {
+            expression = variable.expression;
+        }
+        return expression;
+    }
     async beforeRender(){
         this.initVariables();
-        this.commandsArr = await this.splitCommands();
+        this.variables = this.getVariables();
         let variablesHTML = "";
         this.variablesHeader = `<div class="no-variables">No variables defined</div>`;
         this.emptyTableClass = "";
-        if(this.commandsArr.length > 0){
+        if(this.variables.length > 0){
             this.variablesHeader = `
                 <div class="cell table-label">Status</div>
                 <div class="cell table-label">Name</div>
@@ -96,7 +92,7 @@ export class EditVariables {
             this.emptyTableClass = "empty-table"
         }
         let showError = false;
-        for(let variable of this.commandsArr){
+        for(let variable of this.variables){
             let statusImg = this.getStatusImg(variable.status);
             if(variable.status === "error"){
                 showError = true;
@@ -109,10 +105,11 @@ export class EditVariables {
             if(editableValue){
                 valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
             }
+            let expression = this.getExpression(variable);
             variablesHTML += `
                     <div class="cell">${statusImg}</div>
                     <div class="cell">${variable.varName}</div>
-                    <div class="cell" data-name="${variable.varName}">${variable.command} ${variable.expression}</div>
+                    <div class="cell" data-name="${variable.varName}">${variable.command} ${expression}</div>
                     ${valueCell}
                     <div class="cell actions-cell">
                         <div class="open-editor" data-local-action="openEditor ${variable.varName}">
@@ -154,8 +151,8 @@ export class EditVariables {
             "paragraph-id": this.context.paragraphId || "",
         }, true);
         if(confirmation){
-            this.invalidate();
             await this.documentPresenter.refreshVariables();
+            this.invalidate();
         }
     }
     async openEditValue(valueCell, varName){
@@ -198,6 +195,10 @@ export class EditVariables {
         }
         this.commands = splitCommands.join("\n");
         await this.updateCommands(this.commands);
+        let variableIndex = this.documentPresenter.variables.findIndex(variable => variable.varName === varName);
+        if(variableIndex !== -1){
+            this.documentPresenter.variables.splice(variableIndex, 1);
+        }
         this.invalidate();
     }
     async updateStatus(status){
@@ -236,8 +237,7 @@ export class EditVariables {
     }
 
     async openEditor(targetElement, varName){
-        let variable = this.commandsArr.find(variable => variable.varName === varName);
-        let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName, command: variable.command, expression: variable.expression }, true);
+        let inputs = await assistOS.UI.showModal("document-variable-details", { name: varName }, true);
         if(inputs){
             await assistOS.loadifyComponent(this.element, async ()=>{
                 await this.saveVariable(varName, inputs.expression);
