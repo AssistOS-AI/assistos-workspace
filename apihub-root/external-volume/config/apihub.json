@@ -67,7 +67,7 @@
     "responseHeaders": {
         "X-Frame-Options": "SAMEORIGIN",
         "X-XSS-Protection": "1; mode=block",
-        "Content-Security-Policy": "script-src 'self'; style-src 'self' 'unsafe-inline'; object-src 'none'; base-uri 'self'"
+        "Content-Security-Policy": "script-src 'self';"
     },
     "enableRequestLogger": true,
     "enableJWTAuthorisation": false,
