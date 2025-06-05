@@ -527,7 +527,12 @@ function closeDefaultLoader() {
         if(location.hash.split("/")[1] !== "Space"){
             assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
         }else{
-            document.querySelector("space-application-page").webSkelPresenter.changePage(page);
+            try {
+                document.querySelector("space-application-page").webSkelPresenter.changePage(page);
+            }catch(error){
+                //TODO Temporary fix when we are on myaccount page, and the space-application-page presenter is offloaded
+               assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
+            }
         }
     }
     assistOS.UI.setLoading(loader);
