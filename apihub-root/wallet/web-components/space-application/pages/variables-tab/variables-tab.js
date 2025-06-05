@@ -25,20 +25,15 @@ export class VariablesTab{
         this.documents = await documentModule.getDocuments(assistOS.space.id);
         let variablesHTML = "";
         for (let variable of this.variables) {
-            let editableValue = isEditableValue(variable.varName,  this.variables);
             if(variable.value === undefined) {
                 variable.value = "";
-            }
-            let valueCell = `<div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>`
-            if(editableValue){
-                valueCell = `<div class="cell editable" data-local-action="openEditValue ${variable.varName}">${typeof variable.value === "object" ? "Object": variable.value}</div>`;
             }
             let varStatus = this.getVarStatus(variable);
             variablesHTML +=
                  `<div class="cell">${varStatus}</div>
                  <div class="cell">${variable.docId}</div>
                  <div class="cell">${variable.varName}</div>
-                 ${valueCell}
+                 <div class="cell">${typeof variable.value === "object" ? "Object": variable.value}</div>
                  <div class="cell last-cell">
                     <div class="icon-container pointer" data-local-action="showDetails ${variable.id}">
                         <img src="./wallet/assets/icons/eye.svg" alt="eye" class="eye-icon">
@@ -146,22 +141,7 @@ export class VariablesTab{
             this.insertDocIdSelect(documents);
         });
     }
-    async openEditValue(valueCell, varName){
-        let docVariable = this.variables.find(variable => variable.varName === varName);
-        let value = await assistOS.UI.showModal("edit-variable-value", {
-            "var-name": varName
-        }, true);
-        if(value){
-            docVariable.value = value;
-            let isEditable = isEditableValue(varName, this.variables);
-            if(!isEditable){
-                valueCell.classList.remove("editable");
-                valueCell.removeAttribute("data-local-action");
-            }
-            valueCell.innerHTML = value;
-            await documentModule.setVarValue(assistOS.space.id, docVariable.docId, varName, value);
-        }
-    }
+
     async showDetails(_eventTarget, variableId) {
         await assistOS.UI.showModal("variable-details", {
              "variable-id": variableId
