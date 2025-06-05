@@ -51,6 +51,7 @@ const textFontFamilyMap = Object.freeze({
     "Verdana": "font-verdana"
 });
 const authPage = "landing-page";
+
 class AssistOS {
     constructor(configuration) {
         if (AssistOS.instance) {
@@ -188,7 +189,7 @@ class AssistOS {
     async loadAgent(spaceId, agentId) {
         if (!agentId) {
             agentId = localStorage.getItem("agent");
-            if(agentId === "undefined"){
+            if (agentId === "undefined") {
                 agentId = undefined;
             }
         }
@@ -198,7 +199,7 @@ class AssistOS {
         try {
             agent = await agentModule.getAgent(spaceId, agentId);
         } catch (error) {
-            agent = await  agentModule.getDefaultAgent(spaceId);
+            agent = await agentModule.getDefaultAgent(spaceId);
         }
         localStorage.setItem("agent", agent.name);
         assistOS.agent = agent;
@@ -262,6 +263,7 @@ class AssistOS {
         assistOS.user.email = localStorage.getItem("userEmail");
         assistOS.user.id = localStorage.getItem("userEmail");
     }
+
     async loadPage(email, spaceId) {
         let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
 
@@ -523,17 +525,8 @@ function closeDefaultLoader() {
     window.assistOS = new AssistOS(configuration);
     await assistOS.boot(UI_CONFIGS_PATH);
 
-    assistOS.navigateToPage = function(page){
-        if(location.hash.split("/")[1] !== "Space"){
-            assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
-        }else{
-            try {
-                document.querySelector("space-application-page").webSkelPresenter.changePage(page);
-            }catch(error){
-                //TODO Temporary fix when we are on myaccount page, and the space-application-page presenter is offloaded
-               assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
-            }
-        }
+    assistOS.navigateToPage = function (page) {
+        assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
     }
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));
