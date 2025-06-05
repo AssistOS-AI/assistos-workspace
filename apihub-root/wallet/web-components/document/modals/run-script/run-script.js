@@ -37,17 +37,12 @@ export class RunScript {
     addArg(){
         let argList = this.element.querySelector(".args-list");
         let argsNr = argList.children.length;
-        let lastArg = argList.querySelector(".last-arg-item");
-        if(lastArg){
-            lastArg.classList.remove("last-arg-item");
-        }
         let noArguments = argList.querySelector(".no-arguments");
         if(noArguments){
             noArguments.remove();
         }
         let newArg = document.createElement("div");
         newArg.classList.add("arg-item");
-        newArg.classList.add("last-arg-item");
         newArg.classList.add("maintain-focus");
         newArg.innerHTML = `
             <span class="arg-label">arg${argsNr + 1}</span>
@@ -72,12 +67,6 @@ export class RunScript {
     }
     deleteArg(targetElement){
         let argItem = targetElement.closest(".arg-item");
-        if(argItem.classList.contains("last-arg-item")){
-            let secondLastArg = argItem.previousElementSibling;
-            if(secondLastArg){
-                secondLastArg.classList.add("last-arg-item");
-            }
-        }
         if(argItem){
             argItem.remove();
         }

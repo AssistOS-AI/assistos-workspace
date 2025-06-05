@@ -27,22 +27,26 @@ run-script{
 .arg-item{
     display: flex;
     height: 44px;
+    border-bottom: 3px solid var(--light-gray-border);
 }
-.last-arg-item{
-    border-bottom: none;
-}
+
 .arg-label{
     padding: 0 7px;
     color: var(--header-font-color);
     display: flex;
     align-items: center;
-    justify-content: center;
-    width: 60px;
+    width: 100px;
 }
-.table-label{
+.table-label-run-script{
     font-size: 16px;
     color: var(--plugin-focus);
-    border-bottom: 3px solid var(--light-gray-border);
+    padding-top: 15px;
+}
+.table-label-run-script.name{
+    width: 100px;
+}
+.add-arg{
+    margin-left: auto;
 }
 .arg-input{
     border-right: 1px solid var(--form-input-border);
@@ -54,7 +58,6 @@ run-script{
     display: flex;
     align-items: center;
     justify-content: center;
-    border-left: 1px solid var(--form-input-border);
     font-size: 17px;
     font-weight: 600;
     cursor: pointer;
@@ -68,9 +71,10 @@ run-script{
     border-radius: 0;
 }
 .args-header{
-    display: grid;
-    grid-template-columns: 60px auto 60px;
+    display: flex;
     margin-top: 20px;
+    border-bottom: 3px solid var(--light-gray-border);
+    padding-bottom: 10px;
 }
 .args-header .form-label{
     margin-top: 10px;
