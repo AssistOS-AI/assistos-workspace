@@ -54,7 +54,7 @@ export class MyAccount {
         const url = URL.createObjectURL(blob)
         this.icon = `<img class="avatar" style="width:100px;height:100px;" src=${url} alt="Avatar"/>`
         try {
-            const authMethodsResponse = await fetch(`/auth/getAuthTypes/${encodeURIComponent(localStorage.getItem("userEmail") || '')}`, {
+            const authMethodsResponse = await fetch(`/auth/getAuthInfo/${encodeURIComponent(this.email || '')}`, {
                 method: 'GET',
                 credentials: 'include'
             });
