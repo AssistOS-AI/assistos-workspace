@@ -10,10 +10,8 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.observers = [];
-
         this.tocState = false;
         this.torState = false;
-
         const documentId = this.element.getAttribute("documentId");
         this.invalidate(async () => {
             if (documentId === "demo") {
@@ -39,7 +37,14 @@ export class DocumentViewPage {
             await this.initTitleInfoTextSelection();
         });
     }
-
+    async refreshVariables(){
+        this.variables = await documentModule.getDocCommandsParsed(assistOS.space.id, this._document.docId);
+    }
+    getVariables(chapterId, paragraphId) {
+        return this.variables.filter(variable => {
+            return variable.chapterId === chapterId && variable.paragraphId === paragraphId;
+        })
+    }
     async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
     }
@@ -212,10 +217,6 @@ export class DocumentViewPage {
         }
         document.documentElement.style.setProperty('--document-font-color', localStorage.getItem("document-font-color") || "#646464");
         await this.refreshVariables();
-    }
-
-    async refreshVariables() {
-        this.variables = await documentModule.getDocumentVariables(assistOS.space.id, this._document.docId);
     }
 
     renderDocumentTitle() {
@@ -1074,7 +1075,7 @@ export class DocumentViewPage {
             modalHTML.innerHTML = `
             <div class="modal-overlay hidden">
                 <div class="modal-window reference-modal-window">
-                    <h3 class="modal-title">Add/Edit Reference</h3>
+                    <h3 class="modal-title-ref">Add/Edit Reference</h3>
                     
                     <div class="reference-type-section">
                         <label>Reference Type:</label>

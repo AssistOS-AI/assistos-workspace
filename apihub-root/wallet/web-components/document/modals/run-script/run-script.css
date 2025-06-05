@@ -22,32 +22,33 @@ run-script{
 }
 .args-list{
     margin-bottom: 10px;
-    border: 1px solid var(--form-input-border);
     border-radius: 5px;
 }
 .arg-item{
     display: flex;
     height: 44px;
-    border-bottom: 1px solid var(--form-input-border);
 }
 .last-arg-item{
     border-bottom: none;
 }
 .arg-label{
-    border-right: 1px solid var(--form-input-border);
     padding: 0 7px;
     color: var(--header-font-color);
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 60px;
+}
+.table-label{
+    font-size: 16px;
+    color: var(--plugin-focus);
+    border-bottom: 3px solid var(--light-gray-border);
 }
 .arg-input{
     border-right: 1px solid var(--form-input-border);
     padding: 0 7px;
 }
-.arg-label{
-    width: 60px;
-}
+
 .delete-arg{
     width: 60px;
     display: flex;
@@ -67,9 +68,8 @@ run-script{
     border-radius: 0;
 }
 .args-header{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 60px auto 60px;
     margin-top: 20px;
 }
 .args-header .form-label{

@@ -6,11 +6,11 @@
 </div>
 <form class="modal-body">
     <div class="grouped-inputs">
-        <div class="form-item">
+        <div class="form-item half-width">
             <label class="form-label" for="name">Name</label>
             <input class="form-input" pattern="^\S+$" title="No spaces allowed" id="name" type="text" name="name" required>
         </div>
-        <div class="form-item">
+        <div class="form-item half-width">
             <label class="form-label" for="command">Select Command</label>
             <div class="search-select" data-local-action="openSearchSelect">
                 <div class="search-select-input">
@@ -19,6 +19,10 @@
                 </div>
                 <div class="select-options hidden"></div>
             </div>
+        </div>
+        <div class="form-item conditional-command-item">
+            <label class="form-label" for="conditional">Conditional</label>
+            <input type="checkbox" class="form-checkbox" id="conditional" name="conditional">
         </div>
     </div>
 
@@ -39,5 +43,5 @@
         <label class="form-label">Preview</label>
         <textarea tabindex="-1" class="form-input expression-preview" readonly></textarea>
     </div>
-    <button class="general-button save-variable" data-local-action="addVariable">Add</button>
+    <button class="general-button save-variable disabled" data-local-action="addVariable">Add</button>
 </form>

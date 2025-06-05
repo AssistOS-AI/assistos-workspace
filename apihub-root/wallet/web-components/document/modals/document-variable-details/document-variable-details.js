@@ -7,8 +7,6 @@ export class DocumentVariableDetails {
         this.document = documentPresenter._document;
         this.element.classList.add("maintain-focus");
         this.varName = this.element.getAttribute("data-name");
-        this.varCommand = this.element.getAttribute("data-command");
-        this.encodedExpression = this.element.getAttribute("data-expression");
         this.activeTab = "valuesTab";
         this.invalidate();
     }
@@ -17,7 +15,7 @@ export class DocumentVariableDetails {
         if (this.activeTab === "valuesTab") {
             this.tabContent = `<variable-values-tab data-name="${this.varName}" data-presenter="variable-values-tab"></variable-values-tab>`;
         } else if (this.activeTab === "editTab") {
-            this.tabContent = `<edit-variable-tab data-name="${this.varName}" data-expression="${this.encodedExpression}" data-command="${this.varCommand}" data-presenter="edit-variable-tab"></edit-variable-tab>`;
+            this.tabContent = `<edit-variable-tab data-name="${this.varName}" data-presenter="edit-variable-tab"></edit-variable-tab>`;
         }
     }
 

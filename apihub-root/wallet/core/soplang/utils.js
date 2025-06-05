@@ -15,14 +15,13 @@ export function decodePercentCustom(encodedStr) {
 export function isEditableValue(varName, variables){
     let docVariable = variables.find(docVariable => docVariable.varName === varName);
     if(docVariable) {
-        let parsedCommand = docVariable.parsedCommand;
-        if(parsedCommand.command === "assign"){
-            if(parsedCommand.varTypes.includes("var")){
-                return false;
-            }
+        if(docVariable.command === ":="){
+            // if(docVariable.varTypes.includes("var")){
+            //     return false;
+            // }
             return true;
-        } else if(parsedCommand.command === "new"){
-            if(parsedCommand.inputVars[0] === "Table"){
+        } else if(docVariable.command === "new"){
+            if(docVariable.customType === "Table"){
                 return true;
             }
         }

@@ -24,6 +24,9 @@ export function constructFullExpression(presenter){
     }
     if(trimmedName.includes(" ") || trimmedName === ""){
         saveButton.classList.add("disabled");
+        if(command === "assign"){
+            command = ":=";
+        }
         return {ok: false, fullExpression: `@[invalid name] ${command} ${expression}`};
     }
     let typeSelect = self.element.querySelector('custom-select');
@@ -43,6 +46,10 @@ export function constructFullExpression(presenter){
         let parameters = assistOS.UI.unsanitize(parametersInput.value);
         expression = expression.replace(/\n/g, '\n\t');
         expression = `${parameters}\n \t${expression}\n end`;
+    }
+    let conditionalCheckbox = self.element.querySelector("#conditional");
+    if(conditionalCheckbox.checked){
+        command = `?${command}`;
     }
     expression = `@${variableName} ${command} ${expression}`;
     saveButton.classList.remove("disabled");
@@ -98,6 +105,11 @@ export function attachEventListeners(presenter){
     typeSelect.addEventListener("change", event => {
         changePreviewValue(self);
     });
+    let conditionalCheckbox = self.element.querySelector("#conditional");
+    conditionalCheckbox.addEventListener("change", event => {
+        changePreviewValue(self);
+    });
+
 }
 export function selectOption(presenter, option){
     const self = presenter;
@@ -111,10 +123,15 @@ export function selectOption(presenter, option){
     } else {
         typeInput.classList.add("hidden");
     }
+    let conditionalCheckBoxItem = self.element.querySelector(".conditional-command-item");
+    let conditionalCheckbox = self.element.querySelector("#conditional");
     if(value === "macro" || value === "jsdef"){
+        conditionalCheckbox.checked = false;
         changeExpressionInputToMultiLine(self);
+        conditionalCheckBoxItem.classList.add("hidden");
     } else {
         changeMultiLineToSingleLine(self);
+        conditionalCheckBoxItem.classList.remove("hidden");
     }
     changePreviewValue(self);
 }

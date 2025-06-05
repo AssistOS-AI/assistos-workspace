@@ -110,12 +110,18 @@ async function Application() {
             return Promise.all(promises)
         }
         if (manifest.objects) {
-            const promises = (Object.entries(manifest.objects)).flatMap(([type, value]) => {
-                type= type.charAt(0).toUpperCase() + type.slice(1);
-                const fn = persistence[`create${type}`];
-                return Array.isArray(value) ? value.map(fn) : [fn(value)];
-            });
-            await Promise.all(promises);
+            for (const [type, value] of Object.entries(manifest.objects)) {
+                const Type = type.charAt(0).toUpperCase() + type.slice(1);
+                const fn = persistence[`create${Type}`];
+
+                if (Array.isArray(value)) {
+                    for (const item of value) {
+                        await fn(item);
+                    }
+                } else {
+                    await fn(value);
+                }
+            }
         }
 
 
