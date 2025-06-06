@@ -9,8 +9,17 @@
         <label class="form-label" for="value">Value</label>
         <textarea class="form-input" name="value" id="value"></textarea>
     </div>
-    <div class="table-container"></div>
+    <div class="table-container">
+        <div class="table-actions">
+            <div class="general-button" data-local-action="insertRow">Add Row</div>
+        </div>
+    </div>
     <div class="modal-footer">
         <div data-local-action="saveVarValue" class="general-button disabled">Save</div>
     </div>
 </form>
+<div class="context-menu hidden">
+    <div class="action" data-local-action="insertRow above">Insert row above</div>
+    <div class="action" data-local-action="insertRow below">Insert row below</div>
+    <div class="action" data-local-action="deleteRow">Delete row</div>
+</div>

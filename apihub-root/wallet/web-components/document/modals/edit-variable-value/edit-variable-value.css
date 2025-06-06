@@ -1,6 +1,5 @@
 edit-variable-value{
     display: block;
-    width: 700px;
 }
 #value{
     height: 200px;
@@ -12,12 +11,47 @@ edit-variable-value .modal-footer{
     margin-top: 55px;
     display: flex;
 }
+.table-actions {
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    margin-bottom: 10px;
+}
 edit-variable-value .cell {
     display: flex;
     align-items: center;
+    border: none;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding: 5px;
     border-bottom: 1px solid var(--light-gray-border);
+    border-right: 1px solid var(--light-gray-border);
+}
+edit-variable-value .cell.table-header{
+    border-top: 1px solid var(--light-gray-border);
+    border-bottom: 3px solid var(--light-gray-border);
+}
+edit-variable-value .first-column-cell{
+    border-left: 1px solid var(--light-gray-border);
+}
+edit-variable-value input.cell:focus {
+    border-color: var(--strong-blue);
+    outline: 2px solid var(--strong-blue);
+    outline-offset: -2px;
+}
+.context-menu{
+    position: fixed;
+    border-radius: 5px;
+    z-index: 1;
+    border: 1px solid var(--form-input-border);
+    background-color: var(--white);
+}
+.action{
+    padding: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+.action:hover{
+    background-color: var(--option-hover);
 }

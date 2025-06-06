@@ -24,7 +24,7 @@ export function isEditableValue(varName, variables){
             }
             return true;
         } else if(docVariable.command === "new"){
-            if(docVariable.customType === "Table"){
+            if(docVariable.customType === "Table" && typeof docVariable.value === "object"){
                 return true;
             }
         }
