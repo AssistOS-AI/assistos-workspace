@@ -220,6 +220,9 @@ export class ChapterItem {
         this.changeChapterDeleteAvailability();
         UIUtils.changeCommentIndicator(this.element, this.chapter.comments.messages);
         UIUtils.displayCurrentStatus(this.element, this.chapter.comments, "chapter");
+        if(this.chapter.comments.pluginLastOpened){
+            await this.openPlugin("", "chapter", this.chapter.comments.pluginLastOpened, true);
+        }
     }
 
     async updateStatus(status, type, pluginName, autoPin) {
@@ -229,6 +232,16 @@ export class ChapterItem {
         }
         this.chapter.comments.status = status;
         this.chapter.comments.plugin = pluginName;
+        await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+            this.chapter.title,
+            this.chapter.commands,
+            this.chapter.comments);
+    }
+    async updateLastOpenedPlugin(pluginName) {
+        if (this.chapter.comments.pluginLastOpened === pluginName) {
+            return; // No change in plugin
+        }
+        this.chapter.comments.pluginLastOpened = pluginName;
         await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
             this.chapter.title,
             this.chapter.commands,
@@ -307,6 +320,7 @@ export class ChapterItem {
             chapterId: this.chapter.id,
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId, autoPin);
+        await this.updateLastOpenedPlugin(pluginName);
     }
     async closePlugin(targetElement, focusoutClose) {
         delete this.currentPlugin;
@@ -319,6 +333,7 @@ export class ChapterItem {
         let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("chapter", this);
+        await this.updateLastOpenedPlugin("");
         if(focusoutClose){
             return pluginName;
         }

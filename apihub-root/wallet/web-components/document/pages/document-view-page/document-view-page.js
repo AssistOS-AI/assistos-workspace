@@ -288,6 +288,9 @@ export class DocumentViewPage {
         }
         UIUtils.changeCommentIndicator(this.element, this._document.comments.messages);
         UIUtils.displayCurrentStatus(this.element, this._document.comments, "infoText");
+        if(this._document.comments.pluginLastOpened){
+            await this.openPlugin("", "infoText", this._document.comments.pluginLastOpened, true);
+        }
     }
 
     async updateStatus(status, type, pluginName, autoPin) {
@@ -297,6 +300,19 @@ export class DocumentViewPage {
         }
         this._document.comments.status = status;
         this._document.comments.plugin = pluginName;
+        await documentModule.updateDocument(assistOS.space.id, this._document.id,
+            this._document.title,
+            this._document.docId,
+            this._document.category,
+            this._document.infoText,
+            this._document.commands,
+            this._document.comments);
+    }
+    async updateLastOpenedPlugin(pluginName) {
+        if (this._document.comments.pluginLastOpened === pluginName) {
+            return; // No change in plugin
+        }
+        this._document.comments.pluginLastOpened = pluginName;
         await documentModule.updateDocument(assistOS.space.id, this._document.id,
             this._document.title,
             this._document.docId,
@@ -478,7 +494,7 @@ export class DocumentViewPage {
         if (pluginElement.classList.contains("pinned")) {
             return;
         }
-        this.currentPlugin = this.closePlugin("", true);
+        this.currentPlugin = await this.closePlugin("", true);
     }
 
     async focusOutHandlerTitle(element, itemId) {
@@ -772,9 +788,10 @@ export class DocumentViewPage {
             }
             await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId, autoPin);
         }
+        await this.updateLastOpenedPlugin(pluginName);
     }
 
-    closePlugin(targetElement, focusoutClose) {
+    async closePlugin(targetElement, focusoutClose) {
         delete this.currentPlugin;
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
         pluginContainer.classList.remove("plugin-open");
@@ -785,6 +802,7 @@ export class DocumentViewPage {
         let pluginName = pluginElement.tagName.toLowerCase();
         pluginElement.remove();
         pluginUtils.removeHighlightPlugin("infoText", this);
+        await this.updateLastOpenedPlugin("");
         if (focusoutClose) {
             return pluginName;
         }

@@ -90,6 +90,9 @@ export class ParagraphItem {
         }
         UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
         UIUtils.displayCurrentStatus(this.element, this.paragraph.comments, "paragraph");
+        if(this.paragraph.comments.pluginLastOpened){
+            await this.openPlugin("", "paragraph", this.paragraph.comments.pluginLastOpened, true);
+        }
     }
 
     async updateStatus(status, type, pluginName, autoPin) {
@@ -99,6 +102,16 @@ export class ParagraphItem {
         }
         this.paragraph.comments.status = status;
         this.paragraph.comments.plugin = pluginName;
+        await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
+            this.paragraph.text,
+            this.paragraph.commands,
+            this.paragraph.comments);
+    }
+    async updateLastOpenedPlugin(pluginName) {
+        if (this.paragraph.comments.pluginLastOpened === pluginName) {
+            return; // No change in plugin
+        }
+        this.paragraph.comments.pluginLastOpened = pluginName;
         await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
             this.paragraph.text,
             this.paragraph.commands,
@@ -291,6 +304,7 @@ export class ParagraphItem {
             paragraphId: this.paragraph.id
         }
         await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId, autoPin);
+        await this.updateLastOpenedPlugin(pluginName);
     }
     async closePlugin(targetElement, focusoutClose) {
         delete this.currentPlugin;
@@ -303,6 +317,7 @@ export class ParagraphItem {
         pluginElement.remove();
         pluginContainer.classList.remove("plugin-open");
         pluginUtils.removeHighlightPlugin("paragraph", this);
+        await this.updateLastOpenedPlugin("");
         if(focusoutClose){
             return pluginName;
         }
