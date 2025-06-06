@@ -2,7 +2,8 @@
     display: flex;
 }
 .table-labels{
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr 2fr 2fr 11fr auto;
     padding-top: 10px;
     font-weight: bold;
     font-size: 16px;
@@ -25,13 +26,10 @@
     background: #f1f1f1;
     border-radius: 10px;
 }
-.table-labels{
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 6fr auto;
-}
+
 .variables-table{
     display: grid;
-    grid-template-columns: 1fr 1fr 1fr 6fr auto;
+    grid-template-columns: 1fr 2fr 2fr 11fr auto;
 }
 .last-label{
     width: 55px;
