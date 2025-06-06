@@ -95,6 +95,7 @@ export class EditVariableTab {
         if(this.variable.conditional){
             conditionalCheckbox.checked = true;
         }
+        this.originalVarName = this.variable.varName;
         attachEventListeners(this);
     }
     async editVariable(targetElement){

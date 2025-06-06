@@ -29,6 +29,11 @@ export function constructFullExpression(presenter){
         }
         return {ok: false, fullExpression: `@[invalid name] ${command} ${expression}`};
     }
+    let res = checkVarName(self.originalVarName, trimmedName, command, expression, saveButton);
+    if(res){
+        return res;
+    }
+
     let typeSelect = self.element.querySelector('custom-select');
     let selectedOption = typeSelect.querySelector(`.option[data-selected='true']`);
     let type = selectedOption.getAttribute('data-value');
@@ -54,6 +59,19 @@ export function constructFullExpression(presenter){
     expression = `@${variableName} ${command} ${expression}`;
     saveButton.classList.remove("disabled");
     return {ok: true, fullExpression: expression};
+}
+function checkVarName(originalName, trimmedName, command, expression, saveButton){
+    let documentPresenter = document.querySelector("document-view-page").webSkelPresenter;
+    let alreadyExists = documentPresenter.variables.some(variable =>
+        variable.varName === trimmedName && variable.varName !== originalName
+    );
+    if(alreadyExists){
+        saveButton.classList.add("disabled");
+        if(command === "assign"){
+            command = ":=";
+        }
+        return {ok: false, fullExpression: `@[var name already exists] ${command} ${expression}`};
+    }
 }
 export function changePreviewValue(presenter){
     const self = presenter;
