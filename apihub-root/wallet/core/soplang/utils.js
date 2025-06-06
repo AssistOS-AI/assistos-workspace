@@ -16,9 +16,12 @@ export function isEditableValue(varName, variables){
     let docVariable = variables.find(docVariable => docVariable.varName === varName);
     if(docVariable) {
         if(docVariable.command === ":="){
-            // if(docVariable.varTypes.includes("var")){
-            //     return false;
-            // }
+            const regex = /(?:^|[^"'`])\$(?:[a-zA-Z_$][\w$]*)/;
+            //is $varName but not in quotes
+            const hasUnquotedVar = regex.test(docVariable.expression);
+            if(hasUnquotedVar){
+                return false;
+            }
             return true;
         } else if(docVariable.command === "new"){
             if(docVariable.customType === "Table"){

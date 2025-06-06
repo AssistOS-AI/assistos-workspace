@@ -54,7 +54,7 @@ export class EditVariableValue {
     }
     saveVarValue(targetElement) {
         let varValue;
-        if(this.variable.parsedCommand.command === "assign"){
+        if(this.variable.command === ":="){
             varValue = this.element.querySelector('#value').value;
         }
         assistOS.UI.closeModal(this.element, varValue);
