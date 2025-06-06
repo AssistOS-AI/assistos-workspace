@@ -1,40 +1,5 @@
 const spaceModule = assistOS.loadModule("space");
 
-const mockCollaborators = [
-    {
-        username: "Alex",
-        email: "demoemail@com",
-        role: "member",
-        documentsCreated: 0,
-        tasksCreated: 10,
-        tokensUsed: 2000
-
-    },
-    {
-        email: "demoemail1@com",
-        username: "John",
-        role: "admin",
-        documentsCreated: 5,
-        tasksCreated: 20,
-        tokensUsed: 300
-    },
-    {
-        email: "demoemail2@com",
-        username: "Jane",
-        role: "guest",
-        documentsCreated: 2,
-        tasksCreated: 100,
-        tokensUsed: 50000
-    },
-    {
-        email: "demoemail3@com",
-        username: "Carlos",
-        role: "member",
-        documentsCreated: 1,
-        tasksCreated: 1,
-        tokensUsed: 25
-    }
-]
 const roles = [
     "Member",
     "Guest",
@@ -74,10 +39,10 @@ export class CollaboratorsTab {
             this.collaboratorsHTML = collaborators.map(c => `
         <tr>
               <td class="collaborator-user ">
-      ${getAvatarHTML(c.username)}
+      ${getAvatarHTML(c.displayName)}
       <div class="user-info">
-        <div class="user-name">${c.username}</div>
-        <div class="user-email">${c.email}</div>
+        <div class="user-name">${c.displayName}</div>
+        <div class="user-email-collab">${c.email}</div>
       </div>
     </td>
             <td>
@@ -85,9 +50,9 @@ export class CollaboratorsTab {
                     ${roles.map(r => `<option value="${r.toLowerCase()}"${c.role === r.toLowerCase() ? ' selected' : ''}>${r}</option>`).join('')}
                 </select>
             </td>
-            <td>${c.documentsCreated}</td>
-            <td>${c.tasksCreated}</td>
-            <td>${c.tokensUsed}</td>
+            <td>${c.documentsCreated||0}</td>
+            <td>${c.tasksCreated||0}</td>
+            <td>${c.tokensUsed||0}</td>
             <td class="actions-button">${getDeleteButton(c.email)}</td>
         </tr>
     `).join('')
