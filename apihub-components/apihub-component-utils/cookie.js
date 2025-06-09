@@ -77,11 +77,29 @@ function deleteCurrentSpaceCookie() {
         path: '/'
     });
 }
-
+function createAdminCookies(email, userId, authToken){
+    let cookies= "";
+    cookies += createCookieString('email', encodeURIComponent(email), {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 60 * 60 * 24 * 7});
+    cookies += createCookieString('userId', userId, {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 60 * 60 * 24 * 7
+    });
+    cookies += createCookieString('authToken', authToken, {
+        httpOnly: true,
+        sameSite: 'Strict',
+        maxAge: 60 * 60 * 24 * 7
+    });
+    return cookies;
+}
 module.exports = {
     parseRequestCookies,
     parseResponseCookies,
     createCookieString,
     createCurrentSpaceCookie,
     deleteCurrentSpaceCookie,
+    createAdminCookies
 }

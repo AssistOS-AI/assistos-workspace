@@ -138,6 +138,13 @@ async function AppSpecificPlugin() {
         let spaceStatus = await persistence.getSpaceStatus(spaceId);
         return spaceStatus.defaultAgent;
     }
+    self.founderSpaceExists = async function () {
+        return await persistence.hasSpaceStatus(process.env.SYSADMIN_SPACE);
+    }
+    self.getFounderId = async function () {
+        let userStatus = await persistence.getUserLoginStatus(process.env.SYSADMIN_EMAIL);
+        return userStatus.globalUserId;
+    }
     return self;
 }
 

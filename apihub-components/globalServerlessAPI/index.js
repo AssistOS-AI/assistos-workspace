@@ -4,7 +4,6 @@ const {
     listUserSpaces,
     getSecretsMasked,
     addSecret,
-    addSecrets,
     editSecret,
     deleteSecret,
     getUploadURL,
@@ -22,9 +21,26 @@ const constants = require("assistos").constants;
 const path = require("path");
 const process = require("process");
 const secrets = require("../apihub-component-utils/secrets");
+const cookies = require("../apihub-component-utils/cookie.js");
 function Space(server) {
     setTimeout(async ()=> {
         let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
+        let founderSpaceExists = await client.founderSpaceExists();
+        if(!founderSpaceExists){
+            let founderEmail = process.env.SYSADMIN_EMAIL;
+            if(!founderEmail){
+                console.error("SYSADMIN_EMAIL environment variable is not set");
+            }
+            let founderId = await client.getFounderId();
+            let spaceModule = require("assistos").loadModule("space", {
+                cookies:cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
+            });
+            if(process.env.SYSADMIN_SPACE){
+                console.warn(`SYSADMIN_SPACE environment variable is not set, using default "Admin Space`);
+                process.env.SYSADMIN_SPACE = "Admin Space";
+            }
+            await spaceModule.createSpace(process.env.SYSADMIN_SPACE, founderEmail);
+        }
         let spaces = await client.listAllSpaces();
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);

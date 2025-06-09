@@ -5,6 +5,7 @@ async function contextMiddleware(req, res, next) {
     req.sessionId = cookies['sessionId'];
     req.userId = cookies['userId'];
     req.email = decodeURIComponent(cookies['email']);
+    req.authToken = cookies["authToken"];
     next();
 }
 

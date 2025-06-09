@@ -26,6 +26,7 @@ async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {
         sessionId: request.sessionId,
         email: request.email,
+        authToken: request.authToken,
     });
 }
 async function listUserSpaces(req, res){
@@ -89,8 +90,7 @@ async function createSpace(request, response, server) {
         }
 
         await secrets.createSpaceSecretsContainer(space.id);
-        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
-        await appSpecificClient.linkSpaceToUser(email, space.id);
+        await client.linkSpaceToUser(email, space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
@@ -127,10 +127,11 @@ async function createSpace(request, response, server) {
         const defaultApplicationsPath = path.join(__dirname, 'defaultApplications.json');
         const defaultApplications = JSON.parse(await fsPromises.readFile(defaultApplicationsPath, 'utf-8'));
 
-        const serverSideSecurityContext = assistOSSDK.ServerSideSecurityContext;
-        const securityContext = new serverSideSecurityContext(request);
-        securityContext.userId = "*"
-        const ApplicationModule=assistOSSDK.loadModule("application",securityContext);
+        const ApplicationModule = assistOSSDK.loadModule("application", {
+            email: email,
+            authToken: request.authToken,
+            userId: request.userId
+        });
 
         for (const application of defaultApplications) {
             await ApplicationModule.installApplication(space.id,application)
