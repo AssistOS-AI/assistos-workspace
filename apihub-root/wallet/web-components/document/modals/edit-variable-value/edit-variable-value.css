@@ -11,11 +11,30 @@ edit-variable-value .modal-footer{
     margin-top: 55px;
     display: flex;
 }
-.table-actions {
+edit-variable-value .table-actions {
     display: flex;
     justify-content: end;
     align-items: center;
     margin-bottom: 10px;
+}
+.table{
+    display: grid;
+    overflow: auto;
+}
+.table::-webkit-scrollbar-thumb {
+    background-color: var(--plugin-focus);
+}
+
+.table::-webkit-scrollbar-track {
+    background: var(--action-button-background);
+}
+.table::-webkit-scrollbar-button {
+    display: none;
+    height: 0;
+    width: 0;
+}
+.table::-webkit-scrollbar {
+    display: block;
 }
 edit-variable-value .cell {
     display: flex;
@@ -27,10 +46,16 @@ edit-variable-value .cell {
     padding: 5px;
     border-bottom: 1px solid var(--light-gray-border);
     border-right: 1px solid var(--light-gray-border);
+    height: 41px;
+}
+edit-variable-value .cell.read-only {
+    pointer-events: none;
+    background-color: var(--inactive-element);
 }
 edit-variable-value .cell.table-header{
     border-top: 1px solid var(--light-gray-border);
     border-bottom: 3px solid var(--light-gray-border);
+    min-width: 222px;
 }
 edit-variable-value .first-column-cell{
     border-left: 1px solid var(--light-gray-border);
