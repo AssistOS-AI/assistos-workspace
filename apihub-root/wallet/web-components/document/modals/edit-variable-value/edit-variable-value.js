@@ -45,25 +45,30 @@ export class EditVariableValue {
         let rows = this.variable.value.data;
         let rowsHTML = "";
         for(let i = 0; i < rows.length; i++){
-            for(let j = 0; j < this.columns.length; j++){
-                let firstColumnClass = "";
-                if(j === 0){
-                    firstColumnClass = "first-column-cell";
-                }
-                let value = rows[i][this.columns[j].name];
-                let truid = rows[i].truid;
-                if(value === undefined){
-                    value = "";
-                }
-                let readOnlyClass = "";
-                if(this.columns[j].command){
-                    readOnlyClass = "read-only";
-                }
-                rowsHTML+= `<input data-id="${truid}" data-column="${this.columns[j].name}" type="text" class="cell ${firstColumnClass} ${readOnlyClass}" value="${value}">`;
-            }
+            rowsHTML+= this.getRowHTML(rows[i]);
         }
         let tableHTML = tableHeaders + rowsHTML;
         this.tableHTML = `<div class="table">${tableHTML}</div>`
+    }
+    getRowHTML(row){
+        let rowHTML = "";
+        for(let j = 0; j < this.columns.length; j++){
+            let firstColumnClass = "";
+            if(j === 0){
+                firstColumnClass = "first-column-cell";
+            }
+            let value = row[this.columns[j].name];
+            let truid = row.truid;
+            if(value === undefined){
+                value = "";
+            }
+            let readOnlyClass = "";
+            if(this.columns[j].command){
+                readOnlyClass = "read-only";
+            }
+            rowHTML+= `<input data-id="${truid}" data-column="${this.columns[j].name}" type="text" class="cell ${firstColumnClass} ${readOnlyClass}" value="${value}">`;
+        }
+        return rowHTML;
     }
     async afterRender(){
         if(this.variable.command === ":="){
@@ -87,48 +92,52 @@ export class EditVariableValue {
             contextMenu.addEventListener("mousedown", (e) => {
                 e.preventDefault();
             })
-            let table = this.element.querySelector('.table');
-            let columns = this.variable.value.columnDescription;
-            table.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
-            table.addEventListener("contextmenu", (e)=>{
-                if(e.target.classList.contains("table-header")){
-                    return;
-                }
-                e.preventDefault();
-
-                contextMenu.style.left = `${e.pageX}px`;
-                contextMenu.style.top = `${e.pageY}px`;
-                if(!contextMenu.classList.contains("hidden")){
-                    return;
-                }
-                contextMenu.classList.remove("hidden");
-                const controller = new AbortController();
-                document.addEventListener('click', (e) => {
-                    contextMenu.classList.add("hidden");
-                    controller.abort();
-                }, { signal: controller.signal });
-            });
+            this.addTableEventListeners(contextMenu);
             this.timers = new Map();
             this.lastValues = new Map();
-            let cells = table.querySelectorAll('.cell');
+            let cells = this.element.querySelectorAll('.cell');
             for(let cell of cells){
                 if(cell.classList.contains("read-only")){
                     continue;
                 }
                 this.lastValues.set(cell, cell.value);
             }
-            table.addEventListener("input", (e)=>{
-                let cell = e.target;
-                clearTimeout(this.timers.get(cell));
-                const timeout = setTimeout(() => this.saveCellValue(cell), 2000);
-                this.timers.set(cell, timeout);
-            })
-            table.addEventListener("focusout", (e)=>{
-                let cell = e.target;
-                clearTimeout(this.timers.get(cell));
-                this.saveCellValue(cell);
-            });
         }
+    }
+    addTableEventListeners(contextMenu) {
+        let table = this.element.querySelector('.table');
+        let columns = this.variable.value.columnDescription;
+        table.style.gridTemplateColumns = `repeat(${columns.length}, 1fr)`;
+        table.addEventListener("contextmenu", (e)=>{
+            if(e.target.classList.contains("table-header")){
+                return;
+            }
+            e.preventDefault();
+
+            contextMenu.style.left = `${e.pageX}px`;
+            contextMenu.style.top = `${e.pageY}px`;
+            if(!contextMenu.classList.contains("hidden")){
+                return;
+            }
+            contextMenu.classList.remove("hidden");
+            const controller = new AbortController();
+            document.addEventListener('click', (e) => {
+                contextMenu.classList.add("hidden");
+                controller.abort();
+            }, { signal: controller.signal });
+        });
+        table.addEventListener("input", (e)=>{
+            let cell = e.target;
+            clearTimeout(this.timers.get(cell));
+            const timeout = setTimeout(() => this.saveCellValue(cell), 2000);
+            this.timers.set(cell, timeout);
+        })
+        table.addEventListener("focusout", async (e)=>{
+            let cell = e.target;
+            clearTimeout(this.timers.get(cell));
+            await this.saveCellValue(cell);
+            this.timers.delete(cell);
+        });
     }
     isNumber(str) {
         return !isNaN(str) && !isNaN(parseFloat(str));
@@ -180,18 +189,25 @@ export class EditVariableValue {
             newRow[column.name] = "";
         }
         let computedRow = await spaceModule.insertTableRow(assistOS.space.id, this.docId, this.variable.varName, newRow, position);
-        if(!position){
+        if(position == null){
             position = this.variable.value.data.length; // Default to append
         }
         this.variable.value.data.splice(position, 0, computedRow);
+        //TODO update UI without invalidate maybe
         this.invalidate();
     }
     async deleteRow(button){
         let cell = document.activeElement;
+
         let truid = cell.getAttribute("data-id");
         //delete from UI
         let rowCells = this.element.querySelectorAll(`input[data-id="${truid}"]`);
         for(let rowCell of rowCells){
+            //cell set for save
+            if(this.timers.get(cell)){
+                clearTimeout(this.timers.get(cell));
+                this.timers.delete(cell);
+            }
             rowCell.remove();
         }
         //delete from variable value
