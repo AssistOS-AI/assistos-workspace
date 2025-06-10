@@ -130,7 +130,8 @@ async function createSpace(request, response, server) {
         const ApplicationModule = assistOSSDK.loadModule("application", {
             email: email,
             authToken: request.authToken,
-            userId: request.userId
+            userId: request.userId,
+            sessionId: request.sessionId,
         });
 
         for (const application of defaultApplications) {
