@@ -14,6 +14,7 @@ const {
     deleteFile,
     deleteSpace,
     restartServerless,
+    isFounder
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -25,22 +26,6 @@ const cookies = require("../apihub-component-utils/cookie.js");
 function Space(server) {
     setTimeout(async ()=> {
         let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
-        let founderSpaceExists = await client.founderSpaceExists();
-        if(!founderSpaceExists){
-            let founderEmail = process.env.SYSADMIN_EMAIL;
-            if(!founderEmail){
-                console.error("SYSADMIN_EMAIL environment variable is not set");
-            }
-            let founderId = await client.getFounderId();
-            let spaceModule = require("assistos").loadModule("space", {
-                cookies:cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
-            });
-            if(process.env.SYSADMIN_SPACE){
-                console.warn(`SYSADMIN_SPACE environment variable is not set, using default "Admin Space`);
-                process.env.SYSADMIN_SPACE = "Admin Space";
-            }
-            await spaceModule.createSpace(process.env.SYSADMIN_SPACE, founderEmail);
-        }
         let spaces = await client.listAllSpaces();
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
@@ -52,11 +37,27 @@ function Space(server) {
                     PERSISTENCE_FOLDER: path.join(serverlessFolder, "persistence"),
                     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
                     SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
-                    API_KEYS: JSON.stringify(apiKeys),
+                    API_KEYS: JSON.stringify(apiKeys)
                 }
             }).then((serverlessAPI) => {
                 server.registerServerlessProcess(spaceId, serverlessAPI);
             });
+        }
+        let founderSpaceExists = await client.founderSpaceExists();
+        if(!founderSpaceExists){
+            let founderEmail = process.env.SYSADMIN_EMAIL;
+            if(!founderEmail){
+                console.error("SYSADMIN_EMAIL environment variable is not set");
+            }
+            let founderId = await client.getFounderId();
+            let spaceModule = require("assistos").loadModule("space", {
+                cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
+            });
+            if(process.env.SYSADMIN_SPACE){
+                console.warn(`SYSADMIN_SPACE environment variable is not set, using default "Admin Space`);
+                process.env.SYSADMIN_SPACE = "Admin Space";
+            }
+            await spaceModule.createSpace(process.env.SYSADMIN_SPACE, founderEmail);
         }
     },0);
 
@@ -70,6 +71,7 @@ function Space(server) {
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.get("/spaces/listSpaces", listUserSpaces);
+    server.get("/spaces/isFounder", isFounder);
 
     /*Attachments*/
     server.get("/spaces/uploads", getUploadURL);

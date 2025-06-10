@@ -103,8 +103,6 @@ async function AppSpecificPlugin() {
         let UserLogin = await $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
-        console.debug("DEBUG--------------------------------");
-        console.debug("UserInfo: ", JSON.stringify(result));
         let userInfo = result.userInfo;
         if(!userInfo.currentSpaceId || userInfo.currentSpaceId === "undefined"){
             userInfo.currentSpaceId = userInfo.spaces[0];
@@ -144,6 +142,13 @@ async function AppSpecificPlugin() {
     self.getFounderId = async function () {
         let userStatus = await persistence.getUserLoginStatus(process.env.SYSADMIN_EMAIL);
         return userStatus.globalUserId;
+    }
+    self.isFounder = async function (userId) {
+        if(!await persistence.hasUserLoginStatus(process.env.SYSADMIN_EMAIL)){
+            return false;
+        }
+        let userStatus = await persistence.getUserLoginStatus(process.env.SYSADMIN_EMAIL);
+        return userStatus.globalUserId === userId;
     }
     return self;
 }
