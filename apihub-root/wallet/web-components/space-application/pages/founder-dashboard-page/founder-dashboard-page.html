@@ -1,0 +1,85 @@
+<div class="founder-dashboard">
+    <header class="founder-dashboard-header">
+        <div class="founder-header-content">
+            <h1 class="founder-dashboard-title">
+                Founders Dashboard
+            </h1>
+            <div class="founder-header-actions">
+                <div class="founder-search-container">
+                    <svg class="founder-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.35-4.35"></path>
+                    </svg>
+                    <input type="text" class="founder-search-input" placeholder="Search spaces or members..." id="founderSearchInput">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="founder-dashboard-stats">
+        <div class="founder-stat-card">
+            <div class="founder-stat-icon founder-spaces-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <rect x="3" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="3" width="7" height="7"></rect>
+                    <rect x="14" y="14" width="7" height="7"></rect>
+                    <rect x="3" y="14" width="7" height="7"></rect>
+                </svg>
+            </div>
+            <div class="founder-stat-content">
+                <h3 class="founder-stat-value">$$totalSpaces</h3>
+                <p class="founder-stat-label">Total Spaces</p>
+            </div>
+        </div>
+
+        <div class="founder-stat-card">
+            <div class="founder-stat-icon founder-members-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+            </div>
+            <div class="founder-stat-content">
+                <h3 class="founder-stat-value">$$totalMembers</h3>
+                <p class="founder-stat-label">Total Members</p>
+            </div>
+        </div>
+
+        <div class="founder-stat-card">
+            <div class="founder-stat-icon founder-admin-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
+                </svg>
+            </div>
+            <div class="founder-stat-content">
+                <h3 class="founder-stat-value">$$totalAdmins</h3>
+                <p class="founder-stat-label">Total Admins</p>
+            </div>
+        </div>
+
+        <div class="founder-stat-card">
+            <div class="founder-stat-icon founder-docs-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                    <polyline points="14 2 14 8 20 8"></polyline>
+                </svg>
+            </div>
+            <div class="founder-stat-content">
+                <h3 class="founder-stat-value">$$totalDocuments</h3>
+                <p class="founder-stat-label">Total Documents</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="founder-spaces-container">
+        <div class="founder-section-header">
+            <h2 class="founder-section-title">All Spaces</h2>
+        </div>
+
+        <div class="founder-spaces-list" id="founderSpacesList">
+            $$spacesContent
+        </div>
+    </div>
+</div>

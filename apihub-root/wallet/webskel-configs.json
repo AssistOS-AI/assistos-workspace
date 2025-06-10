@@ -142,6 +142,12 @@
             "presenterClassName": "StyleSubpage"
         },
         {
+            "name": "founder-dashboard-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "FounderDashboardPage"
+        },
+        {
             "name": "export-subpage",
             "directory": "space-application",
             "type": "pages",

@@ -3,7 +3,6 @@ import {changeSelectedPageFromSidebar, generateAvatar} from "../../../../imports
 const userModule = assistOS.loadModule("user");
 
 
-
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
@@ -26,11 +25,17 @@ export class LeftSidebar {
     }
 
     async beforeRender() {
+        const isFounder = assistOS.user.isFounder;
+        if (isFounder) {
+            this.founderDashboard =`<div class="founders-page pointer" data-local-action="openFoundersDashboard">Founder's Dashboard</div>`
+        } else {
+            this.founderDashboard = "";
+        }
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
         this.userName = assistOS.user.email.split("@")[0];
         const uint8 = await generateAvatar(this.userName, 30)
-        const blob = new Blob([uint8], { type: 'image/png' })
+        const blob = new Blob([uint8], {type: 'image/png'})
         const url = URL.createObjectURL(blob)
         this.userAvatar = `<img src="${url}" alt="User Photo" style="border-radius: 50%;cursor:pointer;"/>`
         for (let application of assistOS.space.applications) {
@@ -123,8 +128,13 @@ export class LeftSidebar {
         assistOS.navigateToPage(page);
         changeSelectedPageFromSidebar(window.location.hash);
     }
-    async openMyAccount(eventTarget){
-           await assistOS.UI.changeToDynamicPage("my-account",  `${assistOS.space.id}/Space/my-account`);
+
+    async openMyAccount(eventTarget) {
+        await assistOS.UI.changeToDynamicPage("my-account", `${assistOS.space.id}/Space/my-account`);
+    }
+    async openFoundersDashboard(eventTarget) {
+        await assistOS.UI.changeToDynamicPage("founder-dashboard-page", `${assistOS.space.id}/Space/founder-dashboard-page`);
+        changeSelectedPageFromSidebar(window.location.hash);
     }
 
     toggleChat(_target, mode) {

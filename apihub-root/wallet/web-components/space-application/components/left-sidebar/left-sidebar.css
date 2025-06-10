@@ -247,13 +247,15 @@ html[theme="dark"] {
 }
 .create-space,
 .logout,
-.my-account{
+.my-account,
+.founders-page{
     padding: 10px;
     border-top: 2px solid var(--plugin-focus);
 }
 .create-space:hover,
 .logout:hover,
-.my-account:hover{
+.my-account:hover,
+.founders-page:hover{
     background-color: var(--gray-button-text);
     color: var(--option-hover);
 }
