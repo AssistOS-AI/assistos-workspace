@@ -48,19 +48,19 @@ async function listUserSpaces(req, res){
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         const email = request.email;
         if (request.params.spaceId && request.params.spaceId !== "undefined") {
             spaceId = request.params.spaceId;
         } else if (request.currentSpaceId && request.currentSpaceId !== "undefined") {
             spaceId = request.currentSpaceId;
         } else {
-            spaceId = await client.getDefaultSpaceId(email);
+            spaceId = await appSpecificClient.getDefaultSpaceId(email);
         }
-
-        let spaceStatus = await client.getSpaceStatus(spaceId);
-        await client.setUserCurrentSpace(email, spaceId);
-        utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
+        let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, spaceId);
+        let workspace = await workspaceClient.getSpaceStatus(spaceId);
+        await appSpecificClient.setUserCurrentSpace(email, spaceId);
+        utils.sendResponse(response, 200, "application/json", workspace, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -84,13 +84,12 @@ async function createSpace(request, response, server) {
         let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
         let space;
         try {
-            space = await client.createSpace(spaceName, email);
+            space = await client.createSpace(spaceName);
         } catch (e) {
             return utils.sendResponse(response, 500, "text/plain", e.message);
         }
-
-        await secrets.createSpaceSecretsContainer(space.id);
         await client.linkSpaceToUser(email, space.id);
+        await secrets.createSpaceSecretsContainer(space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
@@ -119,7 +118,7 @@ async function createSpace(request, response, server) {
         server.registerServerlessProcess(serverlessId, serverlessAPI);
 
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
-        await workspaceClient.createWorkspace(space.name, space.id, request.userId, email);
+        await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);

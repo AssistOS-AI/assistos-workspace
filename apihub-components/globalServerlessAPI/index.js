@@ -26,7 +26,7 @@ const cookies = require("../apihub-component-utils/cookie.js");
 function Space(server) {
     setTimeout(async ()=> {
         let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
-        let spaces = await client.listAllSpaces();
+        let spaces = await client.listAllSpaces(process.env.SERVERLESS_AUTH_SECRET);
         for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             let apiKeys = await secrets.getAPIKeys(spaceId);
@@ -49,7 +49,7 @@ function Space(server) {
             if(!founderEmail){
                 console.error("SYSADMIN_EMAIL environment variable is not set");
             }
-            let founderId = await client.getFounderId();
+            let founderId = await client.getFounderId(process.env.SERVERLESS_AUTH_SECRET);
             let spaceModule = require("assistos").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });
