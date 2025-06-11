@@ -712,15 +712,6 @@ select{
     padding-bottom: 5px;
 }
 
-.preferences-content {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    gap: 30px;
-    padding: 12px;
-}
-
 .avatar {
     width: 32px;
     height: 32px;

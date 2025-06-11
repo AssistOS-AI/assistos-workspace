@@ -15,6 +15,9 @@ display-preferences {
 .preferences-content{
     display:flex;
     height:calc(100% - 60px);
+    width: 100%;
+    gap: 30px;
+    padding: 12px;
 }
 .preferences-section {
     margin-bottom: 20px;
