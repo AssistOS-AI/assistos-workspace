@@ -36,8 +36,8 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = await getAPIClient(req, constants.APP_SPECIFIC_PLUGIN);
-        const user = await appSpecificClient.listUserSpaces(email);
+        const adminClient = await getAPIClient(req, constants.ASSISTOS_ADMIN_PLUGIN);
+        const user = await adminClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {
         utils.sendResponse(res, 500, "text/plain", e.message);
@@ -48,18 +48,17 @@ async function listUserSpaces(req, res){
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let appSpecificClient = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         const email = request.email;
         if (request.params.spaceId && request.params.spaceId !== "undefined") {
             spaceId = request.params.spaceId;
         } else if (request.currentSpaceId && request.currentSpaceId !== "undefined") {
             spaceId = request.currentSpaceId;
         } else {
-            spaceId = await appSpecificClient.getDefaultSpaceId(email);
+            spaceId = await client.getDefaultSpaceId(email);
         }
-        let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, spaceId);
-        let workspace = await workspaceClient.getSpaceStatus(spaceId);
-        await appSpecificClient.setUserCurrentSpace(email, spaceId);
+        let workspace = await client.getSpaceStatus(spaceId);
+        await client.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", workspace, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -81,7 +80,7 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         let space;
         try {
             space = await client.createSpace(spaceName);
@@ -183,7 +182,7 @@ async function deleteSpace(request, response, server) {
     const spaceId = request.params.spaceId;
     let email = request.email;
     try {
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         let message = await client.deleteSpace(email, spaceId);
         if (!message) {
             //space deleted
@@ -607,7 +606,7 @@ const getApplicationEntry = async (request, response) => {
 
 async function isFounder(request, response) {
     try {
-        const client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        const client = await getAPIClient(request, constants.ADMIN_PLUGIN);
         const isFounder = await client.isFounder(request.userId);
         utils.sendResponse(response, 200, "application/json", isFounder);
     } catch (error) {
