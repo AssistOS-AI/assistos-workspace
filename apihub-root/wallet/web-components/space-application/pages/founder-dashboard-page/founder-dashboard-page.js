@@ -1,3 +1,4 @@
+const spaceModule = assistOS.loadModule("space");
 export class FounderDashboardPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -74,15 +75,22 @@ export class FounderDashboardPage {
 
         this.spacesContent = this.generateSpacesList();
     }
-
+    debounce(fn, delay) {
+        let timeout;
+        return function(...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => fn.apply(this, args), delay);
+        };
+    }
     async afterRender() {
         const searchInput = this.element.querySelector('#founderSearchInput');
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.searchQuery = e.target.value.toLowerCase();
-                this.updateSpacesList();
-            });
-        }
+        const debouncedInputHandler = this.debounce(async function(e) {
+            this.searchQuery = e.target.value;
+            let {users, spaces} = await spaceModule.getMatchingUsersOrSpaces(this.searchQuery);
+            //this.updateSpacesList();
+        }.bind(this), 1000);
+        searchInput.addEventListener('input', debouncedInputHandler);
+
     }
 
     generateSpacesList() {

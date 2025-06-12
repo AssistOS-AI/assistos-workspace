@@ -11,13 +11,16 @@ async function AssistOSAdmin(){
     await persistence.createIndex("spaceStatus", "name");
 
     let userLogger = await $$.loadPlugin("UserLoggerPlugin");
+    let AdminPlugin = await $$.loadPlugin("AdminPlugin");
 
+    self.roles = AdminPlugin.roles;
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
     self.getAllSpaces = async function(){
         return await persistence.getEverySpaceStatusObject();
     }
+
     self.createSpace = async function(spaceName, email){
         let spaceData = {
             name: spaceName
@@ -32,7 +35,7 @@ async function AssistOSAdmin(){
             userInfo.spaces = [];
         }
         userInfo.spaces.push(space.id);
-        await UserLogin.setUserInfo(email, userInfo);
+        await UserLogin.setUserInfo(email, {spaces: userInfo.spaces, currentSpaceId: space.id});
         let userLoginStatus = await persistence.getUserLoginStatus(email);
         await userLogger.userLog(userLoginStatus.globalUserId, `Created space: ${space.name}`);
         return space;
@@ -123,10 +126,30 @@ async function AssistOSAdmin(){
     self.founderSpaceExists = async function () {
         return await persistence.hasSpaceStatus(process.env.SYSADMIN_SPACE);
     }
+
+    self.getMatchingUsersOrSpaces = async function(input) {
+        let UserLogin = await $$.loadPlugin("UserLogin");
+        let matchingUsers = await UserLogin.getMatchingUsers(input);
+        let spaces = await persistence.getEverySpaceStatusObject();
+        let matchingSpaces = [];
+        for(let space of spaces){
+            if(space.name.contains(input)){
+                matchingSpaces.push(space.name);
+            }
+        }
+        return {users: matchingUsers, spaces: matchingSpaces};
+    }
     return self;
 }
 let singletonInstance = undefined;
-
+async function getUserRole(email) {
+    let userExists = await singletonInstance.persistence.hasUserLoginStatus(email);
+    if(!userExists){
+        return false;
+    }
+    let user = await singletonInstance.persistence.getUserLoginStatus(email);
+    return user.role;
+}
 module.exports = {
     getInstance: async function () {
         if (!singletonInstance) {
@@ -137,49 +160,31 @@ module.exports = {
     getAllow: function () {
         return async function (globalUserId, email, command, ...args) {
             // let role;
+            // let AdminPlugin = await $$.loadPlugin("AdminPlugin");
             // switch (command){
-            //     case "isFounder":
             //     case "founderSpaceExists":
-            //     case "rewardUser":
             //         return true;
             //     case "getFounderId":
             //     case "listAllSpaces":
             //         return args[0] === process.env.SERVERLESS_AUTH_SECRET;
-            //
             //     case "addSpaceToUsers":
             //     case "deleteSpace":
-            //         if(await singletonInstance.isFounder(globalUserId)){
-            //             return true;
-            //         }
-            //         role = await getUserRole(email, args[1]);
-            //         if(!role){
-            //             return false;
-            //         }
-            //         return role === roles.ADMIN;
-            //
+            //         return !!(await AdminPlugin.isFounder(globalUserId));
             //     case "setUserCurrentSpace":
-            //         if(await singletonInstance.isFounder(globalUserId)){
+            //         if(await AdminPlugin.isFounder(globalUserId)){
             //             return true;
             //         }
             //         return email === args[0];
             //     case "getDefaultSpaceId":
             //     case "listUserSpaces":
-            //         if(await singletonInstance.isFounder(globalUserId)){
+            //         if(await AdminPlugin.isFounder(globalUserId)){
             //             return true;
             //         }
             //         return email === args[0];
-            //
-            //
             //     case "getSpaceStatus":
-            //         if(await singletonInstance.isFounder(globalUserId)){
+            //         if(await AdminPlugin.isFounder(globalUserId)){
             //             return true;
             //         }
-            //         //guest
-            //         role = await getUserRole(email, args[0]);
-            //         if(!role){
-            //             return false;
-            //         }
-            //         return true;
             //     case "createSpace":
             //         return email === args[1] || await singletonInstance.isFounder(globalUserId);
             //     case "unlinkSpaceFromUser":
@@ -205,6 +210,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["StandardPersistence", "UserLoggerPlugin"];
+        return ["StandardPersistence", "AdminPlugin", "UserLoggerPlugin"];
     }
 }
