@@ -13,7 +13,6 @@ async function AssistOSAdmin(){
     let userLogger = await $$.loadPlugin("UserLoggerPlugin");
     let AdminPlugin = await $$.loadPlugin("AdminPlugin");
 
-    self.roles = AdminPlugin.roles;
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
@@ -128,13 +127,12 @@ async function AssistOSAdmin(){
     }
 
     self.getMatchingUsersOrSpaces = async function(input) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
-        let matchingUsers = await UserLogin.getMatchingUsers(input);
+        let matchingUsers = await AdminPlugin.getMatchingUsers(input);
         let spaces = await persistence.getEverySpaceStatusObject();
         let matchingSpaces = [];
         for(let space of spaces){
-            if(space.name.contains(input)){
-                matchingSpaces.push(space.name);
+            if(space.name.includes(input)){
+                matchingSpaces.push(space);
             }
         }
         return {users: matchingUsers, spaces: matchingSpaces};

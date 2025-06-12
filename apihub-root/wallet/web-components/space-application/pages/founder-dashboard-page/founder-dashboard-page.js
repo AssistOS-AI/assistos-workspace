@@ -1,4 +1,5 @@
 const spaceModule = assistOS.loadModule("space");
+const userModule = assistOS.loadModule("user");
 export class FounderDashboardPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -74,6 +75,31 @@ export class FounderDashboardPage {
         this.totalDocuments = this.spaces.reduce((sum, space) => sum + (space.documents?.length || 0), 0);
 
         this.spacesContent = this.generateSpacesList();
+        this.users = await userModule.getAllUsers();
+        this.usersHTML = this.getUsersHTML();
+    }
+    getUsersHTML(){
+        let usersHTML = "";
+        let roleOptions = [{
+            name: "Admin",
+            value: "admin",
+        },{
+            name: "Marketing",
+            value: "marketing",
+        }, {
+            name: "User",
+            value: "user",
+        }]
+        for(let user of this.users){
+            usersHTML += `
+                    <div class="cell dashboard-email">${user.email}</div>
+                    <div class="cell user-role">
+                        <custom-select data-email="${user.email}" data-presenter="custom-select" data-options="${encodeURIComponent(JSON.stringify(roleOptions))}" data-selected="${user.role}" data-name="role" data-width="150"></custom-select>
+                    </div>
+                    <div class="cell user-logs" data-local-action="openUserLog ${encodeURIComponent(user.email)}">View logs</div>
+            `;
+        }
+        return usersHTML;
     }
     debounce(fn, delay) {
         let timeout;
@@ -86,13 +112,30 @@ export class FounderDashboardPage {
         const searchInput = this.element.querySelector('#founderSearchInput');
         const debouncedInputHandler = this.debounce(async function(e) {
             this.searchQuery = e.target.value;
-            let {users, spaces} = await spaceModule.getMatchingUsersOrSpaces(this.searchQuery);
+            let usersList = this.element.querySelector('.users-list');
+            await assistOS.loadifyComponent(usersList, async () => {
+                let {users, spaces} = await spaceModule.getMatchingUsersOrSpaces(this.searchQuery);
+                this.spaces = spaces;
+                this.users = users;
+                this.displayUsers();
+            });
             //this.updateSpacesList();
         }.bind(this), 1000);
         searchInput.addEventListener('input', debouncedInputHandler);
-
+        let usersList = this.element.querySelector('.users-list');
+        usersList.addEventListener('change', async (event) => {
+            let email = event.target.getAttribute('data-email');
+            let role = event.value;
+            await userModule.setUserRole(email, role);
+        });
     }
-
+    displayUsers(){
+        let usersList = this.element.querySelector('.users-list');
+        usersList.innerHTML = this.getUsersHTML();
+    }
+    async openUserLog(target, email) {
+        await assistOS.UI.showModal("user-logs", {email: email});
+    }
     generateSpacesList() {
         let filteredSpaces = this.getFilteredSpaces(this.spaces);
 

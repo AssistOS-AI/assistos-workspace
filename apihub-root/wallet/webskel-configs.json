@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "user-logs",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "UserLogs"
+        },
+        {
             "name": "edit-variable-value",
             "directory": "document",
             "type": "modals",

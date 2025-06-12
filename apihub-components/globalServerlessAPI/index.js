@@ -50,7 +50,7 @@ function Space(server) {
             if(!founderEmail){
                 console.error("SYSADMIN_EMAIL environment variable is not set");
             }
-            let founderId = await globalAdminClient.getFounderId(process.env.SERVERLESS_AUTH_SECRET);
+             let founderId = await globalAdminClient.getFounderId(process.env.SERVERLESS_AUTH_SECRET);
             let spaceModule = require("assistos").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });

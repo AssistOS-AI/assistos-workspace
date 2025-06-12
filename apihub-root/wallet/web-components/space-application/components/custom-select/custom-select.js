@@ -2,7 +2,12 @@ export class CustomSelect{
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
-        this.props = props;
+        let options = this.element.getAttribute('data-options');
+        if(options){
+            this.options = JSON.parse(decodeURIComponent(options));
+        } else {
+            this.options = props.options;
+        }
         this.defaultSelected = this.element.getAttribute("data-selected");
         this.name = this.element.getAttribute("data-name");
         this.invalidate();
@@ -11,11 +16,17 @@ export class CustomSelect{
 
     }
     afterRender() {
-        this.renderOptions(this.props.options);
+        this.renderOptions(this.options);
         if(this.defaultSelected){
             let selectedOption = this.element.querySelector(`.option[data-value="${this.defaultSelected}"]`);
             if (selectedOption) {
-                this.selectOption(selectedOption);
+                let otherSelectedOption = this.element.querySelector(".option[data-selected='true']");
+                if(otherSelectedOption){
+                    otherSelectedOption.removeAttribute("data-selected");
+                }
+                selectedOption.setAttribute("data-selected", "true");
+                let currentOption = this.element.querySelector(".current-option");
+                currentOption.innerHTML = selectedOption.innerHTML;
             }
         }
         this.width = parseInt(this.element.getAttribute("data-width"));

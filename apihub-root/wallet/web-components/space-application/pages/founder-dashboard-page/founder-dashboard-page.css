@@ -142,7 +142,7 @@
 .founder-spaces-container {
     max-width: 1400px;
     margin: 0 auto;
-    padding: 0 var(--page-padding);
+    padding: 0 40px;
     scroll-behavior: auto;
     overflow-y:scroll;
 }
@@ -465,4 +465,45 @@
         transform: translateX(100%);
         opacity: 0;
     }
+}
+.users-container{
+    padding: 0 40px;
+    margin-bottom: 20px;
+}
+.table-labels{
+    font-size: 16px;
+    display: grid;
+    grid-template-columns: 3fr 1fr 2fr;
+}
+.cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 5px;
+    padding-top: 18px;
+    border-bottom: 1px solid var(--light-gray-border);
+    height: 55px;
+}
+.user-role{
+    padding-top: 5px;
+    overflow: visible;
+}
+.users-list{
+    display: grid;
+    grid-template-columns: 3fr 1fr 2fr;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.table-label{
+    font-size: 16px;
+    color: var(--plugin-focus);
+    border-bottom: 3px solid var(--light-gray-border);
+    padding: 5px;
+}
+.user-logs{
+    cursor: pointer;
+    text-align: center;
+}
+.user-logs:hover{
+    text-decoration: underline;
 }
