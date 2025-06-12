@@ -10,17 +10,32 @@ async function AssistOSAdmin(){
 
     await persistence.createIndex("spaceStatus", "name");
 
+    let userLogger = await $$.loadPlugin("UserLoggerPlugin");
+
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
     self.getAllSpaces = async function(){
         return await persistence.getEverySpaceStatusObject();
     }
-    self.createSpace = async function(spaceName){
+    self.createSpace = async function(spaceName, email){
         let spaceData = {
             name: spaceName
         }
-        return await persistence.createSpaceStatus(spaceData);
+        let space = await persistence.createSpaceStatus(spaceData);
+        let UserLogin = await $$.loadPlugin("UserLogin");
+
+        let result = await UserLogin.getUserInfo(email);
+        let userInfo = result.userInfo;
+        userInfo.currentSpaceId = space.id;
+        if(!userInfo.spaces){
+            userInfo.spaces = [];
+        }
+        userInfo.spaces.push(space.id);
+        await UserLogin.setUserInfo(email, userInfo);
+        let userLoginStatus = await persistence.getUserLoginStatus(email);
+        await userLogger.userLog(userLoginStatus.globalUserId, `Created space: ${space.name}`);
+        return space;
     }
     self.deleteSpace = async function (email, spaceId) {
         let UserLogin = await $$.loadPlugin("UserLogin");
@@ -31,11 +46,9 @@ async function AssistOSAdmin(){
         }
         let spaceStatus = await self.getSpaceStatus(spaceId);
 
-        //unlink space from all users
-        for (let userId of Object.keys(spaceStatus.users)) {
-            await self.unlinkSpaceFromUser(email, spaceId);
-        }
         await persistence.deleteSpaceStatus(spaceId);
+        let userLoginStatus = await persistence.getUserLoginStatus(email);
+        await userLogger.userLog(userLoginStatus.globalUserId, `Deleted space: ${spaceStatus.name}`);
     }
     self.getSpaceStatus = async function(spaceId){
         let spaceExists = await persistence.hasSpaceStatus(spaceId);
@@ -43,25 +56,9 @@ async function AssistOSAdmin(){
             return await persistence.getSpaceStatus(spaceId);
         }
     }
-    self.linkSpaceToUser = async function (email, spaceId) {
+    self.addSpaceToUsers = async function(userEmails, spaceId, referrerEmail){
         let UserLogin = await $$.loadPlugin("UserLogin");
-
-        let result = await UserLogin.getUserInfo(email);
-        let userInfo = result.userInfo;
-        userInfo.currentSpaceId = spaceId;
-        if(!userInfo.spaces){
-            userInfo.spaces = [];
-        }
-        if(userInfo.spaces.includes(spaceId)){
-            console.log(`User ${email} is already linked to space ${spaceId}`);
-            return;
-        }
-        userInfo.spaces.push(spaceId);
-        await UserLogin.setUserInfo(email, userInfo);
-    }
-    self.addSpaceToUsers = async function(userEmails, spaceId){
-        let UserLogin = await $$.loadPlugin("UserLogin");
-
+        let referrerUser = await persistence.getUserLoginStatus(referrerEmail);
         for(let email of userEmails){
             let result = await UserLogin.getUserInfo(email);
             if(result.status === "success"){
@@ -73,8 +70,10 @@ async function AssistOSAdmin(){
                 throw new Error(result.reason);
             }
         }
+        let spaceStatus = await self.getSpaceStatus(spaceId);
+        await userLogger.userLog(referrerUser.globalUserId, `Invited ${userEmails.length} users to space: ${spaceStatus.name}`);
     }
-    self.unlinkSpaceFromUser = async function (email, spaceId) {
+    self.unlinkSpaceFromUser = async function (referrerEmail, email, spaceId) {
         let UserLogin = await $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
@@ -84,6 +83,9 @@ async function AssistOSAdmin(){
             userInfo.currentSpaceId = userInfo.spaces.length > 0 ? userInfo.spaces[0] : null;
         }
         await UserLogin.setUserInfo(email, userInfo);
+        let referrerUser = await persistence.getUserLoginStatus(referrerEmail);
+        let spaceStatus = await self.getSpaceStatus(spaceId);
+        await userLogger.userLog(referrerUser.globalUserId, `Removed 1 user from space: ${spaceStatus.name}`);
     }
     self.getDefaultSpaceId = async function(email) {
         let UserLogin = await $$.loadPlugin("UserLogin");
@@ -144,7 +146,6 @@ module.exports = {
             //     case "listAllSpaces":
             //         return args[0] === process.env.SERVERLESS_AUTH_SECRET;
             //
-            //     case "linkSpaceToUser":
             //     case "addSpaceToUsers":
             //     case "deleteSpace":
             //         if(await singletonInstance.isFounder(globalUserId)){
@@ -204,6 +205,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["StandardPersistence"];
+        return ["StandardPersistence", "UserLoggerPlugin"];
     }
 }

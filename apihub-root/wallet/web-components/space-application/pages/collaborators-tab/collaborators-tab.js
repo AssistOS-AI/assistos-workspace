@@ -88,7 +88,7 @@ export class CollaboratorsTab {
         let message = `Are you sure you want to delete collaborator ${email}?`;
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message: message}, true);
         if (confirmation) {
-            let message = await spaceModule.removeCollaborator(assistOS.space.id, email);
+            let message = await spaceModule.removeCollaborator(assistOS.space.email, assistOS.space.id, email);
             if (message) {
                 alert(message);
             } else {

@@ -1,6 +1,5 @@
 const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
-const axios = require('axios');
 const cache = {};
 const Handler = require('./handler.js');
 const {pipeline} = require('stream');

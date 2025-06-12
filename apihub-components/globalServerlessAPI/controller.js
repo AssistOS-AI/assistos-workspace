@@ -83,11 +83,10 @@ async function createSpace(request, response, server) {
         let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         let space;
         try {
-            space = await client.createSpace(spaceName);
+            space = await client.createSpace(spaceName, request.email);
         } catch (e) {
             return utils.sendResponse(response, 500, "text/plain", e.message);
         }
-        await client.linkSpaceToUser(email, space.id);
         await secrets.createSpaceSecretsContainer(space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
@@ -117,7 +116,9 @@ async function createSpace(request, response, server) {
         server.registerServerlessProcess(serverlessId, serverlessAPI);
 
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
+        let workspaceUser = await getAPIClient(request, constants.WORKSPACE_USER_PLUGIN, space.id);
         await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
+        await workspaceUser.createUser(email, email, "admin");
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
@@ -190,7 +191,7 @@ async function deleteSpace(request, response, server) {
             //delete space folder
             let spacePath = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             await fsPromises.rm(spacePath, {recursive: true, force: true});
-            await secrets.deleteSpaceSecrets(spaceId);
+            await secrets.deleteSpaceSecrets(spaceId, request.userId);
 
             let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
             SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
