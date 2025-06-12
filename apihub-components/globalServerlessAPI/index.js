@@ -23,11 +23,14 @@ const path = require("path");
 const process = require("process");
 const secrets = require("../apihub-component-utils/secrets");
 const cookies = require("../apihub-component-utils/cookie.js");
+
+
+
 function Space(server) {
-    setTimeout(async ()=> {
-        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
+    setTimeout(async () => {
+        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "", {authToken: process.env.SERVERLESS_AUTH_SECRET});
         let spaces = await client.listAllSpaces();
-        for(let spaceId of spaces){
+        for (let spaceId of spaces) {
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             let apiKeys = await secrets.getAPIKeys(spaceId);
             server.createServerlessAPI({
@@ -44,22 +47,59 @@ function Space(server) {
             });
         }
         let founderSpaceExists = await client.founderSpaceExists();
-        if(!founderSpaceExists){
+        if (!founderSpaceExists) {
             let founderEmail = process.env.SYSADMIN_EMAIL;
-            if(!founderEmail){
+            if (!founderEmail) {
                 console.error("SYSADMIN_EMAIL environment variable is not set");
             }
             let founderId = await client.getFounderId();
             let spaceModule = require("assistos").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });
-            if(process.env.SYSADMIN_SPACE){
+            if (process.env.SYSADMIN_SPACE) {
                 console.warn(`SYSADMIN_SPACE environment variable is not set, using default "Admin Space`);
                 process.env.SYSADMIN_SPACE = "Admin Space";
             }
             await spaceModule.createSpace(process.env.SYSADMIN_SPACE, founderEmail);
         }
-    },0);
+    }, 0);
+
+    const PrometheusClient = require('prom-client');
+
+    const register = new PrometheusClient.Registry();
+
+    const totalRequestsCounter = new PrometheusClient.Counter({
+        name: 'total_requests_count',
+        help: 'Total number of HTTP requests',
+        registers: [register]
+    });
+
+    server.use("*",(req, res, next) => {
+        totalRequestsCounter.inc();
+        next();
+    });
+
+    server.get("/metrics", async (req, res) => {
+        const expectedToken = process.env.METRICS_AUTH_TOKEN;
+        const receivedToken = req.headers.authorization?.replace('Bearer ', '');
+
+        if (expectedToken && receivedToken !== expectedToken) {
+            res.writeHead(401, {'Content-Type': 'text/plain'});
+            res.end('Unauthorized');
+            return;
+        }
+
+        try {
+            const metrics = await register.metrics();
+            res.writeHead(200, {
+                'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'
+            });
+            res.end(metrics);
+        } catch (error) {
+            res.writeHead(500, {'Content-Type': 'text/plain'});
+            res.end('Internal Server Error');
+        }
+    });
 
     server.use("/spaces/*", contextMiddleware);
     server.head("/spaces/files/:fileId", headFile);
@@ -82,10 +122,10 @@ function Space(server) {
     /*spaces*/
     server.get("/spaces", getSpaceStatus);
     server.get("/spaces/:spaceId", getSpaceStatus);
-    server.post("/spaces", async (req, res)=>{
+    server.post("/spaces", async (req, res) => {
         await createSpace(req, res, server);
     });
-    server.delete("/spaces/:spaceId", async (req, res)=>{
+    server.delete("/spaces/:spaceId", async (req, res) => {
         await deleteSpace(req, res, server);
     });
 

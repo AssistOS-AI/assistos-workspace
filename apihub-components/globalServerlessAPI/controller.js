@@ -2,6 +2,7 @@ require('../../assistos-sdk/build/bundles/assistos_sdk.js');
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const crypto = require('../apihub-component-utils/crypto.js');
+
 const fsPromises = require('fs').promises;
 const path = require('path');
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
@@ -168,7 +169,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Table"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
