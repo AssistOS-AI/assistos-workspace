@@ -208,18 +208,6 @@ export class LeftSidebar {
         document.getElementById('baseTag').setAttribute('href', newBaseURL);
     }
 
-    async openAccountSettings() {
-        function hideDropdown() {
-            dropdownMenu.style.display = "none";
-            userPhotoContainer.removeEventListener('mouseleave', hideDropdown);
-        }
-
-        let userPhotoContainer = this.element.querySelector(".user-photo-container");
-        let dropdownMenu = this.element.querySelector(".user-action-menu");
-        hideDropdown();
-        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/account-settings-page`);
-    }
-
     openUserActions(_target) {
         let userPhotoContainer = this.element.querySelector(".user-photo-container");
         let dropdownMenu = this.element.querySelector(".user-action-menu");

@@ -37,8 +37,8 @@ async function listUserSpaces(req, res){
     }
     email = decodeURIComponent(email);
     try {
-        const appSpecificClient = await getAPIClient(req, constants.APP_SPECIFIC_PLUGIN);
-        const user = await appSpecificClient.listUserSpaces(email);
+        const adminClient = await getAPIClient(req, constants.ASSISTOS_ADMIN_PLUGIN);
+        const user = await adminClient.listUserSpaces(email);
         utils.sendResponse(res, 200, "application/json", user);
     } catch (e) {
         utils.sendResponse(res, 500, "text/plain", e.message);
@@ -49,7 +49,7 @@ async function listUserSpaces(req, res){
 async function getSpaceStatus(request, response) {
     try {
         let spaceId;
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         const email = request.email;
         if (request.params.spaceId && request.params.spaceId !== "undefined") {
             spaceId = request.params.spaceId;
@@ -58,10 +58,9 @@ async function getSpaceStatus(request, response) {
         } else {
             spaceId = await client.getDefaultSpaceId(email);
         }
-
-        let spaceStatus = await client.getSpaceStatus(spaceId);
+        let workspace = await client.getSpaceStatus(spaceId);
         await client.setUserCurrentSpace(email, spaceId);
-        utils.sendResponse(response, 200, "application/json", spaceStatus, cookie.createCurrentSpaceCookie(spaceId));
+        utils.sendResponse(response, 200, "application/json", workspace, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: error.message
@@ -82,16 +81,15 @@ async function createSpace(request, response, server) {
         return;
     }
     try {
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         let space;
         try {
-            space = await client.createSpace(spaceName, email);
+            space = await client.createSpace(spaceName);
         } catch (e) {
             return utils.sendResponse(response, 500, "text/plain", e.message);
         }
-
-        await secrets.createSpaceSecretsContainer(space.id);
         await client.linkSpaceToUser(email, space.id);
+        await secrets.createSpaceSecretsContainer(space.id);
 
         let spacesFolder = path.join(server.rootFolder, "external-volume", "spaces");
         let serverlessAPIStorage = path.join(spacesFolder, space.id);
@@ -120,7 +118,7 @@ async function createSpace(request, response, server) {
         server.registerServerlessProcess(serverlessId, serverlessAPI);
 
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
-        await workspaceClient.createWorkspace(space.name, space.id, request.userId, email);
+        await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
 
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
@@ -185,7 +183,7 @@ async function deleteSpace(request, response, server) {
     const spaceId = request.params.spaceId;
     let email = request.email;
     try {
-        let client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        let client = await getAPIClient(request, constants.ASSISTOS_ADMIN_PLUGIN);
         let message = await client.deleteSpace(email, spaceId);
         if (!message) {
             //space deleted
@@ -609,7 +607,7 @@ const getApplicationEntry = async (request, response) => {
 
 async function isFounder(request, response) {
     try {
-        const client = await getAPIClient(request, constants.APP_SPECIFIC_PLUGIN);
+        const client = await getAPIClient(request, constants.ADMIN_PLUGIN);
         const isFounder = await client.isFounder(request.userId);
         utils.sendResponse(response, 200, "application/json", isFounder);
     } catch (error) {

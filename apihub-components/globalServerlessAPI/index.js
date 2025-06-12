@@ -23,14 +23,11 @@ const path = require("path");
 const process = require("process");
 const secrets = require("../apihub-component-utils/secrets");
 const cookies = require("../apihub-component-utils/cookie.js");
-
-
-
 function Space(server) {
-    setTimeout(async () => {
-        let client = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.APP_SPECIFIC_PLUGIN, "", {authToken: process.env.SERVERLESS_AUTH_SECRET});
-        let spaces = await client.listAllSpaces();
-        for (let spaceId of spaces) {
+    setTimeout(async ()=> {
+        let adminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ASSISTOS_ADMIN_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
+        let spaces = await adminClient.listAllSpaces(process.env.SERVERLESS_AUTH_SECRET);
+        for(let spaceId of spaces){
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             let apiKeys = await secrets.getAPIKeys(spaceId);
             server.createServerlessAPI({
@@ -46,13 +43,14 @@ function Space(server) {
                 server.registerServerlessProcess(spaceId, serverlessAPI);
             });
         }
-        let founderSpaceExists = await client.founderSpaceExists();
-        if (!founderSpaceExists) {
+        let founderSpaceExists = await adminClient.founderSpaceExists();
+        if(!founderSpaceExists){
+            let globalAdminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ADMIN_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
             let founderEmail = process.env.SYSADMIN_EMAIL;
-            if (!founderEmail) {
+            if(!founderEmail){
                 console.error("SYSADMIN_EMAIL environment variable is not set");
             }
-            let founderId = await client.getFounderId();
+            let founderId = await globalAdminClient.getFounderId(process.env.SERVERLESS_AUTH_SECRET);
             let spaceModule = require("assistos").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });
@@ -122,10 +120,10 @@ function Space(server) {
     /*spaces*/
     server.get("/spaces", getSpaceStatus);
     server.get("/spaces/:spaceId", getSpaceStatus);
-    server.post("/spaces", async (req, res) => {
+    server.post("/spaces", async (req, res)=>{
         await createSpace(req, res, server);
     });
-    server.delete("/spaces/:spaceId", async (req, res) => {
+    server.delete("/spaces/:spaceId", async (req, res)=>{
         await deleteSpace(req, res, server);
     });
 

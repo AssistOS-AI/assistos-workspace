@@ -626,12 +626,6 @@
             "presenterClassName": "LandingPage"
         },
         {
-            "name": "account-settings-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "AccountSettingsPage"
-        },
-        {
             "name": "application-item",
             "directory": "application",
             "type": "components",

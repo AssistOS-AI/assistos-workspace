@@ -1,4 +1,5 @@
 import {generateAvatar} from "../../../../imports.js";
+let userModule = assistOS.loadModule("user");
 
 function mapServerAuthNameToUiAuthName(authName) {
     switch (authName) {
@@ -47,7 +48,13 @@ export class MyAccount {
     }
 
     async beforeRender() {
-        this.email = localStorage.getItem("userEmail");
+        let logs = await userModule.getUserLogs(assistOS.user.email);
+        let logsHTML = "";
+        for(let log of logs) {
+            logsHTML += `<div class="log-entry">${log}</div>`;
+        }
+        this.userLogs = logsHTML;
+        this.email = assistOS.user.email;
         this.name = this.email.split("@")[0];
         const uint8 = await generateAvatar(this.name, 100)
         const blob = new Blob([uint8], {type: 'image/png'})

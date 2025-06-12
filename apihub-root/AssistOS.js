@@ -253,7 +253,6 @@ class AssistOS {
 
     async initUser(email) {
         const userModule = this.loadModule("user");
-        let userId = localStorage.getItem("userEmail");
         assistOS.user = await userModule.loadUser(email);
         assistOS.user.email = localStorage.getItem("userEmail");
         assistOS.user.id = localStorage.getItem("userEmail");
