@@ -54,13 +54,50 @@ function Space(server) {
             let spaceModule = require("assistos").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });
-            if(process.env.SYSADMIN_SPACE){
+            if (process.env.SYSADMIN_SPACE) {
                 console.warn(`SYSADMIN_SPACE environment variable is not set, using default "Admin Space`);
                 process.env.SYSADMIN_SPACE = "Admin Space";
             }
             await spaceModule.createSpace(process.env.SYSADMIN_SPACE, founderEmail);
         }
-    },0);
+    }, 0);
+
+    const PrometheusClient = require('prom-client');
+
+    const register = new PrometheusClient.Registry();
+
+    const totalRequestsCounter = new PrometheusClient.Counter({
+        name: 'total_requests_count',
+        help: 'Total number of HTTP requests',
+        registers: [register]
+    });
+
+    server.use("*",(req, res, next) => {
+        totalRequestsCounter.inc();
+        next();
+    });
+
+    server.get("/metrics", async (req, res) => {
+        const expectedToken = process.env.METRICS_AUTH_TOKEN;
+        const receivedToken = req.headers.authorization?.replace('Bearer ', '');
+
+        if (expectedToken && receivedToken !== expectedToken) {
+            res.writeHead(401, {'Content-Type': 'text/plain'});
+            res.end('Unauthorized');
+            return;
+        }
+
+        try {
+            const metrics = await register.metrics();
+            res.writeHead(200, {
+                'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'
+            });
+            res.end(metrics);
+        } catch (error) {
+            res.writeHead(500, {'Content-Type': 'text/plain'});
+            res.end('Internal Server Error');
+        }
+    });
 
     server.use("/spaces/*", contextMiddleware);
     server.head("/spaces/files/:fileId", headFile);

@@ -9,6 +9,7 @@
     "update": "node ./node_modules/octopus/scripts/update",
     "server": "npm run build && node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
     "start": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
+    "server-all": "concurrently \"npm run server\" \"npm --prefix ../LLMOS run server\"",
     "server-clean": "npm run clean-state && npm run server",
     "worker": "node ./node_modules/octopus/scripts/setEnv --file=../../../env-worker.json \"cd opendsu-sdk && npm run start\"",
     "apihub": "node ./node_modules/octopus/scripts/setEnv --file=../../../env.json \"cd opendsu-sdk && npm run start\"",
@@ -18,6 +19,7 @@
     "tag-freeze": "node ./node_modules/octopus/scripts/tagFreeze dependencies",
     "enclaves": "node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./brand-remote-enclave-config.json\" & node ./opendsu-sdk/psknode/bin/scripts/enclaveLauncher.js \"./accounting-remote-enclave-config.json\"",
     "clean-state": "./cleanState.sh",
+    "delete-enclaves-content-win": "rmdir /s /q SVDS && rmdir /s /q remote-enclave-root-brand && cd .\\apihub-root\\external-volume\\mqs && rmdir /s /q vault",
     "build": "cd ./assistos-sdk && npm run build && cd .. && node ./node_modules/octopus/scripts/run build devmode"
   },
   "repository": {
@@ -39,5 +41,6 @@
     "octopus": "git+http://github.com/opendsu/octopus.git",
     "openai": "^5.3.0",
     "unzipper": "^0.10.14"
+    "prom-client": "^15.1.3",
   }
 }
