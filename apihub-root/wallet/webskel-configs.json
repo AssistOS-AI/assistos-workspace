@@ -4,6 +4,17 @@
     "services": [],
     "components": [
         {
+            "name": "dashboard-space-item",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "DashboardSpaceItem"
+        },
+        {
+            "name": "dashboard-user-menu",
+            "directory": "space-application",
+            "type": "components"
+        },
+        {
             "name": "user-logs",
             "directory": "space-application",
             "type": "modals",

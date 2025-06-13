@@ -42,8 +42,8 @@
                 </svg>
             </div>
             <div class="founder-stat-content">
-                <h3 class="founder-stat-value">$$totalMembers</h3>
-                <p class="founder-stat-label">Total Members</p>
+                <h3 class="founder-stat-value">$$totalUsers</h3>
+                <p class="founder-stat-label">Total Users</p>
             </div>
         </div>
 
@@ -84,6 +84,17 @@
         <div class="users-list">
             $$usersHTML
         </div>
+        <div class="pagination">
+            <div class="arrow-container previous-users" data-local-action="changeUserPage previous">
+                <img src="./wallet/assets/icons/arrow-up.svg" class="pagination-icon previous" alt="Previous">
+                <span class="pagination-label">Previous</span>
+            </div>
+            <div class="empty-space"></div>
+            <div class="arrow-container next-users" data-local-action="changeUserPage next">
+                <span class="pagination-label">Next</span>
+                <img src="./wallet/assets/icons/arrow-up.svg" class="pagination-icon next" alt="Next">
+            </div>
+        </div>
     </div>
     <div class="founder-spaces-container">
         <div class="founder-section-header">
@@ -92,6 +103,17 @@
 
         <div class="founder-spaces-list" id="founderSpacesList">
             $$spacesContent
+        </div>
+        <div class="pagination">
+            <div class="arrow-container previous-spaces" data-local-action="changeSpacePage previous">
+                <img src="./wallet/assets/icons/arrow-up.svg" class="pagination-icon previous" alt="Previous">
+                <span class="pagination-label">Previous</span>
+            </div>
+            <div class="empty-space"></div>
+            <div class="arrow-container next-spaces" data-local-action="changeSpacePage next">
+                <span class="pagination-label">Next</span>
+                <img src="./wallet/assets/icons/arrow-up.svg" class="pagination-icon next" alt="Next">
+            </div>
         </div>
     </div>
     <iframe src="http://localhost:3000/d-solo/ce68b19b-77d8-4287-86ab-39c758a1c6c0/app-monitoring-dashboard?orgId=1&panelId=1&kiosk=1&theme=dark" width="100%" height="500" frameborder="0"></iframe>

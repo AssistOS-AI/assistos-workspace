@@ -16,10 +16,23 @@ async function AssistOSAdmin(){
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
     }
-    self.getAllSpaces = async function(){
-        return await persistence.getEverySpaceStatusObject();
+    self.getSpaces = async function(offset = 0, limit = 10){
+        let allSpaceIds = await persistence.getEverySpaceStatus();
+        let spaceIds = allSpaceIds.slice(offset, offset + limit);
+        let spaces = [];
+        for(let spaceId of spaceIds){
+            let space = await persistence.getSpaceStatus(spaceId);
+            spaces.push({
+                id: space.id,
+                name: space.name
+            });
+        }
+        return spaces;
     }
-
+    self.getSpacesCount = async function(){
+        let spaces = await persistence.getEverySpaceStatus();
+        return spaces.length;
+    }
     self.createSpace = async function(spaceName, email){
         let spaceData = {
             name: spaceName
