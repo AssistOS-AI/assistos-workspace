@@ -140,15 +140,15 @@ async function AssistOSAdmin(){
     }
 
     self.getMatchingSpaces = async function(input, offset = 0, limit = 10) {
-        let spaces = await persistence.getEverySpaceStatusObject();
-        let matchingSpaces = [];
-        for(let space of spaces){
-            if(space.name.includes(input)){
-                matchingSpaces.push(space);
-            }
+        let names = await persistence.getEverySpaceStatusName();
+        let matchingNames = names.filter(name => name.includes(input));
+        matchingNames = matchingNames.slice(offset, offset + limit);
+        let spaces = [];
+        for(let name of matchingNames){
+            let space = await persistence.getSpaceStatus(name);
+            spaces.push(space);
         }
-        matchingSpaces = matchingSpaces.slice(offset, offset + limit);
-        return matchingSpaces;
+        return spaces;
     }
     return self;
 }

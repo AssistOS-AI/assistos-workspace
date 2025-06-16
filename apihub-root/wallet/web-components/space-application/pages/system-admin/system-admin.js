@@ -3,14 +3,13 @@ export class SystemAdmin {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-
         this.searchQuery = '';
         this.invalidate();
     }
 
     async beforeRender() {
         this.usersOffset = 0;
-        this.paginationLimit = 6;
+        this.paginationLimit = 11;
         this.users = await userModule.getUsers(this.usersOffset, this.paginationLimit);
         this.totalUsers = await userModule.getUsersCount();
         this.totalAdmins = this.users.filter(user => user.role === "admin").length;

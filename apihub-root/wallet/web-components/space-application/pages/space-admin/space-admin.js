@@ -1,5 +1,4 @@
 const spaceModule = assistOS.loadModule("space");
-const userModule = assistOS.loadModule("user");
 export class SpaceAdmin {
     constructor(element, invalidate) {
         this.element = element;
@@ -10,7 +9,7 @@ export class SpaceAdmin {
 
     async beforeRender() {
         this.spacesOffset = 0;
-        this.paginationLimit = 6;
+        this.paginationLimit = 11;
         this.spaces = await spaceModule.getSpaces(this.spacesOffset, this.paginationLimit);
         this.totalSpaces = await spaceModule.getSpacesCount();
         this.totalDocuments = await spaceModule.getAllDocumentsCount();
@@ -75,6 +74,9 @@ export class SpaceAdmin {
     }
 
     generateSpacesList() {
+        if(this.spaces.length === 0) {
+            return `<div class="founder-empty-users">No spaces found</div>`;
+        }
         let spacesList = "";
         for(let i= 0; i < this.paginationLimit - 1; i++){
             let space = this.spaces[i];

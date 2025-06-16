@@ -1,10 +1,6 @@
-system-admin{
+.page-body{
     overflow-y: auto;
-}
-.founder-dashboard {
-    min-height: 100vh;
-    background: var(--white);
-    font-family: var(--default-font);
+    height: calc(100vh - 75px);
 }
 
 .founder-dashboard-header {
