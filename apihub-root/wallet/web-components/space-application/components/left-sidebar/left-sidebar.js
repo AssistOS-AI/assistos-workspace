@@ -27,12 +27,12 @@ export class LeftSidebar {
     async beforeRender() {
         let role = assistOS.user.role;
         if (role === assistOS.globalRoles.ADMIN || role === assistOS.globalRoles.MARKETING) {
-            this.founderDashboard =`
+            this.adminActions =`
             <div class="admin-page pointer" data-local-action="openAdminPage system-admin">System Admin</div>
             <div class="admin-page pointer" data-local-action="openAdminPage space-admin">Space Admin</div>
             `;
         } else {
-            this.founderDashboard = "";
+            this.adminActions = "";
         }
         this.applications = "";
         let userImageURL = "./wallet/assets/images/defaultUserPhoto.png";
@@ -121,7 +121,9 @@ export class LeftSidebar {
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
     }
-
+    async openCreateTicket(){
+        await assistOS.UI.showModal("create-ticket");
+    }
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
             `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);

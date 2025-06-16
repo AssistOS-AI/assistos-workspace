@@ -81,8 +81,7 @@
     color: var(--form-input);
 }
 .founder-dashboard-stats {
-    max-width: 1400px;
-    margin: 0 auto;
+    max-width: 1000px;
     padding: var(--page-padding);
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));

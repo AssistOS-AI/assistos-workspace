@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "create-ticket",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "CreateTicket"
+        },
+        {
+            "name": "support-tickets",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "SupportTickets"
+        },
+        {
             "name": "space-admin",
             "directory": "space-application",
             "type": "pages",

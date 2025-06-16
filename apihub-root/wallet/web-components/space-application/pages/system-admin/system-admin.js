@@ -10,6 +10,8 @@ export class SystemAdmin {
     async beforeRender() {
         this.usersOffset = 0;
         this.paginationLimit = 11;
+        this.totalTickets = await userModule.getTicketsCount();
+        this.unresolvedTickets = await userModule.getUnresolvedTicketsCount();
         this.users = await userModule.getUsers(this.usersOffset, this.paginationLimit);
         this.totalUsers = await userModule.getUsersCount();
         this.totalAdmins = this.users.filter(user => user.role === "admin").length;
@@ -174,7 +176,9 @@ export class SystemAdmin {
             await userModule.deleteUser(email);
         }
     }
-
+    async openTicketsModal(){
+        await assistOS.UI.showModal("support-tickets");
+    }
     showNotification(message, type = 'success') {
         const notification = document.createElement('div');
         notification.className = 'founder-notification';

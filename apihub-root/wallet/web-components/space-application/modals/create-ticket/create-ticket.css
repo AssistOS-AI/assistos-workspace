@@ -1,0 +1,16 @@
+create-ticket{
+    display: block;
+    width: 800px;
+}
+.modal-body{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+create-ticket .general-button{
+    margin-top: 55px;
+    width: fit-content;
+}
+create-ticket textarea{
+    height: 200px;
+}

@@ -1,0 +1,26 @@
+support-tickets {
+    width: 1200px;
+    display: block;
+}
+.pagination{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+.previous{
+    transform: rotate(270deg);
+}
+.next{
+    transform: rotate(90deg);
+}
+.arrow-container{
+    display: flex;
+    cursor: pointer;
+}
+.empty-space{
+    width: 40px;
+}
+.pagination-icon{
+    margin: 0 5px;
+}
