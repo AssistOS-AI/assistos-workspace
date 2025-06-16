@@ -22,3 +22,9 @@ dashboard-user-menu{
 .menu-item:hover{
     background-color: var(--action-button-background);
 }
+.block.blocked-user{
+    display: none;
+}
+.unblock.unblocked-user{
+    display: none;
+}

@@ -34,10 +34,17 @@ export class FounderDashboardPage {
             name: "User",
             value: "user",
         }]
+        if(this.users.length === 0) {
+            return `<div class="founder-empty-users">No users found</div>`;
+        }
         for(let i= 0; i < this.paginationLimit - 1; i++){
             let user = this.users[i];
             if(!user) {
                 continue;
+            }
+            let blockedHTML = "";
+            if(user.blocked){
+                blockedHTML = `<img class="blocked-user" src="./wallet/assets/icons/blocked.svg" alt="blocked">`;
             }
             usersHTML += `
                     <div class="cell dashboard-email">${user.email}</div>
@@ -45,13 +52,22 @@ export class FounderDashboardPage {
                         <custom-select data-email="${user.email}" data-presenter="custom-select" data-options="${encodeURIComponent(JSON.stringify(roleOptions))}" data-selected="${user.role}" data-name="role" data-width="150"></custom-select>
                     </div>
                     <div class="action-cell">
+                        ${blockedHTML}
                         <div class="circle-button" data-local-action="showActionBox dashboard-user-menu ${encodeURIComponent(user.email)}">
                             <img src="./wallet/assets/icons/action-dots.svg" alt="menu">
                         </div>
                     </div>
             `;
         }
-        return usersHTML;
+        return `
+        <div class="table-labels">
+            <div class="table-label">Email</div>
+            <div class="table-label">Role</div>
+            <div class="table-label"></div>
+        </div>
+        <div class="users-list">
+            ${usersHTML}
+        </div>`;
     }
     debounce(fn, delay) {
         let timeout;
@@ -61,7 +77,16 @@ export class FounderDashboardPage {
         };
     }
     async showActionBox(button, componentName ,encodedEmail) {
-        await assistOS.UI.showActionBox(button, "", componentName, "append", {email: encodedEmail});
+        let user = this.users.find(u => u.email === decodeURIComponent(encodedEmail));
+        let props = {
+            email: encodedEmail
+        }
+        if(user.blocked){
+            props.blocked = "blocked-user";
+        } else {
+            props.blocked = "unblocked-user";
+        }
+        await assistOS.UI.showActionBox(button, "", componentName, "append", props);
     }
     async afterRender() {
         const searchInput = this.element.querySelector('#founderSearchInput');
@@ -70,14 +95,26 @@ export class FounderDashboardPage {
                 return; // Ignore very short inputs
             }
             this.searchQuery = e.target.value;
-            let usersList = this.element.querySelector('.users-list');
+            let loaderResolve;
+            let promise = new Promise((resolve) => {
+                loaderResolve = resolve;
+            });
+
+            let spacesList = this.element.querySelector('.founder-spaces-list');
+            assistOS.loadifyComponent(spacesList, async () => await promise);
+            let usersList = this.element.querySelector('.users-list-container');
+
             await assistOS.loadifyComponent(usersList, async () => {
                 let {users, spaces} = await spaceModule.getMatchingUsersOrSpaces(this.searchQuery);
                 this.spaces = spaces;
                 this.users = users;
                 this.displayUsers();
                 this.changePaginationArrowsUsers();
+                this.displaySpaces();
+                this.changePaginationArrowsSpaces();
+                loaderResolve();
             });
+
         }.bind(this), 1000);
         searchInput.addEventListener('input', debouncedInputHandler);
         let usersList = this.element.querySelector('.users-list');
@@ -125,7 +162,7 @@ export class FounderDashboardPage {
         } else if (direction === 'previous') {
             this.usersOffset -= this.paginationLimit - 1;
         }
-        let usersList = this.element.querySelector('.users-list');
+        let usersList = this.element.querySelector('.users-list-container');
         await assistOS.loadifyComponent(usersList, async () => {
             this.users = await userModule.getUsers(this.usersOffset, this.paginationLimit);
             this.displayUsers();
@@ -146,11 +183,43 @@ export class FounderDashboardPage {
         });
     }
     displayUsers(){
-        let usersList = this.element.querySelector('.users-list');
-        usersList.innerHTML = this.getUsersHTML();
+        let usersTableContainer = this.element.querySelector('.users-list-container');
+        usersTableContainer.innerHTML = this.getUsersHTML();
     }
     async openUserLog(target, encodedEmail) {
         await assistOS.UI.showModal("user-logs", {email: encodedEmail});
+    }
+    async blockUser(target, encodedEmail) {
+        let email = decodeURIComponent(encodedEmail);
+        let message = `Are you sure you want to block user with email ${email}?`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            await userModule.blockUser(email);
+            let user = this.users.find(u => u.email === email);
+            user.blocked = true;
+            this.invalidate();
+            this.showNotification(`User ${email} has been blocked.`);
+        }
+    }
+    async unblockUser(target, encodedEmail) {
+        let email = decodeURIComponent(encodedEmail);
+        let message = `Are you sure you want to unblock user with email ${email}?`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            await userModule.unblockUser(email);
+            let user = this.users.find(u => u.email === email);
+            user.blocked = false;
+            this.invalidate();
+            this.showNotification(`User ${email} has been unblocked.`);
+        }
+    }
+    async deleteUser(target, encodedEmail) {
+        let email = decodeURIComponent(encodedEmail);
+        let message = `Are you sure you want to delete user with email ${email}? This action cannot be undone.`;
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            await userModule.deleteUser(email);
+        }
     }
     generateSpacesList() {
         let spacesList = "";
