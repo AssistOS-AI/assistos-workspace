@@ -605,18 +605,6 @@ const getApplicationEntry = async (request, response) => {
         });
     }
 }
-
-async function isFounder(request, response) {
-    try {
-        const client = await getAPIClient(request, constants.ADMIN_PLUGIN);
-        const isFounder = await client.isFounder(request.userId);
-        utils.sendResponse(response, 200, "application/json", isFounder);
-    } catch (error) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error.message}`,
-        });
-    }
-}
 module.exports = {
     getApplicationEntry,
     getUploadURL,
@@ -637,6 +625,5 @@ module.exports = {
     importPersonality,
     chatCompleteParagraph,
     listUserSpaces,
-    restartServerless,
-    isFounder
+    restartServerless
 }

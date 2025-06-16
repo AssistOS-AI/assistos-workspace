@@ -1,9 +1,9 @@
-export class DashboardSpaceItem {
+export class AdminSpaceItem {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         let spaceId = this.element.getAttribute('data-space-id');
-        let dashboardPresenter = this.element.closest('founder-dashboard-page').webSkelPresenter;
+        let dashboardPresenter = this.element.closest('space-admin').webSkelPresenter;
         this.space = dashboardPresenter.spaces.find(space => space.spaceGlobalId === spaceId);
         this.invalidate();
     }

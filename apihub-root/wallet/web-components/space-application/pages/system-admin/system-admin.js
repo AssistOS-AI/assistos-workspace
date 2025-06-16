@@ -1,6 +1,5 @@
-const spaceModule = assistOS.loadModule("space");
 const userModule = assistOS.loadModule("user");
-export class FounderDashboardPage {
+export class SystemAdmin {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -11,28 +10,23 @@ export class FounderDashboardPage {
 
     async beforeRender() {
         this.usersOffset = 0;
-        this.spacesOffset = 0;
         this.paginationLimit = 6;
-        this.spaces = await spaceModule.getSpaces(this.spacesOffset, this.paginationLimit);
         this.users = await userModule.getUsers(this.usersOffset, this.paginationLimit);
-        this.totalSpaces = await spaceModule.getSpacesCount();
         this.totalUsers = await userModule.getUsersCount();
         this.totalAdmins = this.users.filter(user => user.role === "admin").length;
-        this.totalDocuments = await spaceModule.getAllDocumentsCount();
-        this.spacesContent = this.generateSpacesList();
         this.usersHTML = this.getUsersHTML();
     }
     getUsersHTML(){
         let usersHTML = "";
         let roleOptions = [{
             name: "Admin",
-            value: "admin",
+            value: assistOS.globalRoles.ADMIN,
         },{
             name: "Marketing",
-            value: "marketing",
+            value: assistOS.globalRoles.MARKETING,
         }, {
             name: "User",
-            value: "user",
+            value: assistOS.globalRoles.USER,
         }]
         if(this.users.length === 0) {
             return `<div class="founder-empty-users">No users found</div>`;
@@ -95,24 +89,12 @@ export class FounderDashboardPage {
                 return; // Ignore very short inputs
             }
             this.searchQuery = e.target.value;
-            let loaderResolve;
-            let promise = new Promise((resolve) => {
-                loaderResolve = resolve;
-            });
-
-            let spacesList = this.element.querySelector('.founder-spaces-list');
-            assistOS.loadifyComponent(spacesList, async () => await promise);
             let usersList = this.element.querySelector('.users-list-container');
 
             await assistOS.loadifyComponent(usersList, async () => {
-                let {users, spaces} = await spaceModule.getMatchingUsersOrSpaces(this.searchQuery);
-                this.spaces = spaces;
-                this.users = users;
+                this.users = await userModule.getMatchingUsers(this.searchQuery);
                 this.displayUsers();
                 this.changePaginationArrowsUsers();
-                this.displaySpaces();
-                this.changePaginationArrowsSpaces();
-                loaderResolve();
             });
 
         }.bind(this), 1000);
@@ -124,7 +106,6 @@ export class FounderDashboardPage {
             await userModule.setUserRole(email, role);
         });
         this.changePaginationArrowsUsers();
-        this.changePaginationArrowsSpaces();
     }
     changePaginationArrowsUsers(){
             let nextButton = this.element.querySelector('.next-users');
@@ -141,21 +122,6 @@ export class FounderDashboardPage {
                 prevButton.classList.remove('disabled');
             }
     }
-    changePaginationArrowsSpaces(){
-        let nextButton = this.element.querySelector('.next-spaces');
-        let prevButton = this.element.querySelector('.previous-spaces');
-        if (this.paginationLimit > this.spaces.length) {
-            nextButton.classList.add('disabled');
-        } else {
-            nextButton.classList.remove('disabled');
-        }
-
-        if (this.spacesOffset === 0) {
-            prevButton.classList.add('disabled');
-        } else {
-            prevButton.classList.remove('disabled');
-        }
-    }
     async changeUserPage(button, direction) {
         if (direction === 'next') {
             this.usersOffset += this.paginationLimit - 1;
@@ -169,19 +135,7 @@ export class FounderDashboardPage {
             this.changePaginationArrowsUsers();
         });
     }
-    async changeSpacePage(button, direction) {
-        if (direction === 'next') {
-            this.spacesOffset += this.paginationLimit - 1;
-        } else if (direction === 'previous') {
-            this.spacesOffset -= this.paginationLimit - 1;
-        }
-        let spacesList = this.element.querySelector('.founder-spaces-list');
-        await assistOS.loadifyComponent(spacesList, async () => {
-            this.spaces = await spaceModule.getSpaces(this.spacesOffset, this.paginationLimit);
-            this.displaySpaces();
-            this.changePaginationArrowsSpaces();
-        });
-    }
+
     displayUsers(){
         let usersTableContainer = this.element.querySelector('.users-list-container');
         usersTableContainer.innerHTML = this.getUsersHTML();
@@ -219,86 +173,6 @@ export class FounderDashboardPage {
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
         if(confirmation){
             await userModule.deleteUser(email);
-        }
-    }
-    generateSpacesList() {
-        let spacesList = "";
-        for(let i= 0; i < this.paginationLimit - 1; i++){
-            let space = this.spaces[i];
-            if(!space) {
-                continue;
-            }
-            spacesList += `<dashboard-space-item data-space-id="${space.spaceGlobalId}" data-presenter="dashboard-space-item"></dashboard-space-item>`;
-        }
-        return spacesList;
-    }
-
-    displaySpaces() {
-        const spacesList = this.element.querySelector('#founderSpacesList');
-        if (spacesList) {
-            spacesList.innerHTML = this.generateSpacesList();
-        }
-    }
-
-    changeRole(target, spaceId, memberId) {
-        const newRole = target.value;
-        const space = this.spaces.find(s => s.id === spaceId);
-        if (space) {
-            const member = space.users.find(m => m.id === memberId);
-            if (member) {
-                const oldRole = member.role;
-                member.role = newRole;
-
-                this.totalAdmins = this.users.filter(user => user.role === "admin").length;
-
-                this.invalidate();
-                this.showNotification(`Changed ${member.displayName}'s role from ${oldRole} to ${newRole}`);
-            }
-        }
-    }
-
-    editMember(target, spaceId, memberId) {
-        const space = this.spaces.find(s => s.id === spaceId);
-        if (space) {
-            const member = space.users.find(m => m.id === memberId);
-            if (member) {
-                this.showNotification(`Edit functionality coming soon for ${member.displayName}`);
-            }
-        }
-    }
-
-    removeMember(target, spaceId, memberId) {
-        const space = this.spaces.find(s => s.id === spaceId);
-        if (space) {
-            const memberIndex = space.users.findIndex(m => m.id === memberId);
-            if (memberIndex !== -1) {
-                const removedMember = space.users[memberIndex];
-
-                const adminCount = space.users.filter(m => m.role === 'ADMIN').length;
-                if (removedMember.role === 'ADMIN' && adminCount === 1) {
-                    this.showNotification('Cannot remove the last admin from a space', 'error');
-                    return;
-                }
-
-                if (confirm(`Are you sure you want to remove ${removedMember.displayName} from ${space.name}?`)) {
-                    space.users.splice(memberIndex, 1);
-
-                    this.totalUsers = new Set(
-                        this.spaces.flatMap(space => space.users.map(member => member.id))
-                    ).size;
-                    this.totalAdmins = this.users.filter(user => user.role === "admin").length;
-
-                    this.invalidate();
-                    this.showNotification(`${removedMember.displayName} removed from ${space.name}`);
-                }
-            }
-        }
-    }
-
-    inviteMember(target, spaceId) {
-        const space = this.spaces.find(s => s.id === spaceId);
-        if (space) {
-            this.showNotification(`Invite member functionality coming soon for ${space.name}`);
         }
     }
 

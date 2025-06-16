@@ -1,4 +1,4 @@
-founder-dashboard-page{
+system-admin{
     overflow-y: auto;
 }
 .founder-dashboard {
@@ -40,7 +40,7 @@ founder-dashboard-page{
 
 .founder-search-icon {
     position: absolute;
-    left: 1rem;
+    right: 10px;
     top: 50%;
     transform: translateY(-50%);
     width: 20px;
@@ -48,26 +48,6 @@ founder-dashboard-page{
     color: var(--form-input);
 }
 
-.founder-search-input {
-    width: 100%;
-    padding: 8px 8px 8px 3rem;
-    border: 0.5px solid var(--form-input-border);
-    border-radius: 5px;
-    background: var(--white);
-    color: var(--default-font-color);
-    font-size: 14px;
-    transition: all 0.2s ease;
-}
-
-.founder-search-input::placeholder {
-    color: var(--form-input);
-}
-
-.founder-search-input:focus {
-    outline: 2px solid var(--strong-blue);
-    outline-offset: -2px;
-    border-color: var(--strong-blue);
-}
 
 .founder-dashboard-stats {
     max-width: 1400px;
@@ -109,11 +89,6 @@ founder-dashboard-page{
     stroke-width: 1.5;
 }
 
-.founder-spaces-icon {
-    background: var(--inactive-element);
-    color: var(--strong-blue);
-}
-
 .founder-members-icon {
     background: #D4EDDA;
     color: #28A745;
@@ -122,11 +97,6 @@ founder-dashboard-page{
 .founder-admin-icon {
     background: #F8D7DA;
     color: var(--red);
-}
-
-.founder-docs-icon {
-    background: #FFF4D6;
-    color: #FFA726;
 }
 
 .founder-stat-content h3 {
@@ -142,12 +112,6 @@ founder-dashboard-page{
     font-size: 14px;
 }
 
-.founder-spaces-container {
-    margin-bottom: 20px;
-    padding: 0 40px;
-    scroll-behavior: auto;
-    overflow-y:scroll;
-}
 
 .founder-section-header {
     margin-bottom: 2rem;
@@ -158,12 +122,6 @@ founder-dashboard-page{
     font-weight: 600;
     color: var(--header-font-color);
     margin: 0;
-}
-
-.founder-spaces-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
 }
 
 .founder-notification {

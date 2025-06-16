@@ -139,8 +139,7 @@ async function AssistOSAdmin(){
         return await persistence.hasSpaceStatus(process.env.SYSADMIN_SPACE);
     }
 
-    self.getMatchingUsersOrSpaces = async function(input, offset = 0, limit = 10) {
-        let matchingUsers = await AdminPlugin.getMatchingUsers(input, offset, limit);
+    self.getMatchingSpaces = async function(input, offset = 0, limit = 10) {
         let spaces = await persistence.getEverySpaceStatusObject();
         let matchingSpaces = [];
         for(let space of spaces){
@@ -149,7 +148,7 @@ async function AssistOSAdmin(){
             }
         }
         matchingSpaces = matchingSpaces.slice(offset, offset + limit);
-        return {users: matchingUsers, spaces: matchingSpaces};
+        return matchingSpaces;
     }
     return self;
 }

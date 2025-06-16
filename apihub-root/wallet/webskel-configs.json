@@ -4,10 +4,16 @@
     "services": [],
     "components": [
         {
-            "name": "dashboard-space-item",
+            "name": "space-admin",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "SpaceAdmin"
+        },
+        {
+            "name": "admin-space-item",
             "directory": "space-application",
             "type": "components",
-            "presenterClassName": "DashboardSpaceItem"
+            "presenterClassName": "AdminSpaceItem"
         },
         {
             "name": "dashboard-user-menu",
@@ -159,10 +165,10 @@
             "presenterClassName": "StyleSubpage"
         },
         {
-            "name": "founder-dashboard-page",
+            "name": "system-admin",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "FounderDashboardPage"
+            "presenterClassName": "SystemAdmin"
         },
         {
             "name": "export-subpage",

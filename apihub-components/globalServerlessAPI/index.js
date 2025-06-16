@@ -14,7 +14,6 @@ const {
     deleteFile,
     deleteSpace,
     restartServerless,
-    isFounder
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -109,7 +108,6 @@ function Space(server) {
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.get("/spaces/listSpaces", listUserSpaces);
-    server.get("/spaces/isFounder", isFounder);
 
     /*Attachments*/
     server.get("/spaces/uploads", getUploadURL);

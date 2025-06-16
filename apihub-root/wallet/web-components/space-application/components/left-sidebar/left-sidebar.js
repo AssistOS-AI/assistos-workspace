@@ -25,9 +25,12 @@ export class LeftSidebar {
     }
 
     async beforeRender() {
-        const isFounder = assistOS.user.isFounder;
-        if (isFounder) {
-            this.founderDashboard =`<div class="founders-page pointer" data-local-action="openFoundersDashboard">Founder's Dashboard</div>`
+        let role = assistOS.user.role;
+        if (role === assistOS.globalRoles.ADMIN || role === assistOS.globalRoles.MARKETING) {
+            this.founderDashboard =`
+            <div class="admin-page pointer" data-local-action="openAdminPage system-admin">System Admin</div>
+            <div class="admin-page pointer" data-local-action="openAdminPage space-admin">Space Admin</div>
+            `;
         } else {
             this.founderDashboard = "";
         }
@@ -132,8 +135,8 @@ export class LeftSidebar {
     async openMyAccount(eventTarget) {
         await assistOS.UI.changeToDynamicPage("my-account", `${assistOS.space.id}/Space/my-account`);
     }
-    async openFoundersDashboard(eventTarget) {
-        await assistOS.UI.changeToDynamicPage("founder-dashboard-page", `${assistOS.space.id}/Space/founder-dashboard-page`);
+    async openAdminPage(eventTarget, page) {
+        await assistOS.UI.changeToDynamicPage(page, `${assistOS.space.id}/Space/${page}`);
         changeSelectedPageFromSidebar(window.location.hash);
     }
 

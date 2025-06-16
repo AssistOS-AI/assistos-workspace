@@ -254,8 +254,8 @@ class AssistOS {
     async initUser(email) {
         const userModule = this.loadModule("user");
         assistOS.user = await userModule.loadUser(email);
-        assistOS.user.email = localStorage.getItem("userEmail");
         assistOS.user.id = localStorage.getItem("userEmail");
+        assistOS.globalRoles = await userModule.getGlobalRoles();
     }
 
     async loadPage(email, spaceId) {
