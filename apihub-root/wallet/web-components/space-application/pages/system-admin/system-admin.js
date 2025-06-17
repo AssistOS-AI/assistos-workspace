@@ -48,7 +48,7 @@ export class SystemAdmin {
                     </div>
                     <div class="action-cell">
                         ${blockedHTML}
-                        <div class="circle-button" data-local-action="showActionBox dashboard-user-menu ${encodeURIComponent(user.email)}">
+                        <div class="circle-button" data-local-action="showActionBox admin-user-menu ${encodeURIComponent(user.email)}">
                             <img src="./wallet/assets/icons/action-dots.svg" alt="menu">
                         </div>
                     </div>

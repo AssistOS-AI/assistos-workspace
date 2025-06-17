@@ -28,7 +28,7 @@
             "presenterClassName": "AdminSpaceItem"
         },
         {
-            "name": "dashboard-user-menu",
+            "name": "admin-user-menu",
             "directory": "space-application",
             "type": "components"
         },
@@ -154,25 +154,25 @@
         },
         {
             "name": "add-key-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "modals",
             "presenterClassName": "AddKeyModal"
         },
         {
             "name": "advanced-settings",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "AdvancedSettings"
         },
         {
             "name": "display-preferences",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "DisplayPreferences"
         },
         {
             "name": "style-subpage",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "StyleSubpage"
         },
@@ -184,19 +184,19 @@
         },
         {
             "name": "export-subpage",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "ExportSubpage"
         },
         {
             "name": "print-subpage",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "PrintSubpage"
         },
         {
             "name": "collaborators-tab",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "CollaboratorsTab"
         },
@@ -220,7 +220,7 @@
         },
         {
             "name": "keys-tab",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "KeysTab"
         },
@@ -345,7 +345,7 @@
         },
         {
             "name": "application-preview-page-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "modals",
             "presenterClassName": "ApplicationPreviewPageModal"
         },
@@ -503,7 +503,7 @@
         },
         {
             "name": "add-space-collaborator-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "modals",
             "presenterClassName": "AddSpaceCollaboratorModal"
         },
@@ -575,7 +575,7 @@
         },
         {
             "name": "settings-page",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "pages",
             "presenterClassName": "SettingsPage"
         },
@@ -584,12 +584,6 @@
             "directory": "application",
             "type": "pages",
             "presenterClassName": "ApplicationsMarketplacePage"
-        },
-        {
-            "name": "confirmation-popup",
-            "directory": "space-application",
-            "type": "components",
-            "presenterClassName": "ConfirmationPopup"
         },
         {
             "name": "llm-animation",
@@ -615,7 +609,7 @@
         },
         {
             "name": "action-box-collaborators",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "components"
         },
         {
@@ -638,7 +632,7 @@
         },
         {
             "name": "edit-apikey-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "type": "modals",
             "presenterClassName": "EditApikeyModal"
         },
@@ -674,61 +668,61 @@
         },
         {
             "name": "application-creator-landing",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorLanding",
             "type": "pages"
         },
         {
             "name": "application-creator-sidebar",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorSidebar",
             "type": "components"
         },
         {
             "name": "application-creator-menu",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorMenu",
             "type": "pages"
         },
         {
             "name": "application-creator-themes",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorThemes",
             "type": "pages"
         },
         {
             "name": "application-creator-pages",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorPages",
             "type": "pages"
         },
         {
             "name": "application-creator-preview",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorPreview",
             "type": "pages"
         },
         {
             "name": "application-creator-settings",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorSettings",
             "type": "pages"
         },
         {
             "name": "application-edit-page-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationEditPageModal",
             "type": "modals"
         },
         {
             "name": "application-edit-theme-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationEditThemeModal",
             "type": "modals"
         },
         {
             "name": "application-generate-theme-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationGenerateThemeModal",
             "type": "modals"
         },
