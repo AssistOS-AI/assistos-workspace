@@ -474,24 +474,10 @@ html[theme="dark"] input.document-title{
 }
 
 .toc-close-btn {
-    background: none;
-    border: none;
     cursor: pointer;
-    padding: 10px 20px 10px 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-}
-
-.toc-close-btn:hover {
-    opacity: 1;
-}
-
-.toc-close-btn img {
-    width: 16px;
-    height: 16px;
 }
 
 .toc-content {
@@ -586,7 +572,7 @@ html[theme="dark"] .toc-item {
 .tor-actions {
     display: flex;
     align-items: center;
-    margin-left: auto;
+    gap: 20px;
 }
 
 .tor-add-btn {
@@ -632,19 +618,7 @@ html[theme="dark"] .toc-item {
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.7;
-    transition: opacity 0.2s;
 }
-
-.tor-close-btn:hover, .add-reference-btn:hover {
-    opacity: 1;
-}
-
-.tor-close-btn img, .add-reference-btn img {
-    width: 16px;
-    height: 16px;
-}
-
 
 .reference-content {
     flex: 1;

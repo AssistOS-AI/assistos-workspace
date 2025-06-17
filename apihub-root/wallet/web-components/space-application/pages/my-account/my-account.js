@@ -107,7 +107,7 @@ export class MyAccount {
             <div class="ticket ${resolvedClass}">
                 <div class="ticket-preview">
                      <div class="ticket-info">Subject: ${ticket.subject}</div>
-                     <img class="resolved-icon" src="./wallet/assets/icons/success.svg" alt="resolved">
+                     <img class="resolved-icon" src="./wallet/assets/icons/success.svg" alt="resolved" loading="lazy">
                 </div>
             </div>`;
         }

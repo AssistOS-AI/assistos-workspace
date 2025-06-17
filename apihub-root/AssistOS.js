@@ -254,7 +254,6 @@ class AssistOS {
     async initUser(email) {
         const userModule = this.loadModule("user");
         assistOS.user = await userModule.loadUser(email);
-        assistOS.user.id = localStorage.getItem("userEmail");
         assistOS.globalRoles = await userModule.getGlobalRoles();
     }
 
@@ -275,22 +274,22 @@ class AssistOS {
         try {
             await assistOS.initUser(email);
             await assistOS.initSpace(spaceId);
-            try {
-                this.NotificationRouter.createSSEConnection();
-                this.NotificationRouter.getEventSource().onopen = async () => {
-                    //this = assistOS
-                    this.spaceEventsHandler = async (event) => {
-                        if (event === "delete") {
-                            alert("Space has been deleted. You will be logged out");
-                            await assistOS.logout();
-                        }
-                    };
-                    await this.NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
-                }
-
-            } catch (error) {
-                await showApplicationError("Error", "Failed to establish connection to the server", error.message);
-            }
+            // try {
+            //     this.NotificationRouter.createSSEConnection();
+            //     this.NotificationRouter.getEventSource().onopen = async () => {
+            //         //this = assistOS
+            //         this.spaceEventsHandler = async (event) => {
+            //             if (event === "delete") {
+            //                 alert("Space has been deleted. You will be logged out");
+            //                 await assistOS.logout();
+            //             }
+            //         };
+            //         await this.NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
+            //     }
+            //
+            // } catch (error) {
+            //     await showApplicationError("Error", "Failed to establish connection to the server", error.message);
+            // }
             await this.initPage(applicationName, applicationLocation);
         } catch (error) {
             console.error(error);
@@ -302,10 +301,6 @@ class AssistOS {
     async inviteCollaborators(collaboratorEmails) {
         const spaceModule = this.loadModule("space");
         return await this.loadifyFunction(spaceModule.addCollaborators, assistOS.user.email, assistOS.space.id, collaboratorEmails, assistOS.space.name);
-    }
-
-    async callFlow(flowName, context, personalityId) {
-        return await flowModule.callFlow(assistOS.space.id, flowName, context, personalityId);
     }
 
     async loadifyComponent(componentElement, asyncFunc, ...args) {

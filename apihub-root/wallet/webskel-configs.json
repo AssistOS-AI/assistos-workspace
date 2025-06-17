@@ -4,6 +4,18 @@
     "services": [],
     "components": [
         {
+            "name": "add-reference",
+            "directory": "document",
+            "type": "modals",
+            "presenterClassName": "AddReference"
+        },
+        {
+            "name": "references-table",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ReferencesTable"
+        },
+        {
             "name": "create-ticket",
             "directory": "space-application",
             "type": "modals",
@@ -560,12 +572,6 @@
             "directory": "space-application",
             "type": "components",
             "presenterClassName": "LeftSidebar"
-        },
-        {
-            "name": "tasks-page",
-            "directory": "space-application",
-            "type": "pages",
-            "presenterClassName": "TasksPage"
         },
         {
             "name": "chat-page",
