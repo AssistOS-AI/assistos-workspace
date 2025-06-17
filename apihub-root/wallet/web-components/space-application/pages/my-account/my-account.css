@@ -1,5 +1,6 @@
 my-account{
-    height:100%;
+    height: 100%;
+    overflow-y: auto;
 }
 .page-body{
     display: flex;
@@ -37,27 +38,19 @@ my-account{
     gap: 12px;
 }
 
-.accountDataKey {
-    font-family: Inter;
+.section-header {
     font-weight: 700;
     font-size: 20px;
-    line-height: 100%;
-    letter-spacing: 0%;
-    text-align: left;
-    vertical-align: middle;
     color: var(--default-font-color);
 }
 .accountDataValue{
     display:flex;
     flex-direction: column;
-    font-family: Inter;
     font-weight: 400;
     font-size: 14px;
     line-height: 100%;
-    letter-spacing: 0%;
     text-align: left;
     gap:12px;
-    vertical-align: middle;
     color: #000000;
 }
 .multi-value{
@@ -76,4 +69,44 @@ svg{
 .accountFooter{
     position:absolute;
     bottom:20px;
+}
+.tickets-section{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.tickets-button{
+    width: fit-content;
+}
+.section-header{
+    font-weight: 700;
+    font-size: 20px;
+    color: var(--default-font-color);
+}
+.ticket{
+    border-bottom: 1px solid var(--light-gray-border);
+    padding: 10px;
+    position: relative;
+}
+.ticket.resolved{
+    background-color: var(--inactive-element);
+}
+.resolved-icon{
+    display: none;
+}
+.ticket.resolved .resolved-icon{
+    display: block;
+}
+.ticket-preview{
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+.ticket-info{
+    width: 300px;
+    color: var(--default-font-color);
+}
+.view-ticket{
+    cursor: pointer;
+    text-decoration: underline;
 }

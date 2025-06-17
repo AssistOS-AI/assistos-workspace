@@ -121,9 +121,7 @@ export class LeftSidebar {
         setInterval(updateClock, 10000);
         changeSelectedPageFromSidebar(window.location.hash);
     }
-    async openCreateTicket(){
-        await assistOS.UI.showModal("create-ticket");
-    }
+
     showNotificationToast(message, downloadURL, fileName) {
         this.toastsContainer.insertAdjacentHTML("beforeend",
             `<notification-toast data-message="${message}" data-url="${downloadURL || ""}" data-file-name="${encodeURIComponent(fileName) || ""}" data-presenter="notification-toast"></notification-toast>`);

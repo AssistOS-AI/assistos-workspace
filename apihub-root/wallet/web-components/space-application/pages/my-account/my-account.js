@@ -53,6 +53,8 @@ export class MyAccount {
         for(let log of logs) {
             logsHTML += `<div class="log-entry">${log}</div>`;
         }
+        let tickets = await userModule.getUserTickets(assistOS.user.email);
+        this.userTicketsHTML = this.getTicketsHTML(tickets);
         this.userLogs = logsHTML;
         this.email = assistOS.user.email;
         this.name = this.email.split("@")[0];
@@ -91,7 +93,26 @@ export class MyAccount {
             this.logins = '<div class="error-message">Failed to load authentication methods</div>';
         }
     }
-
+    async openCreateTicket(){
+        await assistOS.UI.showModal("create-ticket");
+    }
+    getTicketsHTML(tickets){
+        let ticketsHTML = "";
+        if (tickets.length === 0) {
+            return `<div class="no-tickets">No tickets submitted</div>`;
+        }
+        for(let ticket of tickets) {
+            let resolvedClass = ticket.resolved ? 'resolved' : '';
+            ticketsHTML += `
+            <div class="ticket ${resolvedClass}">
+                <div class="ticket-preview">
+                     <div class="ticket-info">Subject: ${ticket.subject}</div>
+                     <img class="resolved-icon" src="./wallet/assets/icons/success.svg" alt="resolved">
+                </div>
+            </div>`;
+        }
+        return ticketsHTML;
+    }
     async afterRender() {
         const deleteButtons = this.element.querySelectorAll('[data-act="deleteAuth"]');
         deleteButtons.forEach(button => {

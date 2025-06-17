@@ -99,7 +99,7 @@ export class SupportTickets {
                         <div class="email">Submitted by: ${ticket.email}</div>
                      </div>
                      <div class="view-ticket" data-local-action="openTicket ${ticket.id}">View</div>
-                     <img class="resolved-icon pointer" src="./wallet/assets/icons/success.svg" alt="resolved">
+                     <img class="resolved-icon" src="./wallet/assets/icons/success.svg" alt="resolved">
                 </div>
             </div>`;
         }
