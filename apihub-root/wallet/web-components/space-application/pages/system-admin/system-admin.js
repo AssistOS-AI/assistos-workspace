@@ -173,7 +173,8 @@ export class SystemAdmin {
         let message = `Are you sure you want to delete user with email ${email}? This action cannot be undone.`;
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
         if(confirmation){
-            await userModule.deleteUser(email);
+            //await userModule.deleteUser(email);
+            alert("TO BE DONE")
         }
     }
     async openTicketsModal(){
