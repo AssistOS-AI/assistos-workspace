@@ -1,5 +1,6 @@
 edit-variable-value{
     display: block;
+    min-width: 700px;
 }
 #value{
     height: 200px;

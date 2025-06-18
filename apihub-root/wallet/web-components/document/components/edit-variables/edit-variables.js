@@ -1,6 +1,6 @@
 import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 const documentModule = assistOS.loadModule("document");
-import {decodePercentCustom, isEditableValue} from "./../../../../imports.js";
+import {isEditableValue} from "./../../../../imports.js";
 export class EditVariables {
     constructor(element, invalidate){
         this.element = element;

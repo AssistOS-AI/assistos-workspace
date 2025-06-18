@@ -78,13 +78,15 @@ export class EditVariableValue {
             textarea.value = this.variable.value || "";
             textarea.addEventListener("input",(e) => {
                 let value = e.target.value;
-                let saveButton = this.element.querySelector('.general-button');
+                let saveButton = this.element.querySelector('.save-button');
                 if(value.trim() === ""){
                     saveButton.classList.add("disabled");
                 } else {
                     saveButton.classList.remove("disabled");
                 }
             })
+            let tableContainer = this.element.querySelector('.table-container');
+            tableContainer.classList.add('hidden');
         } else {
             let modalFooter = this.element.querySelector('.modal-footer');
             modalFooter.classList.add('hidden');
