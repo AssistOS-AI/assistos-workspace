@@ -60,6 +60,9 @@ export class ParagraphItem {
         let cutParagraph = this.element.querySelector(".cut-paragraph");
         this.documentPresenter.attachTooltip(cutParagraph,"Cut Paragraph");
 
+        let replaceParagraph = this.element.querySelector(".replace-paragraph");
+        this.documentPresenter.attachTooltip(replaceParagraph,"Replace Paragraph");
+
         let insert = this.element.querySelector(".insert");
         this.documentPresenter.attachTooltip(insert,"Insert Elements");
 
@@ -189,8 +192,8 @@ export class ParagraphItem {
         let toolbar = this.element.querySelector('.paragraph-toolbar');
         if (mode === "on") {
             toolbar.style.display = "flex";
-            if (window.cutParagraph) {
-                let pasteIcon = this.element.querySelector(".paste-icon");
+            if (window.copiedParagraph) {
+                let pasteIcon = this.element.querySelector(".replace-paragraph");
                 pasteIcon.classList.remove("hidden");
             }
         } else {
@@ -256,30 +259,27 @@ export class ParagraphItem {
     }
 
     async cutParagraph(_target) {
-        window.cutParagraph = this.paragraph;
+        window.copiedParagraph = this.paragraph;
         await this.deleteParagraph("", true);
-        delete window.cutParagraph.id;
+    }
+    async copyParagraph(_target) {
+        window.copiedParagraph = this.paragraph;
+        await assistOS.showToast("copied to clipboard", "success");
     }
 
-    async pasteParagraph(_target) {
-
-        window.cutParagraph.id = this.paragraph.id;
+    async replaceParagraph(_target) {
+        let paragraph = window.copiedParagraph;
+        this.paragraph.text = paragraph.text;
+        this.paragraph.commands = paragraph.commands;
+        this.paragraph.comments = JSON.parse(JSON.stringify(paragraph.comments));
         await documentModule.updateParagraph(assistOS.space.id, this.chapter.id, this.paragraph.id,
-            window.cutParagraph.text,
-            window.cutParagraph.commands,
-            window.cutParagraph.comments);
-        this.invalidate(async () => {
-            this.paragraph = await this.refreshParagraph(assistOS.space.id, this._document.id, this.paragraph.id);
-            delete window.cutParagraph;
-        });
+            this.paragraph.text,
+            this.paragraph.commands,
+            this.paragraph.comments);
+        delete window.copiedParagraph;
+        this.invalidate();
     }
-    async refreshParagraph(spaceId, documentId, paragraphId){
-        const documentModule = assistOS.loadModule("document");
-        let paragraphData = await documentModule.getParagraph(assistOS.space.id, documentId, paragraphId);
-        let paragraphIndex = this.chapter.paragraphs.findIndex(paragraph => paragraph.id === paragraphId);
-        this.chapter.paragraphs[paragraphIndex] = new documentModule.Paragraph(paragraphData);
-        return this.chapter.paragraphs[paragraphIndex];
-    }
+
     menus = {
         "insert-document-element": `
                 <div>
