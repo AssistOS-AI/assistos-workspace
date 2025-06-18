@@ -3,7 +3,6 @@ import pluginUtils from "../../../../core/plugins/pluginUtils.js";
 import UIUtils from "../../pages/document-view-page/UIUtils.js";
 const documentModule = assistOS.loadModule("document");
 
-
 export class ChapterItem {
     constructor(element, invalidate) {
         this.element = element;
@@ -200,7 +199,7 @@ export class ChapterItem {
         if (this.chapter.id === assistOS.space.currentChapterId && !assistOS.space.currentParagraphId) {
             this.element.click();
         }
-        this.changeChapterVisibility(true);
+        this.displayChapterContent();
 
         let moveChapterUp = this.element.querySelector(".move-chapter-up");
         this.documentPresenter.attachTooltip(moveChapterUp,"Move Chapter Up");
@@ -417,16 +416,16 @@ export class ChapterItem {
     }
 
     async changeChapterDisplay(_target) {
-        if (!this.isVisible) {
-            this.changeChapterVisibility(true);
-        } else {
-            this.changeChapterVisibility(false);
-        }
+        this.chapter.comments.collapsed = !this.chapter.comments.collapsed;
+        this.displayChapterContent();
+        await documentModule.updateChapter(assistOS.space.id, this.chapter.id,
+            this.chapter.title,
+            this.chapter.commands,
+            this.chapter.comments);
     }
 
-    changeChapterVisibility(isVisible) {
-        this.isVisible = isVisible;
-        if (!isVisible) {
+    displayChapterContent() {
+        if (this.chapter.comments.collapsed) {
             let paragraphsContainer = this.element.querySelector(".chapter-paragraphs");
             paragraphsContainer.classList.add('hidden');
             let arrow = this.element.querySelector(".chapter-visibility-arrow");
