@@ -550,6 +550,17 @@ export class DocumentViewPage {
             await UIUtils.selectItem(false, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             await chapterPresenter.highlightChapter();
             return;
+        }else if (type === "infoTextSection") {
+            await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextId));
+            let containerElement = targetElement.closest(".container-element");
+            containerElement.classList.add("focused");
+            //await UIUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
+            //this.currentSelectItem = this.infoTextId;
+            this.changeToolbarView(targetElement, "on");
+            if (this.currentPlugin) {
+                await this.openPlugin("", "infoText", this.currentPlugin);
+            }
+            return;
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);

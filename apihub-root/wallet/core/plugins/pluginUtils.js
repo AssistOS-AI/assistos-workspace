@@ -21,6 +21,11 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
     if(selectionItemId){
         await UIUtils.deselectItem(selectionItemId, presenter);
     }
+    let pluginElement = presenter.element.querySelector(componentName);
+    let firstEditableItem = pluginElement.closest('[data-local-action^="editItem "]');
+    pluginElement.addEventListener("click", () => {
+        firstEditableItem.click();
+    });
 }
 function removeHighlightPlugin(type, presenter) {
     let highlightPluginClass = `${type}-highlight-plugin`;
