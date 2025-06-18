@@ -1,0 +1,99 @@
+contents-table {
+    display: block;
+    background-color: var(--inactive-element);
+    margin-bottom: 15px;
+    outline: 2px var(--light-gray-border) solid;
+}
+
+.toc-header-container {
+    position: relative;
+    padding: 10px;
+    line-height: normal;
+    overflow: visible;
+    width: 100%;
+    background-color: var(--inactive-element);
+}
+
+.toc-title-container {
+    height: 43px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    padding: 0 0 0 8px;
+    line-height: normal;
+    overflow: visible;
+}
+
+.toc-header {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--document-font-color);
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    background-color: var(--inactive-element);
+    border-radius: 5px;
+}
+
+.toc-visibility-arrow {
+    width: 16px;
+    height: 16px;
+    margin-right: 10px;
+    cursor: pointer;
+    transition: transform 0.3s;
+    background-image: url("./wallet/assets/icons/arrow-down.svg");
+    background-repeat: no-repeat;
+    background-position: center;
+    flex-shrink: 0; /
+}
+
+.toc-visibility-arrow.collapsed {
+    transform: rotate(-90deg);
+}
+
+.toc-actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.toc-close-btn {
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.toc-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 0px 10px 15px 34px;
+    background-color: var(--inactive-element);
+}
+
+.toc-item {
+    padding: 4px 0;
+    color: var(--strong-blue);
+    font-size: 16px;
+    text-decoration: none;
+    display: block;
+    transition: color 0.2s;
+}
+
+.toc-item:hover {
+    color: var(--plugin-focus);
+    text-decoration: underline;
+}
+
+.toc-empty {
+    color: var(--light-gray-border);
+    font-style: italic;
+    padding: 10px 0;
+}
+
+.toc-container.highlighted {
+    box-shadow: inset 6px 0 0 -3px var(--strong-blue);
+}

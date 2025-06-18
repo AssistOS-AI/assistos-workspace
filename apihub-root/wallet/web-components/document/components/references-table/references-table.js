@@ -1,12 +1,14 @@
 import { generateAPACitation } from "./referenceUtils.js";
+const documentModule = assistOS.loadModule("document");
+
 export class ReferencesTable {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.references = [];
         this.element.classList.add("maintain-focus");
         let documentViewPage = document.querySelector("document-view-page");
         this.docPresenter = documentViewPage.webSkelPresenter;
+        this.tor = this.docPresenter._document.comments.tor;
         this.documentId = this.docPresenter._document.id;
         this.invalidate();
     }
@@ -14,28 +16,27 @@ export class ReferencesTable {
 
     }
     afterRender() {
-        if (this.torContentCollapsed) {
+        if (this.tor.collapsed) {
             const torContent = this.element.querySelector('.tor-content');
             const visibilityArrow = this.element.querySelector('.tor-visibility-arrow');
             torContent.style.display = 'none';
             visibilityArrow.classList.add('collapsed');
-            return;
         }
         this.refreshTableOfReferences();
     }
-    toggleTorVisibility(arrow){
+    async toggleTorVisibility(arrow){
         const torContent = this.element.querySelector('.tor-content');
         const isHidden = torContent.style.display === 'none';
         torContent.style.display = isHidden ? 'block' : 'none';
         arrow.classList.toggle('collapsed', !isHidden);
-        this.torContentCollapsed = !isHidden;
-        this.savePluginStates();
+        this.tor.collapsed = !isHidden;
+        await this.saveTorState();
     }
 
     refreshTableOfReferences() {
         const torContent = this.element.querySelector('.tor-content');
         torContent.innerHTML = '';
-        if (this.references.length === 0) {
+        if (this.tor.references.length === 0) {
             const emptyMessage = document.createElement('div');
             emptyMessage.className = 'tor-empty';
             emptyMessage.textContent = 'No references available. Click \'Add Reference\' to add one.';
@@ -44,7 +45,7 @@ export class ReferencesTable {
         }
 
         // Sort references alphabetically by author for APA style
-        const sortedReferences = [...this.references].sort((a, b) => {
+        const sortedReferences = [...this.tor.references].sort((a, b) => {
             const authorA = a.authors || a.name || '';
             const authorB = b.authors || b.name || '';
             return authorA.localeCompare(authorB);
@@ -72,26 +73,31 @@ export class ReferencesTable {
             torContent.appendChild(referenceItem);
         });
     }
-    closeTable(){
-        this.docPresenter.torState = false;
-        this.docPresenter.savePluginStates();
-        this.element.remove();
+    async deleteTable(){
+        let message = "Are you sure you want to delete the references table? References will not be saved.";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            delete this.tor;
+            await this.saveTorState();
+            this.element.remove();
+        }
     }
     async addReference() {
         await this.openReferenceModal();
     }
     async editReference(button, referenceId) {
-        const ref = this.references.find(r => r.id === referenceId);
+        const ref = this.tor.references.find(r => r.id === referenceId);
         if (ref) {
             await this.openReferenceModal(ref);
         }
     }
-    deleteReference(button, referenceId) {
-        if (confirm('Are you sure you want to delete this reference?')) {
-            this.references = this.references.filter(ref => ref.id !== referenceId);
+    async deleteReference(button, referenceId) {
+        let message = "Are you sure you want to delete this reference?";
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        if(confirmation){
+            this.tor.references = this.tor.references.filter(ref => ref.id !== referenceId);
             this.refreshTableOfReferences();
-            this.docPresenter.savePluginStates();
-            this.saveReferencesToLocalStorage();
+            await this.saveTorState();
             this.refreshTableOfReferences();
         }
     }
@@ -100,32 +106,21 @@ export class ReferencesTable {
         let saveData = await assistOS.UI.createReactiveModal("add-reference", {reference}, true);
         if(saveData){
             this.refreshTableOfReferences();
-            this.docPresenter.savePluginStates();
-            this.saveReferencesToLocalStorage();
+            await this.saveTorState();
         }
     }
-    saveReferencesToLocalStorage() {
-        try {
-            const storedDict = localStorage.getItem('documentReferencesDict');
-            const dict = storedDict ? JSON.parse(storedDict) : {};
-            dict[this.documentId] = this.references;
-            localStorage.setItem('documentReferencesDict', JSON.stringify(dict));
-        } catch (e) {
-            console.error("Failed to save references to localStorage:", e);
+    async saveTorState() {
+        let document = this.docPresenter._document;
+        document.comments.tor = this.tor;
+        if(!document.comments.tor) {
+            delete document.comments.tor;
         }
-    }
-    loadReferencesFromLocalStorage() {
-        try {
-            const storedDict = localStorage.getItem('documentReferencesDict');
-            if (storedDict) {
-                const dict = JSON.parse(storedDict);
-                this.references = dict[this.documentId] || [];
-            } else {
-                this.references = [];
-            }
-        } catch (e) {
-            console.error("Failed to load references from localStorage:", e);
-            this.references = [];
-        }
+        await documentModule.updateDocument(assistOS.space.id, document.id,
+            document.title,
+            document.docId,
+            document.category,
+            document.infoText,
+            document.commands,
+            document.comments);
     }
 }

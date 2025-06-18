@@ -10,8 +10,6 @@ export class DocumentViewPage {
         this.element = element;
         this.invalidate = invalidate;
         this.observers = [];
-        this.tocState = false;
-        this.torState = false;
         const documentId = this.element.getAttribute("documentId");
         this.invalidate(async () => {
             if (documentId === "demo") {
@@ -24,8 +22,6 @@ export class DocumentViewPage {
             }
 
             this.documentId = this._document.id;
-            this.loadPluginStates();
-
             this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
             assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.agents = await agentModule.getAgents(assistOS.space.id);
@@ -123,11 +119,14 @@ export class DocumentViewPage {
         for (let chapter of allChapters) {
             chapter.webSkelPresenter.updateChapterNumber();
         }
-        if (this.tocState) {
-            this.refreshTableOfContents();
+        this.refreshTableOfContents();
+    }
+    refreshTableOfContents(){
+        let contentsTable = this.element.querySelector("contents-table");
+        if(contentsTable) {
+            contentsTable.webSkelPresenter.refreshTableOfContents();
         }
     }
-
     deleteChapter(chapterId) {
         let chapter = this.element.querySelector(`chapter-item[data-chapter-id="${chapterId}"]`);
         chapter.remove();
@@ -137,28 +136,22 @@ export class DocumentViewPage {
             chapter.webSkelPresenter.updateChapterNumber();
             chapter.webSkelPresenter.changeChapterDeleteAvailability();
         }
-        if (this.tocState) {
-            this.refreshTableOfContents();
-        }
+        this.refreshTableOfContents();
     }
 
     async onDocumentUpdate(data) {
         if (typeof data === "object") {
             if (data.operationType === "add") {
                 await this.insertNewChapter(data.chapterId, data.position);
-                if (this.tocState) {
-                    this.refreshTableOfContents();
-                }
+                this.refreshTableOfContents();
+
             } else if (data.operationType === "delete") {
                 this.deleteChapter(data.chapterId);
-                if (this.tocState) {
-                    this.refreshTableOfContents();
-                }
+                this.refreshTableOfContents();
+
             } else if (data.operationType === "swap") {
                 this.changeChapterOrder(data.chapterId, data.swapChapterId, data.direction);
-                if (this.tocState) {
-                    this.refreshTableOfContents();
-                }
+                this.refreshTableOfContents();
             }
         } else {
             switch (data) {
@@ -170,9 +163,7 @@ export class DocumentViewPage {
                     let document = await documentModule.getDocument(assistOS.space.id, this._document.id);
                     this._document.title = document.title;
                     this.renderDocumentTitle();
-                    if (this.tocState) {
-                        this.refreshTableOfContents();
-                    }
+                    this.refreshTableOfContents();
                     break;
                 case "infoText":
                     let documentUpdated = await documentModule.getDocument(assistOS.space.id, this._document.id);
@@ -187,7 +178,7 @@ export class DocumentViewPage {
                     break;
             }
         }
-        this.toggleEditingState(true);
+        //this.toggleEditingState(true);
     }
 
     async beforeRender() {
@@ -242,10 +233,10 @@ export class DocumentViewPage {
         await pluginUtils.renderPluginIcons(infoTextPluginsContainer, "infoText");
         this.renderDocumentTitle();
         this.renderInfoText();
-        if (this.tocState) {
+        if (this._document.comments.toc) {
             this.showTableOfContents();
         }
-        if (this.torState) {
+        if (this._document.comments.tor) {
             this.showTableOfReferences();
         }
         if (assistOS.space.currentChapterId) {
@@ -425,9 +416,7 @@ export class DocumentViewPage {
                 chapter.webSkelPresenter.changeChapterDeleteAvailability();
             }
         }
-        if (this.tocState) {
-            this.refreshTableOfContents();
-        }
+        this.refreshTableOfContents();
     }
 
     async openDocumentsPage() {
@@ -662,19 +651,19 @@ export class DocumentViewPage {
         }
     }
 
-    toggleEditingState(isEditable) {
-        if (!isEditable) {
-            this.disabledMask.style.display = "block";
-            this.documentEditor.classList.add("disabled-editor");
-            this.undoButton.classList.add("disabled");
-            this.redoButton.classList.add("disabled");
-        } else {
-            this.documentEditor.classList.remove("disabled-editor");
-            this.disabledMask.style.display = "none";
-            this.undoButton.classList.remove("disabled");
-            this.redoButton.classList.remove("disabled");
-        }
-    }
+    // toggleEditingState(isEditable) {
+    //     if (!isEditable) {
+    //         this.disabledMask.style.display = "block";
+    //         this.documentEditor.classList.add("disabled-editor");
+    //         this.undoButton.classList.add("disabled");
+    //         this.redoButton.classList.add("disabled");
+    //     } else {
+    //         this.documentEditor.classList.remove("disabled-editor");
+    //         this.disabledMask.style.display = "none";
+    //         this.undoButton.classList.remove("disabled");
+    //         this.redoButton.classList.remove("disabled");
+    //     }
+    // }
 
     async lipsyncVideo(targetElement) {
         const llmModule = assistOS.loadModule("llm")
@@ -804,27 +793,27 @@ export class DocumentViewPage {
         }
     }
 
-    async undoOperation(targetElement) {
-        this.toggleEditingState(false);
-        let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
-        if (success) {
-            assistOS.showToast("Undo successful.", "success");
-        } else {
-            assistOS.showToast("Nothing to undo.", "info");
-            this.toggleEditingState(true);
-        }
-    }
-
-    async redoOperation(targetElement) {
-        this.toggleEditingState(false);
-        let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
-        if (success) {
-            assistOS.showToast("Redo successful.", "success");
-        } else {
-            assistOS.showToast("Nothing to redo.", "info");
-            this.toggleEditingState(true);
-        }
-    }
+    // async undoOperation(targetElement) {
+    //     this.toggleEditingState(false);
+    //     let success = await documentModule.undoOperation(assistOS.space.id, this._document.id);
+    //     if (success) {
+    //         assistOS.showToast("Undo successful.", "success");
+    //     } else {
+    //         assistOS.showToast("Nothing to undo.", "info");
+    //         this.toggleEditingState(true);
+    //     }
+    // }
+    //
+    // async redoOperation(targetElement) {
+    //     this.toggleEditingState(false);
+    //     let success = await documentModule.redoOperation(assistOS.space.id, this._document.id);
+    //     if (success) {
+    //         assistOS.showToast("Redo successful.", "success");
+    //     } else {
+    //         assistOS.showToast("Nothing to redo.", "info");
+    //         this.toggleEditingState(true);
+    //     }
+    // }
 
     async buildForDocument(button) {
         button.classList.add("disabled");
@@ -861,135 +850,46 @@ export class DocumentViewPage {
         }
     }
 
-
-    // Table of Contents + References
-    savePluginStates() {
-        const storageKey = `doc_${this._document.id}_states`;
-        const states = {
-            tocState: this.tocState,
-            torState: this.torState,
-            torContentCollapsed: this.torContentCollapsed || false,
-            references: this.references
+    async openToc(){
+        this.showTableOfContents();
+        this._document.comments.toc = {
+            collapsed: false
         };
-        localStorage.setItem(storageKey, JSON.stringify(states));
-    }
-    loadPluginStates() {
-        try {
-            const storageKey = `doc_${this._document.id}_states`;
-            const stored = localStorage.getItem(storageKey);
-            if (stored) {
-                const states = JSON.parse(stored);
-                this.tocState = states.tocState || false;
-                this.torState = states.torState || false;
-                this.torContentCollapsed = states.torContentCollapsed || false;
-                this.references = states.references || [];
-            } else {
-                this.tocState = false;
-                this.torState = false;
-                this.torContentCollapsed = false;
-                this.references = [];
-            }
-        } catch (e) {
-            console.error("Failed to load plugin states from localStorage:", e);
-            this.tocState = false;
-            this.torState = false;
-            this.torContentCollapsed = false;
-            this.references = [];
-        }
-    }
-
-
-    toggleTableOfContents() {
-        this.tocState = !this.tocState;
-
-        const tocButton = this.element.querySelector('.toc-toggle-btn');
-        if (tocButton) {
-            tocButton.classList.toggle('active', this.tocState);
-        }
-
-        if (this.tocState) {
-            this.showTableOfContents();
-        } else {
-            this.hideTableOfContents();
-        }
-
-        this.savePluginStates();
+        await documentModule.updateDocument(assistOS.space.id, this._document.id,
+            this._document.title,
+            this._document.docId,
+            this._document.category,
+            this._document.infoText,
+            this._document.commands,
+            this._document.comments);
     }
     showTableOfContents() {
-        let tocContainer = this.element.querySelector('.toc-container');
-        if(tocContainer){
+        let contentsTable = this.element.querySelector("contents-table");
+        if (contentsTable) {
             return;
         }
-
-        tocContainer = document.createElement('div');
-        tocContainer.className = 'toc-container';
-        tocContainer.innerHTML = `
-        <div class="toc-header-container">
-        <div class="toc-title-container">
-        <div class="toc-visibility-arrow pointer" data-local-action="toggleTocVisibility"></div>
-            <h3 class="toc-header">Table of Contents</h3>
-            <div class="toc-actions">
-                <img data-local-action="toggleTableOfContents" src="./wallet/assets/icons/trash-can.svg" 
-                alt="close toc" 
-                loading="lazy" 
-                class="pointer black-icon">
-            </div>
-        </div>
-        </div>
-        <div class="toc-content">
-        </div>`;
         const infoTextSection = this.element.querySelector('.infoText-section');
-        infoTextSection.insertAdjacentElement('afterend', tocContainer);
-        this.refreshTableOfContents();
+        infoTextSection.insertAdjacentHTML('afterend', `<contents-table data-presenter="contents-table"></contents-table>`);
     }
-    toggleTocVisibility(arrow){
-        const tocContent = document.querySelector('.toc-content');
-        if (tocContent) {
-            tocContent.style.display = tocContent.style.display === 'none' ? 'flex' : 'none';
-            arrow.classList.toggle('collapsed');
-        }
-    }
-    hideTableOfContents() {
-        const tocContainer = this.element.querySelector('.toc-container');
-        if (tocContainer) {
-            tocContainer.remove();
-        }
-    }
-    refreshTableOfContents() {
-        const tocContent = this.element.querySelector('.toc-content');
-        if (!tocContent) return;
 
-        tocContent.innerHTML = '';
-
-        if (this._document.chapters && this._document.chapters.length > 0) {
-            this._document.chapters.forEach((chapter, index) => {
-                const chapterItem = document.createElement('a');
-                chapterItem.className = 'toc-item toc-chapter';
-                chapterItem.href = `#chapter-${chapter.id}`;
-                chapterItem.textContent = `Chapter ${index + 1}: ${assistOS.UI.unsanitize(chapter.title)}`;
-                chapterItem.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const chapterElement = this.element.querySelector(`chapter-item[data-chapter-id="${chapter.id}"]`);
-                    if (chapterElement) {
-                        chapterElement.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }
-                });
-                tocContent.appendChild(chapterItem);
-            });
-        } else {
-            const noChapters = document.createElement('div');
-            noChapters.className = 'toc-item toc-empty';
-            noChapters.textContent = 'No chapters available';
-            tocContent.appendChild(noChapters);
-        }
+    async openTor(){
+        this.showTableOfReferences();
+        this._document.comments.tor = {
+            collapsed: false,
+            references: []
+        };
+        await documentModule.updateDocument(assistOS.space.id, this._document.id,
+            this._document.title,
+            this._document.docId,
+            this._document.category,
+            this._document.infoText,
+            this._document.commands,
+            this._document.comments);
     }
 
     showTableOfReferences() {
-        let torContainer = this.element.querySelector("references-table");
-        if (torContainer) {
+        let refsTable = this.element.querySelector("references-table");
+        if (refsTable) {
             return;
         }
         const documentEditor = this.element.querySelector(".document-editor");

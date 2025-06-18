@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "contents-table",
+            "directory": "document",
+            "type": "components",
+            "presenterClassName": "ContentsTable"
+        },
+        {
             "name": "add-reference",
             "directory": "document",
             "type": "modals",

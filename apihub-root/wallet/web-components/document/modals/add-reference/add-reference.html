@@ -1,82 +1,81 @@
-<div class="modal-overlay hidden">
-  <div class="modal-window reference-modal-window">
-    <h3 class="modal-title-ref">Add/Edit Reference</h3>
-
+<div class="modal-header">
+    <div>Add Document</div>
+    <div class="close" data-local-action="closeModal">
+        <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
+    </div>
+</div>
+<div class="modal-body">
     <div class="reference-type-section">
-      <label>Reference Type:</label>
-      <select id="reference-type-select" class="modal-input">
-        <option value="journal">Journal Article</option>
-        <option value="book">Book</option>
-        <option value="website">Website</option>
-        <option value="report">Report</option>
-      </select>
+        <label class="form-label">Reference Type:</label>
+        <select id="reference-type-select" class="form-input">
+            <option value="journal">Journal Article</option>
+            <option value="book">Book</option>
+            <option value="website">Website</option>
+            <option value="report">Report</option>
+        </select>
     </div>
 
     <div class="reference-fields">
-      <div class="field-group">
-        <label>Author(s) <span class="required">*</span></label>
-        <input type="text" id="reference-authors" class="modal-input" placeholder="Last, F. M., & Last, F. M." />
-        <small class="field-help">Format: Last, F. M., or Last, F. M., & Last, F. M. for multiple authors</small>
-      </div>
+        <div class="field-group">
+            <label class="form-label">Author(s) <span class="required">*</span></label>
+            <input type="text" id="reference-authors" class="form-input" placeholder="Last, F. M., & Last, F. M."/>
+            <small class="field-help">Format: Last, F. M., or Last, F. M., & Last, F. M. for multiple authors</small>
+        </div>
 
-      <div class="field-group">
-        <label>Publication Year <span class="required">*</span></label>
-        <input type="number" id="reference-year" class="modal-input" min="1900" max="2025" />
-      </div>
+        <div class="field-group">
+            <label class="form-label">Publication Year <span class="required">*</span></label>
+            <input type="number" id="reference-year" class="form-input" min="1900" max="2025"/>
+        </div>
 
-      <div class="field-group">
-        <label>Title <span class="required">*</span></label>
-        <input type="text" id="reference-title" class="modal-input" />
-      </div>
+        <div class="field-group">
+            <label class="form-label">Title <span class="required">*</span></label>
+            <input type="text" id="reference-title" class="form-input"/>
+        </div>
 
-      <!-- Journal-specific fields -->
-      <div class="field-group journal-field">
-        <label>Volume</label>
-        <input type="text" id="reference-volume" class="modal-input" />
-      </div>
+        <!-- Journal-specific fields -->
+        <div class="field-group journal-field">
+            <label class="form-label">Volume</label>
+            <input type="text" id="reference-volume" class="form-input"/>
+        </div>
 
-      <div class="field-group journal-field">
-        <label>Pages</label>
-        <input type="text" id="reference-pages" class="modal-input" placeholder="123-145" />
-      </div>
+        <div class="field-group journal-field">
+            <label class="form-label">Pages</label>
+            <input type="text" id="reference-pages" class="form-input" placeholder="123-145"/>
+        </div>
 
-      <!-- Book-specific fields -->
-      <div class="field-group book-field">
-        <label>Publisher <span class="required">*</span></label>
-        <input type="text" id="reference-publisher" class="modal-input" />
-      </div>
+        <!-- Book-specific fields -->
+        <div class="field-group book-field">
+            <label class="form-label">Publisher <span class="required">*</span></label>
+            <input type="text" id="reference-publisher" class="form-input"/>
+        </div>
 
-      <div class="field-group book-field">
-        <label>Publisher Location</label>
-        <input type="text" id="reference-location" class="modal-input" />
-      </div>
+        <div class="field-group book-field">
+            <label class="form-label">Publisher Location</label>
+            <input type="text" id="reference-location" class="form-input"/>
+        </div>
 
-      <!-- Website-specific fields -->
-      <div class="field-group website-field">
-        <label>Website Name</label>
-        <input type="text" id="reference-website" class="modal-input" />
-      </div>
+        <!-- Website-specific fields -->
+        <div class="field-group website-field">
+            <label class="form-label">Website Name</label>
+            <input type="text" id="reference-website" class="form-input"/>
+        </div>
 
-      <div class="field-group website-field">
-        <label>Access Date</label>
-        <input type="date" id="reference-access-date" class="modal-input" />
-      </div>
+        <div class="field-group website-field">
+            <label class="form-label">Access Date</label>
+            <input type="date" id="reference-access-date" class="form-input"/>
+        </div>
 
-      <!-- Common URL field -->
-      <div class="field-group">
-        <label>URL/DOI</label>
-        <input type="text" id="reference-url" class="modal-input" placeholder="https://... or doi:..." />
-      </div>
+        <!-- Common URL field -->
+        <div class="field-group">
+            <label class="form-label">URL/DOI</label>
+            <input type="text" id="reference-url" class="form-input" placeholder="https://... or doi:..."/>
+        </div>
     </div>
-
     <div class="citation-preview">
-      <h4>Citation Preview:</h4>
-      <div id="citation-preview-text" class="preview-text"></div>
+        <h4>Citation Preview:</h4>
+        <div id="citation-preview-text" class="preview-text"></div>
     </div>
-
-    <div class="modal-actions">
-      <button id="save-reference-btn" class="btn-primary">Save Reference</button>
-      <button id="cancel-reference-btn" class="btn-secondary">Cancel</button>
+    <div class="modal-footer">
+        <button class="general-button" data-local-action="saveReference">Save Reference</button>
     </div>
-  </div>
 </div>

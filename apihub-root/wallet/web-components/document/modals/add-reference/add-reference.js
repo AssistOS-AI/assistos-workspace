@@ -1,11 +1,11 @@
 import { generateAPACitation } from "../../components/references-table/referenceUtils.js";
-export class addReference {
+export class AddReference {
     constructor(element, invalidate, props) {
         this.invalidate = invalidate;
         this.element = element;
         this.reference = props.reference;
         let docViewPage = document.querySelector("document-view-page");
-        this.docPresenter = docViewPage.webSkelPresenter;
+        this.torPresenter = docViewPage.querySelector("references-table").webSkelPresenter;
         this.invalidate();
     }
     async beforeRender(){
@@ -66,11 +66,7 @@ export class addReference {
         });
     }
     updateCitationPreview() {
-        const modal = this.element.querySelector("#reference-modal");
-        if (!modal) return;
-
-        const getValue = (id) => modal.querySelector(`#${id}`)?.value?.trim() || '';
-
+        const getValue = (id) => this.element.querySelector(`#${id}`)?.value?.trim() || '';
         const data = {
             type: getValue('reference-type-select'),
             authors: getValue('reference-authors'),
@@ -84,15 +80,12 @@ export class addReference {
             accessDate: getValue('reference-access-date'),
             url: getValue('reference-url')
         };
-
         const citation = generateAPACitation(data);
-        const previewElement = modal.querySelector('#citation-preview-text');
-        if (previewElement) {
-            previewElement.textContent = citation;
-        }
+        const previewElement = this.element.querySelector('#citation-preview-text');
+        previewElement.textContent = citation;
     }
 
-    saveRef(button){
+    saveReference(button){
         const getValue = (id) => this.element.querySelector(`#${id}`)?.value?.trim() || '';
         const authors = getValue('reference-authors');
         const year = getValue('reference-year');
@@ -117,14 +110,14 @@ export class addReference {
             access_date: getValue('reference-access-date'),
             url: getValue('reference-url')
         };
-
+        let refs = this.torPresenter.tor.references;
         if (this.reference) {
-            const index = this.docPresenter.references.findIndex(r => r.id === this.reference.id);
+            const index = refs.findIndex(r => r.id === this.reference.id);
             if (index !== -1) {
-                this.docPresenter.references[index] = newReference;
+                refs[index] = newReference;
             }
         } else {
-            this.docPresenter.references.push(newReference);
+            refs.push(newReference);
         }
         assistOS.UI.closeModal(button, true);
     }

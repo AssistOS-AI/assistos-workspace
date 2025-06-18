@@ -1,0 +1,158 @@
+references-table {
+    display: block;
+    background-color: var(--inactive-element);
+    outline: 2px var(--light-gray-border) solid;
+}
+
+.tor-header-container {
+    padding: 10px;
+    line-height: normal;
+    overflow: visible;
+    width: 100%;
+    background-color: var(--inactive-element);
+}
+
+.tor-title-container {
+    height: 43px;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    padding: 0 0 0 8px;
+    line-height: normal;
+    overflow: visible;
+}
+
+.tor-header {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--document-font-color);
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    padding: 5px 10px;
+    background-color: var(--inactive-element);
+    border-radius: 5px;
+    margin-left: 3px;
+}
+
+.tor-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.tor-add-btn {
+    background-color: var(--strong-blue);
+    color: var(--white-text);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.tor-add-btn:hover {
+    background-color: var(--plugin-focus);
+}
+
+.tor-content {
+    width: 100%;
+    padding: 10px 20px;
+    background-color: var(--inactive-element);
+    border-top: 2px solid var(--light-gray-border);
+}
+
+.tor-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--light-gray-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tor-item:last-child {
+    border-bottom: none;
+}
+
+.tor-close-btn, .add-reference-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px 20px 10px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.reference-content {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+}
+
+.reference-number {
+    font-weight: bold;
+    color: var(--strong-blue);
+}
+
+.reference-link {
+    color: var(--strong-blue);
+    text-decoration: none;
+    word-break: break-word;
+    transition: color 0.2s;
+}
+
+.reference-link:hover {
+    color: var(--plugin-focus);
+    text-decoration: underline;
+}
+
+.reference-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+    align-items: center;
+}
+
+.edit-reference-btn,
+.delete-reference-btn {
+    background-color: var(--inactive-element);
+    color: var(--default-font-color);
+    border: 1px solid var(--light-gray-border);
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 13px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.tor-empty {
+    color: var(--light-gray-border);
+    font-style: italic;
+    padding: 15px 0;
+    text-align: center;
+}
+
+.tor-container.highlighted {
+    box-shadow: inset 6px 0 0 -3px var(--strong-blue);
+}
+
+.tor-visibility-arrow.collapsed {
+    transform: rotate(-90deg);
+}
+
+.reference-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #ccc;
+}
+.reference-citation {
+    font-size: 14px;
+    line-height: 1.4;
+}

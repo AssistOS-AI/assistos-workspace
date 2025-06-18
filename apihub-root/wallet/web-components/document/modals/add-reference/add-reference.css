@@ -1,0 +1,127 @@
+.modal-body{
+    padding: 25px;
+}
+.modal-footer{
+    display: flex;
+    justify-content: start;
+}
+.reference-type-section {
+    margin-bottom: 20px;
+}
+
+#reference-type-select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.reference-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.field-group {
+    margin-bottom: 12px;
+}
+
+.field-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.9rem;
+    color: #555;
+    font-weight: 500;
+}
+
+.field-group .required {
+    color: var(--red);
+}
+
+.field-help {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 3px;
+}
+
+.modal-input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+}
+
+.citation-preview {
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 5px;
+}
+
+.citation-preview h4 {
+    margin: 0 0 10px 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.preview-text {
+    font-style: italic;
+    color: #333;
+    font-size: 14px;
+    line-height: 1.4;
+}
+.reference-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.reference-type-section {
+    margin-bottom: 20px;
+}
+
+.reference-fields {
+    margin-bottom: 20px;
+}
+
+.field-group {
+    margin-bottom: 15px;
+}
+
+.field-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+/* Hide fields by default based on type */
+.book-field, .website-field, .journal-field {
+    display: none;
+}
+
+/* Show fields when their type is selected */
+.reference-type-section[data-type="book"] .book-field,
+.reference-type-section[data-type="website"] .website-field,
+.reference-type-section[data-type="journal"] .journal-field {
+    display: block;
+}
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .reference-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .reference-modal-window {
+        padding: 16px;
+    }
+}
