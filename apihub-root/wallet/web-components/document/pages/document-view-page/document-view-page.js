@@ -221,6 +221,8 @@ export class DocumentViewPage {
                 infoText.style.height = infoText.scrollHeight + 'px';
             }, 0)
         });
+        let infoTextTitle = this.element.querySelector("#info-text-title");
+        infoTextTitle.value = assistOS.UI.unsanitize(this._document.comments.infoTextTitle) || "Document Info";
     }
 
     async afterRender() {
@@ -387,8 +389,15 @@ export class DocumentViewPage {
 
     async saveInfoTextTitle(input) {
         let infoTextTitle = assistOS.UI.sanitize(input.value);
-        if (infoTextTitle !== this._document.infoTextTitle) {
-            //TODO update infoTextTitle
+        if (infoTextTitle !== this._document.comments.infoTextTitle) {
+            this._document.comments.infoTextTitle = infoTextTitle;
+            await documentModule.updateDocument(assistOS.space.id, this._document.id,
+                this._document.title,
+                this._document.docId,
+                this._document.category,
+                this._document.infoText,
+                this._document.commands,
+                this._document.comments);
         }
     }
 
