@@ -113,7 +113,10 @@ export class AuthComponent {
         this.element.querySelector(".auth_methods_section").innerHTML = this.auth_options
         this.element.querySelector(".actions_container").innerHTML = `
             <button class="submit_auth_method_button auth-button" data-local-action="submitLoginMethod">Log&nbsp;In</button>
-            <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="login">Cancel</button>`
+            <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="login">Cancel</button>`;
+        if(!this.passkey_auth){
+            this.selected_method = "emailCode";
+        }
         this.addAuthMethodsListeners()
     }
 

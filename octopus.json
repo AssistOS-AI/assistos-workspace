@@ -25,6 +25,17 @@
       ]
     },
     {
+      "name": "EmailPlugin",
+      "src": "https://github.com/AssistOS-AI/MailJetPlugin",
+      "actions": [
+        {
+          "type": "smartClone",
+          "target": "./apihub-components/Gatekeeper",
+          "collectLog": false
+        }
+      ]
+    },
+    {
       "name": "soplang",
       "src": "https://github.com/AssistOS-AI/soplang.git",
       "actions": [

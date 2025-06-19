@@ -13,120 +13,6 @@ const TaskManager = require("../../tasks/TaskManager");
 const fsPromises = fs.promises;
 const { Document, Packer, TextRun, Paragraph, AlignmentType, Footer, BorderStyle, PageBorderDisplay, PageBorderOffsetFrom, PageBorderZOrder, PageNumber, PageOrientation, WidthType } = require("docx");
 
-async function getDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    if (!spaceId || !documentId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
-        });
-    }
-    try {
-        const document = await documentService.getDocument(spaceId, documentId, req.query);
-        utils.sendResponse(res, 200, "application/json", {
-            data: document
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to retrieve document ${documentId}` + error.message || ""
-        });
-    }
-
-}
-
-async function getDocumentsMetadata(req, res) {
-    const {spaceId} = req.params;
-    if (!spaceId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""}`
-        });
-    }
-    try {
-        const metadata = await documentService.getDocumentsMetadata(spaceId);
-        utils.sendResponse(res, 200, "application/json", {
-            data: metadata
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to retrieve document metadata` + error.message
-        });
-    }
-}
-
-async function createDocument(req, res) {
-    const {spaceId} = req.params;
-    const documentData = req.body;
-    if (!spaceId || !documentData) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentData ? "documentData" : ""}`
-        });
-    }
-    try {
-        const documentId = await documentService.createDocument(spaceId, documentData);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        utils.sendResponse(res, 200, "application/json", {
-            data: documentId
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: "Failed to create document" + error.message
-        });
-    }
-}
-
-async function updateDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    const documentData = req.body;
-    if (!spaceId || !documentId || !documentData) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""} ${!documentData ? "request body" : ""}`
-        });
-    }
-    try {
-        const updatedFields = req.query.fields;
-        /* TODO remove this jk and make something generic for all notifications */
-        await documentService.updateDocument(spaceId, documentId, documentData, req.query);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        if (updatedFields) {
-            if (Array.isArray(updatedFields)) {
-                updatedFields.forEach(field => {
-                    SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), field);
-                })
-            } else {
-                SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), updatedFields);
-            }
-        }
-        utils.sendResponse(res, 200, "application/json", {
-            message: `Document ${documentId} updated successfully`
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to update document ${documentId}` + error.message
-        });
-    }
-}
-
-async function deleteDocument(req, res) {
-    const {spaceId, documentId} = req.params;
-    if (!spaceId || !documentId) {
-        return utils.sendResponse(res, 400, "application/json", {
-            message: "Invalid request" + `Missing ${!spaceId ? "spaceId" : ""} ${!documentId ? "documentId" : ""}`
-        });
-    }
-    try {
-        await documentService.deleteDocument(spaceId, documentId);
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, documentId), "delete");
-        SubscriptionManager.notifyClients(req.sessionId, SubscriptionManager.getObjectId(spaceId, "documents"));
-        utils.sendResponse(res, 200, "application/json", {
-            message: `Document ${documentId} deleted successfully`
-        });
-    } catch (error) {
-        utils.sendResponse(res, error.statusCode || 500, "application/json", {
-            message: `Failed to delete document ${documentId}` + error.message
-        });
-    }
-
-}
-
 async function exportDocument(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
@@ -279,108 +165,6 @@ async function importDocument(request, response) {
     });
 }
 
-async function storeDocument(spaceId, docData, request, extractedPath) {
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
-    let securityContext = new SecurityContext(request);
-    const documentModule = require('assistos').loadModule('document', securityContext);
-    const spaceModule = require('assistos').loadModule('space', securityContext);
-
-    let exportType = docData.exportType;
-    const docId = await documentModule.addDocument(spaceId, {
-        title: docData.title,
-        topic: docData.topic,
-        metadata: ["id", "title", "type"],
-        type: docData.type || "document",
-        abstract: docData.abstract,
-    });
-    //for some reason the chapters are in reverse order
-    for (let i = docData.chapters.length - 1; i >= 0; i--) {
-        const chapter = docData.chapters[i];
-        let chapterObject = {
-            title: chapter.title,
-            position: chapter.position || 0,
-            backgroundSound: chapter.backgroundSound,
-            commands: chapter.commands || {}
-        };
-
-        if (exportType === 'full' && chapter.backgroundSound) {
-            chapterObject.backgroundSound = chapter.backgroundSound;
-            const audioPath = path.join(extractedPath, 'audios', `${chapter.backgroundSound.fileName}.mp3`);
-            const stream = await fs.createReadStream(audioPath);
-            chapterObject.backgroundSound.id = crypto.generateId();
-            await Storage.putFile(Storage.fileTypes.audios, chapterObject.backgroundSound.id, stream);
-            delete chapterObject.backgroundSound.fileName;
-        }
-
-        const chapterId = await documentModule.addChapter(spaceId, docId, chapterObject);
-
-        for (let paragraph of chapter.paragraphs) {
-            if (exportType === 'full') {
-                await storeAttachments(extractedPath, spaceModule, paragraph, spaceId);
-            }
-            delete paragraph.id;
-            paragraph.id = await documentModule.addParagraph(spaceId, docId, chapterId, paragraph);
-            if (paragraph.commands.speech) {
-                if (paragraph.commands.speech.taskId) {
-                    paragraph.commands.speech.taskId = await documentModule.createTextToSpeechTask(spaceId, docId, paragraph.id);
-                    await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
-                }
-            }
-            if (paragraph.commands.lipsync) {
-                if (paragraph.commands.lipsync.taskId) {
-                    paragraph.commands.lipsync.taskId = await documentModule.createLipSyncTask(spaceId, docId, paragraph.id);
-                    await documentModule.updateParagraphCommands(spaceId, docId, paragraph.id, paragraph.commands);
-                }
-            }
-        }
-    }
-    if (extractedPath) {
-        fs.rmSync(extractedPath, {recursive: true, force: true});
-    }
-    return docId;
-}
-
-async function storeAttachments(extractedPath, spaceModule, paragraph, spaceId) {
-    if (paragraph.commands.image) {
-        const imagePath = path.join(extractedPath, 'images', `${paragraph.commands.image.fileName}.png`);
-        const readStream = fs.createReadStream(imagePath);
-        paragraph.commands.image.id = crypto.generateId();
-        await Storage.putFile(Storage.fileTypes.images, paragraph.commands.image.id, readStream);
-        delete paragraph.commands.image.fileName;
-    }
-    if (paragraph.commands.audio) {
-        const audioPath = path.join(extractedPath, 'audios', `${paragraph.commands.audio.fileName}.mp3`);
-        const readStream = fs.createReadStream(audioPath);
-        paragraph.commands.audio.id = crypto.generateId();
-        await Storage.putFile(Storage.fileTypes.audios, paragraph.commands.audio.id, readStream);
-        delete paragraph.commands.audio.fileName;
-    }
-    if (paragraph.commands.effects) {
-        for (let effect of paragraph.commands.effects) {
-            const audioPath = path.join(extractedPath, 'audios', `${effect.fileName}.mp3`);
-            const readStream = fs.createReadStream(audioPath);
-            effect.id = crypto.generateId();
-            await Storage.putFile(Storage.fileTypes.audios, effect.id, readStream);
-            delete effect.fileName;
-        }
-    }
-    if (paragraph.commands.video) {
-        const videoPath = path.join(extractedPath, 'videos', `${paragraph.commands.video.fileName}.mp4`);
-        const readStream = fs.createReadStream(videoPath);
-        paragraph.commands.video.id = crypto.generateId();
-        await Storage.putFile(Storage.fileTypes.videos, paragraph.commands.video.id, readStream);
-        delete paragraph.commands.video.fileName;
-
-        if (paragraph.commands.video.thumbnailId) {
-            const thumbnailPath = path.join(extractedPath, 'images', `${paragraph.commands.video.thumbnailFileName}.png`);
-            const readStream = fs.createReadStream(thumbnailPath);
-            paragraph.commands.video.thumbnailId = crypto.generateId();
-            await Storage.putFile(Storage.fileTypes.images, paragraph.commands.video.thumbnailId, readStream);
-            delete paragraph.commands.video.thumbnailFileName;
-        }
-    }
-}
-
 async function estimateDocumentVideoLength(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
@@ -400,7 +184,6 @@ async function estimateDocumentVideoLength(request, response) {
         });
     }
 }
-
 let selectedDocumentItems = {};
 
 function getSelectedDocumentItems(req, res) {
@@ -1359,11 +1142,6 @@ async function uploadDoc(req, res) {
 }
 
 module.exports = {
-    getDocument,
-    getDocumentsMetadata,
-    createDocument,
-    updateDocument,
-    deleteDocument,
     exportDocument,
     importDocument,
     estimateDocumentVideoLength,
