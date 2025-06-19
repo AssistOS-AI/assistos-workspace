@@ -9,29 +9,56 @@ export class StyleSubpage {
 
     async beforeRender() {
         const stylePreferences = await documentModule.getStylePreferences(assistOS.user.email);
-        const selectedParagraphSize = parseInt(stylePreferences["document-font-size"], 10) || 12;
-        const selectedFont = stylePreferences["document-font-family"] || "Arial";
         this.selectedColor = stylePreferences["document-font-color"] || "#000000";
-        const selectedDocumentTitleSize = parseInt(stylePreferences["document-title-font-size"], 10) ?? 24;
-        const selectedChapterTitleSize = parseInt(stylePreferences["chapter-title-font-size"], 10) ?? 20;
-        const selectedParagraphIndent = parseInt(stylePreferences["document-indent-size"], 10) ?? 12;
-        this.docTitleFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72].map(size => `
-                        <option value="${size}" ${size === selectedDocumentTitleSize ? "selected" : ""}>${size}px</option>`).join("");
-        this.chapterTitleFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
-            .map(size => `
-                        <option value="${size}" ${size === selectedChapterTitleSize ? "selected" : ""}>${size}px</option>`)
-            .join("");
-        this.documentFontSize = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
-            .map(size => `
-                        <option value="${size}" ${size === selectedParagraphSize ? "selected" : ""}>${size}px</option>`).join("");
-        this.indentSize = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72]
-            .map(size => `
-                        <option value="${size}" ${size === selectedParagraphIndent ? "selected" : ""}>${size}px</option>`).join("");
-        this.fontFamily = ["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"]
-            .map(font => `<option value="${font}" ${font === selectedFont ? "selected" : ""}>${font}</option>`).join("");
+    }
+    getSelectOptionPX(sizes) {
+        return sizes.map(size => ({
+            name: size + 'px',
+            value: size
+        }));
+    }
+    getSelectedOptionValue(styleName, defaultValue){
+        if(this.stylePreferences[styleName]){
+            return parseInt(this.stylePreferences[styleName], 10);
+        }
+        return defaultValue;
+    }
+    renderPXSizeSelect(numbers, elementId, defaultValue) {
+        let options = this.getSelectOptionPX(numbers);
+        const selected = this.getSelectedOptionValue(elementId, defaultValue);
+        assistOS.UI.createElement("custom-select", `#${elementId}`, {
+                options: options,
+            },
+            {
+                "data-name": elementId,
+                "data-selected": selected,
+            });
     }
 
     async afterRender() {
+        this.stylePreferences = await documentModule.getStylePreferences(assistOS.user.email);
+        let fontSizes = [8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72];
+        this.renderPXSizeSelect(fontSizes, "document-title-font-size", 24);
+        this.renderPXSizeSelect(fontSizes, "chapter-title-font-size", 20);
+        this.renderPXSizeSelect(fontSizes, "document-font-size", 12);
+        
+        let indentSize = [0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 48, 72];
+        this.renderPXSizeSelect(indentSize, "document-indent-size", 12);
+
+        let fontFamily = ["Arial", "Times New Roman", "Courier New", "Georgia", "Verdana"];
+        let options = fontFamily.map(font => ({
+            name: font,
+            value: font
+        }));
+        const selected = this.stylePreferences["document-font-family"] || "Arial";
+        assistOS.UI.createElement("custom-select", `#document-font-family`, {
+                options: options,
+            },
+            {
+                "data-name": "document-font-family",
+                "data-selected": selected,
+            });
+
         const swatch = this.element.querySelector('#font-color-swatch')
         const hex = this.element.querySelector('#document-font-color')
         const picker = this.element.querySelector('#hidden-font-color')
@@ -65,12 +92,12 @@ export class StyleSubpage {
 
     getPreferences() {
         const preferences = {
-            "document-font-size": parseInt(this.element.querySelector("#document-font-size").value, 10),
-            "document-font-family": this.element.querySelector("#document-font-family").value,
-            "document-font-color": this.element.querySelector("#document-font-color").value,
-            "document-title-font-size": parseInt(this.element.querySelector("#document-title-font-size").value, 10),
-            "chapter-title-font-size": parseInt(this.element.querySelector("#document-chapter-title-font-size").value, 10),
-            "document-indent-size": parseInt(this.element.querySelector("#document-indent-size").value, 10)
+            "document-title-font-size": parseInt(this.element.querySelector(`custom-select[data-name="document-title-font-size"]`).value, 10),
+            "chapter-title-font-size": parseInt(this.element.querySelector(`custom-select[data-name="chapter-title-font-size"]`).value, 10),
+            "document-font-size": parseInt(this.element.querySelector(`custom-select[data-name="document-font-size"]`).value, 10),
+            "document-indent-size": parseInt(this.element.querySelector(`custom-select[data-name="document-indent-size"]`).value, 10),
+            "document-font-family": this.element.querySelector(`custom-select[data-name="document-font-family"]`).value,
+            "document-font-color": this.element.querySelector("#document-font-color").value
         }
         return preferences;
     }

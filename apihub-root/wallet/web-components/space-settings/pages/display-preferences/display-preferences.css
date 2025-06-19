@@ -120,28 +120,25 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .color-picker {
+    padding: var(--button-padding);
+    font-size: 16px;
+    border-radius: 5px;
+    border: 0.5px solid var(--form-input-border);
+    background-color: var(--white);
+    color: var(--default-font-color);
+    position: relative;
     display: flex;
-    width: 100%;
-    height: 30px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    padding-inline:8px;
-    align-items:center;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2px;
 }
-.color-picker svg{
-    position:relative;
-    right:12px;
-}
-
-
 
 #document-font-color, #export-document-font-color, #print-document-font-color {
     width:74%;
     border: none;
     padding-left: 4px;
-    font-family: Inter;
-    font-size: 14px;
     outline: none;
+    font-size: inherit;
     color: #595959;
     justify-content: center;
 }
@@ -153,4 +150,11 @@ input[type="range"]::-moz-range-thumb {
     opacity: 0;
     border: none;
     padding: 0
+}
+.color-swatch {
+    width:26%;
+    height: 18px;
+    border-radius: 6px;
+    border-width: 1px;
+    cursor: pointer;
 }

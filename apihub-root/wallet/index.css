@@ -760,18 +760,3 @@ select{
     color: #454545;
     width: fit-content;
 }
-#delete-space-button {
-    width: 174px;
-    height: 44px;
-    background: #C80001;
-    gap: 10px;
-    padding: 14px;
-    margin-block-start:20px;
-    border: 1px solid #C80001;
-    border-radius: 2px;
-}.color-swatch {
-     width:26%;
-     height: 18px;
-     border-radius: 6px;
-     border-width: 1px;
- }

@@ -13,3 +13,13 @@ advanced-settings {
     justify-content: flex-start;
     text-align: justify;
 }
+#delete-space-button {
+    width: 174px;
+    height: 44px;
+    background: var(--red);
+    gap: 10px;
+    padding: 14px;
+    margin-block-start:20px;
+    border: 1px solid var(--red);
+    border-radius: 2px;
+}

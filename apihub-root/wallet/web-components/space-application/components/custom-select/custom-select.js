@@ -27,6 +27,7 @@ export class CustomSelect{
                 selectedOption.setAttribute("data-selected", "true");
                 let currentOption = this.element.querySelector(".current-option");
                 currentOption.innerHTML = selectedOption.innerHTML;
+                this.element.value = this.defaultSelected;
             }
         }
         this.width = parseInt(this.element.getAttribute("data-width"));
@@ -86,6 +87,7 @@ export class CustomSelect{
         let optionsList = this.element.querySelector(".options-list");
         optionsList.classList.add("hidden");
         this.element.firstElementChild.classList.remove("focused");
+        this.element.value = value;
         if(this.controller){
             this.controller.abort();
         }
