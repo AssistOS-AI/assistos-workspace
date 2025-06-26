@@ -1,0 +1,109 @@
+.processes-page {
+    height: 100%;
+}
+
+.page-header {
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: black;
+}
+
+.page-body {
+    padding: 20px 40px 0 40px;
+    height: calc(100% - 80px);
+    overflow-y: auto;
+}
+
+.table-section {
+    width: 100%;
+}
+
+.data-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: #595959;
+}
+
+.data-table th {
+    font-weight: 450;
+    color: #919191;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 4px;
+}
+
+.data-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 4px;
+}
+
+.data-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.first-table-field {
+    text-align: left !important;
+}
+
+.last-table-field {
+    text-align: right !important;
+}
+
+.main-cell {
+    text-align: left !important;
+}
+
+.actions-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 28px;
+}
+
+.general-button {
+    border: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: white;
+    background: #08C;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.table-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #EDEDED;
+    border: 1px solid #CCC;
+    color: #454545;
+    width: fit-content;
+    padding: 8px;
+    margin-right: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.delete-row-btn {
+    display: inline-block;
+    width: 38px;
+    height: 38px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #C80001EE;
+    border: none;
+    cursor: pointer;
+}

@@ -91,9 +91,27 @@ edit-agent-page{
     border-bottom: 2px solid var(--strong-blue);
 }
 .tab {
-     cursor: pointer;
-     padding: 15px 40px;
-     display: flex;
-     align-items: center;
+    cursor: pointer;
+    padding: 15px 40px;
+    display: flex;
+    align-items: center;
+}
 
+/* Agent Chats Tab Styles */
+.agent-chats {
+    width: 100%;
+    overflow-y: auto;
+}
+
+.agent-chats .general-button {
+    border: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: white;
+    background: #08C;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
 }

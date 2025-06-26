@@ -28,6 +28,30 @@
             "presenterClassName": "CreateTicket"
         },
         {
+            "name": "processes-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "ProcessesPage"
+        },
+        {
+            "name": "processes-page",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ProcessesPage"
+        },
+        {
+            "name": "add-edit-process-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "AddEditProcessModal"
+        },
+        {
+            "name": "delete-process-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "DeleteProcessModal"
+        },
+        {
             "name": "support-tickets",
             "directory": "space-application",
             "type": "modals",
@@ -38,6 +62,12 @@
             "directory": "space-application",
             "type": "pages",
             "presenterClassName": "SpaceAdmin"
+        },
+        {
+            "name": "agents-chats",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "AgentsChats"
         },
         {
             "name": "admin-space-item",

@@ -1,0 +1,31 @@
+<div class="agent-chats">
+    <div class="chats-header">
+        <div></div>
+        <button class="general-button" data-local-action="showAddChatModal">
+            + Add New Chat
+        </button>
+    </div>
+    <div class="chats-table-container">
+        <table class="data-table">
+            <thead>
+            <tr>
+                <th class="first-table-field">Chat Name</th>
+                <th>Process</th>
+                <th>Last Run</th>
+                <th>Status</th>
+                <th class="last-table-field">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            $$chatRows
+            </tbody>
+        </table>
+    </div>
+
+    <div class="execution-history-section" style="$$historyDisplay">
+        <h3 class="section-title">Execution History</h3>
+        <div class="history-container">
+            $$executionHistory
+        </div>
+    </div>
+</div>
