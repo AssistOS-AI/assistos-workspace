@@ -416,6 +416,30 @@
             "presenterClassName": "LlmDemoPage"
         },
         {
+            "name": "chats-page",
+            "directory": "space-application",
+            "type": "pages",
+            "presenterClassName": "ChatsPage"
+        },
+        {
+            "name": "add-chat-modal-extended",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "AddChatModalExtended"
+        },
+        {
+            "name": "edit-chat-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "EditChatModal"
+        },
+        {
+            "name": "delete-chat-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "DeleteChatModal"
+        },
+        {
             "name": "view-context-modal",
             "directory": "space-application",
             "type": "modals",

@@ -1,0 +1,33 @@
+<div class="chats-page">
+    <div class="page-header">
+        <div class="page-title">Chats</div>
+        <button class="general-button" data-local-action="showAddChatModal">
+            + Add New Chat
+        </button>
+    </div>
+    <div class="page-body">
+        <div class="table-section">
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th class="first-table-field">Chat Name</th>
+                    <th>Process</th>
+                    <th>Last Run</th>
+                    <th>Status</th>
+                    <th class="last-table-field">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                $$chatRows
+                </tbody>
+            </table>
+        </div>
+
+        <div class="execution-history-section" style="$$historyDisplay">
+            <h3 class="section-title">Execution History</h3>
+            <div class="history-container">
+                $$executionHistoryHTML
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,208 @@
+.chats-page {
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.page-header {
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--light-gray-border);
+}
+
+.page-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: black;
+}
+
+.page-body {
+    padding: 20px 40px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+.table-section {
+    width: 100%;
+    margin-bottom: 40px;
+}
+
+.data-table {
+    width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    color: #595959;
+}
+
+.data-table th {
+    font-weight: 450;
+    color: #919191;
+    font-size: 16px;
+    line-height: 100%;
+    text-align: center;
+    vertical-align: middle;
+    padding: 8px 4px;
+}
+
+.data-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px 4px;
+}
+
+.data-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.first-table-field {
+    text-align: left !important;
+}
+
+.last-table-field {
+    text-align: right !important;
+}
+
+.main-cell {
+    text-align: left !important;
+    font-weight: 500;
+}
+
+.actions-button {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-right: 28px;
+}
+
+.general-button {
+    border: none;
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 400;
+    color: white;
+    background: #08C;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.table-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #EDEDED;
+    border: 1px solid #CCC;
+    color: #454545;
+    width: fit-content;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.run-btn {
+    background: #28A745;
+    color: white;
+    border: none;
+}
+
+.delete-row-btn {
+    display: inline-block;
+    width: 38px;
+    height: 38px;
+    padding: 8px;
+    border-radius: 6px;
+    background: #C80001EE;
+    border: none;
+    cursor: pointer;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-badge.success {
+    background: #D4EDDA;
+    color: #28A745;
+}
+
+.status-badge.failed {
+    background: #F8D7DA;
+    color: #DC3545;
+}
+
+.status-badge.running {
+    background: #CCE5FF;
+    color: #004085;
+}
+
+.status-badge.pending {
+    background: #FFF3CD;
+    color: #856404;
+}
+
+.execution-history-section {
+    margin-top: 40px;
+    border-top: 2px solid var(--light-gray-border);
+    padding-top: 20px;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+    margin-bottom: 20px;
+}
+
+.history-container {
+    background: #F8F9FA;
+    border-radius: 8px;
+    padding: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.history-item {
+    background: white;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+}
+
+.history-item:last-child {
+    margin-bottom: 0;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.history-chat-name {
+    font-weight: 600;
+    color: #222;
+}
+
+.history-timestamp {
+    font-size: 12px;
+    color: #666;
+}
+
+.history-details {
+    font-size: 14px;
+    color: #595959;
+}
+
+.history-status {
+    display: inline-block;
+    margin-left: 10px;
+}
