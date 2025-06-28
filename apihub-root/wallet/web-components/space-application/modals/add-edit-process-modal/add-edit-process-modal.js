@@ -1,96 +1,61 @@
+const processModule = assistOS.loadModule("process");
+
 export class AddEditProcessModal {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
         this.props = props;
-        debugger
-        const modalTitle = this.element.getAttribute('data-modalTitle');
-        const processName = this.element.getAttribute('data-processName');
-        const processDescription = this.element.getAttribute('data-processDescription');
-        const processId = this.element.getAttribute('data-processId');
-
-        this.modalTitle = modalTitle || "Add New Process";
-        this.processName =processName || "";
-        this.processSoplang = window.processSoplang|| "";
-        this.processDescription = processDescription || "";
-        this.processId = processId || null;
-        this.isEditMode = !!this.processId;
-
+        this.processId = this.element.dataset.processid || null;
         this.invalidate();
     }
 
     async beforeRender() {
+        if (this.processId) {
+            this.process = await processModule.getProcess(assistOS.space.id, this.processId);
+        } else {
+            this.addedProcess = false;
+        }
     }
 
     async afterRender() {
-        const nameInput = this.element.querySelector('#process-name');
-        if (nameInput) {
-            setTimeout(() => nameInput.focus(), 100);
+        this.processNameInput = this.element.querySelector('#process-name');
+        this.processSoplangInput = this.element.querySelector('#process-soplang');
+        this.processDescriptionInput = this.element.querySelector('#process-description');
+
+        if (this.process) {
+            this.processNameInput.value = this.process.name;
+            this.processSoplangInput.value = this.process.soplang || '';
+            this.processDescriptionInput.value = this.process.description || '';
         }
     }
 
-    closeModal() {
-        if (window.assistOS?.UI?.closeModal) {
-            window.assistOS.UI.closeModal(this.element);
-        } else if (window.WebSkel?.closeModal) {
-            window.WebSkel.closeModal(this.element);
-        } else {
-            const dialog = this.element.closest('dialog');
-            if (dialog) {
-                dialog.close();
-                dialog.remove();
-            }
-        }
+    closeModal(target) {
+        assistOS.UI.closeModal(target, {addedProcess: this.addedProcess, changedProcess: this.changedProcess});
     }
 
-    saveProcess() {
-        const nameInput = this.element.querySelector('#process-name');
-        const soplangInput = this.element.querySelector('#process-soplang');
-        const descriptionInput = this.element.querySelector('#process-description');
-
-        const name = nameInput.value.trim();
-        const soplang = soplangInput.value.trim();
-        const description = descriptionInput.value.trim();
-
-        nameInput.classList.remove('input-invalid');
-        soplangInput.classList.remove('input-invalid');
-
-        let isValid = true;
-        if (!name) {
-            nameInput.classList.add('input-invalid');
-            isValid = false;
-        }
-        if (!soplang) {
-            soplangInput.classList.add('input-invalid');
-            isValid = false;
-        }
-
-        if (!isValid) {
-            return;
-        }
-
-        const processData = {
-            name,
-            soplang,
-            description
-        };
-
-        if (this.isEditMode) {
-            processData.id = this.processId;
-        }
-
-        if (window.assistOS?.UI?.closeModal) {
-            window.assistOS.UI.closeModal(this.element, processData);
-        } else if (window.WebSkel?.closeModal) {
-            window.WebSkel.closeModal(this.element, processData);
+    async saveProcess(target) {
+        const name = this.processNameInput.value.trim();
+        const soplang = this.processSoplangInput.value.trim();
+        const description = this.processDescriptionInput.value.trim();
+        debugger
+        if (this.processId) {
+            const processData = {
+                id: this.processId,
+                name,
+                soplang,
+                description
+            };
+            await processModule.updateProcess(assistOS.space.id, this.processId, processData);
+            this.changedProcess = true;
+            this.closeModal(target);
         } else {
-            // Fallback - dispatch custom event
-            const event = new CustomEvent('process-saved', {
-                detail: processData,
-                bubbles: true
+            await processModule.addProcess(assistOS.space.id, {
+                name,
+                soplang,
+                description
             });
-            this.element.dispatchEvent(event);
-            this.closeModal();
+            this.addedProcess = true;
+            this.closeModal(target);
         }
     }
 }
