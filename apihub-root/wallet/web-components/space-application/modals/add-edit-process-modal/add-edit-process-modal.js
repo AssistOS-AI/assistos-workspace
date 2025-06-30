@@ -12,7 +12,9 @@ export class AddEditProcessModal {
     async beforeRender() {
         if (this.processId) {
             this.process = await processModule.getProcess(assistOS.space.id, this.processId);
+            this.modalTitle = 'Edit Process';
         } else {
+            this.modalTitle = 'Add Process';
             this.addedProcess = false;
         }
     }
@@ -37,7 +39,6 @@ export class AddEditProcessModal {
         const name = this.processNameInput.value.trim();
         const soplang = this.processSoplangInput.value.trim();
         const description = this.processDescriptionInput.value.trim();
-        debugger
         if (this.processId) {
             const processData = {
                 id: this.processId,

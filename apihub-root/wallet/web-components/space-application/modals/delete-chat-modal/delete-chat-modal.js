@@ -1,35 +1,34 @@
+const chatModule = assistOS.loadModule("chat");
+
 export class DeleteChatModal {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
         this.props = props;
-
-        this.chatName = props.chatName || "";
-        this.chatId = props.chatId || null;
-
+        this.chatId = element.dataset.chatid;
+        this.chatDeleted=false;
         this.invalidate();
     }
 
     async beforeRender() {
+        this.chat = await chatModule.getChat(assistOS.space.id, this.chatId);
+        this.chatName = this.chat.docId;
     }
 
     async afterRender() {
+
     }
-
-    closeModal() {
-        if (window.assistOS?.UI?.closeModal) {
-            window.assistOS.UI.closeModal(this.element);
-        }
+    closeModal(target) {
+        assistOS.UI.closeModal(target, {editedChat: this.chatDeleted});
     }
-
-    confirmDelete() {
-        const deleteData = {
-            confirmed: true,
-            chatId: this.chatId
-        };
-
-        if (window.assistOS?.UI?.closeModal) {
-            window.assistOS.UI.closeModal(this.element, deleteData);
+    async confirmDelete(target) {
+        try {
+            await chatModule.deleteChat(assistOS.space.id, this.chatId)
+            this.chatDeleted=true;
+        }catch(error){
+            console.error(error);
+        }finally{
+            this.closeModal(target);
         }
     }
 }

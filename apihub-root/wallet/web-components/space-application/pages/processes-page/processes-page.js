@@ -10,7 +10,6 @@ export class ProcessesPage {
 
     async beforeRender() {
         this.processes = await processModule.getProcesses(assistOS.space.id);
-        debugger
         this.processRows = this.processes.map(process => `
             <tr>
                 <td class="main-cell">
@@ -36,6 +35,7 @@ export class ProcessesPage {
     }
 
     async afterRender() {
+
     }
 
     async openAddProcessModal() {
