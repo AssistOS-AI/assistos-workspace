@@ -14,6 +14,7 @@ const {
     deleteFile,
     deleteSpace,
     restartServerless,
+    installSystemApps
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -24,6 +25,7 @@ const secrets = require("../apihub-component-utils/secrets");
 const cookies = require("../apihub-component-utils/cookie.js");
 function Space(server) {
     setTimeout(async ()=> {
+        await installSystemApps();
         let adminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ASSISTOS_ADMIN_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
         let spaces = await adminClient.listAllSpaces(process.env.SERVERLESS_AUTH_SECRET);
         for(let spaceId of spaces){

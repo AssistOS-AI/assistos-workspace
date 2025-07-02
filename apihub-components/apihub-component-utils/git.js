@@ -93,7 +93,7 @@ async function getLastCommitDate(repoPath) {
         throw new Error(`Failed to get last commit date: ${error.message}`);
     }
 }
-async function checkForUpdates(localPath, remoteUrl, spaceId) {
+async function checkForUpdates(localPath, remoteUrl) {
     if (!fs.existsSync(localPath)) {
         throw new Error("Local repository path does not exist.");
     }

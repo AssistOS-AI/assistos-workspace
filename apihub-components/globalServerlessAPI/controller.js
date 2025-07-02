@@ -124,18 +124,13 @@ async function createSpace(request, response, server) {
         let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
         await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
 
-        const defaultApplicationsPath = path.join(__dirname, 'defaultApplications.json');
-        const defaultApplications = JSON.parse(await fsPromises.readFile(defaultApplicationsPath, 'utf-8'));
-
-        const ApplicationModule = assistOSSDK.loadModule("application", {
-            email: email,
-            authToken: request.authToken,
-            userId: request.userId,
-            sessionId: request.sessionId,
-        });
-
-        for (const application of defaultApplications) {
-            await ApplicationModule.installApplication(space.id,application)
+        const appsPath = path.join(__dirname, 'applications.json');
+        const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
+        const defaultApps = apps.filter(app => app.systemApp);
+        for (const application of defaultApps) {
+            let systemAppPath = path.join(process.env.PERSISTENCE_FOLDER, `../../../systemApps/${application.name}`);
+            let spaceAppLinkPath = path.join(applicationsPath, application.name);
+            await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
         }
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
@@ -168,7 +163,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM","Chat","Process"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Chat", "ChatScript"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
@@ -180,6 +175,29 @@ async function createSpacePlugins(pluginsStorage){
     await fsPromises.writeFile(`${pluginsStorage}/EmailPlugin.js`, emailPluginRedirect);
 }
 
+async function installSystemApps(){
+    async function dirExists(path) {
+        try {
+            await fsPromises.access(path);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+    let systemAppsPath = path.join(process.env.PERSISTENCE_FOLDER, "../../../systemApps");
+    if(!await dirExists(systemAppsPath)){
+        const appsPath = path.join(__dirname, 'applications.json');
+        const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
+        const defaultApps = apps.filter(app => app.systemApp);
+        const ApplicationModule = assistOSSDK.loadModule("application", {
+            email: process.env.SYSADMIN_EMAIL,
+            authToken: process.env.SERVERLESS_AUTH_SECRET,
+        });
+        for(let app of defaultApps){
+            await ApplicationModule.installSystemApp(app.name);
+        }
+    }
+}
 async function deleteSpace(request, response, server) {
     const spaceId = request.params.spaceId;
     let email = request.email;
@@ -620,10 +638,8 @@ module.exports = {
     editSecret,
     getSecretsMasked,
     deleteSecret,
-    getChatTextResponse,
-    getChatTextStreamingResponse,
     importPersonality,
-    chatCompleteParagraph,
     listUserSpaces,
-    restartServerless
+    restartServerless,
+    installSystemApps
 }

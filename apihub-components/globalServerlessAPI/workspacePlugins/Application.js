@@ -8,9 +8,7 @@ const execFileAsync = promisify(execFile)
 
 async function Application() {
     let self = {};
-    let WorkspacePlugin = await $$.loadPlugin("Workspace");
     let persistence = await $$.loadPlugin("DefaultPersistence");
-
     persistence.configureTypes({
         application: {
             name: "string",
@@ -21,29 +19,31 @@ async function Application() {
 
     await persistence.createIndex("application", "name");
 
-    self.getApplicationPath = function (applicationName) {
-        return path.join(process.env.PERSISTENCE_FOLDER, "../", `applications/${applicationName}`);
+    self.getApplicationPath = function (appName) {
+        let app = availableApps.find(app => app.name === appName);
+        if(app.systemApp) {
+            return path.join(process.env.PERSISTENCE_FOLDER, `../../../${appName}`);
+        }
+        return path.join(process.env.PERSISTENCE_FOLDER, "../", `applications/${appName}`);
     }
 
     self.getApplicationManifestPath = function (applicationName) {
         return path.join(self.getApplicationPath(applicationName), "manifest.json");
     }
 
-    self.getApplicationTaskPath = function (applicationName, taskName) {
-        return path.join(self.getApplicationPath(applicationName), "tasks", `${taskName}.js`);
-    }
 
     self.getAvailableApps = function () {
-        return require("../applications.json");
+        let apps = require("../applications.json");
+        return apps.filter(app => !app.systemApp);
     }
 
-    self.updateApplication = async function (applicationId) {
-        const applicationMetadata = self.getAvailableApps().find(app => app.id === applicationId);
-        if (!applicationMetadata) {
+    self.updateApplication = async function (appName) {
+        const app = self.getAvailableApps().find(app => app.name === appName);
+        if (!app) {
             throw new Error("Application not Found");
         }
         const applicationPath = self.getApplicationPath(applicationId);
-        const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
+        const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, app.repository);
         if (applicationNeedsUpdate) {
             await git.updateRepo(applicationPath);
         } else {
@@ -52,12 +52,12 @@ async function Application() {
     }
 
     self.requiresUpdate = async function (spaceId, appName) {
-        const applicationMetadata = self.getAvailableApps().find(app => app.name === appName);
-        if (!applicationMetadata) {
+        const app = self.getAvailableApps().find(app => app.name === appName);
+        if (!app) {
             throw new Error("Application not Found");
         }
         const applicationPath = self.getApplicationPath(appName);
-        return await git.checkForUpdates(applicationPath, applicationMetadata.repository, spaceId);
+        return await git.checkForUpdates(applicationPath, app.repository);
     }
 
     self.getApplicationManifest = async function (applicationName) {
@@ -198,36 +198,6 @@ async function Application() {
         const manifestPath = self.getApplicationManifestPath(application.name);
         const manifest = await fsPromises.readFile(manifestPath, 'utf8');
         return JSON.parse(manifest);
-    }
-
-    self.runApplicationTask = async function (request, applicationId, taskName, taskData) {
-        const ensureAllFunctionsExist = (taskFunctions) => {
-            if (!taskFunctions.runTask) {
-                throw new Error('runTask method must be implemented');
-            }
-            if (!taskFunctions.cancelTask) {
-                throw new Error('cancelTask method must be implemented');
-            }
-        }
-        const bindTaskFunctions = (ITaskInstance, taskFunctions) => {
-            Object.entries(taskFunctions).forEach(([key, value]) => {
-                ITaskInstance[key] = value.bind(ITaskInstance);
-            })
-        }
-        const bindTaskParameters = (ITaskInstance, taskData) => {
-            ITaskInstance.parameters = taskData;
-        }
-
-        const ITaskInstance = new ITask(request.userId, taskData);
-        ITaskInstance.applicationId = applicationId;
-        const taskPath = self.getApplicationTaskPath(applicationId, taskName);
-        const taskFunctions = require(taskPath);
-        ensureAllFunctionsExist(taskFunctions);
-        bindTaskFunctions(ITaskInstance, taskFunctions);
-        bindTaskParameters(ITaskInstance, taskData);
-        await TaskManager.addTask(ITaskInstance);
-        TaskManager.runTask(ITaskInstance.id);
-        return ITaskInstance.id;
     }
 
     self.getApplicationsPlugins = async function (spaceId) {

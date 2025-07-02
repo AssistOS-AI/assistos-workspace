@@ -1,3 +1,6 @@
+const git = require("../../apihub-component-utils/git");
+const fsPromises = require("fs").promises;
+const path = require("path");
 async function AssistOSAdmin(){
     let self = {};
     const persistence = await $$.loadPlugin("StandardPersistence");
@@ -11,7 +14,6 @@ async function AssistOSAdmin(){
     await persistence.createIndex("spaceStatus", "name");
 
     let userLogger = await $$.loadPlugin("UserLoggerPlugin");
-    let AdminPlugin = await $$.loadPlugin("AdminPlugin");
 
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
@@ -149,6 +151,69 @@ async function AssistOSAdmin(){
             spaces.push(space);
         }
         return spaces;
+    }
+
+    self.getApplicationPath = function (appName) {
+        return path.join(process.env.PERSISTENCE_FOLDER, `../systemApps/${appName}`);
+    }
+    self.getAvailableApps = function(){
+        let apps = require("../applications.json");
+        return apps.filter(app => app.systemApp);
+    }
+    self.installSystemApp = async function (appName) {
+        const applications = self.getAvailableApps();
+        const application = applications.find(app => app.name === appName);
+        if (!application) {
+            throw new Error("Application not Found");
+        }
+        const applicationFolderPath = self.getApplicationPath(application.name);
+        try {
+            await git.clone(application.repository, applicationFolderPath);
+        } catch (error) {
+            if (error.message.includes("already exists and is not an empty directory")) {
+                try {
+                    await fsPromises.rm(applicationFolderPath, {recursive: true, force: true});
+                } catch (e) {
+                    //multiple users
+                }
+            }
+            throw new Error("Failed to clone application repository " + error.message);
+        }
+        const manifestPath = path.join(applicationFolderPath, 'manifest.json');
+
+        let manifestContent, manifest;
+        try {
+            manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
+            manifest = JSON.parse(manifestContent);
+        } catch (error) {
+            throw new Error("Failed to read or parse Application manifest", error);
+        }
+
+        application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
+        await git.installDependencies(manifest.dependencies);
+    }
+
+    self.updateApplication = async function (appName) {
+        const app = self.getAvailableApps().find(app => app.name === appName);
+        if (!app) {
+            throw new Error("Application not Found");
+        }
+        const applicationPath = self.getApplicationPath(appName);
+        const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, app.repository);
+        if (applicationNeedsUpdate) {
+            await git.updateRepo(applicationPath);
+        } else {
+            throw new Error("No updates available");
+        }
+    }
+
+    self.requiresUpdate = async function (appName) {
+        const app = self.getAvailableApps().find(app => app.name === appName);
+        if (!app) {
+            throw new Error("Application not Found");
+        }
+        const applicationPath = self.getApplicationPath(appName);
+        return await git.checkForUpdates(applicationPath, app.repository);
     }
     return self;
 }
