@@ -31,7 +31,6 @@ export class EditAgentPage {
         if (this.agent.name === constants.DEFAULT_AGENT_NAME) {
             this.deleteAgentButton = "";
         }
-
     }
 
     getLlmTabsHtml(llms) {
@@ -98,7 +97,6 @@ export class EditAgentPage {
         this.invalidate();
     }
 
-
     async saveChanges(_target) {
         await agentModule.updateAgent(assistOS.space.id, this.agent.id, this.agent);
         this.initialAgent = JSON.parse(JSON.stringify(this.agent));
@@ -119,6 +117,7 @@ export class EditAgentPage {
             saveButton.classList.remove("disabled");
         }
     }
+
     async navigateToAgentsPage(){
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/agents-page`);
     }

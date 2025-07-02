@@ -344,6 +344,8 @@ class AssistOS {
             email: assistOS.user.email,
         }
         switch (moduleName) {
+            case "process":
+                return require("assistos").loadModule("process", securityContext);
             case "space":
                 return require("assistos").loadModule("space", securityContext);
             case "user":

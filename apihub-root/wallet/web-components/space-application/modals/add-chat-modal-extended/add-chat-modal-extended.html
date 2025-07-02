@@ -1,0 +1,29 @@
+<div class="modal-content">
+    <div class="modal-header">
+        <span>Add New Chat</span>
+        <div class="close" data-local-action="closeModal">
+            <svg class="close-icon" viewBox="0 0 24 24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/>
+            </svg>
+        </div>
+    </div>
+    <div class="modal-body">
+        <form class="chat-form">
+            <div class="form-item">
+                <label class="form-label">Chat Name</label>
+                <input type="text" id="chat-name" class="form-input" placeholder="Enter chat name">
+            </div>
+            <div class="form-item">
+                <label class="form-label">Select Process</label>
+                <select id="process-select" class="form-input">
+                    <option value="">-- Select a process --</option>
+                    $$processOptions
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="gray-button" data-local-action="closeModal">Cancel</button>
+        <button class="general-button" data-local-action="saveChat">Create Chat</button>
+    </div>
+</div>
