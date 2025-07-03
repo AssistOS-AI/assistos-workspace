@@ -185,10 +185,7 @@ class BaseChatFrame {
         this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
         this.conversation.addEventListener('scroll', () => {
             const threshold = 300;
-            const distanceFromBottom =
-                this.conversation.scrollHeight
-                - this.conversation.scrollTop
-                - this.conversation.clientHeight;
+            const distanceFromBottom = this.conversation.scrollHeight - this.conversation.scrollTop - this.conversation.clientHeight;
             this.userHasScrolledManually = distanceFromBottom > threshold;
         });
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");

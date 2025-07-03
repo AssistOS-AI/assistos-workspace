@@ -121,8 +121,8 @@ async function createSpace(request, response, server) {
         await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
         await workspaceUser.createUser(email, email, "admin");
 
-        let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, serverlessId);
-        await agentAPIClient.copyDefaultAgents(serverlessAPIStorage, space.id);
+        let chatId = await createDefaultAgent(request, space.id);
+        await workspaceClient.setCurrentChatId(space.id, chatId);
 
         const appsPath = path.join(__dirname, 'applications.json');
         const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
@@ -138,6 +138,22 @@ async function createSpace(request, response, server) {
             message: `Internal Server Error: ${error.message}`,
         });
     }
+}
+async function createDefaultAgent(request, spaceId){
+    let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
+    let agent = await agentAPIClient.createDefaultAgent(spaceId);
+    let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
+    let code = `
+    @currentUser := $arg1
+    @agentName := $arg2
+    @assistant new ChatAIAgent $agentName
+    @user new ChatUserAgent $currentUser
+    @chat new Chat $user $assistant`;
+    let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");
+    let chatAPIClient = await getAPIClient(request, constants.CHAT_PLUGIN, spaceId);
+    let chatId = `${agent.name}_Chat`;
+    await chatAPIClient.createChat(chatId, chatScript.id, ["User", "Assistant"]);
+    return chatId;
 }
 function getRedirectCodeESModule(pluginName){
     return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginName}.js");
@@ -184,7 +200,7 @@ async function installSystemApps(){
             return false;
         }
     }
-    let systemAppsPath = path.join(process.env.PERSISTENCE_FOLDER, "../../../systemApps");
+    let systemAppsPath = path.join(process.env.PERSISTENCE_FOLDER, "../systemApps");
     if(!await dirExists(systemAppsPath)){
         const appsPath = path.join(__dirname, 'applications.json');
         const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
