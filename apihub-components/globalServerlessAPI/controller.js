@@ -141,8 +141,9 @@ async function createSpace(request, response, server) {
     }
 }
 async function createDefaultAgent(request, spaceId){
-    let agentAPIClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
-    let agent = await agentAPIClient.createDefaultAgent(spaceId);
+    let agentClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
+    let agent = await agentClient.createDefaultAgent(spaceId);
+    await agentClient.selectLLM(agent.name, "chat", "gpt-4", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = `
     @currentUser := $arg1

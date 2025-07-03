@@ -138,7 +138,7 @@ class BaseChatFrame {
         this.chatOptions = IFrameChatOptions;
 
         this.chatId = this.element.getAttribute('data-chatId');
-        this.agentId = this.element.getAttribute('data-personalityId');
+        this.agentName = this.element.getAttribute('data-agent-name');
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.userId = this.element.getAttribute('data-userId');
 
@@ -284,25 +284,19 @@ class BaseChatFrame {
 
     async sendMessage(_target) {
         let formInfo = await UI.extractFormInformation(_target);
-        const userRequestMessage = UI.customTrim(formInfo.data.input)
+        const userMessage = UI.customTrim(formInfo.data.input)
         formInfo.elements.input.element.value = "";
-        if (!userRequestMessage.trim()) {
+        if (!userMessage.trim()) {
             return;
         }
 
         const nextReplyIndex = this.chatMessages.length;
 
-        this.chatMessages.push(
-            {
-                text: userRequestMessage,
-                commands: {
-                    replay: {
-                        role: "user",
-                        name: this.userId
-                    }
-                }
-            }
-        )
+        this.chatMessages.push({
+                text: userMessage,
+                role: "user",
+                name: this.userId
+        })
 
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
@@ -313,22 +307,18 @@ class BaseChatFrame {
         if (this.agentOn) {
             const streamLocationElement = await this.createChatUnitResponse();
             let currentMessageIndex = this.chatMessages.length - 1;
-            const {id} = await agentModule.sendChatQuery(this.spaceId, this.chatId, this.agentId, assistOS.user.email, userRequestMessage);
-            this.chatMessages[currentMessageIndex] = await chatModule.getChatMessage(this.spaceId, this.chatId, id);
+            await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage);
+            let response = await chatModule.waitMessage(this.spaceId, this.chatId);
+            this.chatMessages[currentMessageIndex] = {
+                role: "assistant",
+                text: response.message,
+                name: this.agentName,
+            };
             const responseElement = streamLocationElement.closest('chat-item');
-            responseElement.setAttribute(`id`, id);
+            //responseElement.setAttribute(`id`, id);
             responseElement.webSkelPresenter.invalidate();
-            /*   const {
-                   userMessageId,
-                   responseMessageId
-               } = await this.sendQuery(this.spaceId, this.chatId, this.agentId, userRequestMessage, streamLocationElement)
-               element.setAttribute(`id`, userMessageId);
-               element.webSkelPresenter.invalidate();
-               const responseElement = streamLocationElement.closest('chat-item');
-               responseElement.setAttribute(`id`, responseMessageId);
-               responseElement.webSkelPresenter.invalidate();*/
         } else {
-            messageId = await chatModule.sendMessage(this.spaceId, this.chatId, assistOS.user.email, userRequestMessage, "user")
+            messageId = await chatModule.chatInput(this.spaceId, this.chatId, assistOS.user.email, userMessage, "user")
             element.setAttribute(`id`, messageId);
             element.webSkelPresenter.invalidate();
         }
@@ -413,19 +403,13 @@ class BaseChatFrame {
     }
 
     async createChatUnitResponse() {
-        this.chatMessages.push(
-            {
+        this.chatMessages.push({
                 text: "Processing Request ... ",
-                commands: {
-                    replay: {
-                        role: "assistant",
-                        name: this.agentId
-                    }
-                }
-            }
-        )
+                role: "assistant",
+                name: this.agentName
+        });
 
-        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.agentId}" data-last-item="true"/>`;
+        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.agentName}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
 
         return await waitForElement(this.conversation.lastElementChild, '.message');
@@ -496,7 +480,7 @@ class BaseChatFrame {
     }
 
     async newConversation(target) {
-        const chatId = await createNewChat(this.spaceId, this.agentId);
+        const chatId = await createNewChat(this.spaceId, this.agentName);
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
