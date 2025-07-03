@@ -224,12 +224,12 @@
       "actions": [
         {
           "type": "execute",
-          "cmd": "npm install marked"
+          "cmd": "npm install marked --no-save"
         },
         {
           "type": "copy",
-          "src": "node_modules/marked/marked.min.js",
-          "target": "apihub-root/"
+          "src": "node_modules/marked/lib/marked.umd.js",
+          "target": "apihub-root/wallet/lib/marked.umd.js"
         },
         {
           "type": "execute",

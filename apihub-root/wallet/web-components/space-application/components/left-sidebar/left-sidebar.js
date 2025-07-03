@@ -20,7 +20,7 @@ export class LeftSidebar {
         this.invalidate(async () => {
             //this.tasks = await utilModule.getTasks(assistOS.space.id);
             this.tasks = []
-            await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
+            //await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
 

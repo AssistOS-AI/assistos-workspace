@@ -109,7 +109,7 @@ export class NotificationsMonitor {
             return;
         }
         try {
-            await utilModule.getTask(taskId);
+           // await utilModule.getTask(taskId);
         } catch (error) {
             console.warn(`Cannot Load Task: ${error.message}`)
             return;

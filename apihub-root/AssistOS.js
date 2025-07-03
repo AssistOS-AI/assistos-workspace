@@ -163,6 +163,7 @@ class AssistOS {
     async initSpace(spaceId) {
         const spaceModule = this.loadModule("space");
         assistOS.space = await spaceModule.getSpaceStatus(spaceId);
+        assistOS.space.id = assistOS.space.spaceGlobalId;
         const applicationModule = this.loadModule("application");
         assistOS.space.applications = await applicationModule.getApplications(assistOS.space.id);
         assistOS.currentApplicationName = this.configuration.defaultApplicationName;

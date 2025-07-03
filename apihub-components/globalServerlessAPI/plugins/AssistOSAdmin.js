@@ -7,8 +7,7 @@ async function AssistOSAdmin(){
 
     persistence.configureTypes({
         spaceStatus: {
-            name: "string",
-            currentChatId: "string",
+            name: "string"
         }
     });
 
@@ -74,15 +73,7 @@ async function AssistOSAdmin(){
             return await persistence.getSpaceStatus(spaceId);
         }
     }
-    self.setCurrentChatId = async function(spaceId, chatId) {
-        let spaceExists = await persistence.hasSpaceStatus(spaceId);
-        if(!spaceExists){
-            throw new Error("Space does not exist");
-        }
-        let spaceStatus = await persistence.getSpaceStatus(spaceId);
-        spaceStatus.currentChatId = chatId;
-        await persistence.updateSpaceStatus(spaceId, spaceStatus);
-    }
+
     self.addSpaceToUsers = async function(userEmails, spaceId, referrerEmail){
         let UserLogin = await $$.loadPlugin("UserLogin");
         let referrerUser = await persistence.getUserLoginStatus(referrerEmail);
