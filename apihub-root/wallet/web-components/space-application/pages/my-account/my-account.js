@@ -53,7 +53,7 @@ export class MyAccount {
         for(let log of logs) {
             logsHTML += `<div class="log-entry">${log}</div>`;
         }
-        let tickets = await userModule.getUserTickets(assistOS.user.email);
+        let tickets = await userModule.getOwnTickets(assistOS.user.email);
         this.userTicketsHTML = this.getTicketsHTML(tickets);
         this.userLogs = logsHTML;
         this.email = assistOS.user.email;
