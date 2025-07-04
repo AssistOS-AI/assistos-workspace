@@ -102,11 +102,11 @@ export class MyAccount {
             return `<div class="no-tickets">No tickets submitted</div>`;
         }
         for(let ticket of tickets) {
-            let resolvedClass = ticket.resolved ? 'resolved' : '';
+            let resolvedClass = ticket.status ==="closed" ? 'resolved' : '';
             ticketsHTML += `
-            <div class="ticket ${resolvedClass}">
+            <div class="ticket ${resolvedClass} pointer" data-local-action="openTicket ${ticket.id}">
                 <div class="ticket-preview">
-                     <div class="ticket-info">Subject: ${ticket.subject}</div>
+                     <div class="ticket-info">${ticket.subject}</div>
                      <img class="resolved-icon" src="./wallet/assets/icons/success.svg" alt="resolved" loading="lazy">
                 </div>
             </div>`;
@@ -123,7 +123,9 @@ export class MyAccount {
             });
         });
     }
-
+    async openTicket(eventTarget,ticketId) {
+        assistOS.UI.showModal("view-ticket-modal", {ticketId: ticketId});
+    }
     async deleteAccount() {
         let message = `Are you sure you want to delete your account ${localStorage.getItem("userEmail") || ""}`;
         let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);

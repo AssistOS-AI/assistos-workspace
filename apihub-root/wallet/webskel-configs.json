@@ -16,6 +16,12 @@
             "presenterClassName": "AddReference"
         },
         {
+            "name": "view-ticket-modal",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "ViewTicketModal"
+        },
+        {
             "name": "references-table",
             "directory": "document",
             "type": "components",

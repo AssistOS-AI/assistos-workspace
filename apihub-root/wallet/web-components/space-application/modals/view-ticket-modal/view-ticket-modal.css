@@ -1,0 +1,16 @@
+view-ticket-modal{
+    display: block;
+    width: 800px;
+}
+.modal-body{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+view-ticket-modal .general-button{
+    margin-top: 55px;
+    width: fit-content;
+}
+view-ticket-modal textarea{
+    height: 200px;
+}
