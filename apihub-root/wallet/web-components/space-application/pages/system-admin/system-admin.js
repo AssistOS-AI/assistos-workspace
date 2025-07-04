@@ -13,8 +13,9 @@ export class SystemAdmin {
         this.totalTickets = await userModule.getTicketsCount();
         this.unresolvedTickets = await userModule.getUnresolvedTicketsCount();
         this.users = await userModule.getUsers(this.usersOffset, this.paginationLimit);
-        this.totalUsers = await userModule.getUsersCount();
-        this.totalAdmins = this.users.filter(user => user.role === "admin").length;
+        const allUsers = await userModule.getUsersCount()
+        this.totalUsers = allUsers.allUsers;
+        this.totalAdmins = allUsers.sysadmin
         this.usersHTML = this.getUsersHTML();
     }
     getUsersHTML(){
