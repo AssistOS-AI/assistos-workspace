@@ -112,7 +112,8 @@ async function createSpace(request, response, server) {
             env: {
                 PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
                 SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-                SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL
+                SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
+                INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
             }
         });
         server.registerServerlessProcess(serverlessId, serverlessAPI);

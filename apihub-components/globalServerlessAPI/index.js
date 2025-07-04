@@ -38,7 +38,8 @@ function Space(server) {
                     PERSISTENCE_FOLDER: path.join(serverlessFolder, "persistence"),
                     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
                     SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
-                    API_KEYS: JSON.stringify(apiKeys)
+                    API_KEYS: JSON.stringify(apiKeys),
+                    INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
                 }
             }).then((serverlessAPI) => {
                 server.registerServerlessProcess(spaceId, serverlessAPI);
