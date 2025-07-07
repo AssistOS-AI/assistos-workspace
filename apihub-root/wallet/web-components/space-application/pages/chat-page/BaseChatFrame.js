@@ -86,21 +86,35 @@ export class BaseChatFrame {
     }
 
     async afterRender() {
-        let slowResponse = await chatModule.listenForMessages(this.spaceId, this.chatId);
-        slowResponse.onProgress(async (response) => {
+        const constants = require("assistos").constants;
+        const client = await chatModule.getClient(constants.CHAT_PLUGIN, assistOS.space.id);
+        let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
+        observableResponse.onProgress(async (response) => {
+            console.log("Received response:", response);
             if(response.from === "User") {
+                this.chatMessages.push({
+                    role: "user",
+                    text: response.message,
+                    name: assistOS.user.email,
+                    id: response.id,
+                });
                 const nextReplyIndex = this.chatMessages.length;
-                const element = await this.displayMessage("own", nextReplyIndex);
+                const element = await this.displayMessage("own", nextReplyIndex, response.id);
                 return;
             }
-
-            const streamLocationElement = await this.createChatUnitResponse();
-            let currentMessageIndex = this.chatMessages.length - 1;
-            this.chatMessages[currentMessageIndex] = {
+            let existingReply = this.chatMessages.find(msg => msg.id === response.id);
+            if(existingReply) {
+               let chatItem = this.conversation.querySelector(`chat-item[data-id="${response.id}"]`);
+                chatItem.webSkelPresenter.updateMessage(response.message);
+               return;
+            }
+            this.chatMessages.push({
                 role: "assistant",
                 text: response.message,
                 name: this.agentName,
-            };
+                id: response.id,
+            });
+            const streamLocationElement = await this.createChatUnitResponse(response.id);
             const responseElement = streamLocationElement.closest('chat-item');
             //responseElement.setAttribute(`id`, id);
             responseElement.webSkelPresenter.invalidate();
@@ -231,12 +245,12 @@ export class BaseChatFrame {
         await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage);
     }
 
-    async displayMessage(role, messageIndex) {
-        const messageHTML = `<chat-item role="${role}" spaceId="${this.spaceId}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
+    async displayMessage(role, messageIndex, replyId) {
+        const messageHTML = `<chat-item data-id="${replyId}" role="${role}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
-        await waitForElement(lastReplyElement, '.message');
+        await chatUtils.waitForElement(lastReplyElement, '.message');
         return lastReplyElement;
     }
 
@@ -305,20 +319,13 @@ export class BaseChatFrame {
         }
     }
 
-    getMessage(messageIndex) {
-        return this.chatMessages[messageIndex]
+    getMessage(replyId) {
+        return this.chatMessages.find(message => message.id === replyId) || null;
     }
 
-    async createChatUnitResponse() {
-        this.chatMessages.push({
-            text: "Processing Request ... ",
-            role: "assistant",
-            name: this.agentName
-        });
-
-        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.agentName}" data-last-item="true"/>`;
+    async createChatUnitResponse(replyId) {
+        const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" role="assistant" ownMessage="false" data-presenter="chat-item" user="${this.agentName}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
-
         return await chatUtils.waitForElement(this.conversation.lastElementChild, '.message');
     }
 
@@ -434,5 +441,8 @@ export class BaseChatFrame {
     async addToLocalContext(chatMessageId, chatItemElement) {
         await chatUtils.addToLocalContext(this.spaceId, this.chatId, chatMessageId);
         chatItemElement.classList.add('context-message');
+    }
+    async afterUnload() {
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
     }
 }

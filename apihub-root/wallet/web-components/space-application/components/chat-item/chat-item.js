@@ -69,8 +69,8 @@ export class ChatItem {
     }
 
     async beforeRender() {
-        let messageIndex = this.element.getAttribute("messageIndex");
-        this.message = this.chatPagePresenter.getMessage(messageIndex);
+        let id = this.element.getAttribute("data-id");
+        this.message = this.chatPagePresenter.getMessage(id);
         this.chatMessage = this.message.text;
 
         this.ownMessage = this.element.getAttribute("ownMessage");
@@ -134,6 +134,10 @@ export class ChatItem {
         this.endStreamController = endController;
         this.stopStreamButton.style.display = "flex";
         await this.chatPagePresenter.handleNewChatStreamedItem(this.messageElement);
+    }
+    updateMessage(message) {
+        let messageElement = this.element.querySelector(".message");
+        messageElement.innerHTML = message;
     }
 
     async handleEndStream() {

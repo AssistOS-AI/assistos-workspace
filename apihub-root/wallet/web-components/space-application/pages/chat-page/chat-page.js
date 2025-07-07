@@ -136,6 +136,9 @@ if (IFrameContext) {
             let fileInput = this.element.querySelector(".file-input");
             fileInput.click();
         }
+        async afterUnload() {
+            await super.afterUnload();
+        }
     }
 }
 
