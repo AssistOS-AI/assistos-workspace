@@ -22,6 +22,7 @@ const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
+const git = require("../apihub-component-utils/git");
 
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {
@@ -134,6 +135,7 @@ async function createSpace(request, response, server) {
             let spaceAppLinkPath = path.join(applicationsPath, application.name);
             await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
         }
+        await addDefaultSpaceSecrets(space.id, request.userId);
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -141,10 +143,26 @@ async function createSpace(request, response, server) {
         });
     }
 }
+async function addDefaultSpaceSecrets(spaceId, request){
+    let defaultSecrets = [
+        { name: "OpenAI", keyName: "OPENAI_API_KEY" },
+        { name: "HuggingFace", keyName: "HUGGINGFACE_API_KEY" },
+        { name: "Anthropic", keyName: "ANTHROPIC_API_KEY" },
+        { name: "Google", keyName: "GOOGLE_API_KEY" },
+        { name: "OpenRouter", keyName: "OPENROUTER_API_KEY" }
+    ];
+    const spaceModule = assistOSSDK.loadModule("space", {
+        email: request.email,
+        sessionId: request.sessionId,
+    });
+    for(let secret of defaultSecrets){
+        await spaceModule.addSecret(spaceId, secret.name, secret.keyName, "");
+    }
+}
 async function createDefaultAgent(request, spaceId){
     let agentClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
     let agent = await agentClient.createDefaultAgent(spaceId);
-    await agentClient.selectLLM(agent.name, "chat", "gpt-4", "OpenAI");
+    await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = `
     @currentUser := $arg1
@@ -213,7 +231,8 @@ async function installSystemApps(){
             authToken: process.env.SERVERLESS_AUTH_SECRET,
         });
         for(let app of defaultApps){
-            await ApplicationModule.installSystemApp(app.name);
+            let manifest = await ApplicationModule.installSystemApp(app.name);
+            await git.installDependencies(manifest.dependencies);
         }
     }
 }

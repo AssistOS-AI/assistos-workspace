@@ -191,7 +191,7 @@ async function AssistOSAdmin(){
         }
 
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
-        await git.installDependencies(manifest.dependencies);
+        return manifest;
     }
 
     self.updateApplication = async function (appName) {

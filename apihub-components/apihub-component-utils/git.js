@@ -169,9 +169,9 @@ async function installDependencies(dependencies) {
         if(!dependencies) {
             return;
         }
-        const parentDir = `${process.cwd()}/..`;
+        const parentDir = path.join(process.cwd(), '..');
         for(let dependency of dependencies) {
-            await execAsync(`npm install ${dependency}`, {
+            await execAsync(`npm install ${dependency} --no-save`, {
                 cwd: parentDir, // Set the working directory
             });
         }
