@@ -757,6 +757,12 @@
             "type": "pages"
         },
         {
+            "name": "application-creator-scripts",
+            "directory": "space-settings",
+            "presenterClassName": "ApplicationCreatorScripts",
+            "type": "pages"
+        },
+        {
             "name": "application-creator-themes",
             "directory": "space-settings",
             "presenterClassName": "ApplicationCreatorThemes",
@@ -806,7 +812,7 @@
         },
         {
             "name": "application-edit-menu-modal",
-            "directory": "space-application",
+            "directory": "space-settings",
             "presenterClassName": "ApplicationEditMenuModal",
             "type": "modals"
         },

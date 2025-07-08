@@ -1,4 +1,5 @@
 const processModule = assistOS.loadModule("process");
+const WebAssistant = assistOS.loadModule("webassistant", {});
 
 export class AddEditProcessModal {
     constructor(element, invalidate, props) {
@@ -6,12 +7,17 @@ export class AddEditProcessModal {
         this.invalidate = invalidate;
         this.props = props;
         this.processId = this.element.dataset.processid || null;
+        this.webAssistant = this.element.dataset.webassistant || null;
         this.invalidate();
     }
 
     async beforeRender() {
         if (this.processId) {
-            this.process = await processModule.getProcess(assistOS.space.id, this.processId);
+            if (this.webAssistant) {
+                this.process = await WebAssistant.getScript(assistOS.space.id, this.processId);
+            } else {
+                this.process = await processModule.getProcess(assistOS.space.id, this.processId);
+            }
             this.modalTitle = 'Edit Process';
         } else {
             this.modalTitle = 'Add Process';
@@ -46,15 +52,29 @@ export class AddEditProcessModal {
                 soplang,
                 description
             };
-            await processModule.updateProcess(assistOS.space.id, this.processId, processData);
+            if (this.webAssistant) {
+                await WebAssistant.updateScript(assistOS.space.id, this.processId, processData);
+
+            } else {
+                await processModule.updateProcess(assistOS.space.id, this.processId, processData);
+            }
             this.changedProcess = true;
             this.closeModal(target);
         } else {
-            await processModule.addProcess(assistOS.space.id, {
-                name,
-                soplang,
-                description
-            });
+            if(this.webAssistant){
+                await WebAssistant.addScript(assistOS.space.id, {
+                    name,
+                    soplang,
+                    description
+                });
+            }else{
+                await processModule.addProcess(assistOS.space.id, {
+                    name,
+                    soplang,
+                    description
+                });
+            }
+
             this.addedProcess = true;
             this.closeModal(target);
         }

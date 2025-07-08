@@ -1,10 +1,5 @@
 const WebAssistant = assistOS.loadModule("webassistant",{});
 
-const getThemes = async function (spaceId) {
-    const themes = await WebAssistant.getWebAssistantThemes(spaceId);
-    return themes;
-}
-
 export class ApplicationCreatorThemes {
     constructor(element, invalidate, props) {
         this.element = element;
@@ -15,8 +10,8 @@ export class ApplicationCreatorThemes {
     }
 
     async beforeRender() {
-        const themes = await getThemes(this.spaceId);
-        this.themeRows = (themes).map(themeData => {
+        const themes = await WebAssistant.getThemes(this.spaceId);
+        this.themeRows = (themes||[]).map(themeData => {
             return `
             <div class="page-item">
             <span class="page-item-name">${themeData.name}</span>
@@ -90,7 +85,7 @@ export class ApplicationCreatorThemes {
     }
 
     async deleteTheme(target, id) {
-        await WebAssistant.deleteWebAssistantTheme(this.spaceId, id);
+        await WebAssistant.deleteTheme(this.spaceId, id);
         this.invalidate();
     }
 }

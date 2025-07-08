@@ -1,27 +1,6 @@
-const personalityModule = assistOS.loadModule("agent",{});
-const applicationModule = assistOS.loadModule("application",{});
-const WebAssistant = assistOS.loadModule("webassistant",{});
-
-
-const getWidgets = async function (spaceId) {
-    const widgets = await applicationModule.getWidgets(spaceId);
-    return widgets;
-}
-
-const getPersonalities = async function (spaceId) {
-    const personalities = await personalityModule.getAgents(spaceId);
-    return personalities;
-}
-const getConfiguration = async function (spaceId) {
-    const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
-    return configuration;
-}
-
-const getThemes = async function (spaceId) {
-    const themes = await WebAssistant.getWebAssistantThemes(spaceId);
-    return themes;
-}
-
+const personalityModule = assistOS.loadModule("agent", {});
+const applicationModule = assistOS.loadModule("application", {});
+const WebAssistant = assistOS.loadModule("webassistant", {});
 
 export class ApplicationCreatorSettings {
     constructor(element, invalidate) {
@@ -33,19 +12,16 @@ export class ApplicationCreatorSettings {
     }
 
     async beforeRender() {
-        const {settings} = await getConfiguration(this.spaceId);
-
-        this.color = settings.primaryColor;
-        this.textColor = settings.textColor;
+        const settings = await WebAssistant.getSettings(this.spaceId);
         this.initialPrompt = settings.initialPrompt;
         this.chatIndications = settings.chatIndications;
-        this.theme = settings.theme;
-        this.personality = settings.personality;
+        this.themeId = settings.themeId;
+        this.agent = settings.agentId;
         this.knowledge = settings.knowledge;
         this.header = settings.header;
         this.footer = settings.footer;
 
-        const widgets = await getWidgets(this.spaceId);
+        const widgets = await applicationModule.getWidgets(this.spaceId);
 
         this.widgets = Object.entries(
             widgets)
@@ -61,8 +37,11 @@ export class ApplicationCreatorSettings {
             .flat(2)
             .join('');
 
-        this.personalitiesOptions = (await getPersonalities(this.spaceId)).map(personality => `<option value="${personality.id}" ${this.personality === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
-        this.themes = (await getThemes(this.spaceId)).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
+        const agents = await personalityModule.getAgents(this.spaceId)
+        this.personalitiesOptions = (agents||[]).map(personality => `<option value="${personality.id}" ${this.agent === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
+
+        const themes = await WebAssistant.getThemes(this.spaceId);
+        this.themes = (themes|| []).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
     }
 
     async afterRender() {
@@ -72,22 +51,21 @@ export class ApplicationCreatorSettings {
     async saveSettings(eventTarget) {
         const form = this.element.querySelector('.application-form');
         let formData = await assistOS.UI.extractFormInformation(form);
+
         const initialPrompt = this.element.querySelector('#initial-prompt').value;
         const chatIndications = this.element.querySelector('#chat-indications').value;
         const knowledge = this.element.querySelector('#knowledge').value;
         if (formData.isValid) {
             const settingsData = {
-                primaryColor: formData.data.color,
-                textColor: formData.data["text-color"],
                 knowledge: knowledge,
-                theme: formData.data.selectedTheme,
-                personality: formData.data.selectedPersonality,
+                themeId: formData.data.selectedTheme,
+                agentId: formData.data.selectedPersonality,
                 header: formData.data.selectedHeader,
                 footer: formData.data.selectedFooter,
                 chatIndications: chatIndications,
                 initialPrompt: initialPrompt
             }
-            await WebAssistant.updateWebAssistantConfigurationSettings(this.spaceId, settingsData);
+            await WebAssistant.updateSettings(this.spaceId, settingsData);
             this.invalidate();
         }
     }

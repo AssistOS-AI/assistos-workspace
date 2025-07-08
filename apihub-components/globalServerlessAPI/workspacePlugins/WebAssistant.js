@@ -4,188 +4,169 @@ async function WebAssistant() {
     const self = {};
 
     const Persistence = await $$.loadPlugin("DefaultPersistence");
+    const ChatScript = await $$.loadPlugin("ChatScript");
 
     await Persistence.configureTypes({
         webAssistant: {
             id: "singleton WEBASSISTANT",
-            name: "string",
-            description: "string",
             alias: "string",
-            themeId: "string",
-            configurationId: "string",
-            settings: "any",
-            themes: "array",
-            pages: "array",
-            menu: "array"
+            scripts: "array chatScript",
+            settings: "object"
         },
-        webChatTheme: {
-            id: "random",
+        theme: {
             name: "string",
             description: "string",
-            theme: "any"
+            css: "any",
+            variables: "object"
         },
-        webAssistantConfigurationPage: {
-            id: "random",
+        page: {
             name: "string",
             description: "string",
-            pageType: "string",
-            pageContent: "any"
+            chatSize: "string",
+            widget: "string",
+            data: "string",
+            generalSettings: "string",
         },
-        webAssistantConfigurationPageMenuItem: {
-            id: "random",
+        menuItem: {
             name: "string",
             description: "string",
-            pageId: "string",
+            targetPage: "string",
+            location: "string",
             icon: "string"
         }
     });
 
     await Persistence.createIndex("webAssistant", "alias");
-    await Persistence.createIndex("webChatTheme", "id");
+    await Persistence.createIndex("theme", "name");
+    await Persistence.createIndex("page", "name");
+    await Persistence.createIndex("menuItem", "name");
 
     if (!await Persistence.hasWebAssistant("whatever")) {
         await Persistence.createWebAssistant({
             alias: "whatever",
+            scripts:[],
             settings: {
                 header: "",
+                footer: "",
                 initialPrompt: "",
                 chatIndications: "",
-                personality: "",
-                knowledge:"",
-                theme: "light",
-                primaryColor: "#007bff",
-                textColor: "#000000"
+                agentId: "",
+                knowledge: "",
+                themeId: "",
             },
-            themes: [],
-            pages: [],
-            menu: []
         });
     }
 
-    self.updateWebAssistantConfigurationSettings = async function (settings) {
+    self.getWebAssistant = async function () {
+        const webAssistant = await Persistence.getWebAssistant("whatever");
+        return webAssistant;
+    }
+
+    self.getSettings = async function () {
+        const {settings} = await Persistence.getWebAssistant("whatever");
+        return settings
+    }
+    self.updateSettings = async function (settings) {
         const config = await Persistence.getWebAssistant("whatever");
         config.settings = {...config.settings, ...settings};
         return await Persistence.updateWebAssistant("whatever", config);
     }
-    self.getWebAssistantConfiguration = async function () {
-        const configuration = await Persistence.getWebAssistant("whatever");
-        return configuration;
-    }
 
-    self.getWebChatThemes = async function () {
-        const webChatThemes = await Persistence.getEveryWebChatThemeObject();
-        return webChatThemes
+
+    self.getThemes = async function () {
+        const themes = await Persistence.getEveryThemeObject();
+        return themes
     };
 
-    self.getWebChatTheme = async function (themeId) {
-        return await Persistence.getWebChatTheme(themeId);
+    self.getTheme = async function (themeId) {
+        return await Persistence.getTheme(themeId);
     };
 
-    self.addWebChatTheme = async function (theme) {
-        return await Persistence.createWebChatTheme(theme);
+    self.addTheme = async function (theme) {
+        return await Persistence.createTheme(theme);
     };
 
-    self.updateWebChatTheme = async function (themeId, theme) {
-        return await Persistence.updateWebChatTheme(themeId, theme);
+    self.updateTheme = async function (themeId, theme) {
+        return await Persistence.updateTheme(themeId, theme);
+
     };
 
-    self.deleteWebAssistantTheme = async function (themeId) {
-        await Persistence.deleteWebChatTheme(themeId);
-    };
-
-    self.getWebChatConfiguration = async function () {
-        const config = await Persistence.getWebAssistant("whatever");
-        return config.settings;
-    };
-
-    self.updateWebChatConfiguration = async function (settings) {
-        const config = await Persistence.getWebAssistant("whatever");
-        config.settings = {...config.settings, ...settings};
-        return await Persistence.updateWebAssistant("whatever", config);
-    };
-
-    self.addWebAssistantConfigurationPage = async function (page) {
-        const newPage = await Persistence.createWebAssistantConfigurationPage(page);
-        const config = await Persistence.getWebAssistant("whatever");
-        config.pages.push(newPage.id);
-        await Persistence.updateWebAssistant("whatever", config);
-        return newPage;
-    };
-
-    self.getWebAssistantConfigurationPages = async function () {
-        const config = await Persistence.getWebAssistant("whatever");
-
-        return Promise.all(config.pages.map(id => Persistence.getWebAssistantConfigurationPage(id)));
-    };
-
-    self.getWebAssistantConfigurationPage = async function (pageId) {
-        return await Persistence.getWebAssistantConfigurationPage(pageId);
-    };
-
-    self.updateWebAssistantConfigurationPage = async function (pageId, page) {
-        return await Persistence.updateWebAssistantConfigurationPage(pageId, page);
+    self.deleteTheme = async function (themeId) {
+        await Persistence.deleteTheme(themeId);
+        const settings = await self.getSettings();
+        if (settings.themeId === themeId) {
+            settings.themeId = "";
+            await self.updateSettings(settings);
+        }
     };
 
 
+    self.addPage = async function (page) {
+        const newPage = await Persistence.createPage(page);
+        return newPage
+    };
 
-    self.addWebAssistantConfigurationPageMenuItem = async function (pageId, menuItem) {
+    self.getPages = async function () {
+        const pages = await Persistence.getEveryPageObject();
+        return pages;
+    };
+
+    self.getPage = async function (pageId) {
+        return await Persistence.getPage(pageId);
+    };
+
+    self.updatePage = async function (pageId, page) {
+        return await Persistence.updatePage(pageId, page);
+    };
+
+
+    self.addMenuItem = async function (menuItem) {
         if (!menuItem.icon) {
             const svg = `<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>default_file</title><path d="M20.414,2H5V30H27V8.586ZM7,28V4H19v6h6V28Z" style="fill:#c5c5c5"/></svg>`;
             const base64 = btoa(unescape(encodeURIComponent(svg)));
             menuItem.icon = `data:image/svg+xml;base64,${base64}`;
         }
-        menuItem.pageId = pageId;
-        const newItem = await Persistence.createWebAssistantConfigurationPageMenuItem(menuItem);
-        const config = await Persistence.getWebAssistant("whatever");
-        config.menu.push(newItem.id);
-        await Persistence.updateWebAssistant("whatever", config);
+        const newItem = await Persistence.createMenuItem(menuItem);
         return newItem;
     };
 
-    self.getWebAssistantConfigurationPageMenu = async function () {
-        const config = await Persistence.getWebAssistant("whatever");
-        return Promise.all(config.menu.map(id => Persistence.getWebAssistantConfigurationPageMenuItem(id)));
+    self.getMenu = async function () {
+        const menuItems = await Persistence.getEveryMenuItemObject();
+        return menuItems;
     };
 
-    self.getWebAssistantConfigurationPageMenuItem = async function (menuItemId) {
-        return await Persistence.getWebAssistantConfigurationPageMenuItem(menuItemId);
+    self.getMenuItem = async function (menuItemId) {
+        const menuItem = await Persistence.getMenuItem(menuItemId)
+        return menuItem;
     };
 
-    self.updateWebAssistantConfigurationPageMenuItem = async function (menuItemId, menuItem) {
-        const menuIt = await self.getWebAssistantConfigurationPageMenuItem(menuItemId);
+    self.updateMenuItem = async function (menuItemId, menuItem) {
+        const menuIt = await self.getMenuItem(menuItemId);
         const menuItemToUpdate = {...menuIt, ...menuItem};
-        return await Persistence.updateWebAssistantConfigurationPageMenuItem(menuItemId, menuItemToUpdate);
+        if (menuIt.name !== menuItem.name) {
+            await Persistence.setNameForMenuItem(menuIt.id, menuItem.name);
+        }
+        return await Persistence.updateMenuItem(menuItemId, menuItemToUpdate);
     };
-    self.deleteWebAssistantConfigurationPage = async function (pageId) {
-        const config = await Persistence.getWebAssistant("whatever");
-        config.pages = config.pages.filter(id => id !== pageId);
-        await Persistence.updateWebAssistant("whatever", config);
-        await Persistence.deleteWebAssistantConfigurationPage(pageId);
-        const menuItems = await self.getWebAssistantConfigurationPageMenu();
+
+    self.deletePage = async function (pageId) {
+        await Persistence.deletePage(pageId);
+        const menuItems = await self.getMenu();
         for (const item of menuItems) {
             if (item.targetPage === pageId) {
-                await self.deleteWebAssistantConfigurationPageMenuItem(item.id);
+                await self.deleteMenuItem(item.id);
             }
         }
     };
-    self.deleteWebAssistantConfigurationPageMenuItem = async function (menuItemId) {
-        const config = await Persistence.getWebAssistant("whatever");
-        config.menu = config.menu.filter(id => id !== menuItemId);
-        await Persistence.updateWebAssistant("whatever", config);
-        await Persistence.deleteWebAssistantConfigurationPageMenuItem(menuItemId);
+    self.deleteMenuItem = async function (menuItemId) {
+        await Persistence.deleteMenuItem(menuItemId);
     };
 
-    self.getWebAssistantHomePage = async function () {
-        const pages = await self.getWebAssistantConfigurationPages();
+    self.getHomePage = async function () {
+        const pages = await self.getPages();
         if (pages.length === 0) {
             throw new Error('No pages found in the web assistant configuration');
         }
-
-        const config = await self.getWebChatConfiguration();
-        const personalityData = await getPersonalityData(config.personality);
-        const modelName = personalityData.llms.text;
-
-
         return pages[0];
     };
 
@@ -199,6 +180,38 @@ async function WebAssistant() {
         ]);
         return {html, css, js};
     };
+
+    self.getScript = async (scriptId) => {
+        return await ChatScript.getChatScript(scriptId);
+    }
+    self.getScripts = async () => {
+        const webAssistant = await self.getWebAssistant();
+        const scripts = [];
+        for (const scriptId of webAssistant.scripts) {
+            scripts.push(self.getScript(scriptId))
+        }
+        return await Promise.all(scripts);
+    }
+
+    self.addScript = async (scriptData) => {
+        const webAssistant = await self.getWebAssistant();
+        const script = await ChatScript.createChatScript(scriptData.name, scriptData.code, scriptData.description);
+        webAssistant.scripts.push(script.id);
+        await Persistence.updateWebAssistant("whatever", webAssistant);
+    }
+
+    self.deleteScript = async (scriptId) => {
+        const webAssistant = await self.getWebAssistant();
+        const index = webAssistant.scripts.findIndex(el=>el===scriptId);
+        webAssistant.scripts.splice(index, 1);
+        await ChatScript.deleteChatScript(scriptId);
+        return await Persistence.updateWebAssistant("whatever", webAssistant);
+    }
+
+    self.updateScript = async (scriptId, scriptData) => {
+        return await ChatScript.updateChatScript(scriptId, scriptData);
+    }
+
 
     return self;
 }
@@ -218,6 +231,6 @@ module.exports = {
         }
     },
     getDependencies: function () {
-        return ["DefaultPersistence"];
+        return ["DefaultPersistence", "ChatScript"];
     }
 };

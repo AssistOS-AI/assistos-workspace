@@ -1,4 +1,5 @@
 const processModule = assistOS.loadModule("process");
+const WebAssistant = assistOS.loadModule("webassistant", {});
 
 export class DeleteProcessModal {
     constructor(element, invalidate, props) {
@@ -6,6 +7,7 @@ export class DeleteProcessModal {
         this.invalidate = invalidate;
         this.props = props;
         this.processId = element.dataset.processid;
+        this.webAssistant = element.dataset.webassistant;
         this.deletedProcess = false;
         this.invalidate();
     }
@@ -21,7 +23,11 @@ export class DeleteProcessModal {
     }
 
     async confirmDelete(target) {
-        await processModule.deleteProcess(assistOS.space.id, this.processId);
+        if(this.webAssistant){
+            await WebAssistant.deleteScript(assistOS.space.id,this.processId);
+        }else{
+            await processModule.deleteProcess(assistOS.space.id, this.processId);
+        }
         this.deletedProcess =true;
         this.closeModal(target);
     }

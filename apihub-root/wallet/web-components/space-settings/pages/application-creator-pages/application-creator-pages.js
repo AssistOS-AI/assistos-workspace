@@ -1,7 +1,5 @@
 const WebAssistant = assistOS.loadModule("webassistant",{});
-const getPageRows = async function (spaceId) {
-    return await WebAssistant.getWebAssistantConfigurationPages(spaceId);
-}
+
 export class ApplicationCreatorPages {
     constructor(element, invalidate) {
         this.element = element;
@@ -12,8 +10,9 @@ export class ApplicationCreatorPages {
     }
 
     async beforeRender() {
-        const pages = await getPageRows(this.spaceId);
-        this.pageRows = pages.map(pageData =>
+        const pages = await WebAssistant.getPages(this.spaceId);
+
+        this.pageRows = (pages||[]).map(pageData =>
             `<div class="page-item">
             <span class="page-item-name">${pageData.name}</span>
             <div class="page-item-description-container">
@@ -93,7 +92,7 @@ export class ApplicationCreatorPages {
     }
 
     async deletePage(evenTarget,id) {
-            await WebAssistant.deleteWebAssistantConfigurationPage(this.spaceId,id);
+            await WebAssistant.deletePage(this.spaceId,id);
             this.invalidate();
     }
 }
