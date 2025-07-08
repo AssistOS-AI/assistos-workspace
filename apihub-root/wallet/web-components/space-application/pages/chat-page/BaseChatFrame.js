@@ -31,14 +31,13 @@ export class BaseChatFrame {
 
         this.currentPersonalityName = this.agent.name;
 
-        let llmName = this.agent.selectedChatLlm;
+        let llmName = this.agent.llms["chat"].modelName;
         if (llmName) {
             llmName = llmName.split("/")[0];
         } else {
             llmName = "No LLM Configured";
         }
-        this.personalityLLM = llmName
-
+        this.personalityLLM = llmName;
 
         this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
         this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
@@ -52,7 +51,7 @@ export class BaseChatFrame {
         this.userId = this.element.getAttribute('data-userId');
 
         try {
-            this.chatMessages = await chatModule.getChatMessages(this.spaceId, this.chatId)
+            this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
         } catch (error) {
             this.errorState = true;
         }
@@ -60,29 +59,21 @@ export class BaseChatFrame {
         this.chatActionButton = chatUtils.sendMessageActionButtonHTML
 
         this.stringHTML = "";
-        for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
-            const chatMessage = this.chatMessages[messageIndex]
-            let role = chatUtils.getChatItemRole(chatMessage)
+        for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
+            const chatMessage = this.chatHistory[messageIndex]
 
-            if (!role) {
-                continue;
-            }
-
-            const user = chatUtils.getChatItemUser(chatMessage);
             let ownMessage = false;
-            if (user === this.userId || role === "user" && IFrameContext) {
+            let userEmailAttribute = "";
+            if (chatMessage.from === "User") {
                 ownMessage = true;
+                userEmailAttribute = `user-email="${chatMessage.name}"`;
             }
             let isContext = chatMessage.commands?.replay?.isContext || "false";
 
-            if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-            } else {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
-            }
+            let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
+            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" isContext="${isContext}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
         }
         this.spaceConversation = this.stringHTML;
-
     }
 
     async afterRender() {
@@ -92,29 +83,18 @@ export class BaseChatFrame {
         observableResponse.onProgress(async (response) => {
             console.log("Received response:", response);
             if(response.from === "User") {
-                this.chatMessages.push({
-                    role: "user",
-                    text: response.message,
-                    name: assistOS.user.email,
-                    id: response.id,
-                });
-                const nextReplyIndex = this.chatMessages.length;
-                const element = await this.displayMessage("own", nextReplyIndex, response.id);
+                this.chatHistory.push(response);
+                await this.displayUserReply(response.id, assistOS.user.email);
                 return;
             }
-            let existingReply = this.chatMessages.find(msg => msg.id === response.id);
+            let existingReply = this.chatHistory.find(msg => msg.id === response.id);
             if(existingReply) {
                let chatItem = this.conversation.querySelector(`chat-item[data-id="${response.id}"]`);
-                chatItem.webSkelPresenter.updateMessage(response.message);
+                chatItem.webSkelPresenter.updateReply(response.message);
                return;
             }
-            this.chatMessages.push({
-                role: "assistant",
-                text: response.message,
-                name: this.agentName,
-                id: response.id,
-            });
-            const streamLocationElement = await this.createChatUnitResponse(response.id);
+            this.chatHistory.push(response);
+            const streamLocationElement = await this.displayAgentReply(response.id);
             const responseElement = streamLocationElement.closest('chat-item');
             //responseElement.setAttribute(`id`, id);
             responseElement.webSkelPresenter.invalidate();
@@ -192,7 +172,7 @@ export class BaseChatFrame {
         if (event.key === "Enter") {
             event.preventDefault();
             if (!event.ctrlKey) {
-                await this.sendMessage(form);
+                await this.chatInputUser(form);
                 this.userInput.scrollIntoView({behavior: "smooth", block: "end"});
             } else {
                 this.userInput.value += '\n';
@@ -225,7 +205,7 @@ export class BaseChatFrame {
         return {userMessageId, responseMessageId};
     };
 
-    async sendMessage(_target) {
+    async chatInputUser(_target) {
         let formInfo = await UI.extractFormInformation(_target);
         const userMessage = UI.customTrim(formInfo.data.input)
         formInfo.elements.input.element.value = "";
@@ -233,7 +213,7 @@ export class BaseChatFrame {
             return;
         }
 
-        this.chatMessages.push({
+        this.chatHistory.push({
             text: userMessage,
             role: "user",
             name: this.userId
@@ -245,8 +225,8 @@ export class BaseChatFrame {
         await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage);
     }
 
-    async displayMessage(role, messageIndex, replyId) {
-        const messageHTML = `<chat-item data-id="${replyId}" role="${role}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
+    async displayUserReply(replyId, userEmail) {
+        const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
@@ -319,12 +299,12 @@ export class BaseChatFrame {
         }
     }
 
-    getMessage(replyId) {
-        return this.chatMessages.find(message => message.id === replyId) || null;
+    getReply(replyId) {
+        return this.chatHistory.find(message => message.id === replyId) || null;
     }
 
-    async createChatUnitResponse(replyId) {
-        const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" role="assistant" ownMessage="false" data-presenter="chat-item" user="${this.agentName}" data-last-item="true"/>`;
+    async displayAgentReply(replyId) {
+        const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" ownMessage="false" data-presenter="chat-item" agent-name="${this.agentName}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
         return await chatUtils.waitForElement(this.conversation.lastElementChild, '.message');
     }
