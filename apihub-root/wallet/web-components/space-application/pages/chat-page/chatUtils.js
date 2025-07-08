@@ -30,7 +30,7 @@ const resetChatContext = (spaceId, chatId) => {
 }
 
 const sendMessageActionButtonHTML = `  
-<button type="button" id="stopLastStream" data-local-action="sendMessage">
+<button type="button" id="stopLastStream" data-local-action="chatInputUser">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M2 21L23 12L2 3V10L17 12L2 14V21Z" fill="white"/>
     </svg>
@@ -57,13 +57,6 @@ const IFrameChatOptions = `
                         <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
                         <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
 `
-
-const getChatItemRole = function (chatItem) {
-    return chatItem.commands?.replay?.role || null;
-}
-const getChatItemUser = function (chatItem) {
-    return chatItem.commands?.replay?.name || null;
-}
 
 const waitForElement = (container, selector) => {
     return new Promise((resolve, reject) => {
@@ -100,7 +93,5 @@ export default{
     stopStreamActionButtonHTML,
     chatOptions,
     IFrameChatOptions,
-    getChatItemRole,
-    getChatItemUser,
     waitForElement
 }

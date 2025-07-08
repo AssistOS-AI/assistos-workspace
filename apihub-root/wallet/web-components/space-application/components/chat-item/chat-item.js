@@ -70,13 +70,13 @@ export class ChatItem {
 
     async beforeRender() {
         let id = this.element.getAttribute("data-id");
-        this.message = this.chatPagePresenter.getMessage(id);
-        this.chatMessage = this.message.text;
+        let reply = this.chatPagePresenter.getReply(id);
+        this.chatMessage = reply.message;
 
         this.ownMessage = this.element.getAttribute("ownMessage");
-        this.user = this.element.getAttribute("user");
-        this.role = this.element.getAttribute("role");
-        this.id = this.element.getAttribute("id");
+        let userEmail = this.element.getAttribute("user-email");
+        let agentName = this.element.getAttribute("agent-name");
+        this.id = this.element.getAttribute("data-id");
         this.spaceId = this.element.getAttribute("spaceId");
         this.isContext = this.element.getAttribute("isContext");
 
@@ -84,20 +84,20 @@ export class ChatItem {
             this.messageType = "user";
             this.messageTypeBox = "user-box";
             let imageSrc = "";
-            if (this.role === "user") {
+            if (userEmail) {
                 try {
                     //TODO : use email instead of user id
                     //imageSrc = await getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = await getDefaultUserImage();
                 }
-            } else if (this.role === "assistant") {
+            } else {
                 this.chatMessage = marked.parse(decodeHTML(this.chatMessage));
-                try {
-                    imageSrc = await getPersonalityImageUrl(this.spaceId, this.user);
-                } catch (e) {
+                // try {
+                //     imageSrc = await getPersonalityImageUrl(this.spaceId, agentName);
+                // } catch (e) {
                     imageSrc = await getDefaultUserImage();
-                }
+                //}
             }
             this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${imageSrc}" alt="userImage"></div>`;
             this.chatBoxOptions = `<div class="chat-options other-message">
@@ -135,7 +135,7 @@ export class ChatItem {
         this.stopStreamButton.style.display = "flex";
         await this.chatPagePresenter.handleNewChatStreamedItem(this.messageElement);
     }
-    updateMessage(message) {
+    updateReply(message) {
         let messageElement = this.element.querySelector(".message");
         messageElement.innerHTML = message;
     }
@@ -163,7 +163,7 @@ export class ChatItem {
         if (this.isContext === "true") {
             this.element.classList.add('context-message')
         }
-        if (this.role !== "own") {
+        if (this.ownMessage) {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");
         }
         this.chatBoxOptionsElement = this.element.querySelector(".chat-options");
