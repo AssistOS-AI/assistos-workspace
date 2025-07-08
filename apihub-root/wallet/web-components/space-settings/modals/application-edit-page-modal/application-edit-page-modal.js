@@ -1,13 +1,8 @@
 const applicationModule = assistOS.loadModule("application");
 const WebAssistant = assistOS.loadModule("webassistant",{});
 
-const getWidgets = async function (spaceId) {
-    const widgets = await applicationModule.getWidgets(spaceId);
-    return widgets;
-}
-const getPageData = async function (spaceId, pageId) {
-    const page = await WebAssistant.getWebAssistantConfigurationPage(spaceId, pageId);
-    return page;
+function isEmpty(obj) {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
 export class ApplicationEditPageModal {
@@ -32,8 +27,9 @@ export class ApplicationEditPageModal {
         this.modalName = "Add Page";
         this.actionButton = "Add";
         this.actionFn = `addPage`;
+        const widgets = await applicationModule.getWidgets(this.spaceId);
         this.widgets = Object.entries(
-            (await getWidgets(this.spaceId)))
+            (isEmpty(widgets)?{}:widgets))
             .map(([app, widgets]) =>
                 widgets.map(widget => `<option value="${app}/${widget.name}">${app}/${widget.name}</option>`))
             .flat(2)
@@ -48,7 +44,7 @@ export class ApplicationEditPageModal {
     }
 
     async handleEditRender() {
-        const pageData = await getPageData(this.spaceId, this.id);
+        const pageData = await WebAssistant.getPage(this.spaceId, this.id);
         this.name = pageData.name;
         this.description = pageData.description;
         this.widget = pageData.widget;
@@ -58,7 +54,8 @@ export class ApplicationEditPageModal {
         this.modalName = "Edit Page";
         this.actionButton = "Save";
         this.actionFn = `editPage`;
-        this.widgets = Object.entries((await getWidgets(this.spaceId))).map(([app, widgets]) => widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.widget ? "selected" : ""}>${app}/${widget.name}</option>`)).flat(2).join('');
+        const widgets = await applicationModule.getWidgets(this.spaceId);
+        this.widgets = Object.entries((isEmpty(widgets)?{}:widgets)).map(([app, widgets]) => widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.widget ? "selected" : ""}>${app}/${widget.name}</option>`)).flat(2).join('');
         this.widgets = `<select class="application-form-item-select" id="selectedWidget" name="selectedWidget">${this.widgets}</select>`
         this.chatOptions = ` <option value="0" ${this.chatSize === "0" ? "selected" : ""}>Minimized</option>
                         <option value="30" ${this.chatSize === "30" ? "selected" : ""}>Third of Screen</option>
@@ -181,7 +178,7 @@ export class ApplicationEditPageModal {
                 generalSettings: this.dataStructure["General Settings"].value,
                 data: this.dataStructure["Data"].value
             }
-            await WebAssistant.addWebAssistantConfigurationPage(this.spaceId, pageData);
+            await WebAssistant.addPage(this.spaceId, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }
@@ -200,7 +197,7 @@ export class ApplicationEditPageModal {
                 generalSettings: this.dataStructure["General Settings"].value,
                 data: this.dataStructure["Data"].value
             }
-            await WebAssistant.updateWebAssistantConfigurationPage(this.spaceId, this.id, pageData);
+            await WebAssistant.updatePage(this.spaceId, this.id, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }

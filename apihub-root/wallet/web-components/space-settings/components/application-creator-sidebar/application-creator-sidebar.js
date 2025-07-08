@@ -29,6 +29,14 @@ const sidebarItems = [
             "</svg>\n"
     },
     {
+        name: "Scripts",
+        icon: "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
+            "<g clip-path=\"url(#clip0_4572_1811)\">\n" +
+            "<path d=\"M7.85417 11.4993C11.4261 11.4993 14.3216 7.67347 14.3216 7.67347C14.3216 7.67347 11.4261 3.84766 7.85417 3.84766C4.2822 3.84766 1.38672 7.67347 1.38672 7.67347C1.38672 7.67347 4.2822 11.4993 7.85417 11.4993Z\" stroke=\"#4B4B4B\" stroke-width=\"2\" stroke-linejoin=\"round\"/>\n" +
+            "</g>" +
+            "</svg>"
+    },
+    {
         name: "Preview",
         icon: "<svg width=\"16\" height=\"16\" viewBox=\"0 0 16 16\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
             "<g clip-path=\"url(#clip0_4572_1811)\">\n" +

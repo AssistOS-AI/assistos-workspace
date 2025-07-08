@@ -79,11 +79,11 @@ export class ApplicationEditThemeModal {
         this.actionButton = "Save";
         this.actionFn = `editPage`;
 
-        const themeData = await getThemeData(this.spaceId, this.id);
+        const themeData = await WebAssistant.getTheme(this.spaceId, this.id);
         this.name = themeData.name;
         this.description = themeData.description;
-        this.themeVars = themeData.themeVars;
-        this.customCSS = themeData.customCSS;
+        this.themeVars = themeData.variables;
+        this.customCSS = themeData.css;
     }
 
     async afterRender() {
@@ -191,13 +191,13 @@ export class ApplicationEditThemeModal {
             const themeData = {
                 name: formData.data["theme-name"],
                 description,
-                themeVars,
-                customCSS: this.element.querySelector('#custom-css').value
+                variables:themeVars,
+                css: this.element.querySelector('#custom-css').value
             };
             if (mode === 'add') {
-                await WebAssistant.addWebChatTheme(this.spaceId, themeData);
+                await WebAssistant.addTheme(this.spaceId, themeData);
             } else {
-                await WebAssistant.updateWebChatTheme(this.spaceId, this.id, themeData);
+                await WebAssistant.updateTheme(this.spaceId, this.id, themeData);
             }
             await this.closeModal();
         }
