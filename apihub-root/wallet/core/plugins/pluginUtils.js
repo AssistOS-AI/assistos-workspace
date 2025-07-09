@@ -1,9 +1,5 @@
-import UIUtils from "../../web-components/document/pages/document-view-page/UIUtils.js";
 const applicationModule = assistOS.loadModule("application", {});
-async function openPlugin(componentName, type, context, presenter, selectionItemId, autoPin = false) {
-    if(selectionItemId){
-        await UIUtils.selectItem(true, selectionItemId, componentName, presenter);
-    }
+async function openPlugin(componentName, type, context, presenter, autoPin = false) {
     let plugin = assistOS.space.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
     highlightPlugin(type, componentName, presenter);
@@ -17,9 +13,6 @@ async function openPlugin(componentName, type, context, presenter, selectionItem
             context: encodeURIComponent(JSON.stringify(context)),
         }, true);
         removeHighlightPlugin(type, presenter);
-    }
-    if(selectionItemId){
-        await UIUtils.deselectItem(selectionItemId, presenter);
     }
     let pluginElement = presenter.element.querySelector(componentName);
     let firstEditableItem = pluginElement.closest('[data-local-action^="editItem "]');

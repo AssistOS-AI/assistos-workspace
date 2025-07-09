@@ -20,11 +20,6 @@ function document(server) {
     server.put("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.restoreDocumentSnapshot);
     server.delete("/documents/snapshots/:spaceId/:documentId/:snapshotId", documentHandler.deleteDocumentSnapshot);
 
-    //Selections
-    server.get("/documents/select/:spaceId/:documentId", documentHandler.getSelectedDocumentItems);
-    server.put("/documents/select/:spaceId/:documentId/:itemId", documentHandler.selectDocumentItem);
-    server.delete("/documents/select/:spaceId/:documentId/:itemId/:selectId", documentHandler.deselectDocumentItem);
-
     //Export & Import
     server.post("/documents/export/:spaceId/:documentId", documentHandler.exportDocument);
     server.get("/documents/export/:spaceId/:fileName", documentHandler.downloadDocumentArchive);

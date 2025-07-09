@@ -60,4 +60,13 @@ export class KeysTab {
             this.invalidate(this.getSecrets);
         }
     }
+    async restartServerless(){
+        try {
+            await spaceModule.restartServerless(assistOS.space.id);
+            assistOS.showToast("Serverless restarted successfully", "success", 5000);
+        } catch (e) {
+            let jsonMessage = JSON.parse(e.message);
+            assistOS.showToast(jsonMessage.message, "error", 5000);
+        }
+    }
 }

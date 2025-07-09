@@ -15,16 +15,9 @@ export class ParagraphItem {
     }
 
     async subscribeToParagraphEvents() {
-        this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
-        this.textClass = "paragraph-text";
-        this.boundHandleUserSelection = this.handleUserSelection.bind(this, this.textClass);
+        //this.boundOnParagraphUpdate = this.onParagraphUpdate.bind(this);
+        //await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundOnParagraphUpdate);
         this.plugins = assistOS.space.plugins.paragraph;
-        for (let pluginName of Object.keys(this.plugins)) {
-            this.plugins[pluginName].boundHandleSelection = this.handleUserSelection.bind(this, pluginName);
-            assistOS.NotificationRouter.subscribeToDocument(this._document.id, `${this.paragraph.id}_${pluginName}`, this.plugins[pluginName].boundHandleSelection);
-        }
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.paragraph.id, this.boundHandleUserSelection);
     }
 
     async beforeRender() {
@@ -81,16 +74,6 @@ export class ParagraphItem {
             paragraphText.click();
             //this.element.scrollIntoView({behavior: "smooth", block: "center"});
         }
-
-        let selected = this.documentPresenter.selectedParagraphs[this.paragraph.id];
-        if (selected) {
-            for (let selection of selected.users) {
-                await UIUtils.setUserIcon(selection.userImageId, selection.userEmail, selection.selectId, this.textClass, this);
-            }
-            if (selected.lockOwner) {
-                UIUtils.lockItem(this.textClass, this);
-            }
-        }
         UIUtils.changeCommentIndicator(this.element, this.paragraph.comments.messages);
         UIUtils.displayCurrentStatus(this.element, this.paragraph.comments, "paragraph");
         if(this.paragraph.comments.pluginLastOpened){
@@ -124,7 +107,7 @@ export class ParagraphItem {
         this.paragraph = await documentModule.getParagraph(assistOS.space.id, this.paragraph.id);
         let paragraphText = this.element.querySelector(".paragraph-text");
         paragraphText.value = assistOS.UI.unsanitize(this.paragraph.text);
-        this.documentPresenter.toggleEditingState(true);
+        //this.documentPresenter.toggleEditingState(true);
     }
 
     async deleteParagraph(targetElement, skipConfirmation) {
@@ -236,7 +219,6 @@ export class ParagraphItem {
                     await this.saveParagraph(paragraphText);
                 }
                 assistOS.space.currentParagraphId = null;
-                await UIUtils.deselectItem(this.paragraph.id, this);
 
                 let pluginContainer = this.element.querySelector(`.paragraph-plugin-container`);
                 let pluginElement = pluginContainer.firstElementChild;
@@ -297,13 +279,12 @@ export class ParagraphItem {
         if(pluginElement && pluginElement.tagName.toLowerCase() === pluginName){
             return;
         }
-        let selectionItemId = `${this.paragraph.id}_${pluginName}`;
         this.currentPlugin = pluginName;
         let context = {
             chapterId: this.chapter.id,
             paragraphId: this.paragraph.id
         }
-        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId, autoPin);
+        await pluginUtils.openPlugin(pluginName, type, context, this, autoPin);
         await this.updateLastOpenedPlugin(pluginName);
     }
     async closePlugin(targetElement, focusoutClose) {
@@ -383,31 +364,7 @@ export class ParagraphItem {
         controller.abort();
     }
 
-    async handleUserSelection(itemClass, data) {
-        if (typeof data === "string") {
-            return;
-        }
-        if (data.selected) {
-            if (!this.plugins[itemClass]) {
-                await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
-            }
-            if (data.lockOwner && data.lockOwner !== this.selectId) {
-                return UIUtils.lockItem(itemClass, this);
-            }
-        } else {
-            if (!this.plugins[itemClass]) {
-                UIUtils.removeUserIcon(data.selectId, this);
-            }
-
-            if (!data.lockOwner) {
-                UIUtils.unlockItem(itemClass, this);
-            }
-        }
-    }
-
     async afterUnload() {
-        if (this.selectionInterval) {
-            await UIUtils.deselectItem(this.paragraph.id, this);
-        }
+
     }
 }

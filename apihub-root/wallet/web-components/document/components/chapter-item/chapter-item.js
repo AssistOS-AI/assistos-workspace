@@ -17,15 +17,8 @@ export class ChapterItem {
         this.addParagraphOrChapterOnKeyPress = this.addParagraphOrChapterOnKeyPress.bind(this);
         this.element.removeEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
         this.element.addEventListener('keydown', this.addParagraphOrChapterOnKeyPress);
-        this.titleId = `${this.chapter.id}_title`;
-        this.titleClass = "chapter-title";
-        this.boundHandleUserSelection = this.handleUserSelection.bind(this);
         this.boundCloseChapterComment = this.closeChapterComment.bind(this);
-        this.invalidate(async () => {
-            this.boundOnChapterUpdate = this.onChapterUpdate.bind(this);
-            await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.chapter.id, this.boundOnChapterUpdate);
-            await  assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundHandleUserSelection);
-        });
+        this.invalidate();
     }
     async refreshChapter(documentId, chapterId) {
         const documentModule = assistOS.loadModule("document");
@@ -165,7 +158,7 @@ export class ChapterItem {
                 }
             }
         }
-        this.documentPresenter.toggleEditingState(true);
+        //this.documentPresenter.toggleEditingState(true);
     }
 
     async saveTitle(titleElement) {
@@ -313,12 +306,11 @@ export class ChapterItem {
         if(pluginElement && pluginElement.tagName.toLowerCase() === pluginName){
             return;
         }
-        let selectionItemId = `${this.chapter.id}_${pluginName}`;
         this.currentPlugin = pluginName;
         let context = {
             chapterId: this.chapter.id,
         }
-        await pluginUtils.openPlugin(pluginName, type, context, this, selectionItemId, autoPin);
+        await pluginUtils.openPlugin(pluginName, type, context, this, autoPin);
         await this.updateLastOpenedPlugin(pluginName);
     }
     async closePlugin(targetElement, focusoutClose) {
@@ -341,7 +333,6 @@ export class ChapterItem {
     async focusOutHandlerTitle(chapterTitle){
         this.focusOutHandler()
         chapterTitle.classList.remove("focused");
-        await UIUtils.deselectItem(this.titleId, this);
         let chapterHeader = this.element.querySelector(".chapter-header-container");
         chapterHeader.classList.remove("highlighted-header");
         let pluginContainer = this.element.querySelector(`.chapter-plugin-container`);
@@ -476,27 +467,7 @@ export class ChapterItem {
         let chapterNumber = this.element.querySelector(".data-chapter-number");
         chapterNumber.innerHTML = `${chapterIndex + 1}.`;
     }
-    async handleUserSelection(data){
-        if(typeof data === "string"){
-            return;
-        }
-        if(data.selected){
-            await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, this.titleClass, this);
-            if(data.lockOwner &&  data.lockOwner !== this.selectId){
-                return UIUtils.lockItem(this.titleClass, this);
-            }
-        } else {
-            UIUtils.removeUserIcon(data.selectId, this);
-            if(!data.lockOwner){
-                UIUtils.unlockItem(this.titleClass, this);
-            }
-        }
-    }
-    async afterUnload(){
-        if(this.selectionInterval){
-            await UIUtils.deselectItem(this.titleId, this);
-        }
-    }
+    async afterUnload(){}
 }
 
 

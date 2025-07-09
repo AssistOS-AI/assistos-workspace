@@ -148,7 +148,6 @@ add-key-modal,edit-apikey-modal{
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    height: 100%;
     padding: 12px
 }
 
@@ -233,10 +232,6 @@ add-key-modal,edit-apikey-modal{
 .last-table-field {
     display: flex;
     justify-content: flex-end;
-}
-
-.table-section {
-    width: 100%;
 }
 
 .data-table {

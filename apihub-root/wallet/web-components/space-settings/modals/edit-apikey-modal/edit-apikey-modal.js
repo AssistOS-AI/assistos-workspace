@@ -12,8 +12,8 @@ export class EditApikeyModal {
     afterRender() {
         let nameInput = this.element.querySelector('#name');
         nameInput.value = this.name;
-     /*   let keyInput = this.element.querySelector('#secretKey');
-        keyInput.value = this.key;*/
+     let keyInput = this.element.querySelector('#secretKey');
+        keyInput.value = this.key;
     }
 
     async saveChanges(_target) {
