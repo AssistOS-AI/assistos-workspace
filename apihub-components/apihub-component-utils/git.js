@@ -164,17 +164,11 @@ async function updateRepo(localPath) {
         throw new Error(`Failed to update repository: ${error.message}`);
     }
 }
-async function installDependencies(dependencies) {
+async function installDependencies(repoPath) {
     try {
-        if(!dependencies) {
-            return;
-        }
-        const parentDir = path.join(process.cwd(), '..');
-        for(let dependency of dependencies) {
-            await execAsync(`npm install ${dependency} --no-save`, {
-                cwd: parentDir, // Set the working directory
-            });
-        }
+        await execAsync(`npm install`, {
+            cwd: repoPath, // Set the working directory
+        });
     } catch (error) {
         throw new Error(`Failed to install dependencies: ${error.message}`);
     }

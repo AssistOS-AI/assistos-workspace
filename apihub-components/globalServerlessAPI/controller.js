@@ -231,8 +231,7 @@ async function installSystemApps(){
             authToken: process.env.SERVERLESS_AUTH_SECRET,
         });
         for(let app of defaultApps){
-            let manifest = await ApplicationModule.installSystemApp(app.name);
-            await git.installDependencies(manifest.dependencies);
+            await ApplicationModule.installSystemApp(app.name);
         }
     }
 }
