@@ -15,7 +15,7 @@ export class KeysTab {
     <tr>
       <td class="secret-name">${secret.name}</td>
       <td>${key}</td>
-      <td>${secret.value || 'No value set'}</td>
+      <td>${secret || 'No value set'}</td>
       <td class="actions-button">
             <button class="options-container-button" data-local-action="editKey ${secret.name} ${key}">
                 <svg width="6" height="20" viewBox="0 0 6 20" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -101,15 +101,16 @@ async function createSpace(request, response, server) {
 
         //create serverless API for new space
         let serverlessId = space.id;
+        const envVars = {
+            PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
+            SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+            SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
+            INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
+        }
         const serverlessAPI = await server.createServerlessAPI({
             urlPrefix: serverlessId,
             storage: serverlessAPIStorage,
-            env: {
-                PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
-                SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-                SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
-                INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
-            }
+            env: envVars
         });
         server.registerServerlessProcess(serverlessId, serverlessAPI);
 
@@ -129,28 +130,12 @@ async function createSpace(request, response, server) {
             let spaceAppLinkPath = path.join(applicationsPath, application.name);
             await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
         }
-        await addDefaultSpaceSecrets(space.id, request.userId);
+        await secrets.addSpaceEnvVarsSecrets(space.id, envVars);
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
         });
-    }
-}
-async function addDefaultSpaceSecrets(spaceId, request){
-    let defaultSecrets = [
-        { name: "OpenAI", keyName: "OPENAI_API_KEY" },
-        { name: "HuggingFace", keyName: "HUGGINGFACE_API_KEY" },
-        { name: "Anthropic", keyName: "ANTHROPIC_API_KEY" },
-        { name: "Google", keyName: "GOOGLE_API_KEY" },
-        { name: "OpenRouter", keyName: "OPENROUTER_API_KEY" }
-    ];
-    const spaceModule = assistOSSDK.loadModule("space", {
-        email: request.email,
-        sessionId: request.sessionId,
-    });
-    for(let secret of defaultSecrets){
-        await spaceModule.addSecret(spaceId, secret.name, secret.keyName, "");
     }
 }
 async function createDefaultAgent(request, spaceId){

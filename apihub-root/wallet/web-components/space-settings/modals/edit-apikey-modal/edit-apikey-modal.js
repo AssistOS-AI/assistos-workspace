@@ -28,7 +28,7 @@ export class EditApikeyModal {
             } catch (error) {
                 assistOS.UI.closeModal(_target);
                 await showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,
-                    error);
+                    assistOS.UI.sanitize(error));
             }
         }
     }
