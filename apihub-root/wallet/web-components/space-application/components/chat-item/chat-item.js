@@ -71,7 +71,7 @@ export class ChatItem {
     async beforeRender() {
         let id = this.element.getAttribute("data-id");
         let reply = this.chatPagePresenter.getReply(id);
-        this.chatMessage = reply.message;
+        this.chatMessage = marked.parse(decodeHTML(reply.message));
 
         this.ownMessage = this.element.getAttribute("ownMessage");
         let userEmail = this.element.getAttribute("user-email");
@@ -81,18 +81,15 @@ export class ChatItem {
         this.isContext = this.element.getAttribute("isContext");
 
         if (this.ownMessage === "false") {
-            this.messageType = "user";
-            this.messageTypeBox = "user-box";
+            this.messageTypeBox = "others-box";
             let imageSrc = "";
             if (userEmail) {
                 try {
-                    //TODO : use email instead of user id
                     //imageSrc = await getUserProfileImage(this.user);
                 } catch (error) {
                     imageSrc = await getDefaultUserImage();
                 }
             } else {
-                this.chatMessage = marked.parse(decodeHTML(this.chatMessage));
                 // try {
                 //     imageSrc = await getPersonalityImageUrl(this.spaceId, agentName);
                 // } catch (e) {
@@ -106,8 +103,8 @@ export class ChatItem {
                 ${addToLocalContextButton}
             </div>`
         } else {
-            this.messageType = "robot";
-            this.messageTypeBox = "robot-box";
+            this.ownMessageClass = "user-box-container";
+            this.messageTypeBox = "user-box";
             this.imageContainer = ``;
             this.chatBoxOptions = `<div class="chat-options myself-message">
                   ${copyReplyButton}
@@ -137,7 +134,7 @@ export class ChatItem {
     }
     updateReply(message) {
         let messageElement = this.element.querySelector(".message");
-        messageElement.innerHTML = message;
+        messageElement.innerHTML = marked.parse(decodeHTML(message));
     }
 
     async handleEndStream() {

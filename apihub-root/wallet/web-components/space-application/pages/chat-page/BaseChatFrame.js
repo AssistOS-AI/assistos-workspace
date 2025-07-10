@@ -94,10 +94,7 @@ export class BaseChatFrame {
                return;
             }
             this.chatHistory.push(response);
-            const streamLocationElement = await this.displayAgentReply(response.id);
-            const responseElement = streamLocationElement.closest('chat-item');
-            //responseElement.setAttribute(`id`, id);
-            responseElement.webSkelPresenter.invalidate();
+            await this.displayAgentReply(response.id);
         });
 
         this.conversation = this.element.querySelector(".conversation");
