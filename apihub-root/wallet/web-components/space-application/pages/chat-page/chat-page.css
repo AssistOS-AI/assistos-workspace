@@ -369,14 +369,6 @@ input:checked + .slider .label-off {
     margin-block-end:20px;
 }
 
-.chat-box-container {
-    position: relative;
-    display: flex;
-    margin-bottom: 15px;
-    margin-inline-end: 10px;
-    margin-inline-start: 10px;
-    align-items: stretch;
-}
 #stopLastStream{
     display:flex;
     justify-content: center;
@@ -385,55 +377,6 @@ input:checked + .slider .label-off {
     right:20px;
     width:35px;
     height:35px;
-}
-.chat-box-content{
-    display:flex;
-    position:relative;
-    flex-direction: column;
-    align-items:flex-end;
-    padding:10px;
-}
-
-.chat-box {
-    position:relative;
-    padding: 5px 5px 5px 12px;
-    width: 100%;
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    hyphens: auto;
-    word-break: break-word;
-    font-weight: 400;
-    font-size: 16px;
-}
-
-
-.user-box {
-    width: auto;
-    max-width:100%;
-    word-wrap: break-word;
-    white-space: normal;
-    border-radius: 16px 16px 16px 16px;
-    color:  black;
-    background: white;
-    margin-inline-end: 10px;
-    margin-inline-start: 10px;
-}
-
-.robot {
-    display: flex;
-    justify-items: flex-end;
-    flex-direction: row-reverse;
-}
-
-.robot-box {
-    min-width:60px;
-    width: auto;
-    word-wrap: break-word;
-    white-space: normal;
-    border-radius: 16px 16px 16px 16px;
-    background: #E1ECF4;
-    color: black;
-    margin-inline-start: 58px;
 }
 
 .page-logo-section {

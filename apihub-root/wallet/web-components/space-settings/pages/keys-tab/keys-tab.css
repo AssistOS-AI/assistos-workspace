@@ -160,3 +160,6 @@ keys-tab {
 .secret-name{
     display:inline-flex;
 }
+.apply-changes{
+    width: fit-content;
+}

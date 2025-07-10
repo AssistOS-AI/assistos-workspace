@@ -12,8 +12,8 @@ export class EditApikeyModal {
     afterRender() {
         let nameInput = this.element.querySelector('#name');
         nameInput.value = this.name;
-     /*   let keyInput = this.element.querySelector('#secretKey');
-        keyInput.value = this.key;*/
+     let keyInput = this.element.querySelector('#secretKey');
+        keyInput.value = this.key;
     }
 
     async saveChanges(_target) {
@@ -28,7 +28,7 @@ export class EditApikeyModal {
             } catch (error) {
                 assistOS.UI.closeModal(_target);
                 await showApplicationError('Invalid API Key', `Encountered an error trying to add the API Key to Space: ${assistOS.space.name}`,
-                    error);
+                    assistOS.UI.sanitize(error));
             }
         }
     }

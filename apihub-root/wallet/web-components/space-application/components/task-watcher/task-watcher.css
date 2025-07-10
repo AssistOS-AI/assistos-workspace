@@ -8,5 +8,5 @@ task-watcher.active {
 }
 
 .active {
-    display: block;
+    display: flex;
 }

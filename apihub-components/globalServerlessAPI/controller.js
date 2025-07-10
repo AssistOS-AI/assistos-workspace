@@ -8,21 +8,15 @@ const path = require('path');
 const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
-const {
-    getTextResponse,
-    getTextStreamingResponse
-} = require('../llms/controller.js');
 let assistOSSDK = require('assistos');
 const constants = assistOSSDK.constants;
 
 const getAPIClientSDK = assistOSSDK.utils.getAPIClient;
-
 const fs = require("fs");
 const Busboy = require('busboy');
 const unzipper = require('unzipper');
 const secrets = require("../apihub-component-utils/secrets");
 const process = require("process");
-const git = require("../apihub-component-utils/git");
 
 async function getAPIClient(request, pluginName, serverlessId){
     return await getAPIClientSDK(request.userId, pluginName, serverlessId, {
@@ -107,15 +101,16 @@ async function createSpace(request, response, server) {
 
         //create serverless API for new space
         let serverlessId = space.id;
+        const envVars = {
+            PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
+            SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
+            SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
+            INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
+        }
         const serverlessAPI = await server.createServerlessAPI({
             urlPrefix: serverlessId,
             storage: serverlessAPIStorage,
-            env: {
-                PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
-                SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
-                SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
-                INTERNAL_WEBHOOK_URL: `${process.env.BASE_URL}/internalWebhook`
-            }
+            env: envVars
         });
         server.registerServerlessProcess(serverlessId, serverlessAPI);
 
@@ -135,28 +130,12 @@ async function createSpace(request, response, server) {
             let spaceAppLinkPath = path.join(applicationsPath, application.name);
             await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
         }
-        await addDefaultSpaceSecrets(space.id, request.userId);
+        await secrets.addSpaceEnvVarsSecrets(space.id, envVars);
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
         });
-    }
-}
-async function addDefaultSpaceSecrets(spaceId, request){
-    let defaultSecrets = [
-        { name: "OpenAI", keyName: "OPENAI_API_KEY" },
-        { name: "HuggingFace", keyName: "HUGGINGFACE_API_KEY" },
-        { name: "Anthropic", keyName: "ANTHROPIC_API_KEY" },
-        { name: "Google", keyName: "GOOGLE_API_KEY" },
-        { name: "OpenRouter", keyName: "OPENROUTER_API_KEY" }
-    ];
-    const spaceModule = assistOSSDK.loadModule("space", {
-        email: request.email,
-        sessionId: request.sessionId,
-    });
-    for(let secret of defaultSecrets){
-        await spaceModule.addSecret(spaceId, secret.name, secret.keyName, "");
     }
 }
 async function createDefaultAgent(request, spaceId){
@@ -200,7 +179,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Chat", "ChatScript"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Chat", "ChatScript", "Table"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
@@ -231,8 +210,7 @@ async function installSystemApps(){
             authToken: process.env.SERVERLESS_AUTH_SECRET,
         });
         for(let app of defaultApps){
-            let manifest = await ApplicationModule.installSystemApp(app.name);
-            await git.installDependencies(manifest.dependencies);
+            await ApplicationModule.installSystemApp(app.name);
         }
     }
 }
@@ -315,7 +293,7 @@ async function restartServerless(request, response){
     let serverlessId = request.params.spaceId;
     const baseURL = process.env.BASE_URL;
     try {
-        let res = await fetch(`${baseURL}/proxy/setEnv/${serverlessId}`, {
+        let res = await fetch(`${baseURL}/proxy/restart/${serverlessId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -323,118 +301,18 @@ async function restartServerless(request, response){
             }
         });
         if(res.status !== 200){
-            utils.sendResponse(response, 500, "application/json", {
+            return utils.sendResponse(response, 500, "application/json", {
                 message: `Serverless restart failed: ${res.status}`,
             });
         }
     } catch (e) {
-        utils.sendResponse(response, 500, "application/json", {
-            message: `Internal Server Error: ${error}`,
+        return utils.sendResponse(response, 500, "application/json", {
+            message: `Internal Server Error: ${e.message}`,
         });
     }
 
     utils.sendResponse(response, 200, "application/json", {});
 
-}
-async function getChatTextResponse(request, response) {
-    const spaceId = request.params.spaceId;
-    const agentId = request.body.agentId;
-    const userId = request.userId;
-    const modelResponse = await getTextResponse(request, response);
-    if (modelResponse.success) {
-        const chatMessages = modelResponse.data.messages
-        for (const chatMessage of chatMessages) {
-            await space.APIs.addSpaceChatMessage(spaceId, agentId, agentId, "assistant", chatMessage);
-            SubscriptionManager.notifyClients(request.sessionId, SubscriptionManager.getObjectId(spaceId, `chat_${spaceId}`), {}, [userId]);
-        }
-    }
-}
-
-async function getChatTextStreamingResponse(request, response) {
-    const spaceId = request.params.spaceId;
-    const agentId = request.body.agentId;
-    const userId = request.userId;
-
-    let messageId = null;
-    let isFirstChunk = true;
-    let streamClosed = false;
-
-    const updateQueue = [];
-    let isProcessingQueue = false;
-    try {
-        response.on('close', async () => {
-            if (!streamClosed) {
-                streamClosed = true;
-                updateQueue.length = 0;
-            }
-        });
-
-        const processQueue = async () => {
-            if (isProcessingQueue || streamClosed) return;
-            isProcessingQueue = true;
-
-            while (updateQueue.length > 0 && !streamClosed) {
-                const currentChunk = updateQueue.shift();
-                try {
-                    await space.APIs.updateSpaceChatMessage(
-                        spaceId,
-                        agentId,
-                        agentId,
-                        messageId,
-                        currentChunk
-                    );
-                    SubscriptionManager.notifyClients(
-                        request.sessionId,
-                        SubscriptionManager.getObjectId(spaceId, `chat_${agentId}`),
-                        {},
-                        [userId]
-                    );
-                } catch (error) {
-                    console.error('Error updating message:', error);
-                }
-            }
-
-            isProcessingQueue = false;
-        };
-
-        const streamContext = await getTextStreamingResponse(
-            request,
-            response,
-            async (chunk) => {
-                try {
-                    if (streamClosed) return;
-
-                    if (isFirstChunk) {
-                        isFirstChunk = false;
-                        messageId = await space.APIs.addSpaceChatMessage(
-                            spaceId,
-                            agentId,
-                            agentId,
-                            "assistant",
-                            chunk
-                        );
-                        SubscriptionManager.notifyClients(
-                            request.sessionId,
-                            SubscriptionManager.getObjectId(spaceId, `chat_${agentId}`),
-                            {},
-                            [userId]
-                        );
-                    } else {
-                        if (!messageId) return;
-                        updateQueue.push(chunk);
-                        await processQueue();
-                    }
-                } catch (error) {
-                    console.error('Error processing chunk:', error);
-                }
-            }
-        );
-        await streamContext.streamPromise;
-    } catch (error) {
-        if (!response.headersSent) {
-            response.status(500).json({error: 'Stream error'});
-        }
-    }
 }
 async function headFile(request, response) {
     const fileId = request.params.fileId;
@@ -613,76 +491,6 @@ async function getDownloadURL(request, response) {
         utils.sendResponse(response, error.statusCode || 500, "application/json", {
             message: `Error getting a download URL:` + error.message
         });
-    }
-}
-
-async function chatCompleteParagraph(request, response) {
-    const spaceId = request.params.spaceId;
-    const documentId = request.params.documentId;
-    const paragraphId = request.params.paragraphId;
-
-    const modelName = request.body.modelName;
-    const agentId = request.body.agentId;
-
-
-    if (modelName === undefined && agentId === undefined) {
-        return utils.sendResponse(response, 400, "application/json", `modelName or agentId must be defined in the Request Body. Received modelName:${modelName}, agentId:${agentId}`)
-    }
-
-    if (modelName === undefined) {
-        const personalityData = await space.APIs.getPersonalityData(spaceId, agentId)
-        if (!personalityData) {
-            return utils.sendResponse(response, 400, "application/json", `Invalid agentId:${agentId}`)
-        }
-        request.body.modelName = personalityData.llms.text
-    }
-
-    const Paragraph = require('../document/services/paragraph.js')
-
-    const updateQueue = [];
-    let isProcessingQueue = false;
-    let streamClosed = false;
-    try {
-        response.on('close', async () => {
-            if (!streamClosed) {
-                streamClosed = true;
-                updateQueue.length = 0;
-            }
-        });
-
-        const processQueue = async () => {
-            if (isProcessingQueue || streamClosed) return;
-            isProcessingQueue = true;
-
-            while (updateQueue.length > 0 && !streamClosed) {
-                const currentChunk = updateQueue.shift();
-                try {
-                    await Paragraph.updateParagraph(spaceId, documentId, paragraphId, currentChunk, {fields: "text"})
-                } catch (error) {
-                    console.error('Error updating message:', error);
-                }
-            }
-            isProcessingQueue = false;
-        };
-
-        const streamContext = await getTextStreamingResponse(
-            request,
-            response,
-            async (chunk) => {
-                try {
-                    if (streamClosed) return;
-                    updateQueue.push(chunk);
-                    await processQueue();
-                } catch (error) {
-                    console.error('Error processing chunk:', error);
-                }
-            }
-        );
-        await streamContext.streamPromise;
-    } catch (error) {
-        if (!response.headersSent) {
-            response.status(500).json({error: 'Stream error'});
-        }
     }
 }
 

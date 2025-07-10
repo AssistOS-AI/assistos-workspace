@@ -22,13 +22,7 @@ export class DocumentViewPage {
             }
 
             this.documentId = this._document.id;
-            this.boundOnDocumentUpdate = this.onDocumentUpdate.bind(this);
-            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, this._document.id, this.boundOnDocumentUpdate);
             this.agents = await agentModule.getAgents(assistOS.space.id);
-            this.boundrefreshAgents = this.refreshAgents.bind(this);
-            assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "personalities", this.boundrefreshAgents);
-            this.selectedParagraphs = await documentModule.getSelectedDocumentItems(assistOS.space.id, this._document.id);
-            await this.initTitleInfoTextSelection();
         });
     }
     async refreshVariables(){
@@ -41,21 +35,6 @@ export class DocumentViewPage {
     }
     async printDocument() {
         await assistOS.UI.showModal("print-document-modal", {id: this._document.id, title: this._document.title});
-    }
-
-    async initTitleInfoTextSelection() {
-        this.infoTextClass = "document-infoText";
-        this.infoTextTitleClass = "document-infoTextTitle";
-        this.titleClass = "document-title";
-        this.infoTextId = "infoText";
-        this.infoTextTitleId = "infoTextTitle";
-        this.titleId = "title";
-        this.boundSelectInfoTextHandler = this.handleUserSelection.bind(this, this.infoTextClass);
-        this.boundSelectTitleHandler = this.handleUserSelection.bind(this, this.titleClass);
-        this.boundSelectInfoTextTitleHandler = this.handleUserSelection.bind(this, this.infoTextTitleClass);
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextId, this.boundSelectInfoTextHandler);
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.titleId, this.boundSelectTitleHandler);
-        await assistOS.NotificationRouter.subscribeToDocument(this._document.id, this.infoTextTitleId, this.boundSelectInfoTextTitleHandler);
     }
 
     async getPersonalityName(personalityId) {
@@ -476,8 +455,8 @@ export class DocumentViewPage {
         }
     }
 
-    async focusOutHandler(element, itemId) {
-        await this.focusOutHandlerTitle(element, itemId);
+    async focusOutHandler(element) {
+        await this.focusOutHandlerTitle(element);
         element.removeEventListener('keydown', this.boundControlInfoTextHeight);
         this.changeToolbarView(element, "off");
         let pluginContainer = this.element.querySelector(`.infoText-plugin-container`);
@@ -491,14 +470,12 @@ export class DocumentViewPage {
         this.currentPlugin = await this.closePlugin("", true);
     }
 
-    async focusOutHandlerTitle(element, itemId) {
+    async focusOutHandlerTitle(element) {
         let container = element.closest(".container-element");
         container.classList.remove("focused");
         element.removeEventListener('keydown', this.titleKeyDownHandler);
         element.classList.remove("focused");
         this.stopTimer.bind(this, true);
-        await UIUtils.deselectItem(itemId, this);
-        delete this.currentSelectItem;
     }
 
     async controlInfoTextHeight(infoText) {
@@ -520,12 +497,10 @@ export class DocumentViewPage {
             this.boundControlInfoTextHeight = this.controlInfoTextHeight.bind(this, targetElement);
         }
         targetElement.addEventListener('keydown', this.boundControlInfoTextHeight);
-        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextId));
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        await UIUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
-        this.currentSelectItem = this.infoTextId;
         this.changeToolbarView(targetElement, "on");
         if (this.currentPlugin) {
             await this.openPlugin("", "infoText", this.currentPlugin);
@@ -533,12 +508,10 @@ export class DocumentViewPage {
     }
 
     async highlightInfoTextTitle(targetElement) {
-        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextTitleId));
+        await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement));
         let containerElement = targetElement.closest(".container-element");
         containerElement.classList.add("focused");
         targetElement.classList.add("focused")
-        await UIUtils.selectItem(true, this.infoTextTitleId, this.infoTextClass, this);
-        this.currentSelectItem = this.infoTextTitleId;
         this.changeToolbarView(targetElement, "on");
         if (this.currentPlugin) {
             await this.openPlugin("", "infoText", this.currentPlugin);
@@ -556,15 +529,12 @@ export class DocumentViewPage {
             let paragraphPresenter = paragraphItem.webSkelPresenter;
             await this.changeCurrentElement(paragraphItem, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, paragraphText));
             await paragraphPresenter.highlightParagraph();
-            await UIUtils.selectItem(false, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             await chapterPresenter.highlightChapter();
             return;
         }else if (type === "infoTextSection") {
             await this.changeCurrentElement(targetElement, this.focusOutHandler.bind(this, targetElement, this.infoTextId));
             let containerElement = targetElement.closest(".container-element");
             containerElement.classList.add("focused");
-            //await UIUtils.selectItem(true, this.infoTextId, this.infoTextClass, this);
-            //this.currentSelectItem = this.infoTextId;
             this.changeToolbarView(targetElement, "on");
             if (this.currentPlugin) {
                 await this.openPlugin("", "infoText", this.currentPlugin);
@@ -580,8 +550,6 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, this.focusOutHandlerTitle.bind(this, targetElement, this.titleId));
             targetElement.addEventListener('keydown', this.titleKeyDownHandler);
             saveFunction = this.saveTitle.bind(this, targetElement);
-            await UIUtils.selectItem(true, this.titleId, this.titleClass, this);
-            this.currentSelectItem = this.titleId;
         } else if (type === "infoText") {
             await this.highlightInfoText(targetElement);
             saveFunction = this.saveInfoText.bind(this, targetElement);
@@ -596,13 +564,11 @@ export class DocumentViewPage {
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
-            await UIUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
         } else if (type === "chapterHeader") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
-            await UIUtils.selectItem(true, chapterPresenter.titleId, chapterPresenter.titleClass, chapterPresenter);
         } else if (type === "paragraphText") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");
@@ -610,7 +576,6 @@ export class DocumentViewPage {
             await this.changeCurrentElement(targetElement, paragraphPresenter.focusOutHandler.bind(paragraphPresenter, targetElement));
             await chapterPresenter.highlightChapter();
             await paragraphPresenter.highlightParagraph();
-            await UIUtils.selectItem(true, paragraphPresenter.paragraph.id, paragraphPresenter.textClass, paragraphPresenter);
             saveFunction = paragraphPresenter.saveParagraph.bind(paragraphPresenter, targetElement);
             resetTimerFunction = paragraphPresenter.resetTimer.bind(paragraphPresenter, targetElement);
         }
@@ -747,28 +712,8 @@ export class DocumentViewPage {
         let commentsSection = iconContainer.querySelector("comments-section");
         commentsSection.remove();
     }
-    async handleUserSelection(itemClass, data) {
-        if (typeof data === "string") {
-            return;
-        }
-        if (data.selected) {
-            await UIUtils.setUserIcon(data.userImageId, data.userEmail, data.selectId, itemClass, this);
-            if (data.lockOwner && data.lockOwner !== this.selectId) {
-                return UIUtils.lockItem(itemClass, this);
-            }
-        } else {
-            UIUtils.removeUserIcon(data.selectId, this);
-            if (!data.lockOwner) {
-                UIUtils.unlockItem(itemClass, this);
-            }
-        }
-    }
 
     async afterUnload() {
-        if (this.selectionInterval) {
-            await UIUtils.deselectItem(this.currentSelectItem, this);
-        }
-        document.removeEventListener("click", this.boundRemoveFocusHandler);
     }
 
     async translateDocument() {
@@ -787,11 +732,10 @@ export class DocumentViewPage {
             }
             await pluginUtils.openPlugin(pluginName, "document", context, this);
         } else if (type === "infoText") {
-            let itemId = `${this.infoTextId}_${pluginName}`;
             let context = {
                 infoText: ""
             }
-            await pluginUtils.openPlugin(pluginName, "infoText", context, this, itemId, autoPin);
+            await pluginUtils.openPlugin(pluginName, "infoText", context, this, autoPin);
         }
         await this.updateLastOpenedPlugin(pluginName);
     }
