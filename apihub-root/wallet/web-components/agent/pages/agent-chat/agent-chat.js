@@ -13,7 +13,7 @@ export class AgentChat {
         let availableLlms = await llmModule.getModels({spaceId:assistOS.space.id});
 
         const chatModels = availableLlms.reduce((acc, llm) => {
-            if(llm.type === "text"){
+            if(llm.type === "chat"){
                 acc.push(llm);
             }
             return acc;
@@ -21,25 +21,19 @@ export class AgentChat {
         this.chatLLMSection = this.agentPagePresenter.generateLlmSelectHtml(chatModels, "chat");
         this.contextSize = this.agent.contextSize||3;
         const iFrameURL = `${window.location.origin}/iframes/chat?spaceId=${assistOS.space.id}&agentId=${this.agent.id}`
-        this.chatIframe = `
-                        <iframe 
-                            id="chatFrame"
-                            src="${iFrameURL}" 
-                            allowfullscreen
-                            loading="lazy">
-                        </iframe>`
+        // this.chatIframe = `
+        //                 <iframe
+        //                     id="chatFrame"
+        //                     src="${iFrameURL}"
+        //                     allowfullscreen
+        //                     loading="lazy">
+        //                 </iframe>`
 
         this.chatPrompt = this.agent.chatPrompt;
 
-      let agentChats = await agentModule.getAgentsConversations(assistOS.space.id,assistOS.agent.id)
-    debugger
-        this.chatOptions = agentChats.map((chatId, index) => {
-            return `<option value="${chatId}" ${assistOS.agent.selectedChat === chatId ? "selected" : ""}>${chatId}</option>`;
-        });
-
     }
     afterRender(){
-        let saveInputs = ["chatPrompt", "selectedChat", "contextSize"];
+        let saveInputs = ["chatPrompt", "contextSize"];
         for(let input of saveInputs){
             let inputElement = this.element.querySelector(`#${input}`);
             inputElement.addEventListener("input", (event) => {
@@ -53,7 +47,14 @@ export class AgentChat {
         }
         let chatSelect = this.element.querySelector(`#chatLLM`);
         chatSelect.addEventListener("change", async (e) => {
-            this.agent.llms.chat = e.target.value;
+            let optionId = e.target.value;
+            let option = e.target.querySelector(`option[value="${optionId}"]`);
+            let modelName = option.getAttribute("data-model");
+            let providerName = option.getAttribute("data-provider");
+            this.agent.llms.chat = {
+                modelName: modelName,
+                providerName: providerName
+            };
             this.agentPagePresenter.checkSaveButtonState();
         });
     }
