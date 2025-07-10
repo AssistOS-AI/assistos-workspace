@@ -11,11 +11,6 @@ const getChatIframe = (spaceId, personalityId) => {
     </iframe>`
 }
 
-const getConfiguration = async function (spaceId) {
-    const configuration = await WebAssistant.getWebAssistantConfiguration(spaceId)
-    return configuration;
-}
-
 export class ApplicationCreatorPreview {
     constructor(element, invalidate) {
         this.element = element;
@@ -23,11 +18,10 @@ export class ApplicationCreatorPreview {
         this.pageName = "Preview"
         this.spaceId = assistOS.space.id;
         this.invalidate();
-
     }
     async beforeRender() {
-        this.configuration = await getConfiguration(this.spaceId);
-        this.content = getChatIframe(this.spaceId, this.configuration.settings.personality);
+        this.configuration = await WebAssistant.getWebAssistant(this.spaceId);
+        this.content = getChatIframe(this.spaceId, this.configuration.settings.agentId);
     }
 
     async afterRender() {
