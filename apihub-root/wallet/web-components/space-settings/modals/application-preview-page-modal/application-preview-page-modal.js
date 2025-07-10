@@ -9,9 +9,10 @@ const getChatIframe = (spaceId, personalityId, pageID) => {
 }
 
 const spaceModule = assistOS.loadModule("space");
+const WebAssistant = assistOS.loadModule("webassistant");
 
 const getConfiguration = async function (spaceId) {
-    const configuration = await spaceModule.getWebAssistantConfiguration(spaceId)
+    const configuration = await WebAssistant.getWebAssistant(spaceId)
     return configuration;
 }
 

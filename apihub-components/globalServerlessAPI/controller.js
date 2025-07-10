@@ -371,6 +371,43 @@ async function deleteFile(request, response) {
         });
     }
 }
+async function getWidget(req,res) {
+    const spaceId = req.params.spaceId;
+    const applicationId = req.params.applicationId;
+    const widgetName = req.params.widgetName;
+
+    function convertToPascalCase(str) {
+        return str
+            .split('-')
+            .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+            .join('');
+    }
+
+    try {
+        let html, css, js;
+        let componentPath;
+        if (applicationId === "assistOS") {
+            componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetName}`);
+        } else {
+            const applicationPath = path.join(__dirname, `../../apihub-root/external-volume/spaces/${spaceId}/applications/${applicationId}`);
+            componentPath = path.join(applicationPath, `widgets/${widgetName}`);
+        }
+        const jsPath = path.join(componentPath, `${widgetName}.js`);
+        const cssPath = path.join(componentPath, `${widgetName}.css`);
+        const htmlPath = path.join(componentPath, `${widgetName}.html`);
+
+        html = await fsPromises.readFile(htmlPath, 'utf8');
+        css = await fsPromises.readFile(cssPath, 'utf8');
+        js = await fsPromises.readFile(jsPath, 'utf8');
+
+        return utils.sendResponse(res, 200, "application/json", {
+            data: {html, css, js, presenterClassName: convertToPascalCase(widgetName)}
+        });
+    } catch (error) {
+        return utils.sendResponse(res,500, "application/json");
+    }
+
+}
 
 async function importPersonality(request, response) {
     const spaceId = request.params.spaceId;
@@ -483,6 +520,7 @@ module.exports = {
     addSecret,
     editSecret,
     getSecretsMasked,
+    getWidget,
     deleteSecret,
     importPersonality,
     listUserSpaces,

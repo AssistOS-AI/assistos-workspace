@@ -1,3 +1,4 @@
+const fsPromises = require("fs/promises");
 const {
     getSpaceStatus,
     createSpace,
@@ -8,6 +9,7 @@ const {
     deleteSecret,
     getUploadURL,
     getDownloadURL,
+    getWidget,
     headFile,
     getFile,
     putFile,
@@ -108,6 +110,9 @@ function Space(server) {
 
     server.use("/spaces/*", bodyReader);
     server.use("/public/*", bodyReader);
+
+    server.get("/public/spaces/widgets/:spaceId/:applicationId/:widgetName", getWidget);
+
     server.use("/apis/v1/spaces/*", bodyReader);
 
     server.get("/spaces/listSpaces", listUserSpaces);

@@ -1,125 +1,4 @@
-const generateRequest = function (method, headers = {}, body = null) {
-    return async function (url) {
-        const response = await fetch(url, {
-            method,
-            headers,
-            body: body ? JSON.stringify(body) : null
-        });
-        return response.json();
-    };
-};
-
-const getConfiguration = async function (spaceId) {
-    const response = await fetch(`/spaces/${spaceId}/web-assistant/configuration`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    const configuration = (await response.json()).data
-    return configuration;
-}
-
-const getTheme = async function (spaceId,themeId) {
-    const response = await fetch(`/spaces/${spaceId}/web-assistant/themes/${themeId}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    const theme = (await response.json()).data
-    return theme;
-}
-
-const getHomePageConfig = async function (spaceId) {
-    const response = await fetch(`/spaces/${spaceId}/web-assistant/home-page`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    const homePage = (await response.json()).data
-    return homePage
-}
-const getPageConfig = async function (spaceId, pageId) {
-    const response = await fetch(`/spaces/${spaceId}/web-assistant/configuration/pages/${pageId}`, {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    const page = (await response.json()).data
-    return page
-}
-
-const addToLocalContext = async (spaceId, chatId, messageId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"});
-    const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
-}
-const createNewChat = async (spaceId, personalityId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"});
-    const response = await request(`/chats/${spaceId}/${personalityId}`);
-    return response.data.chatId;
-};
-const getChatMessages = async (spaceId, chatId) => {
-    const request = generateRequest("GET");
-    const response = await request(`/chats/${spaceId}/${chatId}`);
-    return response.data;
-
-};
-const getChatContext = async (spaceId, chatId) => {
-    const request = generateRequest("GET");
-    const response = await request(`/chats/context/${spaceId}/${chatId}`);
-    return response.data;
-}
-
-const sendMessage = async (spaceId, chatId, message) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"}, {message});
-    const response = await request(`/chats/message/${spaceId}/${chatId}`);
-    return response.data.messageId;
-};
-
-const getPersonality = async (spaceId, personalityId) => {
-    const request = generateRequest("GET", {"Content-Type": "application/json"});
-    const response = await request(`/personalities/${spaceId}/${personalityId}`)
-    return response.data;
-}
-
-const resetChat = (spaceId, chatId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"})
-    return request(`/chats/reset/${spaceId}/${chatId}`)
-}
-
-const resetChatContext = (spaceId, chatId) => {
-    const request = generateRequest("POST", {"Content-Type": "application/json"})
-    return request(`/chats/reset/context/${spaceId}/${chatId}`)
-}
-
-function unsanitize(value) {
-    if (value != null && typeof value === "string") {
-        return value.replace(/&nbsp;/g, ' ')
-            .replace(/&#13;/g, '\n')
-            .replace(/&amp;/g, '&')
-            .replace(/&#39;/g, "'")
-            .replace(/&quot;/g, '"')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>');
-    }
-    return '';
-}
-
-function sanitize(value) {
-    if (value != null && typeof value === "string") {
-        return value.replace(/&/g, '&amp;')
-            .replace(/'/g, '&#39;')
-            .replace(/"/g, '&quot;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/\r\n/g, '&#13;')
-            .replace(/[\r\n]/g, '&#13;').replace(/\s/g, '&nbsp;');
-    }
-    return value;
-}
+const WebAssistant = require("assistos").loadModule("webassistant", {});
 
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="sendMessage">
@@ -128,13 +7,11 @@ const sendMessageActionButtonHTML = `
 </svg>
 </button>
 `
-
 const stopStreamActionButtonHTML = `
 <button type="button" id="stopLastStream" class="input__button" data-local-action="stopLastStream">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
 </button>
 `
-
 let IFrameChatOptions = `
 <div class="preview-sidebar-item">
 <list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
@@ -196,6 +73,7 @@ async function validateCSS(css) {
         return false
     }
 }
+
 function generateRootCSS(themeVars) {
     const entries = Object.entries(themeVars).map(([key, val]) => `${key}: ${val};`)
     return `:root { ${entries.join(' ')} }`
@@ -259,7 +137,6 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-
         this.chatId = this.props.chatId;
         this.personalityId = this.props.personalityId;
         this.spaceId = this.props.spaceId;
@@ -267,61 +144,85 @@ class BaseChatFrame {
         this.pageId = this.props.pageId;
 
         if (!this.currentPageId) {
-            this.configuration = await getConfiguration(this.spaceId);
+            this.configuration = await WebAssistant.getWebAssistant(this.spaceId);
             if (!this.pageId) {
-                const homePageConfig = await getHomePageConfig(this.spaceId, this.configuration.pages);
+                const homePageConfig = await WebAssistant.getHomePage(this.spaceId);
                 this.currentPageId = homePageConfig.id;
             } else {
                 this.currentPageId = this.pageId;
             }
         }
+        const menu = await WebAssistant.getMenu(this.spaceId);
 
-        const {assistantMenu, chatMenu, pageMenu} = this.configuration.menu.reduce((acc, value) => {
-            if (value.itemLocation === "page") {
+
+        const {assistantMenu, chatMenu, pageMenu} = menu.reduce((acc, value) => {
+            if (value.location === "page") {
                 acc.pageMenu.push(value);
-            } else if (value.itemLocation === "chat") {
+            } else if (value.location === "chat") {
                 acc.chatMenu.push(value);
             } else {
                 acc.assistantMenu.push(value);
             }
             return acc;
         }, {assistantMenu: [], chatMenu: [], pageMenu: []})
+        debugger
 
-        this.assistantMenu = assistantMenu.map((menuItem) => {
-            return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+        this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
+
+        if (parseInt(this.page.chatSize) > 0) {
+            this.assistantMenu = assistantMenu.map((menuItem) => {
+                return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
             <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
             </div>`
-        }).join('');
+            }).join('');
 
-        this.chatMenu = chatMenu.map((menuItem) => {
-            return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+            this.chatMenu = chatMenu.map((menuItem) => {
+                return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
             <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
             </div>`
-        }).join('');
+            }).join('');
+        }
 
         if (pageMenu.length > 0) {
-            this.previewContentSidebar = `<div id="preview-content-sidebar">` + pageMenu.map((menuItem) => {
+            this.previewContentSidebar = pageMenu.map((menuItem) => {
                 return ` <div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
                         <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
                     </div>`
-            }).join('') + `</div>`;
+            }).join('');
+            if (parseInt(this.page.chatSize) === 0) {
+                this.previewContentSidebar += assistantMenu.map((menuItem) => {
+                    return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
+            </div>`
+                }).join('');
+                this.previewContentSidebar += this.chatMenu = chatMenu.map((menuItem) => {
+                    return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
+            </div>`
+                }).join('');
+            }
+            this.previewContentSidebar = `<div id="preview-content-sidebar">` + this.previewContentSidebar + `</div>`;
             this.previewContentStateClass = "with-sidebar";
         } else {
             this.previewContentSidebar = "";
             this.previewContentStateClass = "full-width";
         }
 
+        if (this.configuration.settings.themeId) {
+            this.theme = await WebAssistant.getTheme(this.spaceId, this.configuration.settings.themeId);
+            await applyTheme(this.theme.variables || {}, this.theme.css || '')
+        }
 
-        this.page = await getPageConfig(this.spaceId, this.currentPageId);
-        this.theme= await getTheme(this.spaceId, this.configuration.settings.theme);
-        await applyTheme(this.theme?.themeVars||{}, this.theme?.customCSS||'')
         this.chatOptions = this.chatMenu + IFrameChatOptions;
 
-        try {
-            this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
-        } catch (error) {
-            this.errorState = true;
-        }
+        /*
+                try {
+                    this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
+                } catch (error) {
+                    this.errorState = true;
+                }
+        */
+        this.chatMessages = [];
 
         this.chatActionButton = sendMessageActionButtonHTML
 
@@ -333,7 +234,6 @@ class BaseChatFrame {
             if (!role) {
                 continue;
             }
-
             const user = getChatItemUser(chatMessage);
             let ownMessage = false;
 
