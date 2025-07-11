@@ -11,21 +11,9 @@ export class SpaceApplicationPage {
     }
 
     async afterRender() {
-        this.sidebar = this.element.querySelector(".right-sidebar");
-        this.currentPage = this.element.querySelector(".current-page");
-        this.spacePageContainer = this.element.querySelector("#space-page-container");
     }
 
     async changePage(pageName) {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${pageName}`);
-    }
-
-
-    dispatchSidebarEvent(name) {
-        let hideSidebar = new Event(name, {
-            bubbles: true,
-            cancelable: true
-        });
-        this.currentPage.dispatchEvent(hideSidebar);
     }
 }

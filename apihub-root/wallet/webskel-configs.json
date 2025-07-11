@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "create-chat",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "CreateChat"
+        },
+        {
             "name": "contents-table",
             "directory": "document",
             "type": "components",

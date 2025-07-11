@@ -39,10 +39,6 @@ chat-page {
     border-radius: 10px;
 }
 
-.chat-name {
-    cursor: pointer;
-}
-
 .current-personality {
     display: flex;
     align-items: center;
@@ -89,12 +85,6 @@ chat-page {
 
 .rotated {
     transform: rotate(-90deg);
-}
-
-.private-chat {
-    display: flex;
-    align-items: center;
-    position: relative;
 }
 .switch {
     position: relative;

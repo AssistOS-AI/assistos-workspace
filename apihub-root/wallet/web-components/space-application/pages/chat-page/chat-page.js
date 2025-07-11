@@ -21,9 +21,6 @@ if (IFrameContext) {
 
         async beforeRender() {
             await super.beforeRender();
-            if (this.isSubscribed === undefined) {
-                this.isSubscribed = true;
-            }
             this.chatOptions = chatUtils.chatOptions;
             this.toggleAgentResponseButton = `
                 <button type="button" id="toggleAgentResponse" class="${this.agentOn ? "agent-on" : "agent-off"}"
@@ -108,23 +105,6 @@ if (IFrameContext) {
         async swapPersonality(_target, id) {
             await assistOS.changeAgent(id);
             this.invalidate();
-        }
-
-        async hidePersonalities(controller, arrow, event) {
-            arrow.setAttribute("data-local-action", "showPersonalities off");
-            let target = this.element.querySelector(".personalities-list");
-            target.style.display = "none";
-            controller.abort();
-        }
-
-        async showPersonalities(_target, mode) {
-            if (mode === "off") {
-                let list = this.element.querySelector(".personalities-list");
-                list.style.display = "flex";
-                let controller = new AbortController();
-                document.addEventListener("click", this.hidePersonalities.bind(this, controller, _target), {signal: controller.signal});
-                _target.setAttribute("data-local-action", "showPersonalities on");
-            }
         }
 
         async toggleAgentResponse(_target) {

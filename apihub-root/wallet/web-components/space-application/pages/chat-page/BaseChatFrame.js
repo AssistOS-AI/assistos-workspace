@@ -20,29 +20,10 @@ export class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.personalities = await agentModule.getAgents(this.spaceId);
-
-        let personalitiesHTML = "";
-        for (let personality of this.personalities) {
-            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
-        }
-
-        this.personalitiesHTML = personalitiesHTML;
-
-        this.currentPersonalityName = this.agent.name;
-
+        this.agentName = this.agent.name;
         let llmName = this.agent.llms["chat"].modelName;
-        if (llmName) {
-            llmName = llmName.split("/")[0];
-        } else {
-            llmName = "No LLM Configured";
-        }
-        this.personalityLLM = llmName;
-
-        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
-        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
         this.spaceNameTooltip = assistOS.space.name;
-        this.personalityLLMTooltip = llmName;
+        this.agentLLMTooltip = llmName;
         this.chatOptions = chatUtils.IFrameChatOptions;
 
         this.chatId = this.element.getAttribute('data-chatId');
@@ -61,17 +42,15 @@ export class BaseChatFrame {
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
             const chatMessage = this.chatHistory[messageIndex]
-
             let ownMessage = false;
             let userEmailAttribute = "";
             if (chatMessage.from === "User") {
                 ownMessage = true;
                 userEmailAttribute = `user-email="${chatMessage.name}"`;
             }
-            let isContext = chatMessage.commands?.replay?.isContext || "false";
 
             let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
-            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" isContext="${isContext}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
+            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
         }
         this.spaceConversation = this.stringHTML;
     }
@@ -370,8 +349,11 @@ export class BaseChatFrame {
         return trackedValuesResponse;
     }
 
-    async newConversation(target) {
-        const chatId = await chatUtils.createNewChat(this.spaceId, this.agentName);
+    async newChat(target) {
+        const chatId = await assistOS.UI.showModal('create-chat', {}, true);
+        if(!chatId){
+            return;
+        }
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
