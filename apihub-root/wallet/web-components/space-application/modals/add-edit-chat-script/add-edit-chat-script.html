@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <span>$$modalTitle</span>
+    <div class="close" data-local-action="closeModal" aria-label="Close">
+        <img class="close-icon" src="./wallet/assets/icons/x-mark.svg" alt="close">
+    </div>
+</div>
+<div class="modal-body">
+    <form class="script-form">
+        <div class="form-item">
+            <label class="form-label">Script Name</label>
+            <input type="text" id="script-name" class="form-input" placeholder="Enter script name"
+                   value="$$scriptName">
+        </div>
+        <div class="form-item">
+            <label class="form-label">Script Description</label>
+            <textarea id="script-description" class="form-input no-resize" rows="3"
+                      placeholder="Enter script description...">$$scriptDescription</textarea>
+        </div>
+        <div class="form-item">
+            <label class="form-label">Script SOPLang Code</label>
+            <textarea id="script-code" class="form-input no-resize" rows="15" placeholder="# Enter SOPLang code here...
+@variable := &quot;value&quot;
+@result := $variable">$$scriptCode</textarea>
+        </div>
+    </form>
+</div>
+<div class="modal-footer">
+    <button class="gray-button" data-local-action="closeModal">Cancel</button>
+    <button class="general-button" data-local-action="saveScript">Save</button>
+</div>
