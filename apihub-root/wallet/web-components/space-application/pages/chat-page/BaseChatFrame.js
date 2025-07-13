@@ -79,8 +79,8 @@ export class BaseChatFrame {
     async afterRender() {
         const constants = require("assistos").constants;
         const client = await chatModule.getClient(constants.CHAT_PLUGIN, assistOS.space.id);
-        let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
-        observableResponse.onProgress(async (response) => {
+        //let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
+       /* observableResponse.onProgress(async (response) => {
             console.log("Received response:", response);
             if(response.from === "User") {
                 this.chatHistory.push(response);
@@ -95,7 +95,7 @@ export class BaseChatFrame {
             }
             this.chatHistory.push(response);
             await this.displayAgentReply(response.id);
-        });
+        });*/
 
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");

@@ -15,7 +15,7 @@ chat-page {
 }
 
 #preview-content-header, #preview-content-footer {
-    width:100%;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -41,8 +41,8 @@ chat-page {
 }
 
 .assistant-header__button {
-    display:flex;
-    height:30px;
+    display: flex;
+    height: 30px;
     width: 30px;
     background: none;
     position: relative;
@@ -50,10 +50,11 @@ chat-page {
     float: right;
     cursor: pointer;
 }
-.assistant-header__button svg path{
-    fill:var(--text);
+
+.assistant-header__button svg path {
+    fill: var(--text);
     color: var(--text);
-    background:var(--text);
+    background: var(--text);
 }
 
 .hidden {
@@ -61,14 +62,14 @@ chat-page {
 }
 
 .assistant-header-navigation {
-    background:white;
+    background: white;
     display: flex;
-    flex-direction:column;
+    flex-direction: column;
     position: absolute;
     right: 20px;
     top: 30px;
     gap: 10px;
-    z-index:100;
+    z-index: 100;
 }
 
 #preview-content-left, #preview-content-right {
@@ -82,7 +83,7 @@ chat-page {
     height: 80px;
     width: 100%;
     justify-content: space-between;
-    background: var(--bg,white);
+    background: var(--bg, white);
     align-items: center;
     padding: 10px;
 }
@@ -126,9 +127,16 @@ chat-page {
 
 #preview-content {
     display: flex;
+    position: relative;
     gap: 10px;
     width: 100%;
     height: 100%;
+}
+
+.hamburger {
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 #preview-page-page-content {
@@ -282,11 +290,12 @@ chat-page {
     width: 100%;
 }
 
-.input-container svg path{
-    fill:var(--bg-secondary);
+.input-container svg path {
+    fill: var(--bg-secondary);
     color: var(--text);
-    background:var(--bg-secondary);
+    background: var(--bg-secondary);
 }
+
 .assistant-header {
     display: flex;
     align-items: center;
@@ -341,6 +350,7 @@ chat-page {
 .conversation::-webkit-scrollbar {
     display: none;
 }
+
 .conversation > :last-child {
     margin-block-end: 20px;
 }
@@ -471,4 +481,176 @@ chat-page {
 
 .settings-list-container > div:hover {
     background-color: #A5D0F430;
+}
+.hamburger-container {
+    display: none;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+.hamburger {
+    background-color: #f5f5f5;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #333;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.hamburger:hover {
+    background-color: #e0e0e0;
+}
+
+.menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 8px;
+    min-width: 250px;
+    margin-top: 10px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.menu.active {
+    display: block;
+}
+
+.menu ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu .preview-sidebar-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.menu .preview-sidebar-item:last-child {
+    border-bottom: none;
+}
+
+.menu .preview-sidebar-item:hover {
+    background-color: #f5f5f5;
+}
+
+.mobile-tabs {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+    z-index: 999;
+}
+
+.mobile-tabs-container {
+    display: flex;
+    height: 56px;
+}
+
+.mobile-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    border-top: 3px solid transparent;
+    cursor: pointer;
+    padding: 0;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.mobile-tab.active {
+    color: #3478C6;
+    border-top-color: #3478C6;
+    background: #f0f7ff;
+}
+
+.mobile-tab svg {
+    width: 20px;
+    height: 20px;
+}
+
+@media (max-width: 768px) {
+
+    .hamburger-container {
+        display: block;
+    }
+
+    #preview-content-sidebar {
+        display: none !important;
+    }
+
+    .with-sidebar {
+        width: 100% !important;
+        padding: 10px;
+    }
+
+    #preview-content-left {
+        width: 100% !important;
+    }
+    .mobile-tabs {
+        display: block;
+    }
+    #preview-content-header,
+    #preview-content-footer {
+        display: none !important;
+    }
+    #preview-content-left,
+    #preview-content-right {
+        display: none !important;
+        width: 100% !important;
+        height: calc(100vh - 56px) !important;
+    }
+
+    #preview-content-left.active,
+    #preview-content-right.active {
+        display: flex !important;
+    }
+
+    #preview-content {
+        height: calc(100vh - 136px);
+        padding-bottom: 56px;
+    }
+
+    .with-sidebar {
+        width: 100% !important;
+    }
+
+    #preview-content-sidebar {
+        display: none !important;
+    }
+
+    .mobile-tabs.hidden {
+        display: none !important;
+    }
+
+    body.single-section #preview-content {
+        height: calc(100vh - 80px);
+        padding-bottom: 0;
+    }
+
+    body.single-section #preview-content-left,
+    body.single-section #preview-content-right {
+        height: 100vh !important;
+    }
 }

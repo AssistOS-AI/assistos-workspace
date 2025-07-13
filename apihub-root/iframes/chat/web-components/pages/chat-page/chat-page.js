@@ -155,73 +155,28 @@ class BaseChatFrame {
         const menu = await WebAssistant.getMenu(this.spaceId);
 
 
-        const {assistantMenu, chatMenu, pageMenu} = menu.reduce((acc, value) => {
-            if (value.location === "page") {
-                acc.pageMenu.push(value);
-            } else if (value.location === "chat") {
-                acc.chatMenu.push(value);
-            } else {
-                acc.assistantMenu.push(value);
-            }
-            return acc;
-        }, {assistantMenu: [], chatMenu: [], pageMenu: []})
-        debugger
-
         this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
-
-        if (parseInt(this.page.chatSize) > 0) {
-            this.assistantMenu = assistantMenu.map((menuItem) => {
-                return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
-            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-            </div>`
-            }).join('');
-
-            this.chatMenu = chatMenu.map((menuItem) => {
-                return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
-            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-            </div>`
-            }).join('');
-        }
-
-        if (pageMenu.length > 0) {
-            this.previewContentSidebar = pageMenu.map((menuItem) => {
-                return ` <div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
+        this.pageName = this.page.name;
+        this.previewContentSidebar = menu.map((menuItem) => {
+            return ` <li class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
                         <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-                    </div>`
-            }).join('');
-            if (parseInt(this.page.chatSize) === 0) {
-                this.previewContentSidebar += assistantMenu.map((menuItem) => {
-                    return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
-            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-            </div>`
-                }).join('');
-                this.previewContentSidebar += this.chatMenu = chatMenu.map((menuItem) => {
-                    return `<div class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
-            <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-            </div>`
-                }).join('');
-            }
-            this.previewContentSidebar = `<div id="preview-content-sidebar">` + this.previewContentSidebar + `</div>`;
-            this.previewContentStateClass = "with-sidebar";
-        } else {
-            this.previewContentSidebar = "";
-            this.previewContentStateClass = "full-width";
-        }
+                    </li>`
+        }).join('');
+        this.previewContentSidebar += `<li class="preview-sidebar-item">
+           <span>Chats</span>
+           <span data-local-action="newChat">
+           New Chat
+            </span>
+        </li>`
+        this.previewContentStateClass = "with-sidebar";
 
         if (this.configuration.settings.themeId) {
             this.theme = await WebAssistant.getTheme(this.spaceId, this.configuration.settings.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
 
-        this.chatOptions = this.chatMenu + IFrameChatOptions;
+        this.chatOptions = IFrameChatOptions;
 
-        /*
-                try {
-                    this.chatMessages = await getChatMessages(this.spaceId, this.chatId) || [];
-                } catch (error) {
-                    this.errorState = true;
-                }
-        */
         this.chatMessages = [];
 
         this.chatActionButton = sendMessageActionButtonHTML
@@ -252,6 +207,36 @@ class BaseChatFrame {
     }
 
     async afterRender() {
+        const hamburgerButton = this.element.querySelector('.hamburger');
+        const menuElement = this.element.querySelector('.menu');
+
+        if (hamburgerButton && menuElement) {
+            hamburgerButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                menuElement.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (event) => {
+                if (!event.target.closest('.hamburger-container')) {
+                    menuElement.classList.remove('active');
+                }
+            });
+
+            const menuItems = menuElement.querySelectorAll('.preview-sidebar-item');
+            menuItems.forEach(item => {
+                item.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    menuElement.classList.remove('active');
+                    const action = item.getAttribute('data-local-action');
+                    if (action) {
+                        const [actionName, ...params] = action.split(' ');
+                        if (this[actionName]) {
+                            this[actionName](item, ...params);
+                        }
+                    }
+                });
+            });
+        }
         const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
         const [previewFooterApp, previewFooterName] = this.configuration.settings.footer.split('/');
 
@@ -277,8 +262,14 @@ class BaseChatFrame {
         if (this.previewLeftElement.style.width === '0%') {
             this.previewLeftElement.style.display = 'none';
         }
+        this.previewLeftElement.style.width = `${this.page.chatSize}%`;
+        this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
+        this.initMobileTabs();
 
-
+        // Re-init la resize
+        window.addEventListener('resize', () => {
+            this.initMobileTabs();
+        });
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
@@ -607,6 +598,62 @@ class BaseChatFrame {
     async openPreviewPage(eventTarget, pageId) {
         this.currentPageId = pageId
         this.invalidate();
+    }
+
+    initMobileTabs() {
+        if (window.innerWidth > 768) return;
+
+        const chatSection = this.element.querySelector('#preview-content-left');
+        const pageSection = this.element.querySelector('#preview-content-right');
+        const mobileTabs = this.element.querySelector('#mobile-tabs');
+
+        // Verifică dacă ambele secțiuni sunt vizibile
+        const chatWidth = parseInt(this.previewLeftElement.style.width) || 0;
+        const pageWidth = parseInt(this.previewRightElement.style.width) || 0;
+
+        if (chatWidth === 0 || pageWidth === 0) {
+            if (mobileTabs) mobileTabs.classList.add('hidden');
+            document.body.classList.add('single-section');
+
+            if (chatWidth > 0) {
+                chatSection.classList.add('active');
+            } else {
+                pageSection.classList.add('active');
+            }
+            return;
+        }
+
+        if (mobileTabs) mobileTabs.classList.remove('hidden');
+        document.body.classList.remove('single-section');
+
+        chatSection.classList.add('active');
+        pageSection.classList.remove('active');
+
+        const tabs = this.element.querySelectorAll('.mobile-tab');
+        tabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const tabName = tab.getAttribute('data-tab');
+                this.switchTab(tabName);
+            });
+        });
+    }
+
+    switchTab(tabName) {
+        const chatSection = this.element.querySelector('#preview-content-left');
+        const pageSection = this.element.querySelector('#preview-content-right');
+        const tabs = this.element.querySelectorAll('.mobile-tab');
+
+        tabs.forEach(tab => tab.classList.remove('active'));
+        chatSection.classList.remove('active');
+        pageSection.classList.remove('active');
+
+        if (tabName === 'chat') {
+            chatSection.classList.add('active');
+            tabs[0].classList.add('active');
+        } else {
+            pageSection.classList.add('active');
+            tabs[1].classList.add('active');
+        }
     }
 }
 
