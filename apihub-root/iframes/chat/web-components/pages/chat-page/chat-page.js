@@ -237,15 +237,32 @@ class BaseChatFrame {
                 });
             });
         }
-        const [previewWidgetApp, previewWidgetName] = this.configuration.settings.header.split('/');
-        const [previewFooterApp, previewFooterName] = this.configuration.settings.footer.split('/');
+        const pages = await WebAssistant.getPages(this.spaceId);
 
+        const headerPage = pages.find(page => page.role === "header");
+        const footerPage = pages.find(page => page.role === "footer");
+
+
+        if (headerPage) {
+            const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
+            await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
+            UI.createElement(previewWidgetName, '#preview-content-header');
+        }else{
+            this.element.querySelector('#preview-content-header')?.remove();
+
+        }
+        if (footerPage) {
+            const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
+            await UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
+            UI.createElement(previewFooterName, '#preview-content-footer');
+
+        }else{
+            this.element.querySelector('#preview-content-footer')?.remove();
+        }
         const [widgetApp, widgetName] = this.page.widget.split('/');
 
-        await Promise.all([UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName), UI.loadWidget(this.spaceId, widgetApp, widgetName)]);
+        await UI.loadWidget(this.spaceId, widgetApp, widgetName);
 
-        UI.createElement(previewWidgetName, '#preview-content-header');
-        UI.createElement(previewFooterName, '#preview-content-footer');
         UI.createElement(widgetName, '#preview-content-right', {
             generalSettings: this.page.generalSettings,
             data: this.page.data
@@ -266,7 +283,6 @@ class BaseChatFrame {
         this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
         this.initMobileTabs();
 
-        // Re-init la resize
         window.addEventListener('resize', () => {
             this.initMobileTabs();
         });
@@ -607,7 +623,6 @@ class BaseChatFrame {
         const pageSection = this.element.querySelector('#preview-content-right');
         const mobileTabs = this.element.querySelector('#mobile-tabs');
 
-        // Verifică dacă ambele secțiuni sunt vizibile
         const chatWidth = parseInt(this.previewLeftElement.style.width) || 0;
         const pageWidth = parseInt(this.previewRightElement.style.width) || 0;
 

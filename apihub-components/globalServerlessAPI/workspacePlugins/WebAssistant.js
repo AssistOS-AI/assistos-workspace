@@ -25,7 +25,11 @@ async function WebAssistant() {
             chatSize: "string",
             widget: "string",
             data: "string",
+            role: "string",
             generalSettings: "string",
+            css: "",
+            html: "",
+            js: ""
         },
         menuItem: {
             name: "string",
@@ -44,7 +48,7 @@ async function WebAssistant() {
     if (!await Persistence.hasWebAssistant("whatever")) {
         await Persistence.createWebAssistant({
             alias: "whatever",
-            scripts:[],
+            scripts: [],
             settings: {
                 header: "",
                 footer: "",
@@ -87,6 +91,7 @@ async function WebAssistant() {
     };
 
     self.updateTheme = async function (themeId, theme) {
+        await Persistence.setNameForTheme(themeId, theme.name);
         return await Persistence.updateTheme(themeId, theme);
 
     };
@@ -116,6 +121,7 @@ async function WebAssistant() {
     };
 
     self.updatePage = async function (pageId, page) {
+        await Persistence.setNameForPage(pageId, page.name);
         return await Persistence.updatePage(pageId, page);
     };
 
@@ -202,7 +208,7 @@ async function WebAssistant() {
 
     self.deleteScript = async (scriptId) => {
         const webAssistant = await self.getWebAssistant();
-        const index = webAssistant.scripts.findIndex(el=>el===scriptId);
+        const index = webAssistant.scripts.findIndex(el => el === scriptId);
         webAssistant.scripts.splice(index, 1);
         await ChatScript.deleteChatScript(scriptId);
         return await Persistence.updateWebAssistant("whatever", webAssistant);

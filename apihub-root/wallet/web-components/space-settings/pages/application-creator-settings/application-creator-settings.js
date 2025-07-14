@@ -18,25 +18,6 @@ export class ApplicationCreatorSettings {
         this.themeId = settings.themeId;
         this.agent = settings.agentId;
         this.knowledge = settings.knowledge;
-        this.header = settings.header;
-        this.footer = settings.footer;
-
-        const widgets = await applicationModule.getWidgets(this.spaceId);
-
-        this.widgets = Object.entries(
-            widgets)
-            .map(([app, widgets]) =>
-                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.header ? "selected" : ""}>${app}/${widget.name}</option>`))
-            .flat(2)
-            .join('');
-
-        this.footers = Object.entries(
-            widgets)
-            .map(([app, widgets]) =>
-                widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.footer ? "selected" : ""}>${app}/${widget.name}</option>`))
-            .flat(2)
-            .join('');
-
         const agents = await personalityModule.getAgents(this.spaceId)
         this.personalitiesOptions = (agents||[]).map(personality => `<option value="${personality.id}" ${this.agent === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
 
@@ -60,8 +41,6 @@ export class ApplicationCreatorSettings {
                 knowledge: knowledge,
                 themeId: formData.data.selectedTheme,
                 agentId: formData.data.selectedPersonality,
-                header: formData.data.selectedHeader,
-                footer: formData.data.selectedFooter,
                 chatIndications: chatIndications,
                 initialPrompt: initialPrompt
             }

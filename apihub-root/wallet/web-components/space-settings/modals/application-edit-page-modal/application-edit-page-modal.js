@@ -41,6 +41,11 @@ export class ApplicationEditPageModal {
                         <option value="50">Half of Screen</option>
                         <option value="100">Full Screen</option>
 `
+        this.roleOptions = `
+                        <option value="page" selected>Page</option>
+                        <option value="header">Header</option>
+                        <option value="footer" >Footer</option>
+`
     }
 
     async handleEditRender() {
@@ -51,6 +56,10 @@ export class ApplicationEditPageModal {
         this.data = pageData.data;
         this.chatSize = pageData.chatSize;
         this.generalSettings = pageData.generalSettings;
+        this.html = pageData.html || '';
+        this.css = pageData.css || '';
+        this.js = pageData.js || '';
+        this.role = pageData.role || 'page';
         this.modalName = "Edit Page";
         this.actionButton = "Save";
         this.actionFn = `editPage`;
@@ -62,6 +71,10 @@ export class ApplicationEditPageModal {
                         <option value="50" ${this.chatSize === "50" ? "selected" : ""}>Half of Screen</option>
                         <option value="100" ${this.chatSize === "100" ? "selected" : ""}>Full Screen</option>
 `
+        this.roleOptions = `<option value="page" ${this.role === "page" ? "selected" : ""}>Page</option>
+                        <option value="header" ${this.role === "header" ? "selected" : ""}>Header</option>
+                        <option value="footer" ${this.role === "footer" ? "selected" : ""}>Footer</option>
+`
     }
 
     async afterRender() {
@@ -70,9 +83,15 @@ export class ApplicationEditPageModal {
         if (!this.id) {
             this.dataStructure["General Settings"] = {value: ''};
             this.dataStructure["Data"] = {value: ''};
+            this.dataStructure["HTML"] = {value: ''};
+            this.dataStructure["CSS"] = {value: ''};
+            this.dataStructure["JS"] = {value: ''};
         }else{
             this.dataStructure["General Settings"] = {value: this.generalSettings};
             this.dataStructure["Data"] = {value: this.data};
+            this.dataStructure["HTML"] = {value: this.html};
+            this.dataStructure["CSS"] = {value: this.css};
+            this.dataStructure["JS"] = {value: this.js};
         }
         this.setupDataTabs();
 
@@ -158,6 +177,25 @@ export class ApplicationEditPageModal {
         const textarea = tabContent.querySelector('textarea');
         if (textarea) {
             textarea.value = this.dataStructure[key]?.value || '';
+
+            // Update placeholder based on the tab
+            switch(key) {
+                case "General Settings":
+                    textarea.placeholder = "Enter general settings...";
+                    break;
+                case "Data":
+                    textarea.placeholder = "Enter data...";
+                    break;
+                case "HTML":
+                    textarea.placeholder = "Enter HTML code...";
+                    break;
+                case "CSS":
+                    textarea.placeholder = "Enter CSS code...";
+                    break;
+                case "JS":
+                    textarea.placeholder = "Enter JavaScript code...";
+                    break;
+            }
         }
     }
 
@@ -170,13 +208,28 @@ export class ApplicationEditPageModal {
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
+            // Check if header or footer already exists
+            const selectedRole = formData.data["page-role"];
+            if (selectedRole === "header" || selectedRole === "footer") {
+                const existingPages = await WebAssistant.getPages(this.spaceId);
+                const existingRole = existingPages.find(page => page.role === selectedRole);
+                if (existingRole) {
+                    await assistOS.showToast(`A ${selectedRole} already exists. Only one ${selectedRole} is allowed.`, "error");
+                    return;
+                }
+            }
+
             const pageData = {
                 name: formData.data["page-name"],
                 widget: formData.data.selectedWidget,
                 chatSize: formData.data.chatSize,
                 description: description.value,
+                role: formData.data["page-role"],
                 generalSettings: this.dataStructure["General Settings"].value,
-                data: this.dataStructure["Data"].value
+                data: this.dataStructure["Data"].value,
+                html: this.dataStructure["HTML"].value,
+                css: this.dataStructure["CSS"].value,
+                js: this.dataStructure["JS"].value
             }
             await WebAssistant.addPage(this.spaceId, pageData);
             this.shouldInvalidate = true;
@@ -189,13 +242,31 @@ export class ApplicationEditPageModal {
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
+            // Check if changing to header or footer and one already exists
+            const selectedRole = formData.data["page-role"];
+            if (selectedRole === "header" || selectedRole === "footer") {
+                const existingPages = await WebAssistant.getPages(this.spaceId);
+                const existingRole = existingPages.find(page =>
+                    page.role === selectedRole && page.id !== this.id
+                );
+                if (existingRole) {
+                    this.closeModal();
+                    await assistOS.showToast(`A ${selectedRole} already exists. Only one ${selectedRole} is allowed.`, "error");
+                    return;
+                }
+            }
+
             const pageData = {
                 name: formData.data["page-name"],
                 widget: formData.data.selectedWidget,
                 chatSize: formData.data.chatSize,
                 description: description.value,
+                role: formData.data["page-role"],
                 generalSettings: this.dataStructure["General Settings"].value,
-                data: this.dataStructure["Data"].value
+                data: this.dataStructure["Data"].value,
+                html: this.dataStructure["HTML"].value,
+                css: this.dataStructure["CSS"].value,
+                js: this.dataStructure["JS"].value
             }
             await WebAssistant.updatePage(this.spaceId, this.id, pageData);
             this.shouldInvalidate = true;

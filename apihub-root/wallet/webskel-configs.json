@@ -817,12 +817,6 @@
             "type":"widget"
         },
         {
-            "name":"carousel-widget",
-            "directory":"widgets",
-            "presenterClassName":"ModalWidget",
-            "type":"widget"
-        },
-        {
             "name":"text-widget",
             "directory":"widgets",
             "presenterClassName":"TextWidget",

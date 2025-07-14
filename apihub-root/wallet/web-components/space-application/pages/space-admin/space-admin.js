@@ -1,4 +1,5 @@
 const spaceModule = assistOS.loadModule("space");
+
 export class SpaceAdmin {
     constructor(element, invalidate) {
         this.element = element;
@@ -18,7 +19,7 @@ export class SpaceAdmin {
 
     debounce(fn, delay) {
         let timeout;
-        return function(...args) {
+        return function (...args) {
             clearTimeout(timeout);
             timeout = setTimeout(() => fn.apply(this, args), delay);
         };
@@ -26,8 +27,8 @@ export class SpaceAdmin {
 
     async afterRender() {
         const searchInput = this.element.querySelector('#founderSearchInput');
-        const debouncedInputHandler = this.debounce(async function(e) {
-            if(e.target.value.length < 3 && e.target.value.length > 0) {
+        const debouncedInputHandler = this.debounce(async function (e) {
+            if (e.target.value.length < 3 && e.target.value.length > 0) {
                 return; // Ignore very short inputs
             }
             this.searchQuery = e.target.value;
@@ -44,7 +45,8 @@ export class SpaceAdmin {
         searchInput.addEventListener('input', debouncedInputHandler);
         this.changePaginationArrowsSpaces();
     }
-    changePaginationArrowsSpaces(){
+
+    changePaginationArrowsSpaces() {
         let nextButton = this.element.querySelector('.next-spaces');
         let prevButton = this.element.querySelector('.previous-spaces');
         if (this.paginationLimit > this.spaces.length) {
@@ -59,6 +61,7 @@ export class SpaceAdmin {
             prevButton.classList.remove('disabled');
         }
     }
+
     async changeSpacePage(button, direction) {
         if (direction === 'next') {
             this.spacesOffset += this.paginationLimit - 1;
@@ -74,13 +77,13 @@ export class SpaceAdmin {
     }
 
     generateSpacesList() {
-        if(this.spaces.length === 0) {
+        if (this.spaces.length === 0) {
             return `<div class="founder-empty-users">No spaces found</div>`;
         }
         let spacesList = "";
-        for(let i= 0; i < this.paginationLimit - 1; i++){
+        for (let i = 0; i < this.paginationLimit - 1; i++) {
             let space = this.spaces[i];
-            if(!space) {
+            if (!space) {
                 continue;
             }
             spacesList += `<admin-space-item data-space-id="${space.spaceGlobalId}" data-presenter="dashboard-space-item"></admin-space-item>`;
