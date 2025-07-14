@@ -15,6 +15,9 @@ list-item.disabled .list-item{
     pointer-events: none;
     background-color: var(--very-light-gray);
 }
+list-item[data-highlight="light-highlight"].selected{
+    background-color: var(--action-button-background);
+}
 .list-item {
     font-weight: 500;
     cursor: pointer;

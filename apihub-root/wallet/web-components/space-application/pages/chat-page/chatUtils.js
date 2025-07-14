@@ -43,8 +43,8 @@ const stopStreamActionButtonHTML = `
 
 const chatOptions = `
     <list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
-                        <input type="file" class="file-input hidden">
+    <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
+    <input type="file" class="file-input hidden">
 `
 const IFrameChatOptions = `
 <list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>

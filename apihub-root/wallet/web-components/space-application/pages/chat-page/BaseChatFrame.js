@@ -57,7 +57,7 @@ export class BaseChatFrame {
 
     async afterRender() {
         const constants = require("assistos").constants;
-        const client = await chatModule.getClient(constants.CHAT_PLUGIN, assistOS.space.id);
+        const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
         observableResponse.onProgress(async (response) => {
             console.log("Received response:", response);
@@ -358,6 +358,7 @@ export class BaseChatFrame {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
@@ -379,7 +380,6 @@ export class BaseChatFrame {
             spaceId: this.spaceId
         });
     }
-
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");
@@ -387,16 +387,34 @@ export class BaseChatFrame {
         controller.abort();
     }
 
-    showSettings(_target, mode) {
+    async showSettings(_target, mode) {
         if (mode === "off") {
+            let chats = await chatModule.getChats(assistOS.space.id);
+            let chatsHTML = "";
+            for(let chat of chats) {
+                let selectedClass = "";
+                if(this.chatId === chat.docId){
+                    selectedClass = "selected";
+                }
+                chatsHTML += `<list-item class="${selectedClass}" data-local-action="openChat ${chat.docId}" data-name="${chat.title}" data-highlight="light-highlight"></list-item>`;
+            }
             let target = this.element.querySelector(".settings-list-container");
             target.style.display = "flex";
+            target.insertAdjacentHTML("beforeend", chatsHTML);
             let controller = new AbortController();
             document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "showSettings on");
         }
     }
-
+    async openChat(button, chatId) {
+        if (IFrameContext) {
+            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            document.cookie = `chatId=${chatId}`;
+        }
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
+        this.element.setAttribute('data-chatId', chatId);
+        this.invalidate();
+    }
     async addToLocalContext(chatMessageId, chatItemElement) {
         await chatUtils.addToLocalContext(this.spaceId, this.chatId, chatMessageId);
         chatItemElement.classList.add('context-message');

@@ -400,10 +400,11 @@ input:checked + .slider .label-off {
     display: none;
     position: absolute;
     z-index: 1;
-    left:0;
-    bottom:0px;
+    left: 0;
+    bottom: 0;
     flex-direction: column;
     background-color: white;
+    max-width: 250px;
 }
 
 .settings-list-container > div {

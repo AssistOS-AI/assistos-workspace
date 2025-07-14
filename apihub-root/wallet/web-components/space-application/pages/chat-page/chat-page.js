@@ -1,3 +1,5 @@
+const chatModule = assistOS.loadModule("chat");
+
 const IFrameContext = window.assistOS === undefined;
 const UI = IFrameContext ? window.UI : window.assistOS.UI
 import {BaseChatFrame} from "./BaseChatFrame.js";
