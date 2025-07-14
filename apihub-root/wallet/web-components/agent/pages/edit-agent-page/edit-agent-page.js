@@ -1,7 +1,7 @@
 const agentModule = assistOS.loadModule("agent");
 const llmModule = assistOS.loadModule("llm");
 const constants = require("assistos").constants;
-
+import {generateId} from "../../../../imports.js"
 export class EditAgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -22,7 +22,7 @@ export class EditAgentPage {
         this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
         this.agentName = this.agent.name;
         const llms = await llmModule.getModels({spaceId: this.spaceId});
-        //this.llmTabs = this.getLlmTabsHtml(llms);
+        this.llmTabs = this.getLlmTabsHtml(llms);
         this.deleteAgentButton = `
         <div class="delete-agent" data-local-action="deleteAgent">
             <img src="./wallet/assets/icons/trash-can.svg" alt="Delete agent" class="delete-icon">
@@ -96,7 +96,44 @@ export class EditAgentPage {
         this.currentTab = tabName;
         this.invalidate();
     }
+    generateLlmSelectHtml(llmModels, llmType) {
+        return `<div class="form-item">
+            <label class="form-label" for="${llmType}LLM">${llmType} LLM</label>
+            <select class="form-input" name="${llmType}LLM" id="${llmType}LLM">
+                ${this.constructLlmOptions(llmModels, llmType)}
+            </select>
+        </div>`
+    }
+    constructLlmOptions(llmModels, llmType) {
+        const options = [];
+        const selectedLlm = this.agent.llms[llmType];
 
+        if (selectedLlm) {
+            // Selected option
+            const uniqueId = generateId(8);
+            options.push(`<option value="${uniqueId}" data-model="${selectedLlm.modelName}" data-provider="${selectedLlm.providerName}" selected>
+                            ${selectedLlm.modelName} ${selectedLlm.providerName}
+                        </option>`);
+        } else {
+            // Placeholder option
+            options.push(`<option value="" disabled selected hidden>Select ${llmType} Model</option>`);
+        }
+
+        // Other LLM options
+        llmModels.forEach(llm => {
+            const isSelected = selectedLlm &&
+                llm.modelName === selectedLlm.modelName &&
+                llm.providerName === selectedLlm.providerName;
+            if (!isSelected) {
+                const uniqueId = generateId(8);
+                options.push(
+                    `<option value="${uniqueId}" data-model="${llm.modelName}" data-provider="${llm.providerName}">
+                    ${llm.modelName} ${llm.providerName}
+                </option>`);
+            }
+        });
+        return options.join('');
+    }
     async saveChanges(_target) {
         await agentModule.updateAgent(assistOS.space.id, this.agent.id, this.agent);
         this.initialAgent = JSON.parse(JSON.stringify(this.agent));

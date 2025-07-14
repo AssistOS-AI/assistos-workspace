@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "create-chat",
+            "directory": "space-application",
+            "type": "modals",
+            "presenterClassName": "CreateChat"
+        },
+        {
             "name": "contents-table",
             "directory": "document",
             "type": "components",
@@ -34,28 +40,16 @@
             "presenterClassName": "CreateTicket"
         },
         {
-            "name": "processes-page",
+            "name": "chat-scripts-page",
             "directory": "space-application",
             "type": "pages",
-            "presenterClassName": "ProcessesPage"
+            "presenterClassName": "ChatScriptsPage"
         },
         {
-            "name": "processes-page",
+            "name": "add-edit-chat-script",
             "directory": "space-application",
             "type": "modals",
-            "presenterClassName": "ProcessesPage"
-        },
-        {
-            "name": "add-edit-process-modal",
-            "directory": "space-application",
-            "type": "modals",
-            "presenterClassName": "AddEditProcessModal"
-        },
-        {
-            "name": "delete-process-modal",
-            "directory": "space-application",
-            "type": "modals",
-            "presenterClassName": "DeleteProcessModal"
+            "presenterClassName": "AddEditChatScript"
         },
         {
             "name": "support-tickets",

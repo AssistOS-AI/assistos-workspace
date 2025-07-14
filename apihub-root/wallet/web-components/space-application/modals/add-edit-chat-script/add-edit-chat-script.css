@@ -1,0 +1,45 @@
+add-edit-chat-script {
+    display: block;
+    width: 856px;
+}
+
+.modal-body {
+    padding: 25px 25px 25px 30px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.script-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.no-resize {
+    resize: none;
+}
+
+#process-code {
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.input-invalid {
+    border: 1px solid #C80001 !important;
+    border-radius: 8px !important;
+}
+
+.modal-footer {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-end;
+    padding: 20px 40px;
+    border-top: 1px solid #EFEFEF;
+}

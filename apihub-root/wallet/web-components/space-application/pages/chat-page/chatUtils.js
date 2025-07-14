@@ -15,9 +15,7 @@ const addToLocalContext = async (spaceId, chatId, messageId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"});
     const response = await request(`/chats/context/${spaceId}/${chatId}/${messageId}`);
 }
-const createNewChat = async (spaceId, personalityId) => {
 
-};
 
 const resetChat = (spaceId, chatId) => {
     const request = generateRequest("POST", {"Content-Type": "application/json"})
@@ -44,19 +42,13 @@ const stopStreamActionButtonHTML = `
 `
 
 const chatOptions = `
-    <list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
-                        <input type="file" class="file-input hidden">
+    <list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
+    <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
+    <input type="file" class="file-input hidden">
 `
 const IFrameChatOptions = `
-<list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
-<list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="resetLocalContext" data-name="Reset Agent Context" data-highlight="light-highlight"></list-item>
-                        <list-item data-local-action="viewAgentContext" data-name="Edit Agent Context" data-highlight="light-highlight"></list-item>
-`
+<list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
+`;
 
 const waitForElement = (container, selector) => {
     return new Promise((resolve, reject) => {
@@ -86,7 +78,6 @@ const waitForElement = (container, selector) => {
 export default{
     generateRequest,
     addToLocalContext,
-    createNewChat,
     resetChat,
     resetChatContext,
     sendMessageActionButtonHTML,

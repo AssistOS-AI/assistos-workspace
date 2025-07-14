@@ -20,29 +20,10 @@ export class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.personalities = await agentModule.getAgents(this.spaceId);
-
-        let personalitiesHTML = "";
-        for (let personality of this.personalities) {
-            personalitiesHTML += `<list-item data-local-action="swapPersonality ${personality.id}" data-name="${personality.name}" data-highlight="light-highlight"></list-item>`;
-        }
-
-        this.personalitiesHTML = personalitiesHTML;
-
-        this.currentPersonalityName = this.agent.name;
-
+        this.agentName = this.agent.name;
         let llmName = this.agent.llms["chat"].modelName;
-        if (llmName) {
-            llmName = llmName.split("/")[0];
-        } else {
-            llmName = "No LLM Configured";
-        }
-        this.personalityLLM = llmName;
-
-        this.personalityLLM = this.personalityLLM.length > 17 ? this.personalityLLM.substring(0, 17) + "..." : this.personalityLLM;
-        this.spaceName = assistOS.space.name.length > 15 ? assistOS.space.name.substring(0, 15) + "..." : assistOS.space.name;
         this.spaceNameTooltip = assistOS.space.name;
-        this.personalityLLMTooltip = llmName;
+        this.agentLLMTooltip = llmName;
         this.chatOptions = chatUtils.IFrameChatOptions;
 
         this.chatId = this.element.getAttribute('data-chatId');
@@ -61,26 +42,24 @@ export class BaseChatFrame {
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
             const chatMessage = this.chatHistory[messageIndex]
-
             let ownMessage = false;
             let userEmailAttribute = "";
             if (chatMessage.from === "User") {
                 ownMessage = true;
                 userEmailAttribute = `user-email="${chatMessage.name}"`;
             }
-            let isContext = chatMessage.commands?.replay?.isContext || "false";
 
             let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
-            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" isContext="${isContext}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
+            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
         }
         this.spaceConversation = this.stringHTML;
     }
 
     async afterRender() {
         const constants = require("assistos").constants;
-        const client = await chatModule.getClient(constants.CHAT_PLUGIN, assistOS.space.id);
-        //let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
-       /* observableResponse.onProgress(async (response) => {
+        const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
+        let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
+        observableResponse.onProgress(async (response) => {
             console.log("Received response:", response);
             if(response.from === "User") {
                 this.chatHistory.push(response);
@@ -95,7 +74,7 @@ export class BaseChatFrame {
             }
             this.chatHistory.push(response);
             await this.displayAgentReply(response.id);
-        });*/
+        });
 
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
@@ -219,7 +198,7 @@ export class BaseChatFrame {
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
 
-        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage);
+        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
     }
 
     async displayUserReply(replyId, userEmail) {
@@ -370,12 +349,16 @@ export class BaseChatFrame {
         return trackedValuesResponse;
     }
 
-    async newConversation(target) {
-        const chatId = await chatUtils.createNewChat(this.spaceId, this.agentName);
+    async newChat(target) {
+        const chatId = await assistOS.UI.showModal('create-chat', {}, true);
+        if(!chatId){
+            return;
+        }
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
@@ -397,7 +380,6 @@ export class BaseChatFrame {
             spaceId: this.spaceId
         });
     }
-
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");
@@ -405,16 +387,34 @@ export class BaseChatFrame {
         controller.abort();
     }
 
-    showSettings(_target, mode) {
+    async showSettings(_target, mode) {
         if (mode === "off") {
+            let chats = await chatModule.getChats(assistOS.space.id);
+            let chatsHTML = "";
+            for(let chat of chats) {
+                let selectedClass = "";
+                if(this.chatId === chat.docId){
+                    selectedClass = "selected";
+                }
+                chatsHTML += `<list-item class="${selectedClass}" data-local-action="openChat ${chat.docId}" data-name="${chat.title}" data-highlight="light-highlight"></list-item>`;
+            }
             let target = this.element.querySelector(".settings-list-container");
             target.style.display = "flex";
+            target.insertAdjacentHTML("beforeend", chatsHTML);
             let controller = new AbortController();
             document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "showSettings on");
         }
     }
-
+    async openChat(button, chatId) {
+        if (IFrameContext) {
+            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+            document.cookie = `chatId=${chatId}`;
+        }
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
+        this.element.setAttribute('data-chatId', chatId);
+        this.invalidate();
+    }
     async addToLocalContext(chatMessageId, chatItemElement) {
         await chatUtils.addToLocalContext(this.spaceId, this.chatId, chatMessageId);
         chatItemElement.classList.add('context-message');
