@@ -198,7 +198,7 @@ export class BaseChatFrame {
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
 
-        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage);
+        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
     }
 
     async displayUserReply(replyId, userEmail) {
