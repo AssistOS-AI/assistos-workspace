@@ -100,17 +100,15 @@ export class ChatItem {
             this.chatBoxOptions = `<div class="chat-options other-message">
                 ${stopStreamButton}
                 ${copyReplyButton}
-                ${addToLocalContextButton}
-            </div>`
+            </div>`;
         } else {
             this.ownMessageClass = "user-box-container";
             this.messageTypeBox = "user-box";
             this.imageContainer = ``;
             this.chatBoxOptions = `<div class="chat-options myself-message">
                   ${copyReplyButton}
-                  ${addToLocalContextButton}
                   ${addToGlobalContextButton}
-            </div>`
+            </div>`;
         }
     }
 
