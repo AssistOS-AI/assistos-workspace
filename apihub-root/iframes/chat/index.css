@@ -17,3 +17,45 @@ body{
     width:100%;
     height:100%;
 }
+.form-input {
+    border-radius: 5px;
+    border: 0.5px solid var(--form-input-border);
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    color: var(--default-font-color);
+}
+.form-input:focus {
+    border-color: var(--strong-blue);
+    outline: 2px solid var(--strong-blue);
+    outline-offset: -2px;
+}
+.modal-header {
+    align-items: center;
+    padding: 15px 25px;
+    display: flex;
+    color: var(--header-font-color);
+    font-weight: 700;
+    font-size: 25px;
+    justify-content: space-between;
+    line-height: 100%;
+    letter-spacing: 0;
+    border-bottom: 1px solid var(--light-gray-border);
+}
+.modal-body {
+    padding: 25px 25px 25px 30px;
+}
+.modal-body textarea {
+    resize: none;
+    overflow-y: auto;
+}
+.form-label {
+    color: var(--default-font-color);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.form-item {
+    display: flex;
+    flex-direction: column;
+}

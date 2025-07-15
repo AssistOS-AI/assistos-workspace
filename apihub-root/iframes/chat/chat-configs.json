@@ -16,6 +16,11 @@
       "type": "components"
     },
     {
+      "name": "create-chat",
+      "type": "modals",
+      "presenterClassName": "CreateChat"
+    },
+    {
       "name": "view-context-modal",
       "type": "modals",
       "presenterClassName": "ViewContextModal"

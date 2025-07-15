@@ -1,0 +1,14 @@
+create-chat{
+    background:white;
+    display: block;
+    width: 500px;
+    height: 350px;
+}
+.modal-body{
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.create-chat{
+    width: fit-content;
+}

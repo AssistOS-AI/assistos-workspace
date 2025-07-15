@@ -15,7 +15,7 @@ const sidebarItems = [
 
     },
     {
-        name: "Pages",
+        name: "Widgets",
         icon:"<svg width=\"28\" height=\"29\" viewBox=\"0 0 28 29\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
             "<path d=\"M8.02344 3.17578H18.9185L24.0793 8.33658V22.6721\" stroke=\"#646464\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n" +
             "<path d=\"M3.4375 24.3933V8.33745C3.4375 7.88121 3.61874 7.44365 3.94135 7.12104C4.26397 6.79843 4.70152 6.61719 5.15777 6.61719H16.3418C16.5242 6.61735 16.6991 6.68995 16.8281 6.81903L20.4383 10.4293C20.5025 10.4934 20.5534 10.5696 20.588 10.6534C20.6227 10.7373 20.6404 10.8271 20.6402 10.9179V24.3933C20.6402 24.8495 20.4589 25.2871 20.1363 25.6097C19.8137 25.9323 19.3761 26.1135 18.9199 26.1135H5.15777C4.70152 26.1135 4.26397 25.9323 3.94135 25.6097C3.61874 25.2871 3.4375 24.8495 3.4375 24.3933Z\" stroke=\"#646464\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>\n" +
@@ -63,6 +63,9 @@ export class ApplicationCreatorSidebar {
     async beforeRender() {
         this.sidebarItems = sidebarItems.map(item => {
             this[`open${item.name}`] = function (eventTarget) {
+                if(item.name==="Widgets"){
+                    item.name="Pages"
+                }
                 this.applicationPagesRoot.innerHTML = `<application-creator-${item.name.toLowerCase()} data-presenter="application-creator-${item.name.toLowerCase()}"></application-creator-${item.name.toLowerCase()}>`;
             };
             return `<li class="application-sidebar-item" data-local-action="open${item.name}">${item.icon}<span>${item.name}</span></li>`;

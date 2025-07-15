@@ -1,4 +1,5 @@
 const WebAssistant = require("assistos").loadModule("webassistant", {});
+const chatModule = require("assistos").loadModule("chat",{});
 
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="sendMessage">
@@ -14,10 +15,13 @@ const stopStreamActionButtonHTML = `
 `
 let IFrameChatOptions = `
 <div class="preview-sidebar-item">
-<list-item data-local-action="newConversation" data-name="New Conversation" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
 </div>
 <div class="preview-sidebar-item">
-<list-item data-local-action="resetConversation" data-name="Reset Conversation" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="loadChat" data-name="Load Chat" data-highlight="light-highlight"></list-item>
+</div>
+<div class="preview-sidebar-item">
+<list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
 </div>
 `
 
@@ -154,20 +158,8 @@ class BaseChatFrame {
         }
         const menu = await WebAssistant.getMenu(this.spaceId);
 
-
         this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
         this.pageName = this.page.name;
-        this.previewContentSidebar = menu.map((menuItem) => {
-            return ` <li class="preview-sidebar-item" data-local-action="openPreviewPage ${menuItem.targetPage}">
-                        <span><img src="${menuItem.icon}" class="menu-icon-img" alt="Menu Icon"></span> <span class="menu-item-name">${menuItem.name}</span>
-                    </li>`
-        }).join('');
-        this.previewContentSidebar += `<li class="preview-sidebar-item">
-           <span>Chats</span>
-           <span data-local-action="newChat">
-           New Chat
-            </span>
-        </li>`
         this.previewContentStateClass = "with-sidebar";
 
         if (this.configuration.settings.themeId) {
@@ -185,7 +177,6 @@ class BaseChatFrame {
         for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
             const chatMessage = this.chatMessages[messageIndex]
             let role = getChatItemRole(chatMessage)
-
             if (!role) {
                 continue;
             }
@@ -207,36 +198,6 @@ class BaseChatFrame {
     }
 
     async afterRender() {
-        const hamburgerButton = this.element.querySelector('.hamburger');
-        const menuElement = this.element.querySelector('.menu');
-
-        if (hamburgerButton && menuElement) {
-            hamburgerButton.addEventListener('click', (event) => {
-                event.stopPropagation();
-                menuElement.classList.toggle('active');
-            });
-
-            document.addEventListener('click', (event) => {
-                if (!event.target.closest('.hamburger-container')) {
-                    menuElement.classList.remove('active');
-                }
-            });
-
-            const menuItems = menuElement.querySelectorAll('.preview-sidebar-item');
-            menuItems.forEach(item => {
-                item.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    menuElement.classList.remove('active');
-                    const action = item.getAttribute('data-local-action');
-                    if (action) {
-                        const [actionName, ...params] = action.split(' ');
-                        if (this[actionName]) {
-                            this[actionName](item, ...params);
-                        }
-                    }
-                });
-            });
-        }
         const pages = await WebAssistant.getPages(this.spaceId);
 
         const headerPage = pages.find(page => page.role === "header");
@@ -246,7 +207,13 @@ class BaseChatFrame {
         if (headerPage) {
             const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
             await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-            UI.createElement(previewWidgetName, '#preview-content-header');
+            UI.createElement(previewWidgetName, '#preview-content-header',{
+                generalSettings: headerPage.generalSettings,
+                data: headerPage.data,
+                html: headerPage.html,
+                css: headerPage.css,
+                js: headerPage.js
+            });
         }else{
             this.element.querySelector('#preview-content-header')?.remove();
 
@@ -254,8 +221,14 @@ class BaseChatFrame {
         if (footerPage) {
             const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
             await UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
-            UI.createElement(previewFooterName, '#preview-content-footer');
-
+            UI.createElement(previewFooterName, '#preview-content-footer',
+                {
+                    generalSettings: footerPage.generalSettings,
+                    data: footerPage.data,
+                    html: footerPage.html,
+                    css: footerPage.css,
+                    js: footerPage.js
+                });
         }else{
             this.element.querySelector('#preview-content-footer')?.remove();
         }
@@ -265,8 +238,12 @@ class BaseChatFrame {
 
         UI.createElement(widgetName, '#preview-content-right', {
             generalSettings: this.page.generalSettings,
-            data: this.page.data
+            data: this.page.data,
+            html: this.page.html,
+            css: this.page.css,
+            js: this.page.js
         });
+
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
 
@@ -281,10 +258,10 @@ class BaseChatFrame {
         }
         this.previewLeftElement.style.width = `${this.page.chatSize}%`;
         this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
-        this.initMobileTabs();
+        this.initMobileToggle();
 
         window.addEventListener('resize', () => {
-            this.initMobileTabs();
+            this.initMobileToggle();
         });
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
@@ -574,20 +551,21 @@ class BaseChatFrame {
         return trackedValuesResponse;
     }
 
-    async newConversation(target) {
-        const chatId = await createNewChat(this.spaceId, this.personalityId);
+    async newChat(target) {
+        const chatId = await UI.showModal('create-chat', {}, true);
+        if(!chatId){
+            return;
+        }
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
-        this.props.chatId = chatId;
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
+        this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
 
-    async resetConversation() {
-        await resetChat(this.spaceId, this.chatId);
-        this.invalidate();
-    }
+
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -616,18 +594,19 @@ class BaseChatFrame {
         this.invalidate();
     }
 
-    initMobileTabs() {
+    initMobileToggle() {
         if (window.innerWidth > 768) return;
 
         const chatSection = this.element.querySelector('#preview-content-left');
         const pageSection = this.element.querySelector('#preview-content-right');
-        const mobileTabs = this.element.querySelector('#mobile-tabs');
+        const toggleContainer = this.element.querySelector('.mobile-toggle-container');
+        const toggleSwitch = this.element.querySelector('#mobile-view-toggle');
 
         const chatWidth = parseInt(this.previewLeftElement.style.width) || 0;
         const pageWidth = parseInt(this.previewRightElement.style.width) || 0;
 
         if (chatWidth === 0 || pageWidth === 0) {
-            if (mobileTabs) mobileTabs.classList.add('hidden');
+            if (toggleContainer) toggleContainer.style.display = 'none';
             document.body.classList.add('single-section');
 
             if (chatWidth > 0) {
@@ -638,40 +617,26 @@ class BaseChatFrame {
             return;
         }
 
-        if (mobileTabs) mobileTabs.classList.remove('hidden');
         document.body.classList.remove('single-section');
 
-        chatSection.classList.add('active');
+     chatSection.classList.add('active');
         pageSection.classList.remove('active');
+        if (toggleSwitch) toggleSwitch.checked = false;
 
-        const tabs = this.element.querySelectorAll('.mobile-tab');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', (e) => {
-                const tabName = tab.getAttribute('data-tab');
-                this.switchTab(tabName);
+        if (toggleSwitch && !toggleSwitch.hasAttribute('data-listener-added')) {
+            toggleSwitch.setAttribute('data-listener-added', 'true');
+            toggleSwitch.addEventListener('change', (e) => {
+                if (e.target.checked) {
+                    chatSection.classList.remove('active');
+                    pageSection.classList.add('active');
+                } else {
+                    chatSection.classList.add('active');
+                    pageSection.classList.remove('active');
+                }
             });
-        });
-    }
-
-    switchTab(tabName) {
-        const chatSection = this.element.querySelector('#preview-content-left');
-        const pageSection = this.element.querySelector('#preview-content-right');
-        const tabs = this.element.querySelectorAll('.mobile-tab');
-
-        tabs.forEach(tab => tab.classList.remove('active'));
-        chatSection.classList.remove('active');
-        pageSection.classList.remove('active');
-
-        if (tabName === 'chat') {
-            chatSection.classList.add('active');
-            tabs[0].classList.add('active');
-        } else {
-            pageSection.classList.add('active');
-            tabs[1].classList.add('active');
         }
     }
 }
 
 let ChatPage = BaseChatFrame;
 export {ChatPage};
-

@@ -27,9 +27,8 @@ chat-page {
 .with-sidebar {
     display: flex;
     gap: 10px;
-    width: calc(100% - 150px);
+    width: 100%;
     height: 100%;
-    padding-block: 10px;
 }
 
 .full-width {
@@ -38,23 +37,6 @@ chat-page {
     width: 100%;
     padding-block: 10px;
     height: 100%;
-}
-
-.assistant-header__button {
-    display: flex;
-    height: 30px;
-    width: 30px;
-    background: none;
-    position: relative;
-    border: none;
-    float: right;
-    cursor: pointer;
-}
-
-.assistant-header__button svg path {
-    fill: var(--text);
-    color: var(--text);
-    background: var(--text);
 }
 
 .hidden {
@@ -128,7 +110,7 @@ chat-page {
 #preview-content {
     display: flex;
     position: relative;
-    gap: 10px;
+    flex-direction:column;
     width: 100%;
     height: 100%;
 }
@@ -463,6 +445,7 @@ chat-page {
     border-radius: 10px;
     box-shadow: 0px 1px 5.5px 0px #65666754;
     display: none;
+    width:100px;
     position: absolute;
     z-index: 1;
     left: 0;
@@ -482,28 +465,9 @@ chat-page {
 .settings-list-container > div:hover {
     background-color: #A5D0F430;
 }
-.hamburger-container {
-    display: none;
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    z-index: 1000;
-}
 
-.hamburger {
-    background-color: #f5f5f5;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #333;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
 
-.hamburger:hover {
-    background-color: #e0e0e0;
-}
+
 
 .menu {
     display: none;
@@ -547,53 +511,73 @@ chat-page {
     background-color: #f5f5f5;
 }
 
-.mobile-tabs {
+.mobile-toggle-container {
     display: none;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: #fff;
-    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
-    z-index: 999;
-}
-
-.mobile-tabs-container {
-    display: flex;
-    height: 56px;
-}
-
-.mobile-tab {
-    flex: 1;
-    display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 8px;
-    background: none;
-    border: none;
-    border-top: 3px solid transparent;
-    cursor: pointer;
-    padding: 0;
-    color: #666;
+    justify-content: flex-start;
+    gap: 15px;
+    padding: 4px;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.toggle-label {
     font-size: 14px;
     font-weight: 500;
+    color: #333;
 }
 
-.mobile-tab.active {
-    color: #3478C6;
-    border-top-color: #3478C6;
-    background: #f0f7ff;
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 24px;
 }
 
-.mobile-tab svg {
-    width: 20px;
-    height: 20px;
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 24px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 18px;
+    width: 18px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: #3478C6;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(26px);
 }
 
 @media (max-width: 768px) {
-
-    .hamburger-container {
-        display: block;
+    .mobile-toggle-container {
+        display: flex;
     }
 
     #preview-content-sidebar {
@@ -602,24 +586,22 @@ chat-page {
 
     .with-sidebar {
         width: 100% !important;
-        padding: 10px;
     }
 
     #preview-content-left {
         width: 100% !important;
     }
-    .mobile-tabs {
-        display: block;
-    }
+
     #preview-content-header,
     #preview-content-footer {
         display: none !important;
     }
+
     #preview-content-left,
     #preview-content-right {
         display: none !important;
         width: 100% !important;
-        height: calc(100vh - 56px) !important;
+        height: calc(100vh - 65px) !important;
     }
 
     #preview-content-left.active,
@@ -628,29 +610,33 @@ chat-page {
     }
 
     #preview-content {
-        height: calc(100vh - 136px);
-        padding-bottom: 56px;
+        height: 100vh;
+        padding-bottom: 0;
     }
 
     .with-sidebar {
         width: 100% !important;
+        height: calc(100% - 65px) !important;
     }
 
     #preview-content-sidebar {
         display: none !important;
     }
 
-    .mobile-tabs.hidden {
+    body.single-section .mobile-toggle-container {
         display: none !important;
     }
 
     body.single-section #preview-content {
-        height: calc(100vh - 80px);
-        padding-bottom: 0;
+        height: 100vh;
     }
 
     body.single-section #preview-content-left,
     body.single-section #preview-content-right {
         height: 100vh !important;
+    }
+
+    body.single-section .with-sidebar {
+        height: 100% !important;
     }
 }

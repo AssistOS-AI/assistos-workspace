@@ -29,6 +29,7 @@ const urlParams = new URLSearchParams(window.location.search);
 
 const personalityId = urlParams.get("personalityId") || null;
 const spaceId = urlParams.get("spaceId") || null;
+window.spaceId = spaceId;
 const pageId= urlParams.get("pageId") || null;
 const appContainer = document.getElementById('app-container');
 
@@ -102,7 +103,6 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 }
 
 let chatId = "demo-chat"
-//let chatId = await getChatId(spaceId, personalityId);
 const component = window.UI.createElement(
     'chat-page',
     appContainer,

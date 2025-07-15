@@ -24,7 +24,7 @@ export class ApplicationEditPageModal {
     }
 
     async handleAddRender() {
-        this.modalName = "Add Page";
+        this.modalName = "Add Widget";
         this.actionButton = "Add";
         this.actionFn = `addPage`;
         const widgets = await applicationModule.getWidgets(this.spaceId);
@@ -60,7 +60,7 @@ export class ApplicationEditPageModal {
         this.css = pageData.css || '';
         this.js = pageData.js || '';
         this.role = pageData.role || 'page';
-        this.modalName = "Edit Page";
+        this.modalName = "Edit Widget";
         this.actionButton = "Save";
         this.actionFn = `editPage`;
         const widgets = await applicationModule.getWidgets(this.spaceId);
@@ -71,7 +71,7 @@ export class ApplicationEditPageModal {
                         <option value="50" ${this.chatSize === "50" ? "selected" : ""}>Half of Screen</option>
                         <option value="100" ${this.chatSize === "100" ? "selected" : ""}>Full Screen</option>
 `
-        this.roleOptions = `<option value="page" ${this.role === "page" ? "selected" : ""}>Page</option>
+        this.roleOptions = `<option value="page" ${this.role === "page" ? "selected" : ""}>Widget</option>
                         <option value="header" ${this.role === "header" ? "selected" : ""}>Header</option>
                         <option value="footer" ${this.role === "footer" ? "selected" : ""}>Footer</option>
 `
@@ -178,7 +178,6 @@ export class ApplicationEditPageModal {
         if (textarea) {
             textarea.value = this.dataStructure[key]?.value || '';
 
-            // Update placeholder based on the tab
             switch(key) {
                 case "General Settings":
                     textarea.placeholder = "Enter general settings...";
@@ -242,7 +241,6 @@ export class ApplicationEditPageModal {
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
-            // Check if changing to header or footer and one already exists
             const selectedRole = formData.data["page-role"];
             if (selectedRole === "header" || selectedRole === "footer") {
                 const existingPages = await WebAssistant.getPages(this.spaceId);

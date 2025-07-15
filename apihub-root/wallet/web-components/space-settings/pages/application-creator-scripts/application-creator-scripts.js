@@ -39,7 +39,7 @@ export class ApplicationCreatorScripts {
 
     }
     async openAddProcessModal() {
-        const result = await assistOS.UI.showModal("add-edit-process-modal",
+        const result = await assistOS.UI.showModal("add-edit-chat-script",
             {webassistant:true}, true);
         if (result.addedProcess) {
             this.invalidate();
@@ -47,7 +47,7 @@ export class ApplicationCreatorScripts {
     }
 
     async editProcess(event, processId) {
-        const result = await assistOS.UI.showModal("add-edit-process-modal", {
+        const result = await assistOS.UI.showModal("add-edit-chat-script", {
             processid: processId,
             webassistant:true
         }, true);

@@ -5,7 +5,7 @@ export class ApplicationCreatorPages {
         this.element = element;
         this.invalidate = invalidate;
         this.spaceId = assistOS.space.id;
-        this.pageName = "Pages"
+        this.pageName = "Widgets"
         this.invalidate();
     }
 

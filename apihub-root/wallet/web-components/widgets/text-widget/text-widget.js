@@ -7,10 +7,18 @@ export class TextWidget {
     }
 
     async beforeRender() {
-        this.quoteText = this.props.data||"In the middle of difficulty lies opportunity. - Albert Einstein"
+        this.company = this.props.html;
+        if(this.props.js){
+            this["injectedFunction"] = eval(this.props.js);
+            this["injectedFunction"]();
+        }
+        if(this.props.css){
+            const style = document.createElement('style');
+            style.textContent = this.props.css;
+            document.head.appendChild(style);
+        }
     }
 
     async afterRender() {
-
     }
 }
