@@ -24,14 +24,6 @@ let IFrameChatOptions = `
 <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
 </div>
 `
-
-const getChatItemRole = function (chatItem) {
-    return chatItem.commands?.replay?.role || null;
-}
-const getChatItemUser = function (chatItem) {
-    return chatItem.commands?.replay?.name || null;
-}
-
 const waitForElement = (container, selector) => {
     return new Promise((resolve, reject) => {
         const element = container.querySelector(selector);
@@ -166,38 +158,54 @@ class BaseChatFrame {
             this.theme = await WebAssistant.getTheme(this.spaceId, this.configuration.settings.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
-
-        this.chatOptions = IFrameChatOptions;
-
-        this.chatMessages = [];
-
         this.chatActionButton = sendMessageActionButtonHTML
+        this.chatOptions = IFrameChatOptions;
+     /*   try {
+            this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
+        } catch (error) {
+            this.errorState = true;
+        }
+
+
 
         this.stringHTML = "";
-        for (let messageIndex = 0; messageIndex < this.chatMessages.length; messageIndex++) {
-            const chatMessage = this.chatMessages[messageIndex]
-            let role = getChatItemRole(chatMessage)
-            if (!role) {
-                continue;
-            }
-            const user = getChatItemUser(chatMessage);
+        for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
+            const chatMessage = this.chatHistory[messageIndex]
             let ownMessage = false;
-
-            if (user === this.userId || role === "user" && IFrameContext) {
+            let userEmailAttribute = "";
+            if (chatMessage.from === "User") {
                 ownMessage = true;
+                userEmailAttribute = `user-email="${chatMessage.name}"`;
             }
-            let isContext = chatMessage.commands?.replay?.isContext || "false";
 
-            if (messageIndex === this.chatMessages.length - 1) {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}" messageIndex="${messageIndex}" user="${user}" data-last-item="true" data-presenter="chat-item"></chat-item>`;
-            } else {
-                this.stringHTML += `<chat-item role="${role}"  spaceId="${this.spaceId}" ownMessage="${ownMessage}" id="${chatMessage.id}" isContext="${isContext}"  messageIndex="${messageIndex}" user="${user}" data-presenter="chat-item"></chat-item>`;
-            }
-        }
+            let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
+            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
+        }*/
         this.spaceConversation = this.stringHTML;
     }
 
     async afterRender() {
+        const constants = require("assistos").constants;
+        const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
+        let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
+
+        observableResponse.onProgress(async (response) => {
+            console.log("Received response:", response);
+            if(response.from === "User") {
+                this.chatHistory.push(response);
+                await this.displayUserReply(response.id, assistOS.user.email);
+                return;
+            }
+            let existingReply = this.chatHistory.find(msg => msg.id === response.id);
+            if(existingReply) {
+                let chatItem = this.conversation.querySelector(`chat-item[data-id="${response.id}"]`);
+                chatItem.webSkelPresenter.updateReply(response.message);
+                return;
+            }
+            this.chatHistory.push(response);
+            await this.displayAgentReply(response.id);
+        });
+
         const pages = await WebAssistant.getPages(this.spaceId);
 
         const headerPage = pages.find(page => page.role === "header");
@@ -288,30 +296,13 @@ class BaseChatFrame {
             form.height = Math.min(this.scrollHeight, maxHeight) + "px";
             form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
         });
-        this.initObservers();
-    }
-
-    async openAssistantMenu(target) {
-        this.element.querySelector('.assistant-header-navigation').classList.remove('hidden');
-        const closeAssistantMenu = function (event) {
-            if (!event.target.closest('.assistant-header-navigation') || event.target.closest('.assistant-header__button')) {
-                this.closeAssistantMenu();
-                document.removeEventListener("click", closeAssistantMenu);
-            }
-        }.bind(this);
-        document.addEventListener("click", closeAssistantMenu);
-    }
-
-    closeAssistantMenu(target) {
-        this.element.querySelector('.assistant-header-navigation').classList.add('hidden');
-        document.removeEventListener("click", this.closeAssistantMenu.bind(this, target));
     }
 
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();
             if (!event.ctrlKey) {
-                await this.sendMessage(form);
+                await this.chatInputUser(form);
                 this.userInput.scrollIntoView({behavior: "smooth", block: "end"});
             } else {
                 this.userInput.value += '\n';
@@ -320,235 +311,29 @@ class BaseChatFrame {
         }
     }
 
-    async sendQuery(spaceId, chatId, personalityId, prompt, responseContainerLocation) {
-        const controller = new AbortController();
-        const requestData = {prompt}
-        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            signal: controller.signal,
-            body: JSON.stringify(requestData),
-        });
-        if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-            return;
-        }
-        const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
-        const {
-            userMessageId,
-            responseMessageId
-        } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
-        return {userMessageId, responseMessageId};
-    };
-
-    async sendMessage(_target) {
+    async chatInputUser(_target) {
         let formInfo = await UI.extractFormInformation(_target);
-        const userRequestMessage = UI.customTrim(formInfo.data.input)
+        const userMessage = UI.customTrim(formInfo.data.input)
         formInfo.elements.input.element.value = "";
-        if (!userRequestMessage.trim()) {
+        if (!userMessage.trim()) {
             return;
         }
 
-        const nextReplyIndex = this.chatMessages.length;
-
-        this.chatMessages.push(
-            {
-                text: userRequestMessage,
-                commands: {
-                    replay: {
-                        role: "user",
-                        name: this.userId
-                    }
-                }
-            }
-        )
+        this.chatHistory.push({
+            text: userMessage,
+            role: "user",
+            name: this.userId
+        })
 
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
 
-        const element = await this.displayMessage("own", nextReplyIndex);
-        let messageId;
-
-        if (this.agentOn) {
-            const streamLocationElement = await this.createChatUnitResponse();
-            const {
-                userMessageId,
-                responseMessageId
-            } = await this.sendQuery(this.spaceId, this.chatId, this.personalityId, userRequestMessage, streamLocationElement)
-            element.setAttribute(`id`, userMessageId);
-            element.webSkelPresenter.invalidate();
-            const responseElement = streamLocationElement.closest('chat-item');
-            responseElement.setAttribute(`id`, responseMessageId);
-            responseElement.webSkelPresenter.invalidate();
-        } else {
-            messageId = await sendMessage(this.spaceId, this.chatId, userRequestMessage)
-            element.setAttribute(`id`, messageId);
-            element.webSkelPresenter.invalidate();
-        }
+        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
     }
 
-    async displayMessage(role, messageIndex) {
-        const messageHTML = `<chat-item role="${role}" spaceId="${this.spaceId}" ownMessage="true" messageIndex="${messageIndex}" data-presenter="chat-item" data-last-item="true" user="${this.userId}"></chat-item>`;
-        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
-        const lastReplyElement = this.conversation.lastElementChild;
-        await this.observerElement(lastReplyElement);
-        await waitForElement(lastReplyElement, '.message');
-        return lastReplyElement;
-    }
-
-    observerElement(element) {
-        if (this.observedElement) {
-            this.intersectionObserver.unobserve(this.observedElement);
-        }
-        this.observedElement = element;
-        if (element) {
-            this.intersectionObserver.observe(element);
-        }
-    }
-
-    async handleNewChatStreamedItem(element) {
-        this.observerElement(element);
-        const presenterElement = element.closest('chat-item');
-        this.ongoingStreams.set(presenterElement, true);
-        this.changeStopEndStreamButtonVisibility(true);
-    }
-
-    initObservers() {
-        this.intersectionObserver = new IntersectionObserver(entries => {
-            for (let entry of entries) {
-                if (entry.target === this.observedElement) {
-                    if (entry.intersectionRatio < 1) {
-                        if (!this.userHasScrolledManually) {
-                            this.conversation.scrollTo({
-                                top: this.conversation.scrollHeight + 100,
-                                behavior: 'auto'
-                            });
-                        }
-                    } else {
-                        this.userHasScrolledManually = false;
-                    }
-                }
-            }
-        }, {
-            root: this.conversation,
-            threshold: 1
-        });
-    }
-
-    changeStopEndStreamButtonVisibility(visible) {
-        this.chatActionButtonContainer.innerHTML = visible ? stopStreamActionButtonHTML : sendMessageActionButtonHTML
-    }
-
-    async addressEndStream(element) {
-        this.ongoingStreams.delete(element);
-
-        if (this.observedElement === element) {
-            this.intersectionObserver.unobserve(element);
-        }
-        if (this.ongoingStreams.size === 0) {
-            this.observerElement()
-            this.changeStopEndStreamButtonVisibility(false);
-        }
-    }
-
-    async stopLastStream(_target) {
-        const getLastStreamedElement = (mapList) => {
-            return Array.from(mapList.keys()).pop();
-        }
-        const lastStreamedElement = getLastStreamedElement(this.ongoingStreams);
-        if (lastStreamedElement) {
-            await lastStreamedElement.webSkelPresenter.stopResponseStream();
-        }
-    }
 
     getMessage(messageIndex) {
-        return this.chatMessages[messageIndex]
-    }
-
-    async createChatUnitResponse() {
-        this.chatMessages.push(
-            {
-                text: "Thinking ...",
-                commands: {
-                    replay: {
-                        role: "assistant",
-                        name: this.personalityId
-                    }
-                }
-            }
-        )
-
-        const streamContainerHTML = `<chat-item spaceId="${this.spaceId}" role="assistant" ownMessage="false" messageIndex="${this.chatMessages.length - 1}" data-presenter="chat-item" user="${this.personalityId}" data-last-item="true"/>`;
-        this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
-
-        return await waitForElement(this.conversation.lastElementChild, '.message');
-    }
-
-
-    async dataStreamContainer(response, responseContainerLocation, controller, trackedValuesSet) {
-        const responseContainerPresenter = responseContainerLocation.closest("[data-presenter]")?.webSkelPresenter;
-        const reader = response.body.getReader();
-        await responseContainerPresenter.handleStartStream(controller);
-
-        const decoder = new TextDecoder("utf-8");
-        let buffer = '';
-        let markdownBuffer = ''
-
-        const trackedValuesResponse = {}
-
-        const handleStreamEvent = (event, responseContainerLocation) => {
-            try {
-                if (event.data !== "") {
-                    const json = JSON.parse(event.data)
-                    if (json.sessionId) {
-                        this.sessionId = json.sessionId
-                    }
-                    if (json.message) {
-                        markdownBuffer += json.message
-                        responseContainerPresenter.message.text = markdownBuffer;
-                        responseContainerLocation.innerHTML = marked.parse(markdownBuffer)
-                    }
-                    for (const trackedVal of trackedValuesSet) {
-                        if (json[trackedVal]) {
-                            trackedValuesResponse[trackedVal] = json[trackedVal];
-                        }
-                    }
-                }
-            } catch (e) {
-                console.error('Failed to parse event data:', e)
-            }
-        }
-
-        while (true) {
-            const {done, value} = await reader.read();
-            if (done) {
-                await responseContainerPresenter.handleEndStream();
-                break;
-            }
-            buffer += decoder.decode(value, {stream: true});
-            let lines = buffer.split("\n");
-
-            buffer = lines.pop();
-
-            for (let line of lines) {
-                if (line.startsWith("event:")) {
-                    const eventName = line.replace("event:", "").trim();
-                    lines.shift();
-                    const eventData = lines.shift().replace("data:", "").trim();
-                    handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
-                } else if (line.startsWith("data:")) {
-                    const eventData = line.replace("data:", "").trim();
-                    handleStreamEvent({type: "message", data: eventData}, responseContainerLocation);
-                }
-            }
-        }
-        if (buffer.trim()) {
-            handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
-        }
-        return trackedValuesResponse;
+        return this.chatHistory[messageIndex]
     }
 
     async newChat(target) {
@@ -565,8 +350,6 @@ class BaseChatFrame {
         this.invalidate();
     }
 
-
-
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");
@@ -582,16 +365,6 @@ class BaseChatFrame {
             document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
             _target.setAttribute("data-local-action", "showSettings on");
         }
-    }
-
-    async addToLocalContext(chatMessageId, chatItemElement) {
-        await addToLocalContext(this.spaceId, this.chatId, chatMessageId);
-        chatItemElement.classList.add('context-message');
-    }
-
-    async openPreviewPage(eventTarget, pageId) {
-        this.currentPageId = pageId
-        this.invalidate();
     }
 
     initMobileToggle() {
