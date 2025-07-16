@@ -144,11 +144,20 @@ async function createDefaultAgent(request, spaceId){
     await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = `
+    @history new Table from message timestamp role
+    @context new Table from message timestamp role
     @currentUser := $arg1
     @agentName := $arg2
     @assistant new ChatAIAgent $agentName
     @user new ChatUserAgent $currentUser
-    @chat new Chat $user $assistant`;
+    @chat new Chat $history $context $user $assistant
+    
+    context.append system assistant.description "" system
+    @newReply macro reply ~history ~context
+        context.append $reply 
+        @res history.append $reply
+        return $res
+    end`;
     let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");
     let chatAPIClient = await getAPIClient(request, constants.CHAT_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
