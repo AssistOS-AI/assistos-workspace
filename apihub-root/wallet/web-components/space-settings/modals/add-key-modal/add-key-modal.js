@@ -16,13 +16,12 @@ export class AddKeyModal {
         if (formData.isValid) {
             let secretKey = formData.data.secretKey.toUpperCase()
             try {
-                await spaceModule.addSecret(assistOS.space.id, formData.data.name, secretKey, formData.data.value);
+                await spaceModule.addSecret(assistOS.space.id, secretKey, formData.data.value);
                 assistOS.UI.closeModal(_target, true);
             } catch (e) {
                 let jsonMessage = JSON.parse(e.message);
                 assistOS.showToast(jsonMessage.message, "error", 5000);
             }
-
         }
     }
 }

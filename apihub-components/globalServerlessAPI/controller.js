@@ -261,7 +261,7 @@ async function getSecretsMasked(request, response) {
 async function addSecret(request, response){
     const spaceId = request.params.spaceId;
     try {
-        await secrets.addSecret(spaceId, request.userId, request.body.name, request.body.secretKey, request.body.value);
+        await secrets.addSecret(spaceId, request.userId, request.body.secretKey, request.body.value);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
@@ -289,7 +289,7 @@ async function editSecret(request, response) {
     }
     const userId = request.userId;
     try {
-        await secrets.putSpaceKey(spaceId, userId, request.body.secretKey, request.body.name, request.body.value);
+        await secrets.putSpaceKey(spaceId, userId, request.body.secretKey, request.body.value);
         utils.sendResponse(response, 200, "application/json", {});
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {

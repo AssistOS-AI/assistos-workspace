@@ -14,7 +14,7 @@ async function createSpaceSecretsContainer(spaceId) {
 }
 
 
-async function putSpaceKey(spaceId, userId, secretKey, name, value) {
+async function putSpaceKey(spaceId, userId, secretKey, value) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const secrets = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
     if (!secrets.hasOwnProperty(secretKey)) {
@@ -42,7 +42,7 @@ async function addSpaceEnvVarsSecrets(spaceId, envVars) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     await secretsService.putSecretAsync(getContainerName(spaceId), spacePrivateSecretName, envVars)
 }
-async function addSecret(spaceId, userId, secretName, secretKey, value) {
+async function addSecret(spaceId, userId, secretKey, value) {
     const secretsService = await apihub.getSecretsServiceInstanceAsync(SERVER_ROOT_FOLDER);
     const spaceAPIKeyObject = secretsService.getSecretSync(getContainerName(spaceId), spaceSecretName)
 
