@@ -57,6 +57,7 @@ async function WebAssistant() {
                 agentId: "",
                 knowledge: "",
                 themeId: "",
+                isPublic:false,
             },
         });
     }

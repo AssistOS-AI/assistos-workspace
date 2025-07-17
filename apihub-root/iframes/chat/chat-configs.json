@@ -7,6 +7,11 @@
       "presenterClassName": "ChatPage"
     },
     {
+      "name": "login-page",
+      "type": "pages",
+        "presenterClassName": "LoginPage"
+    },
+    {
       "name": "chat-item",
       "type": "components",
       "presenterClassName": "ChatItem"

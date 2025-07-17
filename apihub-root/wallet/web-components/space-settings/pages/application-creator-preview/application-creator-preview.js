@@ -15,7 +15,7 @@ export class ApplicationCreatorPreview {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.pageName = "Preview"
+        this.pageName = "Launch"
         this.spaceId = assistOS.space.id;
         this.invalidate();
     }

@@ -1142,14 +1142,18 @@ input:focus {
 }
 
 .application-form-item-row {
+    display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    align-items:center;
+    gap:4px;
 }
 
 .width-25 {
     width: 25%;
 }
-
+#public{
+    margin:0;
+}
 .application-form-subitem {
     display: flex;
     flex-direction: column;

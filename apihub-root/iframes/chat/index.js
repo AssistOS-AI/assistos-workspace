@@ -1,4 +1,5 @@
 import UI from "../../WebSkel/webSkel.js";
+
 const UIConfigsPath = './chat-configs.json'
 window.UI = await UI.initialise(UIConfigsPath);
 
@@ -30,7 +31,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const personalityId = urlParams.get("personalityId") || null;
 const spaceId = urlParams.get("spaceId") || null;
 window.spaceId = spaceId;
-const pageId= urlParams.get("pageId") || null;
+const pageId = urlParams.get("pageId") || null;
 const appContainer = document.getElementById('app-container');
 
 let {userId = null} = parseCookies(document.cookie)
@@ -101,19 +102,82 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 
     return component;
 }
+assistOS.securityContext = {};
 
-let chatId = "demo-chat"
-const component = window.UI.createElement(
-    'chat-page',
-    appContainer,
-    {chatId, personalityId, spaceId, userId, pageId},
-    {
-        "data-chatId": chatId,
-        "data-personalityId": personalityId,
-        "data-spaceId": spaceId,
-        "data-userId": userId,
-        "data-pageId": pageId
-    },
-    true
-);
+async function checkAuthentication(email) {
+    const securityContext = {};
+    const userModule = require("assistos").loadModule("user", securityContext);
+    assistOS.user = await userModule.loadUser(email);
+    assistOS.globalRoles = await userModule.getGlobalRoles();
+    assistOS.securityContext= {
+        email:assistOS.user.email,
+        userId: assistOS.user.id,
+    }
+}
+
+let isAuthenticated = false;
+
+try {
+    const {email} = parseCookies(document.cookie);
+    if (email) {
+        await checkAuthentication(email);
+        isAuthenticated = true;
+    }
+} catch (error) {
+    isAuthenticated = false;
+}
+
+const webAssistantModule = require("assistos").loadModule("webassistant", {});
+const configuration = await webAssistantModule.getWebAssistant(spaceId);
+
+
+let {chatId} = parseCookies(document.cookie);
+const launchAssistant = async () => {
+    if(!chatId){
+        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+        const userChats = await chatModule.getChats(spaceId);
+        if (userChats.length > 0) {
+            chatId = userChats[0].id;
+        }else{
+            chatId = await chatModule.createUserChat(spaceId, userId, personalityId);
+        }
+    }
+    return window.UI.createElement(
+        'chat-page',
+        appContainer,
+        {chatId, personalityId, spaceId, userId, pageId},
+        {
+            "data-chatId": chatId,
+            "data-personalityId": personalityId,
+            "data-spaceId": spaceId,
+            "data-userId": userId,
+            "data-pageId": pageId
+        },
+        true
+    );
+}
+
+if (configuration.settings.isPublic) {
+    await launchAssistant();
+} else {
+    if (!isAuthenticated) {
+        window.UI.createElement(
+            'login-page',
+            appContainer,
+            {spaceId, userId},
+            {
+                "data-spaceId": spaceId,
+                "data-userId": userId
+            },
+            true
+        );
+    } else {
+        await launchAssistant();
+    }
+}
+
+
+
+
+
 
