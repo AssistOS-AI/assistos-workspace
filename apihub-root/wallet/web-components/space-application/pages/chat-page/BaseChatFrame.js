@@ -254,12 +254,12 @@ export class BaseChatFrame {
         }
 
         while (true) {
-            const {done, value} = await reader.read();
+            const { done, value } = await reader.read();
             if (done) {
                 await responseContainerPresenter.handleEndStream();
                 break;
             }
-            buffer += decoder.decode(value, {stream: true});
+            buffer += decoder.decode(value, { stream: true });
             let lines = buffer.split("\n");
 
             buffer = lines.pop();
@@ -272,19 +272,19 @@ export class BaseChatFrame {
                     handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
                 } else if (line.startsWith("data:")) {
                     const eventData = line.replace("data:", "").trim();
-                    handleStreamEvent({type: "message", data: eventData}, responseContainerLocation);
+                    handleStreamEvent({ type: "message", data: eventData }, responseContainerLocation);
                 }
             }
         }
         if (buffer.trim()) {
-            handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
+            handleStreamEvent({ type: "message", data: buffer.trim() }, responseContainerLocation);
         }
         return trackedValuesResponse;
     }
 
     async newChat(target) {
         const chatId = await assistOS.UI.showModal('create-chat', {}, true);
-        if(!chatId){
+        if (!chatId) {
             return;
         }
         if (IFrameContext) {
@@ -316,7 +316,7 @@ export class BaseChatFrame {
             let chatsHTML = "";
             for(let chat of chats) {
                 let selectedClass = "";
-                if(this.chatId === chat.docId){
+                if (this.chatId === chat.docId) {
                     selectedClass = "selected";
                 }
                 chatsHTML += `<list-item class="${selectedClass}" data-local-action="openChat ${chat.docId}" data-name="${chat.title}" data-highlight="light-highlight"></list-item>`;
@@ -325,7 +325,7 @@ export class BaseChatFrame {
             target.style.display = "flex";
             target.insertAdjacentHTML("beforeend", chatsHTML);
             let controller = new AbortController();
-            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
+            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), { signal: controller.signal });
             _target.setAttribute("data-local-action", "showSettings on");
         }
     }
