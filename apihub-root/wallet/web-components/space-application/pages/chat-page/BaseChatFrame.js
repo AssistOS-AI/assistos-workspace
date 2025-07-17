@@ -74,6 +74,11 @@ export class BaseChatFrame {
             await this.displayAgentReply(reply.truid);
         });
 
+        observableResponse.onError(async (error) => {
+            console.error('Error in chat:', error);
+            console.log(error.code);
+        });
+
         this.conversation = this.element.querySelector(".conversation");
         this.userInput = this.element.querySelector("#input");
         this.form = this.element.querySelector(".chat-input-container");
