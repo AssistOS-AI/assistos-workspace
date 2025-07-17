@@ -153,9 +153,10 @@ async function createDefaultAgent(request, spaceId){
     @chat new Chat $history $context $user $assistant
     
     context.append system assistant.description "" system
-    @newReply macro reply ~history ~context
-        context.append $reply 
+    @newReply macro reply ~history ~context ~chat
         @res history.append $reply
+        context.upsert $res
+        chat.notify $res
         return $res
     end`;
     let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");

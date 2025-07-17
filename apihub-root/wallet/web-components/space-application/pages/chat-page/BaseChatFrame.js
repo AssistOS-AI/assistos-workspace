@@ -1,4 +1,3 @@
-const agentModule = assistOS.loadModule("agent");
 const chatModule = assistOS.loadModule("chat");
 const IFrameContext = window.assistOS === undefined;
 const UI = IFrameContext ? window.UI : window.assistOS.UI
@@ -50,7 +49,7 @@ export class BaseChatFrame {
             }
 
             let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
-            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
+            this.stringHTML += `<chat-item data-id="${chatMessage.truid}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
         }
         this.spaceConversation = this.stringHTML;
     }
@@ -59,21 +58,25 @@ export class BaseChatFrame {
         const constants = require("assistos").constants;
         const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
-        observableResponse.onProgress(async (response) => {
-            console.log("Received response:", response);
-            if(response.from === "User") {
-                this.chatHistory.push(response);
-                await this.displayUserReply(response.id, assistOS.user.email);
+        observableResponse.onProgress(async (reply) => {
+            if(reply.from === "User") {
+                this.chatHistory.push(reply);
+                await this.displayUserReply(reply.truid, assistOS.user.email);
                 return;
             }
-            let existingReply = this.chatHistory.find(msg => msg.id === response.id);
+            let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if(existingReply) {
-               let chatItem = this.conversation.querySelector(`chat-item[data-id="${response.id}"]`);
-                chatItem.webSkelPresenter.updateReply(response.message);
+               let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
+                chatItem.webSkelPresenter.updateReply(reply.message);
                return;
             }
-            this.chatHistory.push(response);
-            await this.displayAgentReply(response.id);
+            this.chatHistory.push(reply);
+            await this.displayAgentReply(reply.truid);
+        });
+
+        observableResponse.onError(async (error) => {
+            console.error('Error in chat:', error);
+            console.log(error.code);
         });
 
         this.conversation = this.element.querySelector(".conversation");
@@ -103,47 +106,6 @@ export class BaseChatFrame {
         this.initObservers();
     }
 
-    async handleChatEvent(eventData) {
-        const handleMessageEvent = async (eventData) => {
-            const action = eventData.action;
-            switch (action) {
-                case 'add':
-                    this.invalidate();
-                    break;
-                case 'reset':
-                    this.invalidate();
-                    break;
-                default:
-            }
-        }
-        const handleContextEvent = async (eventData) => {
-            const action = eventData.action;
-            switch (action) {
-                case 'add':
-                    this.invalidate();
-                    break;
-                case 'delete':
-                    this.invalidate();
-                    break;
-                case 'update':
-                    break;
-                case 'reset':
-                    this.invalidate();
-                default:
-            }
-        }
-        switch (eventData.type) {
-            case "messages":
-                await handleMessageEvent(eventData);
-                break;
-            case "context":
-                await handleContextEvent(eventData);
-                break;
-            default:
-                console.warn("Unknown event type", eventData.type);
-        }
-    }
-
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -157,33 +119,9 @@ export class BaseChatFrame {
         }
     }
 
-    async sendQuery(spaceId, chatId, personalityId, prompt, responseContainerLocation) {
-        const controller = new AbortController();
-        const requestData = {prompt}
-        const response = await fetch(`/chats/query/${spaceId}/${personalityId}/${chatId}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            signal: controller.signal,
-            body: JSON.stringify(requestData),
-        });
-        if (!response.ok) {
-            const error = await response.json();
-            alert(`Error: ${error.message}`);
-            return;
-        }
-        const valuesTracked = new Set(["userMessageId", "responseMessageId"]);
-        const {
-            userMessageId,
-            responseMessageId
-        } = await this.dataStreamContainer(response, responseContainerLocation, controller, valuesTracked);
-        return {userMessageId, responseMessageId};
-    };
-
     async chatInputUser(_target) {
         let formInfo = await UI.extractFormInformation(_target);
-        const userMessage = UI.customTrim(formInfo.data.input)
+        let userMessage = UI.customTrim(formInfo.data.input)
         formInfo.elements.input.element.value = "";
         if (!userMessage.trim()) {
             return;
@@ -197,7 +135,7 @@ export class BaseChatFrame {
 
         this.userInput.style.height = "auto"
         this.form.style.height = "auto"
-
+        userMessage = assistOS.UI.unsanitize(userMessage);
         await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
     }
 
@@ -276,7 +214,7 @@ export class BaseChatFrame {
     }
 
     getReply(replyId) {
-        return this.chatHistory.find(message => message.id === replyId) || null;
+        return this.chatHistory.find(message => message.truid === replyId) || null;
     }
 
     async displayAgentReply(replyId) {
@@ -321,12 +259,12 @@ export class BaseChatFrame {
         }
 
         while (true) {
-            const {done, value} = await reader.read();
+            const { done, value } = await reader.read();
             if (done) {
                 await responseContainerPresenter.handleEndStream();
                 break;
             }
-            buffer += decoder.decode(value, {stream: true});
+            buffer += decoder.decode(value, { stream: true });
             let lines = buffer.split("\n");
 
             buffer = lines.pop();
@@ -339,19 +277,19 @@ export class BaseChatFrame {
                     handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
                 } else if (line.startsWith("data:")) {
                     const eventData = line.replace("data:", "").trim();
-                    handleStreamEvent({type: "message", data: eventData}, responseContainerLocation);
+                    handleStreamEvent({ type: "message", data: eventData }, responseContainerLocation);
                 }
             }
         }
         if (buffer.trim()) {
-            handleStreamEvent({type: "message", data: buffer.trim()}, responseContainerLocation);
+            handleStreamEvent({ type: "message", data: buffer.trim() }, responseContainerLocation);
         }
         return trackedValuesResponse;
     }
 
     async newChat(target) {
         const chatId = await assistOS.UI.showModal('create-chat', {}, true);
-        if(!chatId){
+        if (!chatId) {
             return;
         }
         if (IFrameContext) {
@@ -360,16 +298,6 @@ export class BaseChatFrame {
         }
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
         this.element.setAttribute('data-chatId', chatId);
-        this.invalidate();
-    }
-
-    async resetConversation() {
-        await chatUtils.resetChat(this.spaceId, this.chatId);
-        this.invalidate();
-    }
-
-    async resetLocalContext(target) {
-        await chatUtils.resetChatContext(this.spaceId, this.chatId);
         this.invalidate();
     }
 
@@ -389,11 +317,11 @@ export class BaseChatFrame {
 
     async showSettings(_target, mode) {
         if (mode === "off") {
-            let chats = await chatModule.getChats(assistOS.space.id);
+            let chats = await chatModule.getChats(this.spaceId);
             let chatsHTML = "";
             for(let chat of chats) {
                 let selectedClass = "";
-                if(this.chatId === chat.docId){
+                if (this.chatId === chat.docId) {
                     selectedClass = "selected";
                 }
                 chatsHTML += `<list-item class="${selectedClass}" data-local-action="openChat ${chat.docId}" data-name="${chat.title}" data-highlight="light-highlight"></list-item>`;
@@ -402,7 +330,7 @@ export class BaseChatFrame {
             target.style.display = "flex";
             target.insertAdjacentHTML("beforeend", chatsHTML);
             let controller = new AbortController();
-            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
+            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), { signal: controller.signal });
             _target.setAttribute("data-local-action", "showSettings on");
         }
     }
@@ -415,10 +343,7 @@ export class BaseChatFrame {
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
-    async addToLocalContext(chatMessageId, chatItemElement) {
-        await chatUtils.addToLocalContext(this.spaceId, this.chatId, chatMessageId);
-        chatItemElement.classList.add('context-message');
-    }
+
     async afterUnload() {
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
     }
