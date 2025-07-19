@@ -4,18 +4,19 @@ export class ApplicationCreatorMenu {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.assistantId = assistOS.space.webAssistant
         this.spaceId = assistOS.space.id;
         this.pageName = "Menu";
         this.invalidate();
     }
 
     async beforeRender() {
-        const pages = await WebAssistant.getPages(this.spaceId);
+        const pages = await WebAssistant.getPages(this.spaceId,this.assistantId);
         if (pages.length > 0) {
-            let menu = await WebAssistant.getMenu(this.spaceId);
+            let menu = await WebAssistant.getMenu(this.spaceId,this.assistantId);
             const menuRows = [];
             for (const menuItem of menu) {
-                const page = await WebAssistant.getPage(this.spaceId, menuItem.targetPage);
+                const page = await WebAssistant.getPage(this.spaceId,this.assistantId, menuItem.targetPage);
                 menuRows.push(`<div class="page-item">
                 <span class="page-item-name">${menuItem.name}</span>
                 <div class="page-item-application">
@@ -90,7 +91,7 @@ export class ApplicationCreatorMenu {
     }
 
     async deleteMenuItem(eventTarget, id) {
-        await WebAssistant.deleteMenuItem(this.spaceId, id);
+        await WebAssistant.deleteMenuItem(this.spaceId, this.assistantId,id);
         this.invalidate();
     }
 }

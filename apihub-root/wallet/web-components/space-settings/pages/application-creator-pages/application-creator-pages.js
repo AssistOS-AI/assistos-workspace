@@ -4,13 +4,14 @@ export class ApplicationCreatorPages {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
+        this.assistantId = assistOS.space.webAssistant
         this.spaceId = assistOS.space.id;
         this.pageName = "Widgets"
         this.invalidate();
     }
 
     async beforeRender() {
-        const pages = await WebAssistant.getPages(this.spaceId);
+        const pages = await WebAssistant.getPages(this.spaceId,this.assistantId);
 
         this.pageRows = (pages||[]).map(pageData =>
             `<div class="page-item">
@@ -92,7 +93,7 @@ export class ApplicationCreatorPages {
     }
 
     async deletePage(evenTarget,id) {
-            await WebAssistant.deletePage(this.spaceId,id);
+            await WebAssistant.deletePage(this.spaceId,this.assistantId,id);
             this.invalidate();
     }
 }

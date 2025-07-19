@@ -10,6 +10,7 @@ export class ApplicationEditPageModal {
         this.element = element;
         this.invalidate = invalidate;
         this.invalidate();
+        this.assistantId = assistOS.space.webAssistant;
         this.id = this.element.getAttribute('data-id');
         this.spaceId = assistOS.space.id;
         this.dataStructure = {};
@@ -49,7 +50,7 @@ export class ApplicationEditPageModal {
     }
 
     async handleEditRender() {
-        const pageData = await WebAssistant.getPage(this.spaceId, this.id);
+        const pageData = await WebAssistant.getPage(this.spaceId,  this.assistantId , this.id);
         this.name = pageData.name;
         this.description = pageData.description;
         this.widget = pageData.widget;
@@ -210,7 +211,7 @@ export class ApplicationEditPageModal {
             // Check if header or footer already exists
             const selectedRole = formData.data["page-role"];
             if (selectedRole === "header" || selectedRole === "footer") {
-                const existingPages = await WebAssistant.getPages(this.spaceId);
+                const existingPages = await WebAssistant.getPages(this.spaceId,  this.assistantId );
                 const existingRole = existingPages.find(page => page.role === selectedRole);
                 if (existingRole) {
                     await assistOS.showToast(`A ${selectedRole} already exists. Only one ${selectedRole} is allowed.`, "error");
@@ -230,7 +231,7 @@ export class ApplicationEditPageModal {
                 css: this.dataStructure["CSS"].value,
                 js: this.dataStructure["JS"].value
             }
-            await WebAssistant.addPage(this.spaceId, pageData);
+            await WebAssistant.addPage(this.spaceId,  this.assistantId , pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }
@@ -243,7 +244,7 @@ export class ApplicationEditPageModal {
         if (formData.isValid) {
             const selectedRole = formData.data["page-role"];
             if (selectedRole === "header" || selectedRole === "footer") {
-                const existingPages = await WebAssistant.getPages(this.spaceId);
+                const existingPages = await WebAssistant.getPages(this.spaceId,  this.assistantId );
                 const existingRole = existingPages.find(page =>
                     page.role === selectedRole && page.id !== this.id
                 );
@@ -266,7 +267,7 @@ export class ApplicationEditPageModal {
                 css: this.dataStructure["CSS"].value,
                 js: this.dataStructure["JS"].value
             }
-            await WebAssistant.updatePage(this.spaceId, this.id, pageData);
+            await WebAssistant.updatePage(this.spaceId,  this.assistantId , this.id, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }

@@ -1,1 +1,30 @@
-q32
+<section class="component_container">
+    <section class="header">
+        <label class="title">Log In</label>
+    </section>
+    <section class="content">
+        <section class="auth_container">
+            <section class="auth_type_wrapper">
+                <section class="email_wrapper">
+                    <section class="input_container">
+                        <label class="form-label">Email</label>
+                        <input class="form-input email_input" type="email" name="email" autocomplete="email" placeholder="Email address">
+                        <button class="submit_email_button auth-button" data-local-action="submitEmail">Get Access Code
+                        </button>
+                    </section>
+                </section>
+            </section>
+            <section class="code_submit_section">
+                <div class="code_sent_message">
+                    An email containing your authentication code has been sent to your email address. Please
+                    check your inbox and spam.
+                </div>
+                <section class="input_container">
+                    <input class="code_input form-input" type="text" placeholder="Code from email">
+                    <button class="submit_code_button auth-button" data-local-action="login">Log in
+                    </button>
+                </section>
+            </section>
+        </section>
+    </section>
+</section>

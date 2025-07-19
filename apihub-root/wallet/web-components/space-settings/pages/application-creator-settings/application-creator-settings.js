@@ -8,11 +8,12 @@ export class ApplicationCreatorSettings {
         this.invalidate = invalidate;
         this.pageName = "Settings"
         this.spaceId = assistOS.space.id
+        this.webAssistantId = assistOS.space.webAssistant;
         this.invalidate();
     }
 
     async beforeRender() {
-        const settings = await WebAssistant.getSettings(this.spaceId);
+        const settings = await WebAssistant.getSettings(this.spaceId, this.webAssistantId);
         this.initialPrompt = settings.initialPrompt;
         this.chatIndications = settings.chatIndications;
         this.themeId = settings.themeId;
@@ -22,7 +23,7 @@ export class ApplicationCreatorSettings {
         const agents = await personalityModule.getAgents(this.spaceId)
         this.personalitiesOptions = (agents || []).map(personality => `<option value="${personality.id}" ${this.agent === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
 
-        const themes = await WebAssistant.getThemes(this.spaceId);
+        const themes = await WebAssistant.getThemes(this.spaceId,this.webAssistantId);
         this.themes = (themes || []).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
     }
 
@@ -47,7 +48,7 @@ export class ApplicationCreatorSettings {
                 initialPrompt: initialPrompt,
                 isPublic
             }
-            await WebAssistant.updateSettings(this.spaceId, settingsData);
+            await WebAssistant.updateSettings(this.spaceId,this.webAssistantId, settingsData);
             this.invalidate();
         }
     }

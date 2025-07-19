@@ -52,6 +52,7 @@ export class ApplicationEditThemeModal {
         this.invalidate = invalidate;
         this.id = this.element.getAttribute('data-id');
         this.spaceId = assistOS.space.id;
+        this.assistantId = assistOS.space.webAssistant;
         this.themeVars = {};
         this.customCSS = '';
         this.modalName = '';
@@ -79,7 +80,7 @@ export class ApplicationEditThemeModal {
         this.actionButton = "Save";
         this.actionFn = `editPage`;
 
-        const themeData = await WebAssistant.getTheme(this.spaceId, this.id);
+        const themeData = await WebAssistant.getTheme(this.spaceId, this.assistantId , this.id);
         this.name = themeData.name;
         this.description = themeData.description;
         this.themeVars = themeData.variables;
@@ -195,9 +196,9 @@ export class ApplicationEditThemeModal {
                 css: this.element.querySelector('#custom-css').value
             };
             if (mode === 'add') {
-                await WebAssistant.addTheme(this.spaceId, themeData);
+                await WebAssistant.addTheme(this.spaceId, this.assistantId , themeData);
             } else {
-                await WebAssistant.updateTheme(this.spaceId, this.id, themeData);
+                await WebAssistant.updateTheme(this.spaceId, this.assistantId , this.id, themeData);
             }
             await this.closeModal();
         }

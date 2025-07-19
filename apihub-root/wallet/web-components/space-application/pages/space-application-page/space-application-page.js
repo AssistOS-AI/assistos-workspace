@@ -7,7 +7,7 @@ export class SpaceApplicationPage {
     }
 
     async beforeRender() {
-        this.chatPage = `<chat-page data-chatId="${assistOS.space.currentChatId}" data-agent-name="${assistOS.agent.name}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.email}" data-presenter="chat-page" tabindex="0"></chat-page>`
+        //this.chatPage = `<chat-page data-chatId="${assistOS.space.currentChatId}" data-agent-name="${assistOS.agent.name}" data-spaceId="${assistOS.space.id}" data-userId="${assistOS.user.email}" data-presenter="chat-page" tabindex="0"></chat-page>`
     }
 
     async afterRender() {

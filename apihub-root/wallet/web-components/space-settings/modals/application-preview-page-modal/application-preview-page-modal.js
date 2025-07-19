@@ -1,20 +1,14 @@
-const getChatIframe = (spaceId, personalityId, pageID) => {
+const getChatIframe = (spaceId, webAssistantId, pageID) => {
     return `<iframe
         id="chatFrame"
-        src="http://localhost:8080/iframes/chat?spaceId=${spaceId}&personalityId=${personalityId}&pageId=${pageID}"
+        src="http://localhost:8080/iframes/chat?space=${spaceId}&webAssistant=${webAssistantId}&page=${pageID}"
         allowfullscreen
         style="width: 100%; height: 100%; border: none;"
         loading="lazy">
     </iframe>`
 }
 
-const spaceModule = assistOS.loadModule("space");
 const WebAssistant = assistOS.loadModule("webassistant");
-
-const getConfiguration = async function (spaceId) {
-    const configuration = await WebAssistant.getWebAssistant(spaceId)
-    return configuration;
-}
 
 export class ApplicationPreviewPageModal {
     constructor(element, invalidate, props) {
@@ -23,13 +17,14 @@ export class ApplicationPreviewPageModal {
         this.props = props;
         this.modalName = "Preview"
         this.spaceId = assistOS.space.id;
+        this.assistantId = assistOS.space.webAssistant;
         this.pageId = this.element.getAttribute('data-id');
         this.invalidate();
     }
 
     async beforeRender() {
-        this.configuration = await getConfiguration(this.spaceId);
-        this.iframe = getChatIframe(this.spaceId,this.configuration.settings.personality, this.pageId);
+        this.configuration = await WebAssistant.getWebAssistant( this.spaceId , this.assistantId)
+        this.iframe = getChatIframe(this.spaceId,this.assistantId,this.pageId);
     }
 
     async afterRender() {

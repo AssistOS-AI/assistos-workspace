@@ -6,6 +6,7 @@ export class ApplicationEditMenuModal {
         this.invalidate = invalidate;
         this.invalidate();
         this.spaceId = assistOS.space.id;
+        this.assistantId = assistOS.space.webAssistant;
         this.id = this.element.getAttribute('data-id');
         this.pageId = this.element.getAttribute('data-pageId');
         this.invalidate();
@@ -23,7 +24,7 @@ export class ApplicationEditMenuModal {
         this.modalName = "Add Menu Item";
         this.actionButton = "Add";
         this.actionFn = `addMenuItem`;
-        const pages = await WebAssistant.getPages(this.spaceId);
+        const pages = await WebAssistant.getPages(this.spaceId, this.assistantId );
         this.targetPages = `
         <select class="application-form-item-select" data-name="targetPage" id="targetPage">
         ${(pages||[]).map(pageData => {
@@ -44,8 +45,8 @@ export class ApplicationEditMenuModal {
         this.modalName = "Edit Menu Item";
         this.actionButton = "Save";
         this.actionFn = `editMenuItem`;
-        const pages = await WebAssistant.getPages(this.spaceId);
-        const menuItem= await WebAssistant.getMenuItem(this.spaceId,  this.id);
+        const pages = await WebAssistant.getPages(this.spaceId, this.assistantId );
+        const menuItem= await WebAssistant.getMenuItem(this.spaceId, this.assistantId ,  this.id);
         debugger
         this.targetPages = `
     <select class="application-form-item-select" data-name="targetPage" id="targetPage">
@@ -118,7 +119,7 @@ export class ApplicationEditMenuModal {
                 targetPage: this.lastTargetPage,
                 location: locationSelect.value
             }
-            await WebAssistant.addMenuItem(this.spaceId,menuItem)
+            await WebAssistant.addMenuItem(this.spaceId, this.assistantId ,menuItem)
             this.shouldInvalidate = true;
             await this.closeModal();
         }
@@ -139,7 +140,7 @@ export class ApplicationEditMenuModal {
                 targetPage: this.lastTargetPage,
                 location: locationSelect.value
             }
-            await WebAssistant.updateMenuItem(this.spaceId,this.id, menuItem)
+            await WebAssistant.updateMenuItem(this.spaceId, this.assistantId ,this.id, menuItem)
             this.shouldInvalidate = true;
             await this.closeModal();
         }

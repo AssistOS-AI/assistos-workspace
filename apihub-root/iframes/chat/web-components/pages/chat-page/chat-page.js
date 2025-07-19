@@ -1,5 +1,5 @@
-const WebAssistant = require("assistos").loadModule("webassistant", {});
-const chatModule = require("assistos").loadModule("chat",{});
+const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext );
+const chatModule = require("assistos").loadModule("chat",assistOS.securityContext );
 
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="sendMessage">
@@ -138,24 +138,25 @@ class BaseChatFrame {
         this.spaceId = this.props.spaceId;
         this.userId = this.props.userId;
         this.pageId = this.props.pageId;
+        this.webAssistantId = this.props.webAssistantId;
 
         if (!this.currentPageId) {
-            this.configuration = await WebAssistant.getWebAssistant(this.spaceId);
+            this.configuration = await WebAssistant.getWebAssistant(this.spaceId,this.webAssistantId);
             if (!this.pageId) {
-                const homePageConfig = await WebAssistant.getHomePage(this.spaceId);
+                const homePageConfig = await WebAssistant.getHomePage(this.spaceId,this.webAssistantId);
                 this.currentPageId = homePageConfig.id;
             } else {
                 this.currentPageId = this.pageId;
             }
         }
-        const menu = await WebAssistant.getMenu(this.spaceId);
+        const menu = await WebAssistant.getMenu(this.spaceId,this.webAssistantId);
 
-        this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
+        this.page = await WebAssistant.getPage(this.spaceId,this.webAssistantId, this.currentPageId);
         this.pageName = this.page.name;
         this.previewContentStateClass = "with-sidebar";
 
         if (this.configuration.settings.themeId) {
-            this.theme = await WebAssistant.getTheme(this.spaceId, this.configuration.settings.themeId);
+            this.theme = await WebAssistant.getTheme(this.spaceId,this.webAssistantId, this.configuration.settings.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
@@ -206,7 +207,7 @@ class BaseChatFrame {
             await this.displayAgentReply(response.id);
         });
 
-        const pages = await WebAssistant.getPages(this.spaceId);
+        const pages = await WebAssistant.getPages(this.spaceId,this.webAssistantId);
 
         const headerPage = pages.find(page => page.role === "header");
         const footerPage = pages.find(page => page.role === "footer");

@@ -2,7 +2,6 @@ import UI from "../../WebSkel/webSkel.js";
 
 const UIConfigsPath = './chat-configs.json'
 window.UI = await UI.initialise(UIConfigsPath);
-
 const parseCookies = function (cookieString) {
     return cookieString
         .split('; ')
@@ -25,25 +24,6 @@ const generateId = () => {
     return `${Math.random().toString(36).substr(2, 9)}-${Date.now()}`;
 };
 
-
-const urlParams = new URLSearchParams(window.location.search);
-
-const personalityId = urlParams.get("personalityId") || null;
-const spaceId = urlParams.get("spaceId") || null;
-window.spaceId = spaceId;
-const pageId = urlParams.get("pageId") || null;
-const appContainer = document.getElementById('app-container');
-
-let {userId = null} = parseCookies(document.cookie)
-
-if (userId === null) {
-    userId = generateId()
-    setCookie("userId", userId)
-}
-
-
-const cacheNames = await caches.keys();
-await Promise.all(cacheNames.map(name => caches.delete(name)));
 
 async function getChatId(spaceId, personalityId) {
     let chatId = urlParams.get("chatId") || null;
@@ -102,18 +82,74 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 
     return component;
 }
-assistOS.securityContext = {};
+
+const webAssistantModule = require("assistos").loadModule("webassistant", {});
+
+const cacheNames = await caches.keys();
+await Promise.all(cacheNames.map(name => caches.delete(name)));
 
 async function checkAuthentication(email) {
     const securityContext = {};
     const userModule = require("assistos").loadModule("user", securityContext);
     assistOS.user = await userModule.loadUser(email);
     assistOS.globalRoles = await userModule.getGlobalRoles();
-    assistOS.securityContext= {
-        email:assistOS.user.email,
+    assistOS.securityContext = {
+        email: assistOS.user.email,
         userId: assistOS.user.id,
     }
 }
+
+const launchAssistant = async (chatId) => {
+    if (!chatId) {
+        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+        const userChats = await chatModule.getChats(spaceId);
+        if (userChats.length > 0) {
+            chatId = userChats[0].id;
+        } else {
+            chatId = await chatModule.createUserChat(spaceId, userId);
+        }
+    }
+    return window.UI.createElement(
+        'chat-page',
+        appContainer,
+        {chatId, webAssistantId,spaceId, userId, pageId},
+        {
+            "data-chatId": chatId,
+            "data-webAssistantId":webAssistantId,
+            "data-spaceId": spaceId,
+            "data-userId": userId,
+            "data-pageId": pageId
+        },
+        true
+    );
+}
+
+
+window.assistOS = {};
+assistOS.securityContext = {};
+
+let {chatId} = parseCookies(document.cookie);
+
+const urlParams = new URLSearchParams(window.location.search);
+
+const webAssistantId = urlParams.get("webAssistant");
+const spaceId = urlParams.get("space");
+
+window.spaceId = spaceId;
+const pageId = urlParams.get("page") || null;
+const appContainer = document.getElementById('app-container');
+
+
+let {userId = null} = parseCookies(document.cookie)
+
+if (userId === null) {
+    userId = generateId()
+    setCookie("userId", userId)
+}
+
+
+const requiresAuth = await webAssistantModule.requiresAuth(spaceId, webAssistantId)
+
 
 let isAuthenticated = false;
 
@@ -127,54 +163,32 @@ try {
     isAuthenticated = false;
 }
 
-const webAssistantModule = require("assistos").loadModule("webassistant", {});
-const configuration = await webAssistantModule.getWebAssistant(spaceId);
-
-
-let {chatId} = parseCookies(document.cookie);
-const launchAssistant = async () => {
-    if(!chatId){
-        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-        const userChats = await chatModule.getChats(spaceId);
-        if (userChats.length > 0) {
-            chatId = userChats[0].id;
-        }else{
-            chatId = await chatModule.createUserChat(spaceId, userId, personalityId);
-        }
-    }
-    return window.UI.createElement(
-        'chat-page',
-        appContainer,
-        {chatId, personalityId, spaceId, userId, pageId},
-        {
-            "data-chatId": chatId,
-            "data-personalityId": personalityId,
-            "data-spaceId": spaceId,
-            "data-userId": userId,
-            "data-pageId": pageId
-        },
-        true
-    );
-}
-
-if (configuration.settings.isPublic) {
-    await launchAssistant();
-} else {
+if (requiresAuth) {
     if (!isAuthenticated) {
+        let resAuth;
+        const authenticatedPromise = new Promise((resolve, reject) => {
+            resAuth = resolve;
+        })
         window.UI.createElement(
             'login-page',
             appContainer,
-            {spaceId, userId},
+            {spaceId, userId, resAuth},
             {
                 "data-spaceId": spaceId,
                 "data-userId": userId
             },
             true
         );
+        await authenticatedPromise;
+        await launchAssistant();
     } else {
         await launchAssistant();
     }
+} else {
+    await launchAssistant();
 }
+
+
 
 
 

@@ -5,12 +5,13 @@ export class ApplicationCreatorThemes {
         this.element = element;
         this.invalidate = invalidate;
         this.pageName = "Themes"
+        this.assistantId = assistOS.space.webAssistant
         this.spaceId = assistOS.space.id;
         this.invalidate();
     }
 
     async beforeRender() {
-        const themes = await WebAssistant.getThemes(this.spaceId);
+        const themes = await WebAssistant.getThemes(this.spaceId,this.assistantId);
         this.themeRows = (themes||[]).map(themeData => {
             return `
             <div class="page-item">
@@ -85,7 +86,7 @@ export class ApplicationCreatorThemes {
     }
 
     async deleteTheme(target, id) {
-        await WebAssistant.deleteTheme(this.spaceId, id);
+        await WebAssistant.deleteTheme(this.spaceId,this.assistantId, id);
         this.invalidate();
     }
 }

@@ -4,13 +4,14 @@ export class ApplicationCreatorScripts {
     constructor(element, invalidate, props) {
         this.element = element;
         this.props = props;
+        this.assistantId = assistOS.space.webAssistant
         this.invalidate = invalidate;
         this.pageName ="Scripts"
         this.invalidate();
     }
 
     async beforeRender() {
-        this.processes = await WebAssistant.getScripts(assistOS.space.id);
+        this.processes = await WebAssistant.getScripts(assistOS.space.id,this.assistantId);
         this.processRows = this.processes.map(process => `
             <tr>
                 <td class="main-cell">
