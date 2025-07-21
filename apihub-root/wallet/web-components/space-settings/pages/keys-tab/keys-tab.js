@@ -62,6 +62,8 @@ export class KeysTab {
         try {
             await spaceModule.restartServerless(assistOS.space.id);
             assistOS.showToast("Serverless restarted successfully", "success", 5000);
+            let chatPage = document.querySelector("chat-page");
+            chatPage.webSkelPresenter.invalidate();
         } catch (e) {
             let jsonMessage = JSON.parse(e.message);
             assistOS.showToast(jsonMessage.message, "error", 5000);
