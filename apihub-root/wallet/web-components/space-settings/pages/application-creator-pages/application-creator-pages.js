@@ -13,6 +13,7 @@ export class ApplicationCreatorPages {
     async beforeRender() {
         const pages = await WebAssistant.getPages(this.spaceId,this.assistantId);
 
+
         this.pageRows = (pages||[]).map(pageData =>
             `<div class="page-item">
             <span class="page-item-name">${pageData.name}</span>

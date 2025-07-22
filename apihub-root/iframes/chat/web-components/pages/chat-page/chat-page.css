@@ -76,7 +76,7 @@ chat-page {
     background: var(--bg) url("../../../../../wallet/assets/images/chat-background.png") repeat;
     position: relative;
     width: 100%;
-    height: calc(100% - 80px);
+    height: 100%;
 }
 
 .middle-content::after {
@@ -513,14 +513,13 @@ chat-page {
 
 .mobile-toggle-container {
     display: none;
+    position:absolute;
+    right:12px;
+    top : 12px;
     align-items: center;
     justify-content: flex-start;
     gap: 15px;
     padding: 4px;
-    background: #fff;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    position: sticky;
-    top: 0;
     z-index: 100;
 }
 

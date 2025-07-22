@@ -17,6 +17,13 @@
                       placeholder="Enter script description...">$$scriptDescription</textarea>
         </div>
         <div class="form-item">
+            <label class="form-label" for="widget">Widget</label>
+            <select id="widget" class="form-input">
+                <option value="" disabled>Select a widget</option>
+                $$widgetOptions
+            </select>
+        </div>
+        <div class="form-item">
             <label class="form-label">Script SOPLang Code</label>
             <textarea id="script-code" class="form-input no-resize" rows="15" placeholder="# Enter SOPLang code here...
 @variable := &quot;value&quot;

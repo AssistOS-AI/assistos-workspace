@@ -63,8 +63,11 @@ export class LoginPage {
 
     async login() {
         try {
-            await userModule.emailLogin(this.email, this.element.querySelector(".code_input").value)
-            localStorage.setItem("userEmail", this.email)
+           const loginResult =  await userModule.emailLogin(this.email, this.element.querySelector(".code_input").value)
+            assistOS.securityContext = {
+                email: loginResult.email,
+                userId: loginResult.userId
+            }
             this.element.remove();
             this.resAuth();
         } catch (err) {

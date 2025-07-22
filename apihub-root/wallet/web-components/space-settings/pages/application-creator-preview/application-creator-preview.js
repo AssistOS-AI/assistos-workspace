@@ -21,7 +21,6 @@ export class ApplicationCreatorPreview {
     }
     async beforeRender() {
         this.configuration = await WebAssistant.getWebAssistant(this.spaceId,assistOS.space.webAssistant);
-        debugger
         this.content = getChatIframe(this.spaceId, this.configuration.id);
     }
 

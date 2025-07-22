@@ -15,10 +15,10 @@ const stopStreamActionButtonHTML = `
 `
 let IFrameChatOptions = `
 <div class="preview-sidebar-item">
-<list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="newChat" data-name="New Room" data-highlight="light-highlight"></list-item>
 </div>
 <div class="preview-sidebar-item">
-<list-item data-local-action="loadChat" data-name="Load Chat" data-highlight="light-highlight"></list-item>
+<list-item data-local-action="loadChat" data-name="Load Room" data-highlight="light-highlight"></list-item>
 </div>
 <div class="preview-sidebar-item">
 <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
@@ -225,7 +225,6 @@ class BaseChatFrame {
             });
         }else{
             this.element.querySelector('#preview-content-header')?.remove();
-
         }
         if (footerPage) {
             const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
