@@ -317,21 +317,17 @@ export class BaseChatFrame {
 
     async showSettings(_target, mode) {
         if (mode === "off") {
-            let chats = await chatModule.getChats(this.spaceId);
-            let chatsHTML = "";
-            for(let chat of chats) {
-                let selectedClass = "";
-                if (this.chatId === chat.docId) {
-                    selectedClass = "selected";
-                }
-                chatsHTML += `<list-item class="${selectedClass}" data-local-action="openChat ${chat.docId}" data-name="${chat.title}" data-highlight="light-highlight"></list-item>`;
-            }
             let target = this.element.querySelector(".settings-list-container");
             target.style.display = "flex";
-            target.insertAdjacentHTML("beforeend", chatsHTML);
             let controller = new AbortController();
             document.addEventListener("click", this.hideSettings.bind(this, controller, _target), { signal: controller.signal });
             _target.setAttribute("data-local-action", "showSettings on");
+        }
+    }
+    async loadChat(){
+        let chatId = await assistOS.UI.showModal("select-chat", {"chat-id": this.chatId}, true);
+        if(chatId){
+            await this.openChat("", chatId);
         }
     }
     async openChat(button, chatId) {

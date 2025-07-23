@@ -4,8 +4,14 @@
     "services": [],
     "components": [
         {
+            "name": "select-chat",
+            "directory": "chat",
+            "type": "modals",
+            "presenterClassName": "SelectChat"
+        },
+        {
             "name": "create-chat",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "modals",
             "presenterClassName": "CreateChat"
         },
@@ -47,7 +53,7 @@
         },
         {
             "name": "add-edit-chat-script",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "modals",
             "presenterClassName": "AddEditChatScript"
         },
@@ -417,25 +423,25 @@
         },
         {
             "name": "chats-page",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "pages",
             "presenterClassName": "ChatsPage"
         },
         {
             "name": "add-chat-modal-extended",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "modals",
             "presenterClassName": "AddChatModalExtended"
         },
         {
             "name": "edit-chat-modal",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "modals",
             "presenterClassName": "EditChatModal"
         },
         {
             "name": "delete-chat-modal",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "modals",
             "presenterClassName": "DeleteChatModal"
         },
@@ -635,7 +641,7 @@
         },
         {
             "name": "chat-page",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "pages",
             "presenterClassName": "ChatPage"
         },
@@ -680,7 +686,7 @@
         },
         {
             "name": "chat-item",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "components",
             "presenterClassName": "ChatItem"
         },
