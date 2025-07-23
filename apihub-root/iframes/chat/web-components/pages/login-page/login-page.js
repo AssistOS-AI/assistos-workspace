@@ -18,15 +18,26 @@ export class LoginPage {
         this.element = element;
         this.invalidate = invalidate;
         this.props = props;
+        this.signup = false;
         this.resAuth = this.props.resAuth;
+        this.canRegister = this.props.register||false;
         this.invalidate();
     }
 
     async beforeRender(props) {
-
+            if(this.canRegister && !this.signup) {
+                this.registrationPlaceholder =
+                    "   <section class=\"to_signup\">\n" +
+                    "                        <span>Don't have an account?</span>\n" +
+                    "                        <span class=\"redirect-text pointer\" data-local-action=\"goToSignup\">Register</span>\n" +
+                    "                    </section>"
+            }
+            this.displayAuthType = !this.signup ? "block" : "none";
+            this.actionText = this.signup ? "Register" : "Login";
+            this.displaySignup = this.signup ? "block" : "none";
     }
 
-    async afterRender(props) {
+    async afterRender() {
 
     }
 
@@ -36,12 +47,16 @@ export class LoginPage {
             this.element.querySelector(".email_input").classList.add("error");
             return;
         }
-        this.authInfo = await userModule.getPublicAuthInfo(this.email)
-        if (this.authInfo.userExists === false) {
-            this.element.querySelector(".email_input").classList.add("error");
-            this.element.querySelector(".email_input").placeholder = "User does not exist";
-        } else {
-            this.waitCode(this.email);
+        if(this.signup){
+
+        }else{
+            this.authInfo = await userModule.getPublicAuthInfo(this.email)
+            if (this.authInfo.userExists === false) {
+                this.element.querySelector(".email_input").classList.add("error");
+                this.element.querySelector(".email_input").placeholder = "User does not exist";
+            } else {
+                this.waitCode(this.email);
+            }
         }
     }
 
@@ -73,6 +88,14 @@ export class LoginPage {
         } catch (err) {
             await displayError(err);
         }
+    }
+    async goToSignup(){
+        this.signup = true;
+        this.invalidate();
+    }
+    async back(){
+        this.signup = false;
+        this.invalidate();
     }
 
 }

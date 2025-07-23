@@ -82,15 +82,23 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
 
     return component;
 }
-
+const userModule = require("assistos").loadModule("user", {});
 const webAssistantModule = require("assistos").loadModule("webassistant", {});
 
 const cacheNames = await caches.keys();
 await Promise.all(cacheNames.map(name => caches.delete(name)));
 
+async function createGuestUser() {
+    const response = await fetch("/users/guest", {
+        method: "POST",
+        headers: {'Content-Type': 'application/json'},
+    })
+    if (!response.ok) {
+        throw new Error(`Failed to create guest user: ${response.statusText}`);
+    }
+}
+
 async function checkAuthentication(email) {
-    const securityContext = {};
-    const userModule = require("assistos").loadModule("user", securityContext);
     assistOS.user = await userModule.loadUser(email);
     assistOS.globalRoles = await userModule.getGlobalRoles();
     assistOS.securityContext = {
@@ -100,22 +108,23 @@ async function checkAuthentication(email) {
 }
 
 const launchAssistant = async (chatId) => {
-    if (!chatId) {
-        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-        const userChats = await chatModule.getChats(spaceId);
-        if (userChats.length > 0) {
-            chatId = userChats[0].id;
-        } else {
-            chatId = await chatModule.createUserChat(spaceId, userId);
-        }
-    }
+    /*   if (!chatId) {
+           const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+           const userChats = await chatModule.getChats(spaceId);
+           if (userChats.length > 0) {
+               chatId = userChats[0].id;
+           } else {
+               chatId = await chatModule.createUserChat(spaceId, userId);
+           }
+       }*/
+    let userId = "default"
     return window.UI.createElement(
         'chat-page',
         appContainer,
-        {chatId, webAssistantId,spaceId, userId, pageId},
+        {chatId, webAssistantId, spaceId, userId, pageId},
         {
             "data-chatId": chatId,
-            "data-webAssistantId":webAssistantId,
+            "data-webAssistantId": webAssistantId,
             "data-spaceId": spaceId,
             "data-userId": userId,
             "data-pageId": pageId
@@ -128,7 +137,6 @@ const launchAssistant = async (chatId) => {
 window.assistOS = {};
 assistOS.securityContext = {};
 
-let {chatId} = parseCookies(document.cookie);
 
 const urlParams = new URLSearchParams(window.location.search);
 
@@ -139,32 +147,31 @@ window.spaceId = spaceId;
 const pageId = urlParams.get("page") || null;
 const appContainer = document.getElementById('app-container');
 
-
-let {userId = null} = parseCookies(document.cookie)
-
-if (userId === null) {
-    userId = generateId()
-    setCookie("userId", userId)
-}
-
-
-const requiresAuth = await webAssistantModule.requiresAuth(spaceId, webAssistantId)
-
+const authType = await webAssistantModule.getAuth(spaceId, webAssistantId)
 
 let isAuthenticated = false;
-
 try {
     const {email} = parseCookies(document.cookie);
-    if (email) {
-        await checkAuthentication(email);
-        isAuthenticated = true;
-    }
+    await checkAuthentication(email);
+    isAuthenticated = true;
 } catch (error) {
     isAuthenticated = false;
 }
 
-if (requiresAuth) {
-    if (!isAuthenticated) {
+let {chatId} = parseCookies(document.cookie);
+
+
+async function handlePublicAuth() {
+    let {userId} = parseCookies(document.cookie)
+
+    if (!userId) {
+        //await createGuestUser();
+    }
+    await launchAssistant(chatId);
+}
+
+async function handleExistingSpaceMembersAuth() {
+    if(!isAuthenticated) {
         let resAuth;
         const authenticatedPromise = new Promise((resolve, reject) => {
             resAuth = resolve;
@@ -172,21 +179,54 @@ if (requiresAuth) {
         window.UI.createElement(
             'login-page',
             appContainer,
-            {spaceId, userId, resAuth},
+            {spaceId, resAuth},
             {
-                "data-spaceId": spaceId,
-                "data-userId": userId
+                "data-spaceId": spaceId
             },
             true
         );
         await authenticatedPromise;
-        await launchAssistant();
-    } else {
-        await launchAssistant();
+        await launchAssistant(chatId);
+    }else{
+        await launchAssistant(chatId);
     }
-} else {
-    await launchAssistant();
+
 }
+
+async function handleNewAndExistingSpaceMembersAuth() {
+    if(!isAuthenticated) {
+        let resAuth;
+        const authenticatedPromise = new Promise((resolve, reject) => {
+            resAuth = resolve;
+        })
+        window.UI.createElement(
+            'login-page',
+            appContainer,
+            {spaceId, resAuth,register: true},
+            {
+                "data-spaceId": spaceId
+            },
+            true
+        );
+        await authenticatedPromise;
+        await launchAssistant(chatId);
+    }else{
+        await launchAssistant(chatId);
+    }
+}
+
+switch(authType){
+    case "public":
+        await handlePublicAuth();
+        break;
+    case "existingSpaceMembers":
+        await handleExistingSpaceMembersAuth();
+        break;
+    case "newAndExistingSpaceMembers":
+        await handleNewAndExistingSpaceMembersAuth();
+        break;
+}
+
 
 
 

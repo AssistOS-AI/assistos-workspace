@@ -8,7 +8,9 @@ export class AddEditChatScript {
         this.props = props;
         this.spaceId = assistOS.space.id;
         this.assistantId = assistOS.space.webAssistant
-        this.scriptId = this.element.dataset.scriptId || null;
+        this.addedProcess =false;
+        this.changedProcess = false;
+        this.scriptId = this.element.dataset.processid || null;
         this.invalidate();
     }
 
@@ -16,13 +18,14 @@ export class AddEditChatScript {
         const pages = await WebAssistant.getPages(this.spaceId,this.assistantId);
 
         if (this.scriptId) {
-            this.chatScript = await WebAssistant.getScript(assistOS.space.id, this.scriptId);
+            this.chatScript = await WebAssistant.getScript(assistOS.space.id,this.assistantId, this.scriptId);
             this.modalTitle = 'Edit Script';
         } else {
             this.modalTitle = 'Add Script';
         }
-        this.widgetOptions = pages.map(page => {// TODO selected logic
-            return `<option value="${page.id}" ${this.chatScript === page.id?"selected":""} >${page.name}</option>`;
+        debugger
+        this.widgetOptions = pages.map(page => {
+            return `<option value="${page.id}" ${this.chatScript.widgetId === page.id?"selected":""} >${page.name}</option>`;
         }).join('');
     }
 
@@ -40,7 +43,10 @@ export class AddEditChatScript {
     }
 
     closeModal(target) {
-        assistOS.UI.closeModal(target);
+        assistOS.UI.closeModal(target,{
+            changedProcess: this.changedProcess ,
+            addedProcess: this.addedProcess
+        });
     }
 
     async saveScript(target) {
@@ -57,9 +63,11 @@ export class AddEditChatScript {
         };
         if (this.scriptId) {
             await  WebAssistant.updateScript(assistOS.space.id,   this.assistantId , this.scriptId, script);
+            this.changedProcess = true;
         } else {
             await  WebAssistant.addScript(assistOS.space.id,   this.assistantId , script);
+            this.addedProcess = true;
         }
-        assistOS.UI.closeModal(target, true);
+        assistOS.UI.closeModal(target);
     }
 }

@@ -1,5 +1,11 @@
 const {fsPromises} = require("fs");
 
+ const authSettings = [
+    "public",
+    "existingSpaceMembers",
+    "newAndExistingSpaceMembers"
+]
+
 async function WebAssistant() {
     const self = {};
 
@@ -17,14 +23,17 @@ async function WebAssistant() {
     }
 
     self.updateSettings = async function (id, settings) {
+        if(!settings.authentication || !authSettings.includes(settings.authentication)){
+            throw new Error(`Invalid authentication setting. Allowed values are: ${authSettings.join(", ")}`);
+        }
         const config = await Persistence.getWebAssistant(id);
         config.settings = {...config.settings, ...settings};
         return await Persistence.updateWebAssistant(id, config);
     }
 
-    self.requiresAuth = async function (id) {
+    self.getAuth = async function (id) {
         const settings = await self.getSettings(id);
-        return !settings.isPublic;
+        return settings.authentication
     }
 
     self.getThemes = async function (assistantId) {
@@ -163,12 +172,17 @@ async function WebAssistant() {
             webAssistant.scriptsWidgetMap[script.id] = null;
         }
         await Persistence.updateWebAssistant(assistantId, webAssistant);
+        return {
+            ...script,
+            widgetId: webAssistant.scriptsWidgetMap[script.id] || null
+        }
     }
 
     self.deleteScript = async (assistantId, scriptId) => {
         const webAssistant = await self.getWebAssistant(assistantId);
         const index = webAssistant.scripts.findIndex(el => el === scriptId);
         webAssistant.scripts.splice(index, 1);
+        delete webAssistant.scriptsWidgetMap[scriptId];
         await ChatScript.deleteChatScript(scriptId);
         return await Persistence.updateWebAssistant(assistantId, webAssistant);
     }
@@ -176,15 +190,16 @@ async function WebAssistant() {
     self.updateScript = async (assistantId, scriptId, scriptData) => {
         if(scriptData.widgetId){
             const webAssistant = await self.getWebAssistant(assistantId);
-            webAssistant.scriptsWidgetMap[script.id] = scriptData.widgetId;
+            webAssistant.scriptsWidgetMap[scriptId] = scriptData.widgetId;
             await Persistence.updateWebAssistant(assistantId, webAssistant);
         }
-        return await ChatScript.updateChatScript(assistantId, scriptId, {name: scriptData.name, code: scriptData.code, description: scriptData.description});
+        await Persistence.setNameForChatScript(scriptId, scriptData.name);
+        return await ChatScript.updateChatScript( scriptId, {name: scriptData.name, code: scriptData.code, description: scriptData.description});
     }
 
     self.getPublicMethods = function () {
         return [
-            "requiresAuth","createGuestUser"
+            "getAuth"
         ]
     }
 
@@ -200,14 +215,15 @@ module.exports = {
         }
         return singletonInstance;
     },
+
     getAllow: function () {
         return async function (globalUserId, email, command, ...args) {
-            if (command === "requiresAuth") {
+            if(command === "getAuth") {
                 return true;
             }
             let {settings} = await singletonInstance.getWebAssistant(args[0]);
 
-            if (settings.isPublic === true) {
+            if (settings.authentication === "public") {
                 if (command.startsWith("get")) {
                     return true;
                 }
