@@ -242,10 +242,16 @@ input:focus, input:focus-visible {
 .to_login, .to_signup {
     color: var(--default-font-color);
 }
-
+.pointer{
+    cursor:pointer;
+}
+.redirect-text{
+    color: blue;
+    font-weight: 500;
+}
 .code_submit_section, .selection_short_info, .selection_info,
 .auth_step1 .selection_long_info, .auth_step1 .auth_methods_section,
-.auth_step1 .actions_container, .change_auth_type, .to_signup, .to_login {
+.auth_step1 .actions_container, .change_auth_type, .to_login {
     display: none;
 }
 

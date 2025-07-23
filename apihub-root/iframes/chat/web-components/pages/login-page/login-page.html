@@ -1,17 +1,19 @@
 <section class="component_container">
     <section class="header">
-        <label class="title">Log In</label>
+        <label class="title">$$actionText</label>
     </section>
     <section class="content">
-        <section class="auth_container">
+        <section style="display:$$displayAuthType;" class="auth_container">
             <section class="auth_type_wrapper">
                 <section class="email_wrapper">
                     <section class="input_container">
                         <label class="form-label">Email</label>
-                        <input class="form-input email_input" type="email" name="email" autocomplete="email" placeholder="Email address">
+                        <input class="form-input email_input" type="email" name="email" autocomplete="email"
+                               placeholder="Email address">
                         <button class="submit_email_button auth-button" data-local-action="submitEmail">Get Access Code
                         </button>
                     </section>
+                    $$registrationPlaceholder
                 </section>
             </section>
             <section class="code_submit_section">
@@ -22,6 +24,18 @@
                 <section class="input_container">
                     <input class="code_input form-input" type="text" placeholder="Code from email">
                     <button class="submit_code_button auth-button" data-local-action="login">Log in
+                    </button>
+                </section>
+            </section>
+        </section>
+        <section style="display:$$displaySignup;" class="signup-container">
+            <span data-local-action="goBack"><-</span>
+            <section class="email_wrapper">
+                <section class="input_container">
+                    <label class="form-label">Email</label>
+                    <input class="form-input email_input" type="email" name="email" autocomplete="email"
+                           placeholder="Email address">
+                    <button class="submit_email_button auth-button" data-local-action="submitEmail">Next
                     </button>
                 </section>
             </section>

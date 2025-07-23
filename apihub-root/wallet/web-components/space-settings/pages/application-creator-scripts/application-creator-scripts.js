@@ -6,12 +6,12 @@ export class ApplicationCreatorScripts {
         this.props = props;
         this.assistantId = assistOS.space.webAssistant
         this.invalidate = invalidate;
-        this.pageName ="Scripts"
+        this.pageName = "Scripts"
         this.invalidate();
     }
 
     async beforeRender() {
-        this.processes = await WebAssistant.getScripts(assistOS.space.id,this.assistantId);
+        this.processes = await WebAssistant.getScripts(assistOS.space.id, this.assistantId);
         this.processRows = this.processes.map(process => `
             <tr>
                 <td class="main-cell">
@@ -39,9 +39,10 @@ export class ApplicationCreatorScripts {
     async afterRender() {
 
     }
+
     async openAddProcessModal() {
         const result = await assistOS.UI.showModal("add-edit-chat-script",
-            {webassistant:true}, true);
+            {webassistant: true}, true);
         if (result.addedProcess) {
             this.invalidate();
         }
@@ -50,7 +51,7 @@ export class ApplicationCreatorScripts {
     async editProcess(event, processId) {
         const result = await assistOS.UI.showModal("add-edit-chat-script", {
             processid: processId,
-            webassistant:true
+            webassistant: true
         }, true);
         if (result.changedProcess || result.addedProcess) {
             this.invalidate();
@@ -58,12 +59,10 @@ export class ApplicationCreatorScripts {
     }
 
     async deleteProcess(event, processId) {
-        const result = await assistOS.UI.showModal("delete-process-modal", {
-            processid: processId,
-            webassistant:true
-        }, true);
-        if (result.deletedProcess) {
-            this.invalidate();
+        if (!confirm("Are you sure you want to delete this script?")) {
+            return;
         }
+        await WebAssistant.deleteScript(assistOS.space.id, this.assistantId, processId);
+        this.invalidate();
     }
 }

@@ -1,5 +1,4 @@
 const personalityModule = assistOS.loadModule("agent", {});
-const applicationModule = assistOS.loadModule("application", {});
 const WebAssistant = assistOS.loadModule("webassistant", {});
 
 export class ApplicationCreatorSettings {
@@ -19,12 +18,20 @@ export class ApplicationCreatorSettings {
         this.themeId = settings.themeId;
         this.agent = settings.agentId;
         this.knowledge = settings.knowledge;
+        const authSettings = {
+            public:"Public",
+            existingSpaceMembers:"Existing Space Members",
+            newAndExistingSpaceMembers:"New and Existing Space Members"
+        }
+        this.authenticationOptions  = Object.entries(authSettings).map( ([auth,authName])=> {
+            return `<option value="${auth}" ${settings.authentication === auth ? "selected" : ""}>${authName}</option>`;
+        }).join('');
         this.publicChecked = settings.isPublic ? "checked" : "";
         const agents = await personalityModule.getAgents(this.spaceId)
         this.personalitiesOptions = (agents || []).map(personality => `<option value="${personality.id}" ${this.agent === personality.id ? "selected" : ""}>${personality.name}</option>`).join('');
 
         const themes = await WebAssistant.getThemes(this.spaceId,this.webAssistantId);
-        this.themes = (themes || []).map(theme => `<option value="${theme.id}" ${this.theme === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
+        this.themes = (themes || []).map(theme => `<option value="${theme.id}" ${this.themeId === theme.id ? "selected" : ""}>${theme.name}</option>`).join('');
     }
 
     async afterRender() {
@@ -38,7 +45,7 @@ export class ApplicationCreatorSettings {
         const initialPrompt = this.element.querySelector('#initial-prompt').value;
         const chatIndications = this.element.querySelector('#chat-indications').value;
         const knowledge = this.element.querySelector('#knowledge').value;
-        const isPublic = this.element.querySelector('#public').checked;
+       const authType = this.element.querySelector('#authentication').value;
         if (formData.isValid) {
             const settingsData = {
                 knowledge: knowledge,
@@ -46,7 +53,7 @@ export class ApplicationCreatorSettings {
                 agentId: formData.data.selectedPersonality,
                 chatIndications: chatIndications,
                 initialPrompt: initialPrompt,
-                isPublic
+                authentication: authType,
             }
             await WebAssistant.updateSettings(this.spaceId,this.webAssistantId, settingsData);
             this.invalidate();
