@@ -12,7 +12,7 @@ $$.plugins = {
     "BinariesExecutor":require('../../workspacePlugins/BinariesExecutor.js'),
 }
 
-$$.loadPlugin = async function (pluginName) {
+$$.loadPlugin = function (pluginName) {
 
     if (!$$.plugins[pluginName]) {
         const error = `Module "${pluginName}" not defined. Available plugins are: ${Object.keys($$.plugins).map(k => `"${k}"`).join(', ')}`

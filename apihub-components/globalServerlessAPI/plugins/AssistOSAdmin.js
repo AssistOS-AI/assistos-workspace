@@ -3,7 +3,7 @@ const fsPromises = require("fs").promises;
 const path = require("path");
 async function AssistOSAdmin(){
     let self = {};
-    const persistence = await $$.loadPlugin("StandardPersistence");
+    const persistence = $$.loadPlugin("StandardPersistence");
 
     persistence.configureTypes({
         spaceStatus: {
@@ -13,7 +13,7 @@ async function AssistOSAdmin(){
 
     await persistence.createIndex("spaceStatus", "name");
 
-    let userLogger = await $$.loadPlugin("UserLoggerPlugin");
+    let userLogger = $$.loadPlugin("UserLoggerPlugin");
 
     self.listAllSpaces = async function(){
         return await persistence.getEverySpaceStatus();
@@ -40,7 +40,7 @@ async function AssistOSAdmin(){
             name: spaceName
         }
         let space = await persistence.createSpaceStatus(spaceData);
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
         let userInfo = result.userInfo;
@@ -55,7 +55,7 @@ async function AssistOSAdmin(){
         return space;
     }
     self.deleteSpace = async function (email, spaceId) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
         let res = await UserLogin.getUserInfo(email);
         let spacesNr = res.userInfo.spaces.length;
         if (spacesNr === 1) {
@@ -75,7 +75,7 @@ async function AssistOSAdmin(){
     }
 
     self.addSpaceToUsers = async function(userEmails, spaceId, referrerEmail){
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
         let referrerUser = await persistence.getUserLoginStatus(referrerEmail);
         for(let email of userEmails){
             let result = await UserLogin.getUserInfo(email);
@@ -92,7 +92,7 @@ async function AssistOSAdmin(){
         await userLogger.userLog(referrerUser.globalUserId, `Invited ${userEmails.length} users to space: ${spaceStatus.name}`);
     }
     self.unlinkSpaceFromUser = async function (referrerEmail, email, spaceId) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
         let userInfo = result.userInfo;
@@ -106,7 +106,7 @@ async function AssistOSAdmin(){
         await userLogger.userLog(referrerUser.globalUserId, `Removed 1 user from space: ${spaceStatus.name}`);
     }
     self.getDefaultSpaceId = async function(email) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
         let userInfo = result.userInfo;
@@ -119,14 +119,14 @@ async function AssistOSAdmin(){
         return result.userInfo.currentSpaceId;
     }
     self.setUserCurrentSpace = async function (email, spaceId) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
 
         let result = await UserLogin.getUserInfo(email);
         result.userInfo.currentSpaceId = spaceId;
         await UserLogin.setUserInfo(email, result.userInfo);
     }
     self.listUserSpaces = async function(email) {
-        let UserLogin = await $$.loadPlugin("UserLogin");
+        let UserLogin = $$.loadPlugin("UserLogin");
         let result = await UserLogin.getUserInfo(email);
         let userInfo = result.userInfo;
         let spaces = [];
@@ -238,7 +238,7 @@ module.exports = {
     getAllow: function () {
         return async function (globalUserId, email, command, ...args) {
             // let role;
-            // let AdminPlugin = await $$.loadPlugin("AdminPlugin");
+            // let AdminPlugin = $$.loadPlugin("AdminPlugin");
             // switch (command){
             //     case "founderSpaceExists":
             //         return true;
