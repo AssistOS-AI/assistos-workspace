@@ -8,10 +8,6 @@ export class TextWidget {
 
     async beforeRender() {
         this.company = this.props.html;
-        if(this.props.js){
-            this["injectedFunction"] = eval(this.props.js);
-            this["injectedFunction"]();
-        }
         if(this.props.css){
             const style = document.createElement('style');
             style.textContent = this.props.css;

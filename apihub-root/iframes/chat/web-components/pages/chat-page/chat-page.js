@@ -1,8 +1,8 @@
 const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext );
-const chatModule = require("assistos").loadModule("chat",assistOS.securityContext );
+const chatModule = require("assistos").loadModule("chat",assistOS.securityContext);
 
 const sendMessageActionButtonHTML = `  
-<button type="button" id="stopLastStream" class="input__button" data-local-action="sendMessage">
+<button type="button" id="stopLastStream" class="input__button" data-local-action="chatInputUser">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M6.6 29.1375C6.1 29.3375 5.625 29.2935 5.175 29.0055C4.725 28.7175 4.5 28.299 4.5 27.75V21L16.5 18L4.5 15V8.24996C4.5 7.69996 4.725 7.28146 5.175 6.99446C5.625 6.70746 6.1 6.66346 6.6 6.86246L29.7 16.6125C30.325 16.8875 30.6375 17.35 30.6375 18C30.6375 18.65 30.325 19.1125 29.7 19.3875L6.6 29.1375Z" fill="#8B8B8B"/>
 </svg>
@@ -161,13 +161,11 @@ class BaseChatFrame {
         }
         this.chatActionButton = sendMessageActionButtonHTML
         this.chatOptions = IFrameChatOptions;
-     /*   try {
+         try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
         } catch (error) {
             this.errorState = true;
         }
-
-
 
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
@@ -180,31 +178,52 @@ class BaseChatFrame {
             }
 
             let lastReply = messageIndex === this.chatHistory.length - 1 ? "true" : "false";
-            this.stringHTML += `<chat-item data-id="${chatMessage.id}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
-        }*/
+            this.stringHTML += `<chat-item data-id="${chatMessage.truid}" spaceId="${this.spaceId}" ownMessage="${ownMessage}" ${userEmailAttribute} data-last-item="${lastReply}" data-presenter="chat-item"></chat-item>`;
+        }
         this.spaceConversation = this.stringHTML;
     }
 
+    async displayUserReply(replyId, userEmail) {
+        const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
+        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
+        const lastReplyElement = this.conversation.lastElementChild;
+        await this.observerElement(lastReplyElement);
+        await waitForElement(lastReplyElement, '.message');
+        return lastReplyElement;
+    }
+    observerElement(element) {
+        if (this.observedElement) {
+            this.intersectionObserver.unobserve(this.observedElement);
+        }
+        this.observedElement = element;
+        if (element) {
+            this.intersectionObserver.observe(element);
+        }
+    }
     async afterRender() {
         const constants = require("assistos").constants;
         const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
 
-        observableResponse.onProgress(async (response) => {
-            console.log("Received response:", response);
-            if(response.from === "User") {
-                this.chatHistory.push(response);
-                await this.displayUserReply(response.id, assistOS.user.email);
+        observableResponse.onProgress(async (reply) => {
+            if(reply.from === "User") {
+                this.chatHistory.push(reply);
+                await this.displayUserReply(reply.truid, assistOS.securityContext.email);
                 return;
             }
-            let existingReply = this.chatHistory.find(msg => msg.id === response.id);
+            debugger
+            let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if(existingReply) {
-                let chatItem = this.conversation.querySelector(`chat-item[data-id="${response.id}"]`);
-                chatItem.webSkelPresenter.updateReply(response.message);
+                let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
+                chatItem.webSkelPresenter.updateReply(reply.message);
                 return;
             }
-            this.chatHistory.push(response);
-            await this.displayAgentReply(response.id);
+            this.chatHistory.push(reply);
+            await this.displayAgentReply(reply.truid);
+        });
+        observableResponse.onError(async (error) => {
+            console.error('Error in chat:', error);
+            console.log(error.code);
         });
 
         const pages = await WebAssistant.getPages(this.spaceId,this.webAssistantId);
@@ -296,8 +315,38 @@ class BaseChatFrame {
             form.height = Math.min(this.scrollHeight, maxHeight) + "px";
             form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
         });
+        this.initObservers();
     }
 
+    getReply(replyId) {
+        return this.chatHistory.find(message => message.truid === replyId) || null;
+    }
+    async displayAgentReply(replyId) {
+        const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" ownMessage="false" data-presenter="chat-item" agent-name="${this.agentName}" data-last-item="true"/>`;
+        this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
+        return await waitForElement(this.conversation.lastElementChild, '.message');
+    }
+    initObservers() {
+        this.intersectionObserver = new IntersectionObserver(entries => {
+            for (let entry of entries) {
+                if (entry.target === this.observedElement) {
+                    if (entry.intersectionRatio < 1) {
+                        if (!this.userHasScrolledManually) {
+                            this.conversation.scrollTo({
+                                top: this.conversation.scrollHeight + 100,
+                                behavior: 'auto'
+                            });
+                        }
+                    } else {
+                        this.userHasScrolledManually = false;
+                    }
+                }
+            }
+        }, {
+            root: this.conversation,
+            threshold: 1
+        });
+    }
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();

@@ -23,9 +23,8 @@ export class AddEditChatScript {
         } else {
             this.modalTitle = 'Add Script';
         }
-        debugger
         this.widgetOptions = pages.map(page => {
-            return `<option value="${page.id}" ${this.chatScript.widgetId === page.id?"selected":""} >${page.name}</option>`;
+            return `<option value="${page.id}" ${this.chatScript?.widgetId === page.id?"selected":""} >${page.name}</option>`;
         }).join('');
     }
 
