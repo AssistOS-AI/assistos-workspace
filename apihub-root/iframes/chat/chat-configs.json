@@ -9,7 +9,12 @@
     {
       "name": "login-page",
       "type": "pages",
-        "presenterClassName": "LoginPage"
+      "presenterClassName": "LoginPage"
+    },
+    {
+      "name": "select-chat",
+      "type": "components",
+      "presenterClassName": "SelectChat"
     },
     {
       "name": "chat-item",

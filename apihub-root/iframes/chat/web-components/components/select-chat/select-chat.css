@@ -1,0 +1,16 @@
+select-chat{
+    display: block;
+    width: 400px;
+}
+.chat-item{
+    cursor: pointer;
+    padding: 10px;
+    border-bottom: 1px solid var(--form-input-border);
+}
+.chat-item:hover{
+    background-color: var(--action-button-background);
+}
+.chat-item.selected{
+    background-color: var(--action-button-background);
+    cursor: default;
+}
