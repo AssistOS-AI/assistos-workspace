@@ -8,11 +8,13 @@ const sendMessageActionButtonHTML = `
 </svg>
 </button>
 `
+
 const stopStreamActionButtonHTML = `
 <button type="button" id="stopLastStream" class="input__button" data-local-action="stopLastStream">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
 </button>
 `
+
 let IFrameChatOptions = `
 <div class="preview-sidebar-item">
 <list-item data-local-action="newChat" data-name="New Room" data-highlight="light-highlight"></list-item>
@@ -74,7 +76,6 @@ function generateRootCSS(themeVars) {
     const entries = Object.entries(themeVars).map(([key, val]) => `${key}: ${val};`)
     return `:root { ${entries.join(' ')} }`
 }
-
 
 const IFrameContext = window.assistOS === undefined;
 const UI = window.UI
