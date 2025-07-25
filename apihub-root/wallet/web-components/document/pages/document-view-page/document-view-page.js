@@ -540,6 +540,12 @@ export class DocumentViewPage {
                 await this.openPlugin("", "infoText", this.currentPlugin);
             }
             return;
+        } else if (type === "chapterHeader") {
+            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
+            await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
+            await chapterPresenter.highlightChapter();
+            await chapterPresenter.highlightChapterHeader();
+            return;
         }
         let saveFunction;
         let resetTimerFunction = this.resetTimer.bind(this);
@@ -564,11 +570,6 @@ export class DocumentViewPage {
             await chapterPresenter.highlightChapter();
             await chapterPresenter.highlightChapterHeader();
             targetElement.addEventListener('keydown', this.titleKeyDownHandler.bind(this, targetElement));
-        } else if (type === "chapterHeader") {
-            let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
-            await this.changeCurrentElement(targetElement, chapterPresenter.focusOutHandlerTitle.bind(chapterPresenter, targetElement));
-            await chapterPresenter.highlightChapter();
-            await chapterPresenter.highlightChapterHeader();
         } else if (type === "paragraphText") {
             let chapterPresenter = targetElement.closest("chapter-item").webSkelPresenter;
             let paragraphItem = targetElement.closest("paragraph-item");

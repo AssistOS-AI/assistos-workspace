@@ -2,6 +2,7 @@ import UI from "../../WebSkel/webSkel.js";
 
 const UIConfigsPath = './chat-configs.json'
 window.UI = await UI.initialise(UIConfigsPath);
+
 const parseCookies = function (cookieString) {
     return cookieString
         .split('; ')
@@ -10,11 +11,6 @@ const parseCookies = function (cookieString) {
             acc[key] = decodeURIComponent(value);
             return acc;
         }, {});
-}
-
-function setCookie(key, value, days = 365) {
-    const expires = new Date(Date.now() + days * 864e5).toUTCString();
-    document.cookie = `${encodeURIComponent(key)}=${encodeURIComponent(value)}; expires=${expires}; path=/`;
 }
 
 const generateId = () => {
@@ -65,16 +61,6 @@ const webAssistantModule = require("assistos").loadModule("webassistant", {});
 const cacheNames = await caches.keys();
 await Promise.all(cacheNames.map(name => caches.delete(name)));
 
-async function createGuestUser() {
-    const response = await fetch("/users/guest", {
-        method: "POST",
-        headers: {'Content-Type': 'application/json'},
-    })
-    if (!response.ok) {
-        throw new Error(`Failed to create guest user: ${response.statusText}`);
-    }
-}
-
 async function checkAuthentication(email) {
     assistOS.user = await userModule.loadUser(email);
     assistOS.globalRoles = await userModule.getGlobalRoles();
@@ -85,7 +71,6 @@ async function checkAuthentication(email) {
 }
 
 const launchAssistant = async (chatId) => {
-
     let {userId} = assistOS.securityContext;
     return window.UI.createElement(
         'chat-page',
@@ -188,16 +173,6 @@ switch(authType){
 let {chatId} = parseCookies(document.cookie);
 
 if(!chatId){
-    function generateId(length = 16) {
-        const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-        const bytes = new Uint8Array(length);
-        crypto.getRandomValues(bytes);
-        let id = '';
-        for (let i = 0; i < length; i++) {
-            id += alphabet[bytes[i] % alphabet.length];
-        }
-        return id;
-    }
     const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
     const scriptCode = "@history new Table from message timestamp role\n" +
         "@context new Table from message timestamp role\n" +
