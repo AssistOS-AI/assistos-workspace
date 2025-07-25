@@ -145,6 +145,10 @@ async function createDefaultAgent(request, spaceId){
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = await fsPromises.readFile(path.join(__dirname, "defaultChatScript"), "utf-8");
     let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");
+
+    let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
+    await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript");
+
     let chatAPIClient = await getAPIClient(request, constants.CHAT_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
     await chatAPIClient.createChat(chatId, chatScript.id, ["User", "Assistant"]);
