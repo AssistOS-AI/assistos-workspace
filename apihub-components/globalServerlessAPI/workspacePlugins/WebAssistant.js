@@ -9,8 +9,8 @@ const {fsPromises} = require("fs");
 async function WebAssistant() {
     const self = {};
 
-    const Persistence = await $$.loadPlugin("DefaultPersistence");
-    const ChatScript = await $$.loadPlugin("ChatScript");
+    const Persistence = $$.loadPlugin("DefaultPersistence");
+    const ChatScript = $$.loadPlugin("ChatScript");
 
     self.getWebAssistant = async function (id) {
         const webAssistant = await Persistence.getWebAssistant(id);
@@ -232,7 +232,7 @@ module.exports = {
                     return true;
                 }
             } else {
-                const workspaceUser = await $$.loadPlugin("WorkspaceUser");
+                const workspaceUser = $$.loadPlugin("WorkspaceUser");
                 const users = await workspaceUser.getAllUsers();
                 for (const user of users) {
                     if (user.email === email) {

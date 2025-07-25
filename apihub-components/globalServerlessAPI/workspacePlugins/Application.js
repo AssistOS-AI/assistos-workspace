@@ -8,7 +8,7 @@ const execFileAsync = promisify(execFile)
 
 async function Application() {
     let self = {};
-    let persistence = await $$.loadPlugin("DefaultPersistence");
+    let persistence = $$.loadPlugin("DefaultPersistence");
     persistence.configureTypes({
         application: {
             name: "string",
