@@ -188,7 +188,7 @@ class BaseChatFrame {
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
         const lastReplyElement = this.conversation.lastElementChild;
         await this.observerElement(lastReplyElement);
-        await waitForElement(lastReplyElement, '.message');
+        await waitForElement(lastReplyElement, '#done');
         return lastReplyElement;
     }
     observerElement(element) {
@@ -211,7 +211,6 @@ class BaseChatFrame {
                 await this.displayUserReply(reply.truid, assistOS.securityContext.email);
                 return;
             }
-            debugger
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if(existingReply) {
                 let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
@@ -324,7 +323,7 @@ class BaseChatFrame {
     async displayAgentReply(replyId) {
         const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" ownMessage="false" data-presenter="chat-item" agent-name="${this.agentName}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
-        return await waitForElement(this.conversation.lastElementChild, '.message');
+        return await waitForElement(this.conversation.lastElementChild, '#done');
     }
     initObservers() {
         this.intersectionObserver = new IntersectionObserver(entries => {
@@ -457,6 +456,9 @@ class BaseChatFrame {
                 }
             });
         }
+    }
+    async afterUnload(){
+            await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
     }
 }
 

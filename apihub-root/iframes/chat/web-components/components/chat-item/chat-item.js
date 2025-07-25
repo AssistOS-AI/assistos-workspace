@@ -152,6 +152,7 @@ export class ChatItem {
     }
 
     async afterRender() {
+        this.element.setAttribute('id',"done");
         if (this.element.getAttribute('data-last-item') === "true") {
             setTimeout(() => {
                 const container = this.element.parentElement;

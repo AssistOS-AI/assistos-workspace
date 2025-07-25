@@ -38,7 +38,9 @@ self.addEventListener('fetch', (event) => {
         );
         return;
     }
-
+    if(url.pathname.includes("internalWebhook")){
+        return;
+    }
     event.respondWith(
         fetch(request).catch(() => caches.match(request))
     );
