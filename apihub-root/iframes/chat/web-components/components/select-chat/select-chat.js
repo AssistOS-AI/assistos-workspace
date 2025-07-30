@@ -1,16 +1,20 @@
-const chatModule = assistOS.loadModule("chat");
+const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext);
+
 export class SelectChat {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.chatId = this.element.getAttribute("data-chat-id");
+        this.assistantId = this.element.getAttribute("data-assistant-id")
+        this.userId = assistOS.securityContext.userId;
+        this.spaceId = this.element.getAttribute("data-space-id");
         this.invalidate();
     }
 
     async beforeRender() {
-        let chats = await chatModule.getChats(assistOS.space.id);
+        let chats = await WebAssistant.getChats(this.spaceId, this.assistantId,this.userId);
         this.chatsHTML = "";
-        for(let chat of chats) {
+        for (let chat of chats) {
             let selectedClass = "";
             let dataLocalAction = `data-local-action="selectChat ${chat.docId}"`;
             if (this.chatId === chat.docId) {
@@ -26,10 +30,10 @@ export class SelectChat {
     }
 
     closeModal(_target) {
-        assistOS.UI.closeModal(_target);
+       UI.closeModal(_target);
     }
 
     async selectChat(_target, chatId) {
-        assistOS.UI.closeModal(_target, chatId);
+       UI.closeModal(_target, chatId);
     }
 }

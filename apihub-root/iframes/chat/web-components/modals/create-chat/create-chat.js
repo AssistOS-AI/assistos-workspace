@@ -1,5 +1,6 @@
-let chatModule = require("assistos").loadModule("chat",{});
-let agentModule = require("assistos").loadModule("agent",{});
+let chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+let agentModule = require("assistos").loadModule("agent", assistOS.securityContext);
+let webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
 
 function generateId(length = 16) {
     const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -13,9 +14,11 @@ function generateId(length = 16) {
 }
 
 export class CreateChat {
-    constructor(element, invalidate) {
+    constructor(element, invalidate,props) {
         this.element = element;
         this.invalidate = invalidate;
+        this.assistantId = this.element.getAttribute("data-assistant-id")
+        this.spaceId = this.element.getAttribute("data-space-id");
         this.invalidate();
     }
 
@@ -29,22 +32,28 @@ export class CreateChat {
             `<option value="${agentName}">${agentName}</option>`
         ).join('');
     }
+
     afterRender() {
 
     }
-    async createChat(){
+
+    async createChat() {
         let form = this.element.querySelector('form');
         let formInfo = await UI.extractFormInformation(form);
-        if(!formInfo.isValid){
+        if (!formInfo.isValid) {
             return;
         }
         let chatId = formInfo.data.agent + "_Chat_" + generateId(8);
         let scriptName = UI.unsanitize(formInfo.data.scriptName);
-        await chatModule.createChat(window.spaceId, chatId, scriptName, ["User", formInfo.data.agent]);
+        await webAssistantModule.createChat(this.spaceId,this.assistantId,assistOS.securityContext.userId,{
+            chatId,
+            scriptName,
+            args:["User", formInfo.data.agent]
+        })
         UI.closeModal(this.element, chatId);
     }
 
     closeModal(_target) {
-       UI.closeModal(_target);
+        UI.closeModal(_target);
     }
 }

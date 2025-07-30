@@ -95,6 +95,7 @@ assistOS.securityContext = {};
 const urlParams = new URLSearchParams(window.location.search);
 
 const webAssistantId = urlParams.get("webAssistant");
+assistOS.securityContext.webAssistantId = webAssistantId
 const spaceId = urlParams.get("space");
 
 window.spaceId = spaceId;
@@ -172,7 +173,7 @@ switch(authType){
 
 let {chatId} = parseCookies(document.cookie);
 
-if(!chatId){
+window.createChat = async () => {
     const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
     const scriptCode = "@history new Table from message timestamp role\n" +
         "@context new Table from message timestamp role\n" +
@@ -189,8 +190,7 @@ if(!chatId){
         "    chat.notify $res\n" +
         "    return $res\n" +
         "end"
-        chatId = generateId(16);
-
+    chatId = generateId(16);
     const chatScript = await chatModule.createChatScript(spaceId,`DefaultAssistantScript_${chatId}`, scriptCode, "DefaultAssistantScript");
     try {
         let res = await chatModule.createChat(spaceId, chatId, chatScript.id, ["User", "Assistant"]);
@@ -198,6 +198,11 @@ if(!chatId){
     }catch(err){
         console.log(err);
     }
+    return chatId;
+}
+
+if(!chatId){
+await createChat();
 }
 
 await launchAssistant(chatId);

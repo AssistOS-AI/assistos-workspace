@@ -1,5 +1,5 @@
-const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext );
-const chatModule = require("assistos").loadModule("chat",assistOS.securityContext);
+const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext);
+const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
 
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="chatInputUser">
@@ -89,6 +89,7 @@ class BaseChatFrame {
         this.observedElement = null;
         this.userHasScrolledManually = false;
         this.props = props;
+        this.chatId = this.props.chatId;
         this.invalidate();
     }
 
@@ -134,7 +135,6 @@ class BaseChatFrame {
     }
 
     async beforeRender() {
-        this.chatId = this.props.chatId;
         this.personalityId = this.props.personalityId;
         this.spaceId = this.props.spaceId;
         this.userId = this.props.userId;
@@ -142,30 +142,31 @@ class BaseChatFrame {
         this.webAssistantId = this.props.webAssistantId;
 
         if (!this.currentPageId) {
-            this.configuration = await WebAssistant.getWebAssistant(this.spaceId,this.webAssistantId);
+            this.configuration = await WebAssistant.getWebAssistant(this.spaceId, this.webAssistantId);
             if (!this.pageId) {
-                const homePageConfig = await WebAssistant.getHomePage(this.spaceId,this.webAssistantId);
+                const homePageConfig = await WebAssistant.getHomePage(this.spaceId, this.webAssistantId);
                 this.currentPageId = homePageConfig.id;
             } else {
                 this.currentPageId = this.pageId;
             }
         }
-        const menu = await WebAssistant.getMenu(this.spaceId,this.webAssistantId);
-
-        this.page = await WebAssistant.getPage(this.spaceId,this.webAssistantId, this.currentPageId);
+        const menu = await WebAssistant.getMenu(this.spaceId, this.webAssistantId);
+        this.page = await WebAssistant.getPage(this.spaceId, this.webAssistantId, this.currentPageId);
         this.pageName = this.page.name;
         this.previewContentStateClass = "with-sidebar";
 
         if (this.configuration.settings.themeId) {
-            this.theme = await WebAssistant.getTheme(this.spaceId,this.webAssistantId, this.configuration.settings.themeId);
+            this.theme = await WebAssistant.getTheme(this.spaceId, this.webAssistantId, this.configuration.settings.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
         this.chatOptions = IFrameChatOptions;
-         try {
+        try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
         } catch (error) {
-            this.errorState = true;
+            debugger;
+            this.chatId = await window.createChat();
+            this.invalidate();
         }
 
         this.stringHTML = "";
@@ -192,6 +193,7 @@ class BaseChatFrame {
         await waitForElement(lastReplyElement, '#done');
         return lastReplyElement;
     }
+
     observerElement(element) {
         if (this.observedElement) {
             this.intersectionObserver.unobserve(this.observedElement);
@@ -201,19 +203,20 @@ class BaseChatFrame {
             this.intersectionObserver.observe(element);
         }
     }
+
     async afterRender() {
         const constants = require("assistos").constants;
         const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
 
         observableResponse.onProgress(async (reply) => {
-            if(reply.from === "User") {
+            if (reply.from === "User") {
                 this.chatHistory.push(reply);
                 await this.displayUserReply(reply.truid, assistOS.securityContext.email);
                 return;
             }
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
-            if(existingReply) {
+            if (existingReply) {
                 let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
                 chatItem.webSkelPresenter.updateReply(reply.message);
                 return;
@@ -226,7 +229,7 @@ class BaseChatFrame {
             console.log(error.code);
         });
 
-        const pages = await WebAssistant.getPages(this.spaceId,this.webAssistantId);
+        const pages = await WebAssistant.getPages(this.spaceId, this.webAssistantId);
 
         const headerPage = pages.find(page => page.role === "header");
         const footerPage = pages.find(page => page.role === "footer");
@@ -235,14 +238,14 @@ class BaseChatFrame {
         if (headerPage) {
             const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
             await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-            UI.createElement(previewWidgetName, '#preview-content-header',{
+            UI.createElement(previewWidgetName, '#preview-content-header', {
                 generalSettings: headerPage.generalSettings,
                 data: headerPage.data,
                 html: headerPage.html,
                 css: headerPage.css,
                 js: headerPage.js
             });
-        }else{
+        } else {
             this.element.querySelector('#preview-content-header')?.remove();
         }
         if (footerPage) {
@@ -256,7 +259,7 @@ class BaseChatFrame {
                     css: footerPage.css,
                     js: footerPage.js
                 });
-        }else{
+        } else {
             this.element.querySelector('#preview-content-footer')?.remove();
         }
         const [widgetApp, widgetName] = this.page.widget.split('/');
@@ -321,11 +324,13 @@ class BaseChatFrame {
     getReply(replyId) {
         return this.chatHistory.find(message => message.truid === replyId) || null;
     }
+
     async displayAgentReply(replyId) {
         const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" ownMessage="false" data-presenter="chat-item" agent-name="${this.agentName}" data-last-item="true"/>`;
         this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
         return await waitForElement(this.conversation.lastElementChild, '#done');
     }
+
     initObservers() {
         this.intersectionObserver = new IntersectionObserver(entries => {
             for (let entry of entries) {
@@ -347,6 +352,7 @@ class BaseChatFrame {
             threshold: 1
         });
     }
+
     async preventRefreshOnEnter(form, event) {
         if (event.key === "Enter") {
             event.preventDefault();
@@ -386,8 +392,11 @@ class BaseChatFrame {
     }
 
     async newChat(target) {
-        const chatId = await UI.showModal('create-chat', {}, true);
-        if(!chatId){
+        const chatId = await UI.showModal('create-chat', {
+            "assistant-id": this.props.webAssistantId,
+            "space-id": this.spaceId
+        }, true);
+        if (!chatId) {
             return;
         }
         if (IFrameContext) {
@@ -441,7 +450,7 @@ class BaseChatFrame {
 
         document.body.classList.remove('single-section');
 
-     chatSection.classList.add('active');
+        chatSection.classList.add('active');
         pageSection.classList.remove('active');
         if (toggleSwitch) toggleSwitch.checked = false;
 
@@ -458,15 +467,24 @@ class BaseChatFrame {
             });
         }
     }
-    async afterUnload(){
-            await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
+
+    async afterUnload() {
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
     }
-    async loadChat(){
-        let chatId = await assistOS.UI.showModal("select-chat", {"chat-id": this.chatId}, true);
-        if(chatId){
+
+    async loadChat() {
+        let chatId = await UI.showModal("select-chat",
+            {
+                "chat-id": this.chatId,
+                "assistant-id": this.props.webAssistantId,
+                "space-id": this.spaceId
+            },
+            true);
+        if (chatId) {
             await this.openChat("", chatId);
         }
     }
+
     async openChat(button, chatId) {
         if (IFrameContext) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"

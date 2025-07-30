@@ -51,6 +51,9 @@ chat-item {
 }
 
 .chat-option-button {
+    position: relative;
+    display: flex;
+    left:0;
     align-items: center;
     justify-content: center;
     min-width: 30px;

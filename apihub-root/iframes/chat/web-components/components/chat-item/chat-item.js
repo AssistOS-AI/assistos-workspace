@@ -75,6 +75,7 @@ export class ChatItem {
         this.isContext = this.element.getAttribute("isContext");
 
         if (this.ownMessage === "false") {
+            this.myselfMessage="";
             this.messageTypeBox = "others-box";
             let imageSrc = "";
             if (userEmail) {
@@ -92,10 +93,10 @@ export class ChatItem {
             }
             this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${imageSrc}" alt="userImage"></div>`;
             this.chatBoxOptions = `<div class="chat-options other-message">
-                ${stopStreamButton}
                 ${copyReplyButton}
             </div>`;
         } else {
+            this.myselfMessage = "myself-message";
             this.ownMessageClass = "user-box-container";
             this.messageTypeBox = "user-box";
             this.imageContainer = ``;

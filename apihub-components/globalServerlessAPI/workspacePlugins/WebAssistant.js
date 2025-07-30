@@ -11,14 +11,17 @@ async function WebAssistant() {
 
     const persistence = $$.loadPlugin("DefaultPersistence");
     const ChatScript = $$.loadPlugin("ChatScript");
+    const chat = $$.loadPlugin("Chat");
+
 
     await persistence.configureTypes({
         webAssistant: {
             id: "singleton webAssistant",
             alias: "string",
             scripts: "array chatScript",
-            scriptsWidgetMap : `object`,
-            settings: "object"
+            scriptsWidgetMap: `object`,
+            settings: "object",
+            chats: "object"
         },
         theme: {
             name: "string",
@@ -427,6 +430,7 @@ async function WebAssistant() {
 
         const assistant = await persistence.createWebAssistant(
             {
+                chats:[],
                 scripts: [],
                 scriptsWidgetMap: {},
                 settings: {
@@ -496,7 +500,6 @@ async function WebAssistant() {
         }
     };
 
-
     self.addPage = async function (assistantId, page) {
         const newPage = await persistence.createPage(page);
         return newPage
@@ -515,7 +518,6 @@ async function WebAssistant() {
         await persistence.setNameForPage(pageId, page.name);
         return await persistence.updatePage(pageId, page);
     };
-
 
     self.addMenuItem = async function (assistantId, menuItem) {
         if (!menuItem.icon) {
@@ -567,7 +569,6 @@ async function WebAssistant() {
         return pages[0];
     };
 
-
     self.getWidget = async (applicationId, widgetName) => {
         if (applicationId !== "assistOS") throw new Error("Unsupported application");
         const componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetName}`);
@@ -585,6 +586,25 @@ async function WebAssistant() {
         chatScript.widgetId = scriptsWidgetMap[scriptId] || null;
         return chatScript;
     }
+
+    self.createChat = async (assistantId, userId, chatData) => {
+        const chatId = await chat.createChat(assistantId, chatData.id,chatData.scriptId, chatData.args);
+        const webAssistant = await self.getWebAssistant(assistantId);
+        if (!webAssistant.chats[userId]) {
+            webAssistant.chats[userId] = [chatId];
+        }
+    }
+    self.getChat = async (assistantId, userId, chatId) => {
+        return await chat.getChat(chatId);
+
+    }
+    self.getChats = async (assistantId, userId) => {
+        const webAssistant = await self.getWebAssistant(assistantId);
+        const chats = webAssistant.chats[userId] || [];
+        const chatPromises = chats.map(chatId => self.getChat(assistantId, userId, chatId));
+        return await Promise.all(chatPromises);
+    }
+
     self.getScripts = async (assistantId) => {
         const webAssistant = await self.getWebAssistant(assistantId);
         const scripts = [];
@@ -682,6 +702,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript"];
+        return ["DefaultPersistence", "ChatScript"/*,"Chat"*/];
     }
 };

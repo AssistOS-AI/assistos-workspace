@@ -13,7 +13,11 @@ chat-page {
     width: 100%;
     gap: 10px;
 }
-
+.user-profile-image{
+    width:40px;
+    height:40px;
+    border-radius:50%;
+}
 #preview-content-header, #preview-content-footer {
     width: 100%;
     display: flex;
@@ -344,8 +348,11 @@ chat-page {
     margin-inline-end: 10px;
     margin-inline-start: 10px;
     align-items: stretch;
+    justify-content: flex-start;
 }
-
+.myself-message{
+    justify-content: flex-end;
+}
 
 .input__button {
     display: flex;
@@ -384,13 +391,13 @@ chat-page {
 }
 
 .chat-box {
+    display:flex;
     position: relative;
     padding: 5px 5px 5px 12px;
     width: 100%;
     white-space: pre-wrap;
     overflow-wrap: break-word;
     hyphens: auto;
-    word-break: break-word;
     font-weight: 400;
     font-size: 16px;
 }

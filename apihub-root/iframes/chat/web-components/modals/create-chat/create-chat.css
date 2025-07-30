@@ -1,14 +1,276 @@
-create-chat{
-    background:white;
+:root {
+    --form-input-border: #BDBDBD;
+    --light-gray-border: #EFEFEF;
+    --header-font-color: #222222;
+    --default-font-color: #646464;
+    --strong-blue: #08C;
+    --action-button-background: #E9E9E9;
+    --white: white;
+    --modal-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+    --default-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Reset box-sizing */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: var(--default-font);
+    background: #f5f5f5;
+    padding: 40px;
+    margin: 0;
+}
+
+/* Create Chat Modal */
+create-chat {
+    background: var(--white);
     display: block;
     width: 500px;
-    height: 350px;
+    min-height: 350px;
+    border: 1px solid var(--light-gray-border);
+    border-radius: 12px;
+    box-shadow: var(--modal-shadow);
+    overflow: hidden;
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.modal-body{
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modal Header - matching existing styles */
+.modal-header {
+    align-items: center;
+    padding: 15px 25px;
+    display: flex;
+    color: var(--header-font-color);
+    font-weight: 700;
+    font-size: 25px;
+    justify-content: space-between;
+    line-height: 100%;
+    letter-spacing: 0;
+    border-bottom: 1px solid var(--light-gray-border);
+}
+
+/* Close Button - Minimalist */
+.close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.close:active {
+    transform: scale(0.92);
+}
+
+.close-icon {
+    width: 13px;
+    height: 13px;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+}
+
+.close:hover .close-icon {
+    opacity: 0.8;
+}
+
+/* Modal Body Form */
+.modal-body {
+    padding: 25px 25px 25px 30px;
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
-.create-chat{
+
+/* Form Items */
+.form-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Form Labels */
+.form-label {
+    color: var(--default-font-color);
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Select Dropdowns - High-end styling */
+.form-select {
+    padding: 12px 16px;
+    padding-right: 40px;
+    font-size: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--form-input-border);
+    background-color: var(--white);
+    color: var(--header-font-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23646464' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 12px;
+    font-family: inherit;
+}
+
+.form-select:hover {
+    border-color: rgba(0, 136, 204, 0.5);
+    background-color: rgba(0, 136, 204, 0.02);
+}
+
+.form-select:focus {
+    border-color: var(--strong-blue);
+    outline: 2px solid var(--strong-blue);
+    outline-offset: -2px;
+    background-color: var(--white);
+}
+
+/* Create Chat Button - Premium styling */
+.general-button {
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--white);
+    background: var(--strong-blue);
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    letter-spacing: 0.02em;
+    margin-top: 10px;
+}
+
+.create-chat {
     width: fit-content;
+    align-self: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+
+.general-button::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.general-button:hover {
+    background: #0099d4;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 136, 204, 0.25);
+}
+
+.general-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 136, 204, 0.25);
+}
+
+.general-button:active::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Disabled state */
+.general-button:disabled,
+.form-select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Loading state for button */
+.general-button.loading {
+    color: transparent;
+    pointer-events: none;
+}
+
+.general-button.loading::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    top: 50%;
+    left: 50%;
+    margin-left: -10px;
+    margin-top: -10px;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+    to { transform: rotate(360deg); }
+}
+
+/* Success animation */
+@keyframes checkmark {
+    0% { transform: scale(0) rotate(45deg); }
+    50% { transform: scale(1.2) rotate(45deg); }
+    100% { transform: scale(1) rotate(45deg); }
+}
+
+.general-button.success {
+    background: #28a745;
+}
+
+.general-button.success::after {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    animation: checkmark 0.3s ease-out;
+}
+
+/* Form validation styles */
+.form-select.error {
+    border-color: #dc3545;
+    background-color: rgba(220, 53, 69, 0.05);
+}
+
+.form-error {
+    color: #dc3545;
+    font-size: 13px;
+    margin-top: -12px;
+    margin-bottom: 8px;
+    opacity: 0;
+    transform: translateY(-5px);
+    transition: all 0.2s ease;
+}
+
+.form-error.show {
+    opacity: 1;
+    transform: translateY(0);
 }
