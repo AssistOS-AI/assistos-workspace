@@ -122,7 +122,7 @@ async function handlePublicAuth() {
 }
 
 async function handleExistingSpaceMembersAuth() {
-    if(!isAuthenticated) {
+    if (!isAuthenticated) {
         let resAuth;
         const authenticatedPromise = new Promise((resolve, reject) => {
             resAuth = resolve;
@@ -141,7 +141,7 @@ async function handleExistingSpaceMembersAuth() {
 }
 
 async function handleNewAndExistingSpaceMembersAuth() {
-    if(!isAuthenticated) {
+    if (!isAuthenticated) {
         let resAuth;
         const authenticatedPromise = new Promise((resolve, reject) => {
             resAuth = resolve;
@@ -149,7 +149,7 @@ async function handleNewAndExistingSpaceMembersAuth() {
         window.UI.createElement(
             'login-page',
             appContainer,
-            {spaceId, resAuth,register: true},
+            {spaceId, resAuth, register: true},
             {
                 "data-spaceId": spaceId
             },
@@ -159,7 +159,7 @@ async function handleNewAndExistingSpaceMembersAuth() {
     }
 }
 
-switch(authType){
+switch (authType) {
     case "public":
         await handlePublicAuth();
         break;
@@ -175,34 +175,20 @@ let {chatId} = parseCookies(document.cookie);
 
 window.createChat = async () => {
     const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-    const scriptCode = "@history new Table from message timestamp role\n" +
-        "@context new Table from message timestamp role\n" +
-        "@currentUser := $arg1\n" +
-        "@agentName := $arg2\n" +
-        "@assistant new ChatAIAgent $agentName\n" +
-        "@user new ChatUserAgent $currentUser\n" +
-        "@chat new Chat $history $context $user $assistant\n" +
-        "\n" +
-        "context.upsert system [ assistant.getSystemPrompt ] \"\" system\n" +
-        "@newReply macro reply ~history ~context ~chat ~assistant\n" +
-        "    @res history.upsert $reply\n" +
-        "    context.upsert $res\n" +
-        "    chat.notify $res\n" +
-        "    return $res\n" +
-        "end"
+    const webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
+    const defaultScriptId = await webAssistantModule.getDefaultChatScript(spaceId, webAssistantId);
     chatId = generateId(16);
-    const chatScript = await chatModule.createChatScript(spaceId,`DefaultAssistantScript_${chatId}`, scriptCode, "DefaultAssistantScript");
     try {
-        let res = await chatModule.createChat(spaceId, chatId, chatScript.id, ["User", "Assistant"]);
+        let res = await chatModule.createChat(spaceId, chatId, defaultScriptId , ["User", "Assistant"]);
         document.cookie = `chatId=${chatId}`;
-    }catch(err){
+    } catch (err) {
         console.log(err);
     }
     return chatId;
 }
 
-if(!chatId){
-await createChat();
+if (!chatId) {
+    await createChat();
 }
 
 await launchAssistant(chatId);

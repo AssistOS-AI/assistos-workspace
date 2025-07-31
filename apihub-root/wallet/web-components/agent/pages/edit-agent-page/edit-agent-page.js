@@ -19,6 +19,7 @@ export class EditAgentPage {
     }
 
     async beforeRender() {
+        debugger
         this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
         this.agentName = this.agent.name;
         const llms = await llmModule.getModels({spaceId: this.spaceId});

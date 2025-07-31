@@ -2,7 +2,7 @@ export class SettingsPage {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
-        this.activeTab = this.element.getAttribute("data-subpage") || "collaboratorsTab";
+        this.activeTab = this.element.getAttribute("data-subpage") || "keysTab";
         this.invalidate();
     }
 
@@ -16,11 +16,6 @@ export class SettingsPage {
         } else if (this.activeTab === "settingsTab") {
             this.tabContent = `<display-preferences data-presenter="display-preferences"></display-preferences>`;
             this.subpageName = "Settings";
-        } else if (this.activeTab === "webAssistant") {
-            this.tabContent = `
-            <application-creator-landing data-presenter="application-creator-landing"></application-creator-landing>
-            `
-            this.subpageName = "Web Assistant";
         } else if (this.activeTab === "advancedSettings") {
             this.tabContent = "<advanced-settings data-presenter='advanced-settings'></advanced-settings>";
             this.subpageName = "Advanced Settings";

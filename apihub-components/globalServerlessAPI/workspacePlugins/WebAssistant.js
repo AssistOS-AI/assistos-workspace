@@ -6,6 +6,7 @@ const authSettings = [
     "newAndExistingSpaceMembers"
 ]
 
+
 async function WebAssistant() {
     const self = {};
 
@@ -49,10 +50,14 @@ async function WebAssistant() {
             icon: "string"
         }
     })
+    self.getDefaultChatScript = async function (webAssistantId){
+        const scripts = await ChatScript.getChatScripts();
+        const script = scripts.find(script=> script.name === "DefaultChatScript");
+        return script.id;
+    }
 
     self.createWebAssistant = async function () {
         async function addDefaultWebAssistantThemes() {
-
             const defaultThemes = [
                 {
                     name: "Ubuntu Theme",
@@ -289,6 +294,12 @@ async function WebAssistant() {
         `
                 }
             ];
+            for (const theme of defaultThemes) {
+                await persistence.createTheme(theme);
+            }
+        }
+
+        async function addDefaultWidgets() {
             const defaultWidgets = [
                 {
                     name: "AssistOS About Us Page",
@@ -420,18 +431,37 @@ async function WebAssistant() {
                     js: `// Test JS for Privacy Widget console.log('Privacy widget placeholder loaded.');`
                 }
             ];
-            for (const theme of defaultThemes) {
-                await persistence.createTheme(theme);
-            }
             for (const widget of defaultWidgets) {
                 await persistence.createPage(widget);
             }
         }
 
+        async function addDefaultChatScript() {
+            const scriptCode = "@history new Table from message timestamp role\n" +
+                "@context new Table from message timestamp role\n" +
+                "@currentUser := $arg1\n" +
+                "@agentName := $arg2\n" +
+                "@assistant new ChatAIAgent $agentName\n" +
+                "@user new ChatUserAgent $currentUser\n" +
+                "@chat new Chat $history $context $user $assistant\n" +
+                "\n" +
+                "context.upsert system [ assistant.getSystemPrompt ] \"\" system\n" +
+                "@newReply macro reply ~history ~context ~chat ~assistant\n" +
+                "    @res history.upsert $reply\n" +
+                "    context.upsert $res\n" +
+                "    chat.notify $res\n" +
+                "    return $res\n" +
+                "end"
+            const name = "DefaultChatScript"
+            const description = "Default chat script for web assistants";
+            return await ChatScript.createChatScript(name, scriptCode, description);
+        }
+
+        const script = await addDefaultChatScript();
         const assistant = await persistence.createWebAssistant(
             {
-                chats:[],
-                scripts: [],
+                chats: [],
+                scripts: [script.id],
                 scriptsWidgetMap: {},
                 settings: {
                     header: "",
@@ -444,7 +474,7 @@ async function WebAssistant() {
                     authentication: "existingSpaceMembers",
                 }
             })
-        await addDefaultWebAssistantThemes();
+        await Promise.all([addDefaultWebAssistantThemes(), addDefaultWidgets()]);
         return assistant;
     }
 
@@ -588,7 +618,7 @@ async function WebAssistant() {
     }
 
     self.createChat = async (assistantId, userId, chatData) => {
-        const chatId = await chat.createChat(assistantId, chatData.id,chatData.scriptId, chatData.args);
+        const chatId = await chat.createChat(assistantId, chatData.id, chatData.scriptId, chatData.args);
         const webAssistant = await self.getWebAssistant(assistantId);
         if (!webAssistant.chats[userId]) {
             webAssistant.chats[userId] = [chatId];
@@ -677,6 +707,7 @@ module.exports = {
             if (command === "getAuth") {
                 return true;
             }
+
             let {settings} = await singletonInstance.getWebAssistant(args[0]);
 
             if (settings.authentication === "public") {
@@ -702,6 +733,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript"/*,"Chat"*/];
+        return ["DefaultPersistence", "ChatScript"];
     }
 };

@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <div>New Chat</div>
+    <div>New Room</div>
     <div class="close" data-local-action="closeModal">
         <svg class="close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 6L6 18M6 6l12 12"/>
@@ -8,11 +8,11 @@
 </div>
 <form class="modal-body">
     <div class="form-item">
-        <label class="form-label" for="scriptName">Select script</label>
+        <label class="form-label" for="scriptName">Select ChatScript</label>
         <select class="form-select" id="scriptName" name="scriptName">
             $$scriptOptions
         </select>
-        <span class="form-error">Please select a script</span>
+        <span class="form-error">Please select a ChatScript</span>
     </div>
     <div class="form-item">
         <label class="form-label" for="agent">Select Agent</label>
@@ -21,5 +21,5 @@
         </select>
         <span class="form-error">Please select an agent</span>
     </div>
-    <div class="general-button create-chat" data-local-action="createChat">Start new chat</div>
+    <div class="general-button create-chat" data-local-action="createChat">Start new Room</div>
 </form>
