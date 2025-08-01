@@ -399,10 +399,8 @@ class BaseChatFrame {
         if (!chatId) {
             return;
         }
-        if (IFrameContext) {
-            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-            document.cookie = `chatId=${chatId}`;
-        }
+        document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        document.cookie = `chatId=${chatId}`;
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
@@ -486,10 +484,8 @@ class BaseChatFrame {
     }
 
     async openChat(button, chatId) {
-        if (IFrameContext) {
-            document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-            document.cookie = `chatId=${chatId}`;
-        }
+        document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        document.cookie = `chatId=${chatId}`;
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();

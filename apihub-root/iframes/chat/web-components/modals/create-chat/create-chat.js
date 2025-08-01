@@ -23,10 +23,10 @@ export class CreateChat {
     }
 
     async beforeRender() {
-        let scripts = await chatModule.getChatScriptNames(window.spaceId);
+        let scripts = await webAssistantModule.getScripts(window.spaceId,this.assistantId);
         let agents = await agentModule.getAgentNames(window.spaceId);
-        this.scriptOptions = scripts.map(scriptName =>
-            `<option value="${scriptName}">${scriptName}</option>`
+        this.scriptOptions = scripts.map(script=>
+            `<option value="${script.id}">${script.name}</option>`
         ).join('');
         this.agentOptions = agents.map(agentName =>
             `<option value="${agentName}">${agentName}</option>`
@@ -44,10 +44,10 @@ export class CreateChat {
             return;
         }
         let chatId = formInfo.data.agent + "_Chat_" + generateId(8);
-        let scriptName = UI.unsanitize(formInfo.data.scriptName);
+        let scriptId = UI.unsanitize(formInfo.data.scriptName);
         await webAssistantModule.createChat(this.spaceId,this.assistantId,assistOS.securityContext.userId,{
-            chatId,
-            scriptName,
+            id:chatId,
+            scriptId:scriptId,
             args:["User", formInfo.data.agent]
         })
         UI.closeModal(this.element, chatId);

@@ -21,7 +21,7 @@ export class SelectChat {
                 selectedClass = "selected";
                 dataLocalAction = "";
             }
-            this.chatsHTML += `<div class="chat-item ${selectedClass}" ${dataLocalAction}>${chat.title}</div>`;
+            this.chatsHTML += `<div class="chat-item ${selectedClass}" data-local-action="selectChat ${chat.docId}">${chat.docId}</div>`;
         }
     }
 

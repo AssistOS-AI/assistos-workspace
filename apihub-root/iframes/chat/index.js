@@ -174,12 +174,15 @@ switch (authType) {
 let {chatId} = parseCookies(document.cookie);
 
 window.createChat = async () => {
-    const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
     const webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
     const defaultScriptId = await webAssistantModule.getDefaultChatScript(spaceId, webAssistantId);
     chatId = generateId(16);
     try {
-        let res = await chatModule.createChat(spaceId, chatId, defaultScriptId , ["User", "Assistant"]);
+        let res = await webAssistantModule.createChat(spaceId, webAssistantId, assistOS.securityContext.userId, {
+            id:chatId,
+            scriptId:defaultScriptId,
+            args: ["User", "Assistant"]
+        });
         document.cookie = `chatId=${chatId}`;
     } catch (err) {
         console.log(err);
