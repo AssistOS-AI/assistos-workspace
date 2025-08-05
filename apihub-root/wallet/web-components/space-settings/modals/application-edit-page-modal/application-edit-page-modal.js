@@ -1,5 +1,5 @@
 const applicationModule = assistOS.loadModule("application");
-const WebAssistant = assistOS.loadModule("webassistant",{});
+const WebAssistant = assistOS.loadModule("webassistant", {});
 
 function isEmpty(obj) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
@@ -17,6 +17,7 @@ export class ApplicationEditPageModal {
     }
 
     async beforeRender() {
+        debugger
         if (this.id) {
             await this.handleEditRender();
         } else {
@@ -30,12 +31,14 @@ export class ApplicationEditPageModal {
         this.actionFn = `addPage`;
         const widgets = await applicationModule.getWidgets(this.spaceId);
         this.widgets = Object.entries(
-            (isEmpty(widgets)?{}:widgets))
+            (isEmpty(widgets) ? {} : widgets))
             .map(([app, widgets]) =>
                 widgets.map(widget => `<option value="${app}/${widget.name}">${app}/${widget.name}</option>`))
             .flat(2)
             .join('');
         this.widgets = `<select class="application-form-item-select" id="selectedWidget" name="selectedWidget">${this.widgets}</select>`
+        const existingPages = await WebAssistant.getPages(this.spaceId, this.assistantId);
+
         this.chatOptions = `
                         <option value="0">Minimized</option>
                         <option value="30">Third of Screen</option>
@@ -44,13 +47,15 @@ export class ApplicationEditPageModal {
 `
         this.roleOptions = `
                         <option value="page" selected>Page</option>
-                        <option value="header">Header</option>
-                        <option value="footer" >Footer</option>
+                        <option value="header" ${existingPages.find(page=>page.role==="header")?"disabled":""} >Header</option>
+                        <option value="footer" ${existingPages.find(page=>page.role==="footer")?"disabled":""}>Footer</option>
+                        <option value="load" ${existingPages.find(page=>page.role==="load")?"disabled":""}>Load Room</option>
+                        <option value="new" ${existingPages.find(page=>page.role==="new")?"disabled":""}>New Room</option>
 `
     }
 
     async handleEditRender() {
-        const pageData = await WebAssistant.getPage(this.spaceId,  this.assistantId , this.id);
+        const pageData = await WebAssistant.getPage(this.spaceId, this.assistantId, this.id);
         this.name = pageData.name;
         this.description = pageData.description;
         this.widget = pageData.widget;
@@ -65,16 +70,21 @@ export class ApplicationEditPageModal {
         this.actionButton = "Save";
         this.actionFn = `editPage`;
         const widgets = await applicationModule.getWidgets(this.spaceId);
-        this.widgets = Object.entries((isEmpty(widgets)?{}:widgets)).map(([app, widgets]) => widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.widget ? "selected" : ""}>${app}/${widget.name}</option>`)).flat(2).join('');
+        this.widgets = Object.entries((isEmpty(widgets) ? {} : widgets)).map(([app, widgets]) => widgets.map(widget => `<option value="${app}/${widget.name}" ${`${app}/${widget.name}` === this.widget ? "selected" : ""}>${app}/${widget.name}</option>`)).flat(2).join('');
         this.widgets = `<select class="application-form-item-select" id="selectedWidget" name="selectedWidget">${this.widgets}</select>`
         this.chatOptions = ` <option value="0" ${this.chatSize === "0" ? "selected" : ""}>Minimized</option>
                         <option value="30" ${this.chatSize === "30" ? "selected" : ""}>Third of Screen</option>
                         <option value="50" ${this.chatSize === "50" ? "selected" : ""}>Half of Screen</option>
                         <option value="100" ${this.chatSize === "100" ? "selected" : ""}>Full Screen</option>
 `
-        this.roleOptions = `<option value="page" ${this.role === "page" ? "selected" : ""}>Widget</option>
-                        <option value="header" ${this.role === "header" ? "selected" : ""}>Header</option>
-                        <option value="footer" ${this.role === "footer" ? "selected" : ""}>Footer</option>
+        const existingPages = await WebAssistant.getPages(this.spaceId, this.assistantId);
+
+        this.roleOptions = `
+                        <option value="page">Page</option>
+                        <option value="header" ${pageData.role==="header"?"selected":""} ${existingPages.find(page=>page.role==="header")?"disabled":""} >Header</option>
+                        <option value="footer" ${pageData.role==="footer"?"selected":""} ${existingPages.find(page=>page.role==="footer")?"disabled":""}>Footer</option>
+                        <option value="load" ${pageData.role==="load"?"selected":""} ${existingPages.find(page=>page.role==="load")?"disabled":""}>Load Room</option>
+                        <option value="new" ${pageData.role==="new"?"selected":""} ${existingPages.find(page=>page.role==="new")?"disabled":""}>New Room</option>
 `
     }
 
@@ -87,7 +97,7 @@ export class ApplicationEditPageModal {
             this.dataStructure["HTML"] = {value: ''};
             this.dataStructure["CSS"] = {value: ''};
             this.dataStructure["JS"] = {value: ''};
-        }else{
+        } else {
             this.dataStructure["General Settings"] = {value: this.generalSettings};
             this.dataStructure["Data"] = {value: this.data};
             this.dataStructure["HTML"] = {value: this.html};
@@ -179,7 +189,7 @@ export class ApplicationEditPageModal {
         if (textarea) {
             textarea.value = this.dataStructure[key]?.value || '';
 
-            switch(key) {
+            switch (key) {
                 case "General Settings":
                     textarea.placeholder = "Enter general settings...";
                     break;
@@ -204,14 +214,15 @@ export class ApplicationEditPageModal {
     }
 
     async addPage(_target) {
+        debugger
         const form = this.element.querySelector('form');
         const description = form.querySelector('#description');
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
             // Check if header or footer already exists
             const selectedRole = formData.data["page-role"];
-            if (selectedRole === "header" || selectedRole === "footer") {
-                const existingPages = await WebAssistant.getPages(this.spaceId,  this.assistantId );
+            if (selectedRole === "header" || selectedRole === "footer" || selectedRole === "load" || selectedRole === "new") {
+                const existingPages = await WebAssistant.getPages(this.spaceId, this.assistantId);
                 const existingRole = existingPages.find(page => page.role === selectedRole);
                 if (existingRole) {
                     await assistOS.showToast(`A ${selectedRole} already exists. Only one ${selectedRole} is allowed.`, "error");
@@ -231,7 +242,7 @@ export class ApplicationEditPageModal {
                 css: this.dataStructure["CSS"].value,
                 js: this.dataStructure["JS"].value
             }
-            await WebAssistant.addPage(this.spaceId,  this.assistantId , pageData);
+            await WebAssistant.addPage(this.spaceId, this.assistantId, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }
@@ -243,8 +254,8 @@ export class ApplicationEditPageModal {
         let formData = await assistOS.UI.extractFormInformation(form);
         if (formData.isValid) {
             const selectedRole = formData.data["page-role"];
-            if (selectedRole === "header" || selectedRole === "footer") {
-                const existingPages = await WebAssistant.getPages(this.spaceId,  this.assistantId );
+            if (selectedRole === "header" || selectedRole === "footer" || selectedRole === "load" || selectedRole === "new") {
+                const existingPages = await WebAssistant.getPages(this.spaceId, this.assistantId);
                 const existingRole = existingPages.find(page =>
                     page.role === selectedRole && page.id !== this.id
                 );
@@ -267,7 +278,7 @@ export class ApplicationEditPageModal {
                 css: this.dataStructure["CSS"].value,
                 js: this.dataStructure["JS"].value
             }
-            await WebAssistant.updatePage(this.spaceId,  this.assistantId , this.id, pageData);
+            await WebAssistant.updatePage(this.spaceId, this.assistantId, this.id, pageData);
             this.shouldInvalidate = true;
             await this.closeModal();
         }

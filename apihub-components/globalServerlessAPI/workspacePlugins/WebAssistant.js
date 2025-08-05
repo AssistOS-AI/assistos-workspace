@@ -6,7 +6,6 @@ const authSettings = [
     "newAndExistingSpaceMembers"
 ]
 
-
 async function WebAssistant() {
     const self = {};
 
@@ -14,10 +13,14 @@ async function WebAssistant() {
     const ChatScript = $$.loadPlugin("ChatScript");
     const chat = $$.loadPlugin("Chat");
 
-
-    self.getDefaultChatScript = async function (webAssistantId){
+    self.getDefaultChatScript = async function (webAssistantId) {
         const scripts = await ChatScript.getChatScripts();
-        const script = scripts.find(script=> script.name === "DefaultChatScript");
+        const script = scripts.find(script => script.name === "DefaultChatScript");
+        return script.id;
+    }
+    self.getDefaultControlRoomScript = async function (webAssistantId) {
+        const scripts = await ChatScript.getChatScripts();
+        const script = scripts.find(script => script.name === "DefaultControlRoomScript");
         return script.id;
     }
 
@@ -130,6 +133,7 @@ async function WebAssistant() {
             }
         }
     };
+
     self.deleteMenuItem = async function (assistantId, menuItemId) {
         await persistence.deleteMenuItem(menuItemId);
     };
@@ -139,7 +143,7 @@ async function WebAssistant() {
         if (pages.length === 0) {
             throw new Error('No pages found in the web assistant configuration');
         }
-        return pages[0];
+        return pages.find(page => page.role==="page") || pages[0];
     };
 
     self.getWidget = async (applicationId, widgetName) => {
@@ -160,18 +164,53 @@ async function WebAssistant() {
         return chatScript;
     }
 
-    self.createChat = async (assistantId, userId, chatData) => {
-        const chatId = await chat.createChat( chatData.id, chatData.scriptId, chatData.args);
+    async function createControlRoom(assistantId, userId) {
         const webAssistant = await self.getWebAssistant(assistantId);
-        if (!webAssistant.chats[userId]) {
-            webAssistant.chats[userId] = [chatId];
-        }else{
+        const controlRoomScriptId = await self.getDefaultControlRoomScript(assistantId);
+        const chatId = `${userId}_ControlRoom`;
+        const chatObj = await chat.createChat(chatId, controlRoomScriptId, ["User", "Assistant"]);
+        webAssistant.chats[userId] = [chatObj];
+        webAssistant.chats[userId][0].controlRoom = true;
+        await persistence.updateWebAssistant(assistantId, webAssistant);
+    }
+
+
+    self.createChat = async (assistantId, userId, chatData) => {
+        const chatId = await chat.createChat(chatData.id, chatData.scriptId, chatData.args);
+        const webAssistant = await self.getWebAssistant(assistantId, userId);
+
+        if (!webAssistant.chats[userId] || webAssistant.chats[userId].length === 0) {
+            await createControlRoom(assistantId, userId, chatId);
+            webAssistant.chats[userId].push(chatId);
+        } else {
             webAssistant.chats[userId].push(chatId);
         }
-    }
-    self.getChat = async (assistantId, userId, chatId) => {
-        return await chat.getChat(chatId);
+        await persistence.updateWebAssistant(assistantId, webAssistant);
+    };
 
+    self.getChat = async (assistantId, userId, chatId) => {
+        const chatObj = await chat.getChat(chatId);
+        const webAssistant = await self.getWebAssistant(assistantId);
+        if (!webAssistant.chats[userId]) {
+            webAssistant.chats[userId] = [];
+            await persistence.updateWebAssistant(assistantId, webAssistant);
+            return [];
+        }
+        if (webAssistant.chats[userId].find(chat => chat.docId === chatId)?.controlRoom) {
+            chatObj.controlRoom = true;
+        }
+        return chatObj;
+    }
+    self.getControlRoom = async (assistantId, userId) => {
+        const webAssistant = await self.getWebAssistant(assistantId);
+        if (!webAssistant.chats[userId] || webAssistant.chats[userId].length === 0) {
+            await createControlRoom(assistantId, userId);
+        }
+        const controlRoomChat = webAssistant.chats[userId].find(chat => chat.controlRoom);
+        if (!controlRoomChat) {
+            throw new Error("Control room not found for user " + userId);
+        }
+        return controlRoomChat
     }
     self.getChats = async (assistantId, userId) => {
         const webAssistant = await self.getWebAssistant(assistantId);
@@ -277,6 +316,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript","Chat"];
+        return ["DefaultPersistence", "ChatScript", "Chat"];
     }
 };

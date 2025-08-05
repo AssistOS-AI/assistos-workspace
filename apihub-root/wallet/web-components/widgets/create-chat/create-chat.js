@@ -1,4 +1,3 @@
-let chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
 let agentModule = require("assistos").loadModule("agent", assistOS.securityContext);
 let webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
 
@@ -23,6 +22,7 @@ export class CreateChat {
     }
 
     async beforeRender() {
+        debugger
         let scripts = await webAssistantModule.getScripts(window.spaceId,this.assistantId);
         let agents = await agentModule.getAgentNames(window.spaceId);
         this.scriptOptions = scripts.map(script=>
@@ -50,10 +50,7 @@ export class CreateChat {
             scriptId:scriptId,
             args:["User", formInfo.data.agent]
         })
-        UI.closeModal(this.element, chatId);
+        document.querySelector("chat-page")?.webSkelPresenter?.openChat(null, chatId);
     }
 
-    closeModal(_target) {
-        UI.closeModal(_target);
-    }
 }

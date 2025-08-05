@@ -15,17 +15,19 @@ const stopStreamActionButtonHTML = `
 </button>
 `
 
+
 let IFrameChatOptions = `
-<div class="preview-sidebar-item">
-<list-item data-local-action="newChat" data-name="New Room" data-highlight="light-highlight"></list-item>
-</div>
-<div class="preview-sidebar-item">
-<list-item data-local-action="loadChat" data-name="Load Room" data-highlight="light-highlight"></list-item>
-</div>
-<div class="preview-sidebar-item">
-<list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
-</div>
+    <div class="preview-sidebar-item">
+    <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
+    </div>
+    <div class="preview-sidebar-item">
+    <list-item data-local-action="newChat" data-name="New Room" data-highlight="light-highlight"></list-item>
+    </div>
+    <div class="preview-sidebar-item">
+    <list-item data-local-action="loadChat" data-name="Load Room" data-highlight="light-highlight"></list-item>
+    </div>
 `
+
 const waitForElement = (container, selector) => {
     return new Promise((resolve, reject) => {
         const element = container.querySelector(selector);
@@ -77,7 +79,6 @@ function generateRootCSS(themeVars) {
     return `:root { ${entries.join(' ')} }`
 }
 
-const IFrameContext = window.assistOS === undefined;
 const UI = window.UI
 
 class BaseChatFrame {
@@ -160,15 +161,20 @@ class BaseChatFrame {
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
-        this.chatOptions = IFrameChatOptions;
+
         try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
         } catch (error) {
-            debugger;
             this.chatId = await window.createChat();
             this.invalidate();
         }
-
+        const chat = await WebAssistant.getChat(this.spaceId, this.webAssistantId, assistOS.securityContext.userId, this.chatId);
+        if(chat.controlRoom){
+            this.controlRoom = true;
+        }else{
+            this.controlRoom = false;
+        }
+        this.chatOptions = IFrameChatOptions;
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
             const chatMessage = this.chatHistory[messageIndex]
@@ -184,26 +190,6 @@ class BaseChatFrame {
         }
         this.spaceConversation = this.stringHTML;
     }
-
-    async displayUserReply(replyId, userEmail) {
-        const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
-        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
-        const lastReplyElement = this.conversation.lastElementChild;
-        await this.observerElement(lastReplyElement);
-        await waitForElement(lastReplyElement, '#done');
-        return lastReplyElement;
-    }
-
-    observerElement(element) {
-        if (this.observedElement) {
-            this.intersectionObserver.unobserve(this.observedElement);
-        }
-        this.observedElement = element;
-        if (element) {
-            this.intersectionObserver.observe(element);
-        }
-    }
-
     async afterRender() {
         const constants = require("assistos").constants;
         const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
@@ -230,49 +216,93 @@ class BaseChatFrame {
         });
 
         const pages = await WebAssistant.getPages(this.spaceId, this.webAssistantId);
+        if(!this.controlRoom){
+            const headerPage = pages.find(page => page.role === "header");
+            const footerPage = pages.find(page => page.role === "footer");
 
-        const headerPage = pages.find(page => page.role === "header");
-        const footerPage = pages.find(page => page.role === "footer");
 
-
-        if (headerPage) {
-            const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
-            await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-            UI.createElement(previewWidgetName, '#preview-content-header', {
-                generalSettings: headerPage.generalSettings,
-                data: headerPage.data,
-                html: headerPage.html,
-                css: headerPage.css,
-                js: headerPage.js
-            });
-        } else {
-            this.element.querySelector('#preview-content-header')?.remove();
-        }
-        if (footerPage) {
-            const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
-            await UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
-            UI.createElement(previewFooterName, '#preview-content-footer',
-                {
-                    generalSettings: footerPage.generalSettings,
-                    data: footerPage.data,
-                    html: footerPage.html,
-                    css: footerPage.css,
-                    js: footerPage.js
+            if (headerPage) {
+                const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
+                await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
+                UI.createElement(previewWidgetName, '#preview-content-header', {
+                    generalSettings: headerPage.generalSettings,
+                    data: headerPage.data,
+                    html: headerPage.html,
+                    css: headerPage.css,
+                    js: headerPage.js
                 });
-        } else {
-            this.element.querySelector('#preview-content-footer')?.remove();
+            } else {
+                this.element.querySelector('#preview-content-header')?.remove();
+            }
+            if (footerPage) {
+                const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
+                await UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
+                UI.createElement(previewFooterName, '#preview-content-footer',
+                    {
+                        generalSettings: footerPage.generalSettings,
+                        data: footerPage.data,
+                        html: footerPage.html,
+                        css: footerPage.css,
+                        js: footerPage.js
+                    });
+            } else {
+                this.element.querySelector('#preview-content-footer')?.remove();
+            }
+            const [widgetApp, widgetName] = this.page.widget.split('/');
+
+            await UI.loadWidget(this.spaceId, widgetApp, widgetName);
+
+            UI.createElement(widgetName, '#preview-content-right', {
+                generalSettings: this.page.generalSettings,
+                data: this.page.data,
+                html: this.page.html,
+                css: this.page.css,
+                js: this.page.js
+            });
+        }else{
+            const loadWidget = pages.find(page => page.role === "load");
+            const newWidget = pages.find(page => page.role === "new");
+
+            if(this.loadRoomScope){
+                if (loadWidget) {
+                    const [loadWidgetApp, loadWidgetName] = loadWidget.widget.split('/');
+                    await UI.loadWidget(this.spaceId, loadWidgetApp, loadWidgetName);
+                    UI.createElement(loadWidgetName, '#preview-content-right', {
+                        generalSettings: loadWidget.generalSettings,
+                        data: loadWidget.data,
+                        html: loadWidget.html,
+                        css: loadWidget.css,
+                        js: loadWidget.js
+                    },{
+                        "data-chat-id": this.chatId,
+                        "data-assistant-id": this.webAssistantId,
+                        "data-space-id": this.spaceId
+                    });
+                } else {
+                    this.element.querySelector('#preview-content-right')?.remove();
+                }
+            }else{
+                if (newWidget) {
+                    const [newWidgetApp, newWidgetName] = newWidget.widget.split('/');
+                    await UI.loadWidget(this.spaceId, newWidgetApp, newWidgetName);
+                    UI.createElement(newWidgetName, '#preview-content-right', {
+                        generalSettings: newWidget.generalSettings,
+                        data: newWidget.data,
+                        html: newWidget.html,
+                        css: newWidget.css,
+                        js: newWidget.js
+                    },{
+                        "data-chat-id": this.chatId,
+                        "data-assistant-id": this.webAssistantId,
+                        "data-space-id": this.spaceId
+                    });
+                } else {
+                    this.element.querySelector('#preview-content-left')?.remove();
+                }
+            }
         }
-        const [widgetApp, widgetName] = this.page.widget.split('/');
 
-        await UI.loadWidget(this.spaceId, widgetApp, widgetName);
 
-        UI.createElement(widgetName, '#preview-content-right', {
-            generalSettings: this.page.generalSettings,
-            data: this.page.data,
-            html: this.page.html,
-            css: this.page.css,
-            js: this.page.js
-        });
 
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
         this.previewRightElement = this.element.querySelector('#preview-content-right');
@@ -320,6 +350,26 @@ class BaseChatFrame {
         });
         this.initObservers();
     }
+
+    async displayUserReply(replyId, userEmail) {
+        const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
+        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
+        const lastReplyElement = this.conversation.lastElementChild;
+        await this.observerElement(lastReplyElement);
+        await waitForElement(lastReplyElement, '#done');
+        return lastReplyElement;
+    }
+
+    observerElement(element) {
+        if (this.observedElement) {
+            this.intersectionObserver.unobserve(this.observedElement);
+        }
+        this.observedElement = element;
+        if (element) {
+            this.intersectionObserver.observe(element);
+        }
+    }
+
 
     getReply(replyId) {
         return this.chatHistory.find(message => message.truid === replyId) || null;
@@ -391,20 +441,6 @@ class BaseChatFrame {
         return this.chatHistory[messageIndex]
     }
 
-    async newChat(target) {
-        const chatId = await UI.showModal('create-chat', {
-            "assistant-id": this.props.webAssistantId,
-            "space-id": this.spaceId
-        }, true);
-        if (!chatId) {
-            return;
-        }
-        document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-        document.cookie = `chatId=${chatId}`;
-        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
-        this.element.setAttribute('data-chatId', chatId);
-        this.invalidate();
-    }
 
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
@@ -470,24 +506,44 @@ class BaseChatFrame {
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
     }
 
-    async loadChat() {
-        let chatId = await UI.showModal("select-chat",
-            {
-                "chat-id": this.chatId,
-                "assistant-id": this.props.webAssistantId,
-                "space-id": this.spaceId
-            },
-            true);
-        if (chatId) {
-            await this.openChat("", chatId);
+    async startNewRoom() {
+        const chatId = await UI.showModal('create-chat', {
+            "assistant-id": this.props.webAssistantId,
+            "space-id": this.spaceId
+        }, true);
+        if (!chatId) {
+            return;
         }
+        document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        document.cookie = `chatId=${chatId}`;
+        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
+        this.element.setAttribute('data-chatId', chatId);
+        this.invalidate();
+    }
+
+    async loadRoom() {
+
+    }
+
+    async newChat(target) {
+        const controlRoom= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        this.loadRoomScope = false;
+        await this.openChat(target, controlRoom.docId);
+        this.invalidate();
+    }
+
+    async loadChat(target) {
+        const controlRoom= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        this.loadRoomScope = true;
+        await this.openChat(target, controlRoom.docId);
+        this.invalidate();
     }
 
     async openChat(button, chatId) {
         document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
         document.cookie = `chatId=${chatId}`;
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
-        this.element.setAttribute('data-chatId', chatId);
+        this.chatId = chatId;
         this.invalidate();
     }
 }

@@ -30,10 +30,10 @@ export class SelectChat {
     }
 
     closeModal(_target) {
-       UI.closeModal(_target);
     }
 
     async selectChat(_target, chatId) {
-       UI.closeModal(_target, chatId);
+        document.querySelector("chat-page")?.webSkelPresenter?.openChat(null, chatId);
+        this.element.remove();
     }
 }

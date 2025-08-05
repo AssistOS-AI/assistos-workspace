@@ -12,11 +12,6 @@
       "presenterClassName": "LoginPage"
     },
     {
-      "name": "select-chat",
-      "type": "components",
-      "presenterClassName": "SelectChat"
-    },
-    {
       "name": "chat-item",
       "type": "components",
       "presenterClassName": "ChatItem"
@@ -24,11 +19,6 @@
     {
       "name": "list-item",
       "type": "components"
-    },
-    {
-      "name": "create-chat",
-      "type": "modals",
-      "presenterClassName": "CreateChat"
     },
     {
       "name": "view-context-modal",
