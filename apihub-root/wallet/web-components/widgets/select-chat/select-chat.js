@@ -12,16 +12,16 @@ export class SelectChat {
     }
 
     async beforeRender() {
-        let chats = await WebAssistant.getChats(this.spaceId, this.assistantId,this.userId);
+        let chats = await WebAssistant.getUserChats(this.spaceId, this.assistantId,this.userId);
         this.chatsHTML = "";
         for (let chat of chats) {
             let selectedClass = "";
-            let dataLocalAction = `data-local-action="selectChat ${chat.docId}"`;
-            if (this.chatId === chat.docId) {
+            let dataLocalAction = `data-local-action="selectChat ${chat}"`;
+            if (this.chatId === chat) {
                 selectedClass = "selected";
                 dataLocalAction = "";
             }
-            this.chatsHTML += `<div class="chat-item ${selectedClass}" data-local-action="selectChat ${chat.docId}">${chat.docId}</div>`;
+            this.chatsHTML += `<div class="chat-item ${selectedClass}" data-local-action="selectChat ${chat}">${chat}</div>`;
         }
     }
 

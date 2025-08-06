@@ -161,15 +161,15 @@ class BaseChatFrame {
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
-
-        try {
+        try{
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
-        } catch (error) {
-            this.chatId = await window.createChat();
-            this.invalidate();
+        }catch(error) {
+
         }
+
         const chat = await WebAssistant.getChat(this.spaceId, this.webAssistantId, assistOS.securityContext.userId, this.chatId);
-        if(chat.controlRoom){
+        const controlRoomId = await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        if(chat.docId === controlRoomId){
             this.controlRoom = true;
         }else{
             this.controlRoom = false;
@@ -219,8 +219,6 @@ class BaseChatFrame {
         if(!this.controlRoom){
             const headerPage = pages.find(page => page.role === "header");
             const footerPage = pages.find(page => page.role === "footer");
-
-
             if (headerPage) {
                 const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
                 await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
@@ -264,6 +262,7 @@ class BaseChatFrame {
             const newWidget = pages.find(page => page.role === "new");
 
             if(this.loadRoomScope){
+                document.getElementById('preview-content-right').innerHTML = '';
                 if (loadWidget) {
                     const [loadWidgetApp, loadWidgetName] = loadWidget.widget.split('/');
                     await UI.loadWidget(this.spaceId, loadWidgetApp, loadWidgetName);
@@ -526,17 +525,15 @@ class BaseChatFrame {
     }
 
     async newChat(target) {
-        const controlRoom= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
         this.loadRoomScope = false;
-        await this.openChat(target, controlRoom.docId);
-        this.invalidate();
+        await this.openChat(target, controlRoomId);
     }
 
     async loadChat(target) {
-        const controlRoom= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
         this.loadRoomScope = true;
-        await this.openChat(target, controlRoom.docId);
-        this.invalidate();
+        await this.openChat(target, controlRoomId);
     }
 
     async openChat(button, chatId) {

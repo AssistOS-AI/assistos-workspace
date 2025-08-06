@@ -22,7 +22,6 @@ export class CreateChat {
     }
 
     async beforeRender() {
-        debugger
         let scripts = await webAssistantModule.getScripts(window.spaceId,this.assistantId);
         let agents = await agentModule.getAgentNames(window.spaceId);
         this.scriptOptions = scripts.map(script=>
@@ -43,7 +42,7 @@ export class CreateChat {
         if (!formInfo.isValid) {
             return;
         }
-        let chatId = formInfo.data.agent + "_Chat_" + generateId(8);
+        let chatId = formInfo.data.agent + `_${assistOS.securityContext.userId}_` + generateId(8);
         let scriptId = UI.unsanitize(formInfo.data.scriptName);
         await webAssistantModule.createChat(this.spaceId,this.assistantId,assistOS.securityContext.userId,{
             id:chatId,

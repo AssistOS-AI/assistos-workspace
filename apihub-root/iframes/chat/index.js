@@ -56,7 +56,7 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
     return component;
 }
 const userModule = require("assistos").loadModule("user", {});
-const webAssistantModule = require("assistos").loadModule("webassistant", {});
+let webAssistantModule = require("assistos").loadModule("webassistant", {});
 
 const cacheNames = await caches.keys();
 await Promise.all(cacheNames.map(name => caches.delete(name)));
@@ -91,7 +91,6 @@ const launchAssistant = async (chatId) => {
 window.assistOS = {};
 assistOS.securityContext = {};
 
-
 const urlParams = new URLSearchParams(window.location.search);
 
 const webAssistantId = urlParams.get("webAssistant");
@@ -101,7 +100,7 @@ const spaceId = urlParams.get("space");
 window.spaceId = spaceId;
 const pageId = urlParams.get("page") || null;
 const appContainer = document.getElementById('app-container');
-
+let {chatId} = parseCookies(document.cookie);
 const authType = await webAssistantModule.getAuth(spaceId, webAssistantId)
 
 let isAuthenticated = false;
@@ -171,27 +170,29 @@ switch (authType) {
         break;
 }
 
-let {chatId} = parseCookies(document.cookie);
-
-window.createChat = async () => {
-    const webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
-    const defaultScriptId = await webAssistantModule.getDefaultChatScript(spaceId, webAssistantId);
-    chatId = generateId(16);
-    try {
-        let res = await webAssistantModule.createChat(spaceId, webAssistantId, assistOS.securityContext.userId, {
-            id:chatId,
-            scriptId:defaultScriptId,
-            args: ["User", "Assistant"]
-        });
-        document.cookie = `chatId=${chatId}`;
-    } catch (err) {
-        console.log(err);
-    }
-    return chatId;
-}
-
+webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
 if (!chatId) {
-    await createChat();
+    const userChats = await webAssistantModule.getUserChats(spaceId, webAssistantId, assistOS.securityContext.userId);
+    if (!userChats || !userChats.length) {
+        chatId = await webAssistantModule.createControlRoom(spaceId, webAssistantId, assistOS.securityContext.userId);
+    } else {
+        chatId = userChats[0];
+    }
+    document.cookie = `chatId=${chatId}; path=/; max-age=31536000`;
+} else {
+    try {
+        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+        const chatHistory = await chatModule.getChatHistory(spaceId, chatId);
+    } catch (error) {
+        document.cookie = `chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        const userChats = await webAssistantModule.getUserChats(spaceId, webAssistantId, assistOS.securityContext.userId);
+        if (!userChats || !userChats.length) {
+            chatId = await webAssistantModule.createControlRoom(spaceId, webAssistantId, assistOS.securityContext.userId);
+        } else {
+            chatId = userChats[0];
+        }
+        document.cookie = `chatId=${chatId}; path=/; max-age=31536000`;
+    }
 }
 
 await launchAssistant(chatId);
