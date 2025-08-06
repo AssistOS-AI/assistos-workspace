@@ -19,11 +19,11 @@ export class TaskWatcher {
         this.logBox = this.element.querySelector('#logViewerContent');
         this.loadingSpinner = this.element.querySelector('#loadingSpinner');
 
-        await assistOS.NotificationRouter.subscribeToSpace(
-            assistOS.space.id,
-            `${this.taskId}/logs`,
-            this.boundOnTaskLog
-        );
+        // await assistOS.NotificationRouter.subscribeToSpace(
+        //     assistOS.space.id,
+        //     `${this.taskId}/logs`,
+        //     this.boundOnTaskLog
+        // );
         this.renderedLogHistory = true;
 
         if (this.historyLogQueue.length > 0) {
