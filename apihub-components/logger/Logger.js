@@ -12,7 +12,6 @@ const LOG_LEVELS = Object.freeze({
     ERROR: 3
 })
 
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 
 const envLogLevel = process.env.LOG_LEVEL ? process.env.LOG_LEVEL.toUpperCase() : 'INFO';
 const LOG_LEVEL = LOG_LEVELS[envLogLevel];
@@ -31,8 +30,6 @@ function getCurrentDate() {
 }
 
 function notifyLogSubscribers(spaceId, log) {
-    let notificationId = SubscriptionManager.getObjectId(spaceId, "logs", `${log.type}`);
-    SubscriptionManager.notifyClients("", notificationId, log);
 }
 
 class Logger {

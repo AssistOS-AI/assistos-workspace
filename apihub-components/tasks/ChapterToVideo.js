@@ -7,7 +7,6 @@ const Storage = require("../apihub-component-utils/storage");
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ParagraphToVideo = require('./ParagraphToVideo');
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const crypto = require("../apihub-component-utils/crypto");
 const {exec} = require("child_process");
 const TaskManager = require("./TaskManager");

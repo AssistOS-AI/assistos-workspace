@@ -5,7 +5,6 @@ const crypto = require('../apihub-component-utils/crypto.js');
 
 const fsPromises = require('fs').promises;
 const path = require('path');
-const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
 let assistOSSDK = require('assistos');
@@ -227,8 +226,6 @@ async function deleteSpace(request, response, server) {
             await fsPromises.rm(spacePath, {recursive: true, force: true});
             await secrets.deleteSpaceSecrets(spaceId, request.userId);
 
-            let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
-            SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
             cookie.deleteCurrentSpaceCookie();
         }
         utils.sendResponse(response, 200, "text/plain", message || "");

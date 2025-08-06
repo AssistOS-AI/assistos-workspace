@@ -1,7 +1,6 @@
 const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
-const chatHandler = require("../chat/handler");
 async function loadAssistOSModule(moduleName, spaceId, userId){
     let authSecret = await secrets.getApiHubAuthSecret();
     let securityContextConfig = {

@@ -6,7 +6,6 @@ const fsPromises = fs.promises;
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const ChapterToVideo = require('./ChapterToVideo');
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 class DocumentToVideo extends Task {
     constructor(spaceId, userId, configs) {
         super(spaceId, userId);
