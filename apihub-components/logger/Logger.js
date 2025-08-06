@@ -1,9 +1,7 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
 
-const file = require("../apihub-component-utils/file.js")
 const crypto = require('../apihub-component-utils/crypto');
-//const {getSpacePath} = require("../globalServerlessAPI/space.js").APIs;
 
 const LOG_LEVELS = Object.freeze({
     DEBUG: 0,
