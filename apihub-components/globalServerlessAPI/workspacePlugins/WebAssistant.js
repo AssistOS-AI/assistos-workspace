@@ -95,6 +95,7 @@ async function WebAssistant() {
     };
 
     self.addMenuItem = async function (assistantId, menuItem) {
+        //TODO replace with bookmarks
         if (!menuItem.icon) {
             const svg = `<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>default_file</title><path d="M20.414,2H5V30H27V8.586ZM7,28V4H19v6h6V28Z" style="fill:#c5c5c5"/></svg>`;
             const base64 = btoa(unescape(encodeURIComponent(svg)));
@@ -146,6 +147,7 @@ async function WebAssistant() {
     };
 
     self.getWidget = async (applicationId, widgetName) => {
+        //TODO rename to getComponent
         if (applicationId !== "assistOS") throw new Error("Unsupported application");
         const componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetName}`);
         const [html, css, js] = await Promise.all([
@@ -218,7 +220,7 @@ async function WebAssistant() {
         }
         return await Promise.all(scripts);
     }
-
+    //TODO remove this, we already have this in ChatScript plugin
     self.addScript = async (assistantId, scriptData) => {
         const webAssistant = await self.getWebAssistant(assistantId);
         const script = await ChatScript.createChatScript(scriptData.name, scriptData.code, scriptData.description);
@@ -287,10 +289,6 @@ module.exports = {
 
             if (settings.authentication === "public") {
                 if (command.startsWith("get")) {
-                    return true;
-                }
-                // if user is guest
-                if (command === "postMessage") {
                     return true;
                 }
             } else {

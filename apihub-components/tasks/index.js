@@ -19,7 +19,6 @@ const {
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
 
 function Tasks(server){
-    //TODO: Add authentication middleware
     server.delete("/tasks/cancel/:taskId", cancelTask);
     server.delete("/tasks/remove/:taskId", cancelTaskAndRemove);
 
