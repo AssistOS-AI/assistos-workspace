@@ -11,7 +11,7 @@ async function WebAssistant() {
 
     const persistence = $$.loadPlugin("DefaultPersistence");
     const ChatScript = $$.loadPlugin("ChatScript");
-    const chat = $$.loadPlugin("Chat");
+    const chatRoom = $$.loadPlugin("ChatRoom");
 
     self.getDefaultChatScript = async function (webAssistantId) {
         const script = await ChatScript.getChatScript("DefaultChatScript");
@@ -169,7 +169,7 @@ async function WebAssistant() {
         const webAssistant = await self.getWebAssistant(assistantId);
         const controlRoomScriptId = await self.getDefaultControlRoomScript(assistantId);
         const chatId = `${userId}_ControlRoom`;
-        const chatObj = await chat.createChat(chatId, controlRoomScriptId, ["User", "Assistant"]);
+        const chatObj = await chatRoom.createChat(chatId, controlRoomScriptId, ["User", "Assistant"]);
         webAssistant[userId] = {
             chats: [chatObj.docId],
             controlRoom: chatObj.docId
@@ -179,13 +179,13 @@ async function WebAssistant() {
 
     self.createChat = async (assistantId, userId, chatData) => {
         const webAssistant = await self.getWebAssistant(assistantId, userId);
-        const chatObj = await chat.createChat(chatData.id, chatData.scriptId, chatData.args);
+        const chatObj = await chatRoom.createChat(chatData.id, chatData.scriptId, chatData.args);
         webAssistant[userId].chats.push(chatObj.docId);
         await persistence.updateWebAssistant(assistantId, webAssistant);
     };
 
     self.getChat = async (assistantId, userId, chatId) => {
-        return  await chat.getChat(chatId);
+        return  await chatRoom.getChat(chatId);
     }
 
     self.getControlRoom = async (assistantId, userId) => {
@@ -306,6 +306,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript", "Chat"];
+        return ["DefaultPersistence", "ChatScript", "ChatRoom"];
     }
 };

@@ -1,4 +1,3 @@
-const fsPromises = require("fs/promises");
 const {
     getSpaceStatus,
     createSpace,

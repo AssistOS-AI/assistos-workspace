@@ -148,7 +148,7 @@ async function createDefaultAgent(request, spaceId){
     let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
     await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript");
 
-    let chatAPIClient = await getAPIClient(request, constants.CHAT_PLUGIN, spaceId);
+    let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
     await chatAPIClient.createChat(chatId, chatScript.id, ["User", "Assistant"]);
     return chatId;
@@ -177,7 +177,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Chat", "ChatScript", "Table"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "ChatRoom", "ChatScript", "Table"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
