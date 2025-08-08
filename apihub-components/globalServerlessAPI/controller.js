@@ -52,8 +52,11 @@ async function getSpaceStatus(request, response) {
         } else {
             spaceId = await client.getDefaultSpaceId(email);
         }
+        console.log("DEBUG: spaceId", spaceId);
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, spaceId);
+        console.log("DEBUG: workspaceClient", workspaceClient);
         let workspace = await workspaceClient.getWorkspace(spaceId);
+        console.log("DEBUG: workspace", workspace);
         await client.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", workspace, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
