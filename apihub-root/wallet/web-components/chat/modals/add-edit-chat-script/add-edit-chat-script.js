@@ -26,6 +26,11 @@ export class AddEditChatScript {
         this.widgetOptions = pages.map(page => {
             return `<option value="${page.id}" ${this.chatScript?.widgetId === page.id?"selected":""} >${page.name}</option>`;
         }).join('');
+        this.scriptRoleOptions = `
+            <option value="guest" ${this.chatScript?.role === 'guest' ? 'selected' : ''}>Guest</option>
+            <option value="member" ${this.chatScript?.role === 'member' ? 'selected' : ''}>Member</option>
+             <option value="admin" ${this.chatScript?.role === 'admin' ? 'selected' : ''}>Admin</option>
+        `
     }
 
     async afterRender() {
@@ -33,6 +38,7 @@ export class AddEditChatScript {
         this.codeInput = this.element.querySelector('#script-code');
         this.descriptionInput = this.element.querySelector('#script-description');
         this.widget = this.element.querySelector('#widget');
+        this.role = this.element.querySelector('#script-role');
 
         if (this.chatScript) {
             this.nameInput.value = this.chatScript.name;
@@ -53,10 +59,12 @@ export class AddEditChatScript {
         const code = this.codeInput.value.trim();
         const description = this.descriptionInput.value.trim();
         const widget = this.widget.value;
+        const role = this.role.value;
         const script = {
             ...(this.scriptId && { id: this.scriptId }),
             name,
             code,
+            role,
             description,
             ...(widget && { widgetId: widget })
         };

@@ -12,6 +12,13 @@
                    value="$$scriptName">
         </div>
         <div class="form-item">
+            <label class="form-label" for="script-role">Script Role</label>
+            <select name="script-role" id="script-role">
+                <option value="" disabled>Select a role</option>
+                $$scriptRoleOptions
+            </select>
+        </div>
+        <div class="form-item">
             <label class="form-label">Script Description</label>
             <textarea id="script-description" class="form-input no-resize" rows="3"
                       placeholder="Enter script description...">$$scriptDescription</textarea>

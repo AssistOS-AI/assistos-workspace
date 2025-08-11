@@ -156,12 +156,6 @@ async function WebAssistant() {
         return {html, css, js};
     };
 
-    self.getScript = async (assistantId, scriptId) => {
-        const scriptsWidgetMap = (await self.getWebAssistant(assistantId)).scriptsWidgetMap;
-        const chatScript = await persistence.getChatScript(scriptId);
-        chatScript.widgetId = scriptsWidgetMap[scriptId] || null;
-        return chatScript;
-    }
 
     self.createControlRoom = async (assistantId, userId) => {
         const webAssistant = await self.getWebAssistant(assistantId);
@@ -209,52 +203,32 @@ async function WebAssistant() {
         const chats = webAssistant.chats[userId]
         return chats
     }
+    self.getScript = async (assistantId, scriptId) => {
+        const chatScript = await persistence.getChatScript(scriptId);
+        return chatScript;
+    }
 
     self.getScripts = async (assistantId) => {
-        const webAssistant = await self.getWebAssistant(assistantId);
-        const scripts = [];
-        for (const scriptId of webAssistant.scripts) {
-            scripts.push(self.getScript(assistantId, scriptId))
-        }
-        return await Promise.all(scripts);
+        const scripts = await ChatScript.getChatScripts();
+        return scripts;
     }
 
     self.addScript = async (assistantId, scriptData) => {
-        const webAssistant = await self.getWebAssistant(assistantId);
-        const script = await ChatScript.createChatScript(scriptData.name, scriptData.code, scriptData.description);
-        webAssistant.scripts.push(script.id);
-        if (scriptData.widgetId) {
-            webAssistant.scriptsWidgetMap[script.id] = scriptData.widgetId;
-        } else {
-            webAssistant.scriptsWidgetMap[script.id] = null;
-        }
-        await persistence.updateWebAssistant(assistantId, webAssistant);
-        return {
-            ...script,
-            widgetId: webAssistant.scriptsWidgetMap[script.id] || null
-        }
+        const script = await ChatScript.createChatScript(scriptData.name, scriptData.code, scriptData.description,scriptData.widgetId, scriptData.role);
+        return script;
     }
 
     self.deleteScript = async (assistantId, scriptId) => {
-        const webAssistant = await self.getWebAssistant(assistantId);
-        const index = webAssistant.scripts.findIndex(el => el === scriptId);
-        webAssistant.scripts.splice(index, 1);
-        delete webAssistant.scriptsWidgetMap[scriptId];
-        await ChatScript.deleteChatScript(scriptId);
-        return await persistence.updateWebAssistant(assistantId, webAssistant);
+        return await ChatScript.deleteChatScript(scriptId);
     }
 
     self.updateScript = async (assistantId, scriptId, scriptData) => {
-        if (scriptData.widgetId) {
-            const webAssistant = await self.getWebAssistant(assistantId);
-            webAssistant.scriptsWidgetMap[scriptId] = scriptData.widgetId;
-            await persistence.updateWebAssistant(assistantId, webAssistant);
-        }
-        await persistence.setNameForChatScript(scriptId, scriptData.name);
         return await ChatScript.updateChatScript(scriptId, {
             name: scriptData.name,
             code: scriptData.code,
-            description: scriptData.description
+            description: scriptData.description,
+            widget: scriptData.widgetId,
+            role: scriptData.role
         });
     }
 
