@@ -1,6 +1,5 @@
 const crypto = require('../apihub-component-utils/crypto');
 const constants = require('./constants');
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
 const LOG = constants.LOG;

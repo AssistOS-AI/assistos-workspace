@@ -1,6 +1,4 @@
 const TaskManager = require('../../tasks/TaskManager');
-//const crypto = require("../../apihub-component-utils/crypto");
-const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 const indexer = require('./indexer');
 
 function constructDocumentURI(documentId, property) {

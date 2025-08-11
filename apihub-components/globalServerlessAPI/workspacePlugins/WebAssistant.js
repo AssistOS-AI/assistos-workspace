@@ -11,7 +11,7 @@ async function WebAssistant() {
 
     const persistence = $$.loadPlugin("DefaultPersistence");
     const ChatScript = $$.loadPlugin("ChatScript");
-    const chat = $$.loadPlugin("Chat");
+    const chatRoom = $$.loadPlugin("ChatRoom");
 
     self.getDefaultChatScript = async function (webAssistantId) {
         const script = await ChatScript.getChatScript("DefaultChatScript");
@@ -95,6 +95,7 @@ async function WebAssistant() {
     };
 
     self.addMenuItem = async function (assistantId, menuItem) {
+        //TODO replace with bookmarks
         if (!menuItem.icon) {
             const svg = `<svg width="800px" height="800px" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"><title>default_file</title><path d="M20.414,2H5V30H27V8.586ZM7,28V4H19v6h6V28Z" style="fill:#c5c5c5"/></svg>`;
             const base64 = btoa(unescape(encodeURIComponent(svg)));
@@ -146,6 +147,7 @@ async function WebAssistant() {
     };
 
     self.getWidget = async (applicationId, widgetName) => {
+        //TODO rename to getComponent
         if (applicationId !== "assistOS") throw new Error("Unsupported application");
         const componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetName}`);
         const [html, css, js] = await Promise.all([
@@ -161,7 +163,7 @@ async function WebAssistant() {
         const webAssistant = await self.getWebAssistant(assistantId);
         const controlRoomScriptId = await self.getDefaultControlRoomScript(assistantId);
         const chatId = `${userId}_ControlRoom`;
-        const chatObj = await chat.createChat(chatId, controlRoomScriptId, ["User", "Assistant"]);
+        const chatObj = await chatRoom.createChat(chatId, controlRoomScriptId, ["User", "Assistant"]);
         webAssistant[userId] = {
             chats: [chatObj.docId],
             controlRoom: chatObj.docId
@@ -171,13 +173,13 @@ async function WebAssistant() {
 
     self.createChat = async (assistantId, userId, chatData) => {
         const webAssistant = await self.getWebAssistant(assistantId, userId);
-        const chatObj = await chat.createChat(chatData.id, chatData.scriptId, chatData.args);
+        const chatObj = await chatRoom.createChat(chatData.id, chatData.scriptId, chatData.args);
         webAssistant[userId].chats.push(chatObj.docId);
         await persistence.updateWebAssistant(assistantId, webAssistant);
     };
 
     self.getChat = async (assistantId, userId, chatId) => {
-        return  await chat.getChat(chatId);
+        return  await chatRoom.getChat(chatId);
     }
 
     self.getControlRoom = async (assistantId, userId) => {
@@ -212,7 +214,7 @@ async function WebAssistant() {
         const scripts = await ChatScript.getChatScripts();
         return scripts;
     }
-
+    //TODO remove this, we already have this in ChatScript plugin
     self.addScript = async (assistantId, scriptData) => {
         const script = await ChatScript.createChatScript(scriptData.name, scriptData.code, scriptData.description,scriptData.widgetId, scriptData.role);
         return script;
@@ -263,10 +265,6 @@ module.exports = {
                 if (command.startsWith("get")) {
                     return true;
                 }
-                // if user is guest
-                if (command === "postMessage") {
-                    return true;
-                }
             } else {
                 const workspaceUser = $$.loadPlugin("WorkspaceUser");
                 const users = await workspaceUser.getAllUsers();
@@ -282,6 +280,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript", "Chat"];
+        return ["DefaultPersistence", "ChatScript", "ChatRoom"];
     }
 };

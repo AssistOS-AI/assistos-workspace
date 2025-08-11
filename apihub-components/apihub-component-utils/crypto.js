@@ -11,31 +11,12 @@ function generateId(length = DEFAULT_ID_LENGTH) {
     }
     return randomStringId;
 }
-function generateVerificationKey(){
-    return generateId(64);
-}
-async function generateVerificationToken() {
-    return await crypto.getRandomSecret(64);
-}
-async function generateVerificationCode(){
-    return Math.floor(100000 + Math.random() * 900000);
-}
+
 function generateSecret(length = DEFAULT_SECRET_LENGTH) {
     return crypto.getRandomSecret(length);
 }
 
-function hashPassword(password) {
-    return Array.from(crypto.sha256JOSE(password))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
-}
-
-
 module.exports = {
-    hashPassword,
     generateSecret,
-    generateVerificationToken,
     generateId,
-    generateVerificationKey,
-    generateVerificationCode
 }

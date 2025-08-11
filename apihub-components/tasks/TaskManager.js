@@ -5,7 +5,6 @@ const fsPromises = require('fs').promises;
 const constants = require('./constants');
 const STATUS = constants.STATUS;
 const EVENTS = constants.EVENTS;
-// const ApplicationHandler = require('../applications-storage/handler');
 class TaskManager {
     constructor() {
         if (TaskManager.instance) {

@@ -1,9 +1,7 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
 
-const file = require("../apihub-component-utils/file.js")
 const crypto = require('../apihub-component-utils/crypto');
-//const {getSpacePath} = require("../globalServerlessAPI/space.js").APIs;
 
 const LOG_LEVELS = Object.freeze({
     DEBUG: 0,
@@ -12,7 +10,6 @@ const LOG_LEVELS = Object.freeze({
     ERROR: 3
 })
 
-const SubscriptionManager = require("../subscribers/SubscriptionManager");
 
 const envLogLevel = process.env.LOG_LEVEL ? process.env.LOG_LEVEL.toUpperCase() : 'INFO';
 const LOG_LEVEL = LOG_LEVELS[envLogLevel];
@@ -31,8 +28,6 @@ function getCurrentDate() {
 }
 
 function notifyLogSubscribers(spaceId, log) {
-    let notificationId = SubscriptionManager.getObjectId(spaceId, "logs", `${log.type}`);
-    SubscriptionManager.notifyClients("", notificationId, log);
 }
 
 class Logger {

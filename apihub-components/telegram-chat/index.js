@@ -6,7 +6,6 @@ function TelegramChat(server) {
     server.post("/telegram/:spaceId/:personalityId", controller.receiveMessage);
     server.get("/telegram/auth/:spaceId/:personalityId/:telegramUserId/:userId", controller.authenticateUser);
 
-    //TODO: Add authentication middleware
     server.post("/telegram/startBot/:spaceId/:personalityId", controller.startBot);
     server.put("/telegram/auth/:spaceId/:personalityId", controller.removeUser);
 }

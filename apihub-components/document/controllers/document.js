@@ -4,7 +4,6 @@ const path = require("path");
 const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
-const SubscriptionManager = require("../../subscribers/SubscriptionManager");
 const {sendResponse} = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");

@@ -56,7 +56,7 @@ export class BaseChatFrame {
 
     async afterRender() {
         const constants = require("assistos").constants;
-        const client = await chatModule.getClient(constants.CHAT_PLUGIN, this.spaceId);
+        const client = await chatModule.getClient(constants.CHAT_ROOM_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
         observableResponse.onProgress(async (reply) => {
             if(reply.from === "User") {

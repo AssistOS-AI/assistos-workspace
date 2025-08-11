@@ -12,7 +12,7 @@ async function DocsConverter() {
             promises.push(self.uploadFileToDisk(file));
         }
 
-        let uploadedFiles =await Promise.all(promises);
+        let uploadedFiles = await Promise.all(promises);
         let lastCreatedDocId = null;
         for (const file of uploadedFiles) {
             const startConversion = performance.now();
@@ -25,7 +25,7 @@ async function DocsConverter() {
             const textContent = jsonData.text_content;
             const images = jsonData.images || [];
             const imageInfo = jsonData.image_info || [];
-            console.log(`Conversion completed in ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
+            console.log(`Conversion completed in ${((performance.now() - startConversion) / 1000).toFixed(2)}s`);
             console.log(`Found ${images.length} images in the document`);
             console.log('Image names from JSON:', images);
             console.log('Image info from JSON:', imageInfo);
@@ -41,7 +41,7 @@ async function DocsConverter() {
             let documentObj = await Documents.createDocument(title, "document", docInfo);
             let docId = documentObj.id;
             lastCreatedDocId = docId;
-            console.log(`Document created in ${((performance.now() - startDoc)/1000).toFixed(2)}s`);
+            console.log(`Document created in ${((performance.now() - startDoc) / 1000).toFixed(2)}s`);
 
             // Add chapters and paragraphs
             console.log(`Adding ${textContent.chapters.length} chapters...`);
@@ -49,12 +49,12 @@ async function DocsConverter() {
             for (const [index, chapter] of textContent.chapters.entries()) {
                 await self.createChapter(index, chapter, docId, imageMap);
             }
-            console.log(`All chapters and paragraphs added in ${((performance.now() - startChapters)/1000).toFixed(2)}s`);
-            console.log(`Total processing time: ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
+            console.log(`All chapters and paragraphs added in ${((performance.now() - startChapters) / 1000).toFixed(2)}s`);
+            console.log(`Total processing time: ${((performance.now() - startConversion) / 1000).toFixed(2)}s`);
         }
         return lastCreatedDocId;
     }
-    self.uploadFileToDisk = async function(){
+    self.uploadFileToDisk = async function () {
         //upload Files to disk?
         let tempDir = path.join(process.env.PERSISTENCE_FOLDER, "Temp", crypto.generateSecret(16));
         await fsPromises.mkdir(tempDir, { recursive: true });
@@ -138,26 +138,34 @@ async function DocsConverter() {
         // Add regular paragraph without image
         await Documents.createParagraph(chapterId, paragraphText);
     }
-    self.callConverterServer = async function (formData){
+    self.callConverterServer = async function (formData) {
         const init = {
             method: 'POST',
             body: formData
         };
         // Use server proxy endpoint instead of direct docs converter URL
         let url = docsConverterUrl + '/documents/convert';
+        console.log(`[DocsConverter] POST ${url}`);
         const response = await fetch(url, init);
+        const ct = response.headers.get('Content-Type') || '';
+        const text = await response.text();
+        console.log(`[DocsConverter] Response status=${response.status} content-type=${ct} body(<=200)=`, text.slice(0, 200));
         if (!response.ok) {
-            const errorText = await response.text();
-            let errorDetails = errorText;
+            let errorDetails = text;
             try {
-                errorDetails = JSON.parse(errorText);
+                errorDetails = JSON.parse(text);
             } catch (e) {
                 // Not JSON, keep as text
             }
             throw new Error(`HTTP error! status: ${response.status}, details: ${typeof errorDetails === 'object' ? JSON.stringify(errorDetails) : errorDetails}`);
         }
-        const data = await response.json();
-        return data.text_content;
+        try {
+            const data = JSON.parse(text);
+            return data;
+        } catch (e) {
+            console.error(`[DocsConverter] Failed to parse JSON response`);
+            throw e;
+        }
     }
     self.uploadImages = async function (images) {
         // Upload images if any
@@ -200,17 +208,17 @@ async function DocsConverter() {
 let singletonInstance;
 module.exports = {
     getInstance: async function () {
-        if(!singletonInstance){
+        if (!singletonInstance) {
             singletonInstance = await DocsConverter();
         }
         return singletonInstance;
     },
-    getAllow: function(){
-        return async function(id, name, command, ...args){
+    getAllow: function () {
+        return async function (id, name, command, ...args) {
             return true;
         }
     },
-    getDependencies: function(){
+    getDependencies: function () {
         return ["Documents"];
     }
 }

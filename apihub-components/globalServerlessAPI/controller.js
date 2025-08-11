@@ -5,7 +5,6 @@ const crypto = require('../apihub-component-utils/crypto.js');
 
 const fsPromises = require('fs').promises;
 const path = require('path');
-const SubscriptionManager = require("../subscribers/SubscriptionManager.js");
 const {sendResponse} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
 let assistOSSDK = require('assistos');
@@ -53,8 +52,11 @@ async function getSpaceStatus(request, response) {
         } else {
             spaceId = await client.getDefaultSpaceId(email);
         }
+        console.log("DEBUG: spaceId", spaceId);
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, spaceId);
+        console.log("DEBUG: workspaceClient", workspaceClient);
         let workspace = await workspaceClient.getWorkspace(spaceId);
+        console.log("DEBUG: workspace", workspace);
         await client.setUserCurrentSpace(email, spaceId);
         utils.sendResponse(response, 200, "application/json", workspace, cookie.createCurrentSpaceCookie(spaceId));
     } catch (error) {
@@ -149,7 +151,7 @@ async function createDefaultAgent(request, spaceId){
     let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
     await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript");
 
-    let chatAPIClient = await getAPIClient(request, constants.CHAT_PLUGIN, spaceId);
+    let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
     await chatAPIClient.createChat(chatId, chatScript.id, ["User", "Assistant"]);
     return chatId;
@@ -178,7 +180,7 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "Chat", "ChatScript", "Table"];
+    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "ChatRoom", "ChatScript", "Table"];
     for(let plugin of soplangPlugins){
         const pluginRedirect = getRedirectCodeESModule(plugin);
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
@@ -227,8 +229,6 @@ async function deleteSpace(request, response, server) {
             await fsPromises.rm(spacePath, {recursive: true, force: true});
             await secrets.deleteSpaceSecrets(spaceId, request.userId);
 
-            let objectId = SubscriptionManager.getObjectId(spaceId, `space`);
-            SubscriptionManager.notifyClients(request.sessionId, objectId, "delete");
             cookie.deleteCurrentSpaceCookie();
         }
         utils.sendResponse(response, 200, "text/plain", message || "");

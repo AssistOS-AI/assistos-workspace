@@ -384,12 +384,6 @@
             "presenterClassName": "LogEntry"
         },
         {
-            "name": "llm-observer",
-            "directory": "space-application",
-            "type": "components",
-            "presenterClassName": "LLMObserver"
-        },
-        {
             "name": "notifications-monitor",
             "directory": "space-application",
             "type": "components",
