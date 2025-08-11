@@ -1,13 +1,3 @@
-const getDefaultUserImage = async () => {
-    try {
-        const response = await fetch(`${window.location.origin}/assets/images/default-personality`);
-        const imgBuffer = await response.arrayBuffer();
-        const blob = new Blob([imgBuffer], { type: response.headers.get('Content-Type') || 'image/png' });
-        return URL.createObjectURL(blob);
-    } catch (error) {
-        console.error("Error loading default image:", error);
-    }
-}
 
 const stopStreamButton = `<button class="stop-stream-button chat-option-button" data-local-action="stopResponseStream" data-tooltip="Stop Generating">STOP</button>`
 const copyReplyButton = ` <button class="copy-button chat-option-button" data-local-action="copyMessage" data-tooltip="Copy Text"> 
@@ -68,7 +58,7 @@ export class ChatItem {
         this.chatMessage = marked.parse(decodeHTML(reply.message));
 
         this.ownMessage = this.element.getAttribute("ownMessage");
-        let userEmail = this.element.getAttribute("user-email");
+        this.userEmail = this.element.getAttribute("user-email");
         let agentName = this.element.getAttribute("agent-name");
         this.id = this.element.getAttribute("data-id");
         this.spaceId = this.element.getAttribute("spaceId");
@@ -78,18 +68,10 @@ export class ChatItem {
             this.myselfMessage="";
             this.messageTypeBox = "others-box";
             let imageSrc = "";
-            if (userEmail) {
-                try {
-                    //imageSrc = await getUserProfileImage(this.user);
-                } catch (error) {
-                    imageSrc = await getDefaultUserImage();
-                }
+            if (this.userEmail) {
+
             } else {
-                // try {
-                //     imageSrc = await getPersonalityImageUrl(this.spaceId, agentName);
-                // } catch (e) {
-                imageSrc = await getDefaultUserImage();
-                //}
+
             }
             this.imageContainer = `<div class="user-profile-image-container"><img class="user-profile-image" src="${imageSrc}" alt="userImage"></div>`;
             this.chatBoxOptions = `<div class="chat-options other-message">
@@ -169,7 +151,11 @@ export class ChatItem {
 
         let image = this.element.querySelector(".user-profile-image");
         image?.addEventListener("error", (e) => {
-            e.target.src = "./wallet/assets/images/default-personality.png";
+            if(this.userEmail){
+                e.target.src = "./assets/default-user.png";
+                return;
+            }
+            e.target.src = "./assets/default-agent.png";
         });
     }
 

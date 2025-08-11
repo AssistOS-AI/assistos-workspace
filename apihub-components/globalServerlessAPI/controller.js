@@ -119,6 +119,10 @@ async function createSpace(request, response, server) {
         let workspaceClient = await getAPIClient(request, constants.WORKSPACE_PLUGIN, space.id);
         let workspaceUser = await getAPIClient(request, constants.WORKSPACE_USER_PLUGIN, space.id);
         await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
+        let webAssistantClient = await getAPIClient(request, constants.WEB_ASSISTANT_PLUGIN, space.id);
+        let webAssistantDefaults = await fsPromises.readFile(path.join(__dirname, "webAssistantDefaults.json"), "utf-8");
+        await webAssistantClient.createWebAssistant(JSON.parse(webAssistantDefaults));
+
         await workspaceUser.createUser(email, email, "admin");
 
         let chatId = await createDefaultAgent(request, space.id);
@@ -147,6 +151,7 @@ async function createDefaultAgent(request, spaceId){
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = await fsPromises.readFile(path.join(__dirname, "defaultChatScript"), "utf-8");
     let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");
+    await chatScriptClient.createChatScript("DefaultControlRoomScript", code, "DefaultControlRoomScript");
 
     let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
     await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript");

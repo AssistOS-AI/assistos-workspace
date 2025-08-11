@@ -1,5 +1,5 @@
 let agentModule = require("assistos").loadModule("agent", assistOS.securityContext);
-let webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
+let chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
 
 function generateId(length = 16) {
     const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
@@ -22,7 +22,7 @@ export class CreateChat {
     }
 
     async beforeRender() {
-        let scripts = await webAssistantModule.getScripts(window.spaceId,this.assistantId);
+        let scripts = await chatModule.getChatScripts(window.spaceId);
         let agents = await agentModule.getAgentNames(window.spaceId);
         this.scriptOptions = scripts.map(script=>
             `<option value="${script.id}">${script.name}</option>`

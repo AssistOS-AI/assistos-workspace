@@ -1,8 +1,3 @@
-const getPersonalityImageUrl = async (spaceId, personalityId) => {
-    const response = await fetch(`/spaces/${spaceId}/personalities/${personalityId}/image`);
-    const jsonResponse = await response.json();
-    return jsonResponse.downloadUrl;
-}
 
 const getDefaultUserImage = async () => {
     try {

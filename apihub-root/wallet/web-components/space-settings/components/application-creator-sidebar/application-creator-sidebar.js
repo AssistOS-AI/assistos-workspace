@@ -53,8 +53,8 @@ const sidebarItems = [
             "</svg>"
     }
 ]
-const getChatIframeURL = (spaceId, webAssistantId) => {
-    return `http://localhost:8080/iframes/chat?space=${spaceId}&webAssistant=${webAssistantId}`
+const getChatIframeURL = (spaceId) => {
+    return `http://localhost:8080/iframes/chat?space=${spaceId}`
 }
 
 export class ApplicationCreatorSidebar {
@@ -72,7 +72,7 @@ export class ApplicationCreatorSidebar {
                     item.name="Pages"
                 }
                 if(item.name==="Preview"){
-                    window.open(getChatIframeURL(assistOS.space.id,assistOS.space.webAssistant), '_blank')
+                    window.open(getChatIframeURL(assistOS.space.id), '_blank')
                     return;
                 }
 

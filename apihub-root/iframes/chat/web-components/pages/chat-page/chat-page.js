@@ -140,24 +140,23 @@ class BaseChatFrame {
         this.spaceId = this.props.spaceId;
         this.userId = this.props.userId;
         this.pageId = this.props.pageId;
-        this.webAssistantId = this.props.webAssistantId;
 
         if (!this.currentPageId) {
-            this.configuration = await WebAssistant.getWebAssistant(this.spaceId, this.webAssistantId);
+            this.configuration = await WebAssistant.getWebAssistant(this.spaceId);
             if (!this.pageId) {
-                const homePageConfig = await WebAssistant.getHomePage(this.spaceId, this.webAssistantId);
+                const homePageConfig = await WebAssistant.getHomePage(this.spaceId);
                 this.currentPageId = homePageConfig.id;
             } else {
                 this.currentPageId = this.pageId;
             }
         }
-        const menu = await WebAssistant.getMenu(this.spaceId, this.webAssistantId);
-        this.page = await WebAssistant.getPage(this.spaceId, this.webAssistantId, this.currentPageId);
+        const menu = await WebAssistant.getMenu(this.spaceId);
+        this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
         this.pageName = this.page.name;
         this.previewContentStateClass = "with-sidebar";
 
         if (this.configuration.settings.themeId) {
-            this.theme = await WebAssistant.getTheme(this.spaceId, this.webAssistantId, this.configuration.settings.themeId);
+            this.theme = await WebAssistant.getTheme(this.spaceId, this.configuration.settings.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
@@ -167,8 +166,8 @@ class BaseChatFrame {
 
         }
 
-        const chat = await WebAssistant.getChat(this.spaceId, this.webAssistantId, assistOS.securityContext.userId, this.chatId);
-        const controlRoomId = await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        const chat = await WebAssistant.getChat(this.spaceId, assistOS.securityContext.userId, this.chatId);
+        const controlRoomId = await WebAssistant.getControlRoom(this.spaceId, assistOS.securityContext.userId);
         if(chat.docId === controlRoomId){
             this.controlRoom = true;
         }else{
@@ -215,7 +214,7 @@ class BaseChatFrame {
             console.log(error.code);
         });
 
-        const pages = await WebAssistant.getPages(this.spaceId, this.webAssistantId);
+        const pages = await WebAssistant.getPages(this.spaceId);
         if(!this.controlRoom){
             const headerPage = pages.find(page => page.role === "header");
             const footerPage = pages.find(page => page.role === "footer");
@@ -274,7 +273,6 @@ class BaseChatFrame {
                         js: loadWidget.js
                     },{
                         "data-chat-id": this.chatId,
-                        "data-assistant-id": this.webAssistantId,
                         "data-space-id": this.spaceId
                     });
                 } else {
@@ -292,7 +290,6 @@ class BaseChatFrame {
                         js: newWidget.js
                     },{
                         "data-chat-id": this.chatId,
-                        "data-assistant-id": this.webAssistantId,
                         "data-space-id": this.spaceId
                     });
                 } else {
@@ -525,13 +522,13 @@ class BaseChatFrame {
     }
 
     async newChat(target) {
-        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, assistOS.securityContext.userId);
         this.loadRoomScope = false;
         await this.openChat(target, controlRoomId);
     }
 
     async loadChat(target) {
-        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, this.webAssistantId, assistOS.securityContext.userId);
+        const controlRoomId= await WebAssistant.getControlRoom(this.spaceId, assistOS.securityContext.userId);
         this.loadRoomScope = true;
         await this.openChat(target, controlRoomId);
     }
