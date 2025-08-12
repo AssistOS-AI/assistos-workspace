@@ -1,10 +1,15 @@
 {
-  "webComponentsRootDir": "../../iframes/chat/web-components",
+  "webComponentsRootDir": "../wallet/web-components/chat",
   "components": [
     {
-      "name": "chat-page",
+      "name": "chat-room",
+      "type": "components",
+      "presenterClassName": "ChatRoom"
+    },
+    {
+      "name": "iframe-chat-page",
       "type": "pages",
-      "presenterClassName": "ChatPage"
+      "presenterClassName": "IframeChatPage"
     },
     {
       "name": "login-page",

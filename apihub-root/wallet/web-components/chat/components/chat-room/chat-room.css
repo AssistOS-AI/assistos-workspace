@@ -1,0 +1,133 @@
+chat-room {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    width: 100%;
+    height: calc(100% - 15px);
+}
+.conversation {
+    background-color: var(--application-marketplace-border);
+    display:flex;
+    padding-inline-start:4px;
+    padding-inline-end:4px;
+    gap: 8px;
+    flex-direction:column;
+    overflow-y: scroll;
+    height: 100%;
+}
+.chat-input-container {
+    background-color: var(--application-marketplace-border);
+    justify-content: space-between;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    padding:5px;
+    padding-block-start:10px;
+    padding-block-end: 10px;
+}
+
+#options-menu{
+    display:flex;
+    height:80%;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+}
+.input-container {
+    display: flex;
+    align-items: center;
+    margin-inline-start:15px;
+    margin-inline-end:15px;
+    padding-inline-start:10px;
+    background: white;
+    border-radius: 6px;
+    min-height: 60px;
+    width: 100%;
+}
+
+#input {
+    min-height: 60px;
+    max-height: 500px;
+    height:100%;
+    resize: none;
+    width: 100%;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    outline: none;
+}
+
+#input:focus {
+    outline: none;
+}
+
+.select-settings-container {
+    border-radius: 10px;
+    margin: 5px;
+    position: relative;
+    cursor: pointer;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+}
+
+.settings-list-container {
+    padding: 5px 0;
+    border-radius: 10px;
+    box-shadow: 0px 1px 5.5px 0px #65666754;
+    display: none;
+    position: absolute;
+    z-index: 1;
+    left: 0;
+    bottom: 0;
+    flex-direction: column;
+    background-color: white;
+    max-width: 250px;
+}
+
+.settings-list-container > div {
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 21px;
+    color: #0C5C9E;
+}
+
+.settings-list-container > div:hover {
+    background-color: #A5D0F430;
+}
+.chat-options-plus{
+    width: 20px;
+}
+#stopLastStream {
+    background-color: #3478C6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: background 0.3s, transform 0.2s;
+    cursor: pointer;
+    justify-content: center;
+    position:relative;
+    right:20px;
+    width:35px;
+    height:35px;
+}
+
+#stopLastStream:hover {
+    background-color: #2d6bb1;
+}
+
+#stopLastStream:active {
+    transform: scale(0.95);
+}
+
+#stopLastStream svg {
+    width: 20px;
+    height: 20px;
+    fill: white;
+}

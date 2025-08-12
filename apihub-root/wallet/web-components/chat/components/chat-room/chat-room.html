@@ -1,0 +1,23 @@
+<div class="conversation">
+    $$spaceConversation
+</div>
+<form class="chat-input-container">
+    <label for="input" class="hidden"></label>
+    <div class="input-container">
+        <div id="options-menu">
+            <div class="select-settings-container" data-local-action="showSettings off">
+                <img class="chat-options-plus" src="$$plusIcon">
+                <div class="settings-list-container">
+                    <input type="file" class="file-input hidden">
+                    <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="newChat" data-name="New Chat" data-highlight="light-highlight"></list-item>
+                    <list-item data-local-action="loadChat" data-name="Load Chat" data-highlight="light-highlight"></list-item>
+                </div>
+            </div>
+        </div>
+        <textarea name="input" data-id="input" id="input" placeholder="Say something ..."></textarea>
+        <div id="actionButtonContainer">
+            $$chatActionButton
+        </div>
+    </div>
+</form>

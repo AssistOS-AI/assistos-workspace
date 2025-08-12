@@ -6,7 +6,7 @@ chat-page {
     min-width: 0;
 }
 
-.space-controls {
+.chat-controls {
     z-index: 10;
     display: flex;
     height: 70px;
@@ -15,7 +15,6 @@ chat-page {
     width: 100%;
     padding:8px;
     border-radius: 10px;
-    border: 2px solid var(--chat-header-border);
 }
 .chats {
     display: flex;
@@ -52,35 +51,6 @@ chat-page {
     word-break: break-word;
     margin-left: 5px;
     margin-right: 5px;
-}
-
-.personalities-list {
-    padding: 5px 0;
-    box-shadow: 0px 1px 5.5px 0px #65666754;
-    border-radius: 10px;
-    height: fit-content;
-    max-height: 30vh;
-    display: none;
-    top: 70px;
-    left: 10px;
-    background-color: var(--white);
-    position: absolute;
-    z-index: 1;
-    flex-direction: column;
-    width: fit-content;
-    overflow: auto;
-    scrollbar-width: auto;
-    scrollbar-color: #888 #f1f1f1;
-}
-
-.personalities-list::-webkit-scrollbar {
-    display: block;
-}
-
-.personalities-list > * {
-    display: flex;
-    justify-content: start;
-    align-items: center;
 }
 
 .rotated {
@@ -162,24 +132,7 @@ input:checked + .slider .label-on {
 input:checked + .slider .label-off {
     opacity: 0;
 }
-.middle-content {
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    width: 100%;
-    height: calc(100% - 70px);
-}
 
-.middle-content::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background:  #F3F3F3;
-    z-index: -2;
-}
 
 .arrow {
     cursor: pointer;
@@ -205,15 +158,6 @@ input:checked + .slider .label-off {
 }
 
 
-.chat-input-container {
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
-    position: sticky;
-    padding:5px;
-    padding-block-start:10px;
-    padding-block-end: 10px;
-}
 .agent-on {
     background-color: #3478C6;
     color: white;
@@ -260,33 +204,7 @@ input:checked + .slider .label-off {
     opacity: 0;
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
-#stopLastStream {
-    background-color: #3478C6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s, transform 0.2s;
-    cursor: pointer;
-}
 
-#stopLastStream:hover {
-    background-color: #2d6bb1;
-}
-
-#stopLastStream:active {
-    transform: scale(0.95);
-}
-
-#stopLastStream svg {
-    width: 20px;
-    height: 20px;
-    fill: white;
-}
 
 #llm::after{
     content: attr(data-tooltip);
@@ -305,74 +223,13 @@ input:checked + .slider .label-off {
     transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
-#options-menu{
-    display:flex;
-    height:80%;
-    width:110px;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
-.input-container {
-    display: flex;
-    align-items: center;
-    margin-inline-start:15px;
-    margin-inline-end:15px;
-    padding-inline-start:10px;
-    background: white;
-    border-radius: 6px;
-    min-height: 60px;
-    width: 100%;
-}
-
-#input {
-    min-height: 60px;
-    max-height: 500px;
-    height:100%;
-    resize: none;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    border: none;
-    outline: none;
-}
-
-#input:focus {
-    outline: none;
-}
-
 .attach-file {
     cursor: pointer;
-}
-
-.conversation {
-    display:flex;
-    padding-inline-start:4px;
-    padding-inline-end:4px;
-    gap: 8px;
-    flex-direction:column;
-    overflow-y: scroll;
-    height: 100%;
-}
-
-.conversation > :last-child {
-    margin-block-end:20px;
-}
-
-#stopLastStream{
-    display:flex;
-    justify-content: center;
-    align-items: center;
-    position:relative;
-    right:20px;
-    width:35px;
-    height:35px;
 }
 
 .page-logo-section {
     display: flex;
 }
-
 
 .arrow-space {
     padding: 0 5px;
@@ -381,40 +238,4 @@ input:checked + .slider .label-off {
 
 .arrow-space:hover {
     background:  black;
-}
-
-.select-settings-container {
-    border-radius: 10px;
-    margin: 5px;
-    position: relative;
-    cursor: pointer;
-    padding: 8px;
-    display: flex;
-    align-items: center;
-}
-
-.settings-list-container {
-    padding: 5px 0;
-    border-radius: 10px;
-    box-shadow: 0px 1px 5.5px 0px #65666754;
-    display: none;
-    position: absolute;
-    z-index: 1;
-    left: 0;
-    bottom: 0;
-    flex-direction: column;
-    background-color: white;
-    max-width: 250px;
-}
-
-.settings-list-container > div {
-    padding: 10px;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 21px;
-    color: #0C5C9E;
-}
-
-.settings-list-container > div:hover {
-    background-color: #A5D0F430;
 }

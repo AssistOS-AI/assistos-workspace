@@ -1,5 +1,5 @@
 const CACHE_NAME = 'virtual-widgets';
-const WEB_COMPONENTS_ROOT = 'iframes/chat/web-components';
+const WEB_COMPONENTS_ROOT = 'wallet/web-components/chat';
 
 self.addEventListener('install', (event) => {
     event.waitUntil(

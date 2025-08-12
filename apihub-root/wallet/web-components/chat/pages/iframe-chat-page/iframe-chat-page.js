@@ -1,6 +1,6 @@
 const WebAssistant = require("assistos").loadModule("webassistant", assistOS.securityContext);
 const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-
+import chatUtils from "../../chatUtils.js"
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="chatInputUser">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -9,14 +9,7 @@ const sendMessageActionButtonHTML = `
 </button>
 `
 
-const stopStreamActionButtonHTML = `
-<button type="button" id="stopLastStream" class="input__button" data-local-action="stopLastStream">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-lg"><rect x="7" y="7" width="10" height="10" rx="1.25" fill="black"></rect></svg>
-</button>
-`
-
-
-let IFrameChatOptions = `
+let chatOptions = `
     <div class="preview-sidebar-item">
     <list-item data-local-action="uploadFile" data-name="Upload File" data-highlight="light-highlight"></list-item>
     </div>
@@ -27,33 +20,6 @@ let IFrameChatOptions = `
     <list-item data-local-action="loadChat" data-name="Load Room" data-highlight="light-highlight"></list-item>
     </div>
 `
-
-const waitForElement = (container, selector) => {
-    return new Promise((resolve, reject) => {
-        const element = container.querySelector(selector);
-        if (element) {
-            resolve(element);
-        } else {
-            const observer = new MutationObserver((mutations, me) => {
-                const element = container.querySelector(selector);
-                if (element) {
-                    me.disconnect();
-                    resolve(element);
-                }
-            });
-            observer.observe(container, {
-                childList: true,
-                subtree: true
-            });
-
-            setTimeout(() => {
-                observer.disconnect();
-                reject(new Error(`Element ${selector} did not appear in time`));
-            }, 10000);
-        }
-    });
-};
-
 async function applyTheme(themeVars, customCSS) {
     const rootCSS = generateRootCSS(themeVars)
     const valid = await validateCSS(customCSS)
@@ -79,9 +45,7 @@ function generateRootCSS(themeVars) {
     return `:root { ${entries.join(' ')} }`
 }
 
-const UI = window.UI
-
-class BaseChatFrame {
+export class IframeChatPage {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
@@ -94,49 +58,8 @@ class BaseChatFrame {
         this.invalidate();
     }
 
-    async handleChatEvent(eventData) {
-        const handleMessageEvent = async (eventData) => {
-            const action = eventData.action;
-            switch (action) {
-                case 'add':
-                    this.invalidate();
-                    break;
-                case 'reset':
-                    this.invalidate();
-                    break;
-                default:
-            }
-        }
-        const handleContextEvent = async (eventData) => {
-            const action = eventData.action;
-            switch (action) {
-                case 'add':
-                    this.invalidate();
-                    break;
-                case 'delete':
-                    this.invalidate();
-                    break;
-                case 'update':
-                    break;
-                case 'reset':
-                    this.invalidate();
-                default:
-            }
-        }
-        switch (eventData.type) {
-            case "messages":
-                await handleMessageEvent(eventData);
-                break;
-            case "context":
-                await handleContextEvent(eventData);
-                break;
-            default:
-                console.warn("Unknown event type", eventData.type);
-        }
-    }
-
     async beforeRender() {
-        this.personalityId = this.props.personalityId;
+
         this.spaceId = this.props.spaceId;
         this.userId = this.props.userId;
         this.pageId = this.props.pageId;
@@ -150,7 +73,9 @@ class BaseChatFrame {
                 this.currentPageId = this.pageId;
             }
         }
-        const menu = await WebAssistant.getMenu(this.spaceId);
+        this.agentName = this.configuration.settings.agentId;
+
+
         this.page = await WebAssistant.getPage(this.spaceId, this.currentPageId);
         this.pageName = this.page.name;
         this.previewContentStateClass = "with-sidebar";
@@ -168,12 +93,8 @@ class BaseChatFrame {
 
         const chat = await WebAssistant.getChat(this.spaceId, assistOS.securityContext.userId, this.chatId);
         const controlRoomId = await WebAssistant.getControlRoom(this.spaceId, assistOS.securityContext.userId);
-        if(chat.docId === controlRoomId){
-            this.controlRoom = true;
-        }else{
-            this.controlRoom = false;
-        }
-        this.chatOptions = IFrameChatOptions;
+        this.controlRoom = chat.docId === controlRoomId;
+        this.chatOptions = chatOptions;
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
             const chatMessage = this.chatHistory[messageIndex]
@@ -190,38 +111,14 @@ class BaseChatFrame {
         this.spaceConversation = this.stringHTML;
     }
     async afterRender() {
-        const constants = require("assistos").constants;
-        const client = await chatModule.getClient(constants.CHAT_ROOM_PLUGIN, this.spaceId);
-        let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
-
-        observableResponse.onProgress(async (reply) => {
-            if (reply.from === "User") {
-                this.chatHistory.push(reply);
-                await this.displayUserReply(reply.truid, assistOS.securityContext.email);
-                return;
-            }
-            let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
-            if (existingReply) {
-                let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
-                chatItem.webSkelPresenter.updateReply(reply.message);
-                return;
-            }
-            this.chatHistory.push(reply);
-            await this.displayAgentReply(reply.truid);
-        });
-        observableResponse.onError(async (error) => {
-            console.error('Error in chat:', error);
-            console.log(error.code);
-        });
-
         const pages = await WebAssistant.getPages(this.spaceId);
         if(!this.controlRoom){
             const headerPage = pages.find(page => page.role === "header");
             const footerPage = pages.find(page => page.role === "footer");
             if (headerPage) {
                 const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
-                await UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-                UI.createElement(previewWidgetName, '#preview-content-header', {
+                await assistOS.UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
+                assistOS.UI.createElement(previewWidgetName, '#preview-content-header', {
                     generalSettings: headerPage.generalSettings,
                     data: headerPage.data,
                     html: headerPage.html,
@@ -233,8 +130,8 @@ class BaseChatFrame {
             }
             if (footerPage) {
                 const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
-                await UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
-                UI.createElement(previewFooterName, '#preview-content-footer',
+                await assistOS.UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
+                assistOS.UI.createElement(previewFooterName, '#preview-content-footer',
                     {
                         generalSettings: footerPage.generalSettings,
                         data: footerPage.data,
@@ -247,9 +144,9 @@ class BaseChatFrame {
             }
             const [widgetApp, widgetName] = this.page.widget.split('/');
 
-            await UI.loadWidget(this.spaceId, widgetApp, widgetName);
+            await assistOS.UI.loadWidget(this.spaceId, widgetApp, widgetName);
 
-            UI.createElement(widgetName, '#preview-content-right', {
+            assistOS.UI.createElement(widgetName, '#preview-content-right', {
                 generalSettings: this.page.generalSettings,
                 data: this.page.data,
                 html: this.page.html,
@@ -264,8 +161,8 @@ class BaseChatFrame {
                 document.getElementById('preview-content-right').innerHTML = '';
                 if (loadWidget) {
                     const [loadWidgetApp, loadWidgetName] = loadWidget.widget.split('/');
-                    await UI.loadWidget(this.spaceId, loadWidgetApp, loadWidgetName);
-                    UI.createElement(loadWidgetName, '#preview-content-right', {
+                    await assistOS.UI.loadWidget(this.spaceId, loadWidgetApp, loadWidgetName);
+                    assistOS.UI.createElement(loadWidgetName, '#preview-content-right', {
                         generalSettings: loadWidget.generalSettings,
                         data: loadWidget.data,
                         html: loadWidget.html,
@@ -281,8 +178,8 @@ class BaseChatFrame {
             }else{
                 if (newWidget) {
                     const [newWidgetApp, newWidgetName] = newWidget.widget.split('/');
-                    await UI.loadWidget(this.spaceId, newWidgetApp, newWidgetName);
-                    UI.createElement(newWidgetName, '#preview-content-right', {
+                    await assistOS.UI.loadWidget(this.spaceId, newWidgetApp, newWidgetName);
+                    assistOS.UI.createElement(newWidgetName, '#preview-content-right', {
                         generalSettings: newWidget.generalSettings,
                         data: newWidget.data,
                         html: newWidget.html,
@@ -320,61 +217,9 @@ class BaseChatFrame {
             this.initMobileToggle();
         });
         this.conversation = this.element.querySelector(".conversation");
-        this.userInput = this.element.querySelector("#input");
-        this.form = this.element.querySelector(".chat-input-container");
-        this.userInput.addEventListener("keydown", this.preventRefreshOnEnter.bind(this, this.form));
-        this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
-        this.conversation.addEventListener('scroll', () => {
-            const threshold = 300;
-            const distanceFromBottom =
-                this.conversation.scrollHeight
-                - this.conversation.scrollTop
-                - this.conversation.clientHeight;
-            this.userHasScrolledManually = distanceFromBottom > threshold;
-        });
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
         this.maxHeight = 500;
-        const maxHeight = 500;
-        const form = this.form;
-        this.userInput.addEventListener('input', function (event) {
-            this.style.height = "auto";
-            this.style.height = Math.min(this.scrollHeight, maxHeight) + "px";
-            this.style.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
-            form.height = "auto";
-            form.height = Math.min(this.scrollHeight, maxHeight) + "px";
-            form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
-        });
         this.initObservers();
-    }
-
-    async displayUserReply(replyId, userEmail) {
-        const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
-        this.conversation.insertAdjacentHTML("beforeend", messageHTML);
-        const lastReplyElement = this.conversation.lastElementChild;
-        await this.observerElement(lastReplyElement);
-        await waitForElement(lastReplyElement, '#done');
-        return lastReplyElement;
-    }
-
-    observerElement(element) {
-        if (this.observedElement) {
-            this.intersectionObserver.unobserve(this.observedElement);
-        }
-        this.observedElement = element;
-        if (element) {
-            this.intersectionObserver.observe(element);
-        }
-    }
-
-
-    getReply(replyId) {
-        return this.chatHistory.find(message => message.truid === replyId) || null;
-    }
-
-    async displayAgentReply(replyId) {
-        const streamContainerHTML = `<chat-item data-id="${replyId}" spaceId="${this.spaceId}" ownMessage="false" data-presenter="chat-item" agent-name="${this.agentName}" data-last-item="true"/>`;
-        this.conversation.insertAdjacentHTML("beforeend", streamContainerHTML);
-        return await waitForElement(this.conversation.lastElementChild, '#done');
     }
 
     initObservers() {
@@ -397,44 +242,6 @@ class BaseChatFrame {
             root: this.conversation,
             threshold: 1
         });
-    }
-
-    async preventRefreshOnEnter(form, event) {
-        if (event.key === "Enter") {
-            event.preventDefault();
-            if (!event.ctrlKey) {
-                await this.chatInputUser(form);
-                this.userInput.scrollIntoView({behavior: "smooth", block: "end"});
-            } else {
-                this.userInput.value += '\n';
-                this.userInput.style.height = `${this.userInput.scrollHeight}px`;
-            }
-        }
-    }
-
-    async chatInputUser(_target) {
-        let formInfo = await UI.extractFormInformation(_target);
-        const userMessage = UI.customTrim(formInfo.data.input)
-        formInfo.elements.input.element.value = "";
-        if (!userMessage.trim()) {
-            return;
-        }
-
-        this.chatHistory.push({
-            text: userMessage,
-            role: "user",
-            name: this.userId
-        })
-
-        this.userInput.style.height = "auto"
-        this.form.style.height = "auto"
-
-        await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
-    }
-
-
-    getMessage(messageIndex) {
-        return this.chatHistory[messageIndex]
     }
 
 
@@ -503,7 +310,7 @@ class BaseChatFrame {
     }
 
     async startNewRoom() {
-        const chatId = await UI.showModal('create-chat', {
+        const chatId = await assistOS.UI.showModal('create-chat', {
             "assistant-id": this.props.webAssistantId,
             "space-id": this.spaceId
         }, true);
@@ -541,6 +348,3 @@ class BaseChatFrame {
         this.invalidate();
     }
 }
-
-let ChatPage = BaseChatFrame;
-export {ChatPage};

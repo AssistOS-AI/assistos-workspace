@@ -1,9 +1,7 @@
 const chatModule = assistOS.loadModule("chat");
-const IFrameContext = window.assistOS === undefined;
-const UI = IFrameContext ? window.UI : window.assistOS.UI
+import chatUtils from "../../chatUtils.js";
 
-import chatUtils from "./chatUtils.js";
-export class BaseChatFrame {
+export class ChatRoom {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -13,22 +11,18 @@ export class BaseChatFrame {
         this.spaceId = this.element.getAttribute('data-spaceId');
         this.agent = assistOS.agent;
         this.userHasScrolledManually = false;
-        if (IFrameContext) {
-            this.invalidate();
-        }
+        this.invalidate();
     }
 
     async beforeRender() {
         this.agentName = this.agent.name;
-        let llmName = this.agent.llms["chat"].modelName;
-        this.spaceNameTooltip = assistOS.space.name;
-        this.agentLLMTooltip = llmName;
+        this.agentLLMTooltip = this.agent.llms["chat"].modelName;
         this.chatOptions = chatUtils.IFrameChatOptions;
-
-        this.chatId = this.element.getAttribute('data-chatId');
+        this.plusIcon = chatUtils.getChatImageURL("./wallet/assets/icons/plus.svg")
+        this.chatId = this.element.getAttribute('data-chat-id');
         this.agentName = this.element.getAttribute('data-agent-name');
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.userId = this.element.getAttribute('data-userId');
+        this.spaceId = this.element.getAttribute('data-space-id');
+        this.userId = this.element.getAttribute('data-user-id');
 
         try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
@@ -66,9 +60,9 @@ export class BaseChatFrame {
             }
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if(existingReply) {
-               let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
+                let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
                 chatItem.webSkelPresenter.updateReply(reply.message);
-               return;
+                return;
             }
             this.chatHistory.push(reply);
             await this.displayAgentReply(reply.truid);
@@ -120,8 +114,8 @@ export class BaseChatFrame {
     }
 
     async chatInputUser(_target) {
-        let formInfo = await UI.extractFormInformation(_target);
-        let userMessage = UI.customTrim(formInfo.data.input)
+        let formInfo = await assistOS.UI.extractFormInformation(_target);
+        let userMessage = assistOS.UI.customTrim(formInfo.data.input)
         formInfo.elements.input.element.value = "";
         if (!userMessage.trim()) {
             return;
@@ -292,7 +286,7 @@ export class BaseChatFrame {
         if (!chatId) {
             return;
         }
-        if (IFrameContext) {
+        if (assistOS.iframe) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }
@@ -302,7 +296,7 @@ export class BaseChatFrame {
     }
 
     async viewAgentContext(_target) {
-        await UI.showModal('view-context-modal', {
+        await assistOS.UI.showModal('view-context-modal', {
             presenter: `view-context-modal`,
             chatId: this.chatId,
             spaceId: this.spaceId
@@ -331,7 +325,7 @@ export class BaseChatFrame {
         }
     }
     async openChat(button, chatId) {
-        if (IFrameContext) {
+        if (assistOS.iframe) {
             document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
             document.cookie = `chatId=${chatId}`;
         }

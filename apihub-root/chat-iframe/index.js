@@ -1,4 +1,4 @@
-import UI from "../../WebSkel/webSkel.js";
+import UI from "../WebSkel/webSkel.js";
 
 const UIConfigsPath = './chat-configs.json'
 window.UI = await UI.initialise(UIConfigsPath);
@@ -24,9 +24,48 @@ if ('serviceWorker' in navigator) {
         });
 }
 
-const webComponentsRootDir = './web-components';
 
-window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = window.UI) {
+
+const userModule = require("assistos").loadModule("user", {});
+let webAssistantModule = require("assistos").loadModule("webassistant", {});
+let agentModule = require("assistos").loadModule("agent", {});
+const cacheNames = await caches.keys();
+await Promise.all(cacheNames.map(name => caches.delete(name)));
+
+async function checkAuthentication(email) {
+    assistOS.user = await userModule.loadUser(email);
+    assistOS.globalRoles = await userModule.getGlobalRoles();
+    assistOS.securityContext = {
+        userId: assistOS.user.id,
+        email: assistOS.user.email
+    }
+}
+
+const launchAssistant = async (chatId) => {
+    let {userId} = assistOS.securityContext;
+    return window.UI.createElement(
+        'iframe-chat-page',
+        appContainer,
+        {chatId, spaceId, userId, pageId},
+        true
+    );
+}
+
+
+window.assistOS = {
+    iframe: true,
+    UI: window.UI,
+    loadModule: function (moduleName) {
+        return require("assistos").loadModule(moduleName, assistOS.securityContext);
+    }
+};
+const urlParams = new URLSearchParams(window.location.search);
+const spaceId = urlParams.get("space");
+assistOS.agent = await agentModule.getDefaultAgent(spaceId);
+window.spaceId = spaceId;
+
+assistOS.UI.loadWidget = async function (spaceId, applicationId, widgetName) {
+    const webComponentsRootDir = './../../wallet/web-components/chat';
     const r = await fetch(`/public/spaces/widgets/${spaceId}/${applicationId}/${widgetName}`)
     const data = (await r.json()).data
     const cache = await caches.open("virtual-widgets")
@@ -44,57 +83,17 @@ window.UI.loadWidget = async function (spaceId, applicationId, widgetName, UI = 
         presenterClassName: data.presenterClassName,
     }
 
-    await UI.defineComponent(component);
+    await assistOS.UI.defineComponent(component);
 
     return component;
 }
-const userModule = require("assistos").loadModule("user", {});
-let webAssistantModule = require("assistos").loadModule("webassistant", {});
-
-const cacheNames = await caches.keys();
-await Promise.all(cacheNames.map(name => caches.delete(name)));
-
-async function checkAuthentication(email) {
-    assistOS.user = await userModule.loadUser(email);
-    assistOS.globalRoles = await userModule.getGlobalRoles();
-    assistOS.securityContext = {
-        email: assistOS.user.email,
-        userId: assistOS.user.id,
-    }
-}
-
-const launchAssistant = async (chatId) => {
-    let {userId} = assistOS.securityContext;
-    return window.UI.createElement(
-        'chat-page',
-        appContainer,
-        {chatId, webAssistantId, spaceId, userId, pageId},
-        {
-            "data-chatId": chatId,
-            "data-webAssistantId": webAssistantId,
-            "data-spaceId": spaceId,
-            "data-userId": userId,
-            "data-pageId": pageId
-        },
-        true
-    );
-}
-
-
-window.assistOS = {};
 assistOS.securityContext = {};
 
-const urlParams = new URLSearchParams(window.location.search);
 
-const webAssistantId = urlParams.get("webAssistant");
-assistOS.securityContext.webAssistantId = webAssistantId
-const spaceId = urlParams.get("space");
-
-window.spaceId = spaceId;
 const pageId = urlParams.get("page") || null;
 const appContainer = document.getElementById('app-container');
 let {chatId} = parseCookies(document.cookie);
-const authType = await webAssistantModule.getAuth(spaceId, webAssistantId)
+const authType = await webAssistantModule.getAuth(spaceId)
 
 let isAuthenticated = false;
 try {

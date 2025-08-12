@@ -181,23 +181,9 @@ class AssistOS {
         // }
     }
 
-    async loadAgent(spaceId, agentId) {
-        if (!agentId) {
-            agentId = localStorage.getItem("agent");
-            if (agentId === "undefined") {
-                agentId = undefined;
-            }
-        }
-        let agent;
+    async loadAgent(spaceId) {
         const agentModule = this.loadModule("agent");
-
-        try {
-            agent = await agentModule.getAgent(spaceId, agentId);
-        } catch (error) {
-            agent = await agentModule.getDefaultAgent(spaceId);
-        }
-        localStorage.setItem("agent", agent.name);
-        assistOS.agent = agent;
+        assistOS.agent = await agentModule.getDefaultAgent(spaceId);
     }
 
     async changeAgent(agentId) {
@@ -344,30 +330,7 @@ class AssistOS {
             userId: assistOS.user.id,
             email: assistOS.user.email,
         }
-        switch (moduleName) {
-            case "process":
-                return require("assistos").loadModule("process", securityContext);
-            case "space":
-                return require("assistos").loadModule("space", securityContext);
-            case "user":
-                return require("assistos").loadModule("user", securityContext);
-            case "agent":
-                return require("assistos").loadModule("agent", securityContext);
-            case "document":
-                return require("assistos").loadModule("document", securityContext);
-            case "application":
-                return require("assistos").loadModule("application", securityContext);
-            case "llm":
-                return require("assistos").loadModule("llm", securityContext);
-            case "webassistant":
-                return require("assistos").loadModule("webassistant", securityContext);
-            case "util":
-                return require("assistos").loadModule("util", securityContext);
-            case "chat":
-                return require("assistos").loadModule("chat", securityContext);
-            default:
-                throw new Error("Module doesn't exist");
-        }
+        return require("assistos").loadModule(moduleName, securityContext);
     }
 
     showToast(message, type, timeout = 1500) {

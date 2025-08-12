@@ -75,6 +75,12 @@ const waitForElement = (container, selector) => {
         }
     });
 };
+function getChatImageURL(relativeUrl){
+    if(assistOS.iframe){
+        relativeUrl = "../." + relativeUrl;
+    }
+    return relativeUrl;
+}
 export default{
     generateRequest,
     addToLocalContext,
@@ -84,5 +90,6 @@ export default{
     stopStreamActionButtonHTML,
     chatOptions,
     IFrameChatOptions,
-    waitForElement
+    waitForElement,
+    getChatImageURL
 }

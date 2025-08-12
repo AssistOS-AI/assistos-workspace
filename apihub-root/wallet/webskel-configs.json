@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "chat-room",
+            "directory": "chat",
+            "type": "components",
+            "presenterClassName": "ChatRoom"
+        },
+        {
             "name": "select-chat",
             "directory": "chat",
             "type": "modals",

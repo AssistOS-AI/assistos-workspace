@@ -54,7 +54,7 @@ const sidebarItems = [
     }
 ]
 const getChatIframeURL = (spaceId) => {
-    return `http://localhost:8080/iframes/chat?space=${spaceId}`
+    return `http://localhost:8080/chat-iframe?space=${spaceId}`
 }
 
 export class ApplicationCreatorSidebar {
