@@ -5,7 +5,7 @@ const crypto = require('../apihub-component-utils/crypto.js');
 
 const fsPromises = require('fs').promises;
 const path = require('path');
-const {sendResponse} = require("../apihub-component-utils/utils");
+const {sendResponse, sendFileToClient} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
 let assistOSSDK = require('assistos');
 const constants = assistOSSDK.constants;
@@ -128,20 +128,26 @@ async function createSpace(request, response, server) {
         let chatId = await createDefaultAgent(request, space.id);
         await workspaceClient.setCurrentChatId(space.id, chatId);
 
-        const appsPath = path.join(__dirname, 'applications.json');
-        const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
-        const defaultApps = apps.filter(app => app.systemApp);
-        for (const application of defaultApps) {
-            let systemAppPath = path.join(process.env.PERSISTENCE_FOLDER, `../../../systemApps/${application.name}`);
-            let spaceAppLinkPath = path.join(applicationsPath, application.name);
-            await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
-        }
+        await linkSystemApps(space.id, applicationsPath, request, server);
         await secrets.addSpaceEnvVarsSecrets(space.id, envVars);
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
         utils.sendResponse(response, 500, "application/json", {
             message: `Internal Server Error: ${error.message}`,
         });
+    }
+}
+async function linkSystemApps(spaceId, applicationsPath, req, server){
+    const appsPath = path.join(__dirname, 'applications.json');
+    const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
+    const defaultApps = apps.filter(app => app.systemApp);
+    let spaceApplicationsClient = await getAPIClient(req, constants.APPLICATION_PLUGIN, spaceId)
+    for (const application of defaultApps) {
+        const systemAppPath = path.join(server.rootFolder, "external-volume", "systemApps", application.name);
+        const spaceAppLinkPath = path.join(applicationsPath, application.name);
+        await fsPromises.access(systemAppPath);
+        await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
+        await spaceApplicationsClient.createApplication(application.name, application.skipUI || false);
     }
 }
 async function createDefaultAgent(request, spaceId){
@@ -510,6 +516,46 @@ const getApplicationEntry = async (request, response) => {
         });
     }
 }
+async function loadApplicationFile(request, response, server) {
+    function handleFileError(response, error) {
+        // Log the detailed error for debugging purposes on the server
+        console.error("File loading error:", error);
+        if (error.code === 'ENOENT' || error.code === 'ENOTDIR') {
+            sendResponse(response, 404, "application/json", {
+                message: "File not found",
+            });
+        } else {
+            sendResponse(response, 500, "application/json", {
+                message: "Internal Server Error while loading file.",
+            });
+        }
+    }
+
+    try {
+        const {spaceId, appName} = request.params;
+        const filePath = request.url.split(`${appName}/`)[1];
+        const appDirectoryPath = path.join(server.rootFolder, "external-volume", "spaces", spaceId, "applications", appName);
+        const requestedFilePath = path.normalize(path.join(appDirectoryPath, filePath));
+        const realAppDirectoryPath = await fsPromises.realpath(appDirectoryPath);
+        const realRequestedFilePath = await fsPromises.realpath(requestedFilePath);
+        //prevent path traversal attacks (e.g., ../../etc/passwd).
+        if (!realRequestedFilePath.startsWith(realAppDirectoryPath + path.sep)) {
+            return sendResponse(response, 403, "application/json", {
+                message: "Forbidden: Access denied.",
+            });
+        }
+
+        const fileType = path.extname(realRequestedFilePath).substring(1) || '';
+        const imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
+        const encoding = imageTypes.includes(fileType) ? null : "utf8"; // Use null encoding for binary files to get a Buffer
+        const file = await fsPromises.readFile(realRequestedFilePath, encoding);
+        response.setHeader('Cache-Control', 'public, max-age=10');
+        return await sendFileToClient(response, file, fileType);
+    } catch (error) {
+        return handleFileError(response, error);
+    }
+}
+
 module.exports = {
     getApplicationEntry,
     getUploadURL,
@@ -529,5 +575,6 @@ module.exports = {
     importPersonality,
     listUserSpaces,
     restartServerless,
-    installSystemApps
+    installSystemApps,
+    loadApplicationFile
 }

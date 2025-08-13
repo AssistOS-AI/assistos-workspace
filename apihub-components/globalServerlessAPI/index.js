@@ -15,7 +15,8 @@ const {
     deleteFile,
     deleteSpace,
     restartServerless,
-    installSystemApps
+    installSystemApps,
+    loadApplicationFile
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -139,6 +140,11 @@ function Space(server) {
     server.put("/spaces/:spaceId/secrets/delete", deleteSecret);
 
     server.put("/spaces/:spaceId/restart", restartServerless);
+
+    /*applications */
+    server.get("/applications/files/:spaceId/:appName/*", async (req, res)=>{
+        await loadApplicationFile(req, res, server);
+    });
 }
 
 module.exports = Space;

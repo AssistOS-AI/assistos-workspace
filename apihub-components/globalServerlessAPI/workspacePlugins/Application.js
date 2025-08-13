@@ -18,11 +18,18 @@ async function Application() {
     });
 
     await persistence.createIndex("application", "name");
-
+    self.createApplication = async function (name, skipUI) {
+        return await persistence.createApplication({
+            name: name,
+            lastUpdate: new Date().toISOString(),
+            skipUI: skipUI,
+        });
+    }
     self.getApplicationPath = function (appName) {
-        let app = availableApps.find(app => app.name === appName);
+        let apps = self.getAvailableApps();
+        let app = apps.find(app => app.name === appName);
         if(app.systemApp) {
-            return path.join(process.env.PERSISTENCE_FOLDER, `../../../${appName}`);
+            return path.join(process.env.PERSISTENCE_FOLDER, `../../../systemApps/${appName}`);
         }
         return path.join(process.env.PERSISTENCE_FOLDER, "../", `applications/${appName}`);
     }
@@ -33,8 +40,7 @@ async function Application() {
 
 
     self.getAvailableApps = function () {
-        let apps = require("../applications.json");
-        return apps.filter(app => !app.systemApp);
+        return require("../applications.json");
     }
 
     self.updateApplication = async function (appName) {
@@ -42,7 +48,7 @@ async function Application() {
         if (!app) {
             throw new Error("Application not Found");
         }
-        const applicationPath = self.getApplicationPath(applicationId);
+        const applicationPath = self.getApplicationPath(appName);
         const applicationNeedsUpdate = await git.checkForUpdates(applicationPath, app.repository);
         if (applicationNeedsUpdate) {
             await git.updateRepo(applicationPath);
