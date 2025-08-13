@@ -37,6 +37,7 @@ function Space(server) {
                 urlPrefix: spaceId,
                 storage: serverlessFolder,
                 env: {
+                    SERVERLESS_ROOT_FOLDER: serverlessFolder,
                     PERSISTENCE_FOLDER: path.join(serverlessFolder, "persistence"),
                     SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
                     SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,

@@ -104,6 +104,7 @@ async function createSpace(request, response, server) {
         //create serverless API for new space
         let serverlessId = space.id;
         const envVars = {
+            SERVERLESS_ROOT_FOLDER: serverlessAPIStorage,
             PERSISTENCE_FOLDER: path.join(serverlessAPIStorage, "persistence"),
             SENDGRID_API_KEY: process.env.SENDGRID_API_KEY,
             SENDGRID_SENDER_EMAIL: process.env.SENDGRID_SENDER_EMAIL,
