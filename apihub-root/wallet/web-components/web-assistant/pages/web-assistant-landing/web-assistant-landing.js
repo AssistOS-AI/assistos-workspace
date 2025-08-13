@@ -1,4 +1,4 @@
-export class ApplicationCreatorLanding {
+export class WebAssistantLanding {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

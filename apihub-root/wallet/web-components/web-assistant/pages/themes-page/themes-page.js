@@ -1,6 +1,6 @@
 const WebAssistant = assistOS.loadModule("webassistant",{});
 
-export class ApplicationCreatorThemes {
+export class ThemesPage {
     constructor(element, invalidate, props) {
         this.element = element;
         this.invalidate = invalidate;
@@ -42,8 +42,8 @@ export class ApplicationCreatorThemes {
     }
 
     async generateTheme(eventTarget) {
-        const {shouldInvalidate} = await assistOS.UI.showModal("application-generate-theme-modal", {
-            presenter: "application-generate-theme-modal",
+        const {shouldInvalidate} = await assistOS.UI.showModal("web-assistant-generate-theme-modal", {
+            presenter: "web-assistant-generate-theme-modal",
         }, true)
         if (shouldInvalidate) {
             this.invalidate();
@@ -67,19 +67,14 @@ export class ApplicationCreatorThemes {
     }
 
     async openAddModal(target) {
-        const {shouldInvalidate} = await assistOS.UI.showModal("application-edit-theme-modal", {
-            presenter: "application-edit-theme-modal",
-        }, true)
+        const {shouldInvalidate} = await assistOS.UI.showModal("edit-theme-modal", {}, true)
         if (shouldInvalidate) {
             this.invalidate();
         }
     }
 
     async openEditModal(target, id) {
-        const {shouldInvalidate} = await assistOS.UI.showModal("application-edit-theme-modal", {
-            presenter: "application-edit-theme-modal",
-            id
-        }, true)
+        const {shouldInvalidate} = await assistOS.UI.showModal("edit-theme-modal", {id}, true)
         if (shouldInvalidate) {
             this.invalidate();
         }

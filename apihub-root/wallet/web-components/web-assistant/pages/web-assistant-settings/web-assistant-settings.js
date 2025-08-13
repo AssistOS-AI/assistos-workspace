@@ -1,7 +1,7 @@
 const personalityModule = assistOS.loadModule("agent", {});
 const WebAssistant = assistOS.loadModule("webassistant", {});
 
-export class ApplicationCreatorSettings {
+export class WebAssistantSettings {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
