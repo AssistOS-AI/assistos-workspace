@@ -1,6 +1,6 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import NotificationManager from "./wallet/core/NotificationManager.js";
-
+import {initialiseApplication, navigateToLocation} from "./wallet/utils/appUtils.js"
 document.querySelector('#default-loader-markup').showModal();
 let currentTheme = localStorage.getItem('theme');
 const htmlElement = document.getElementsByTagName('html')[0];
@@ -97,29 +97,7 @@ class AssistOS {
         return {loadedTemplate, loadedCSSs, presenterModule};
     }
 
-    async startApplication(appName, applicationLocation, isReadOnly) {
-        const initialiseApplication = async () => {
-            const applicationModule = this.loadModule("application");
-            assistOS.initialisedApplications[appName] = await applicationModule.getApplicationConfig(assistOS.space.id, appName);
-            if (assistOS.initialisedApplications[appName].manager) {
-                let ManagerModule = await applicationModule.getApplicationFile(assistOS.space.id, appName, assistOS.initialisedApplications[appName].manager.path)
-                assistOS.initialisedApplications[appName].manager = new ManagerModule[assistOS.initialisedApplications[appName].manager.name](appName);
-                await assistOS.initialisedApplications[appName].manager.loadAppData?.();
-            }
-            for (let component of assistOS.initialisedApplications[appName].components) {
-                let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
-                if (alreadyLoadedComponent) {
-                    continue;
-                }
-                component = {
-                    ...await this.getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
-                    ...component
-                }
-                assistOS.UI.configs.components.push(component);
-                await assistOS.UI.defineComponent(component);
-            }
-        }
-
+    async startApplication(appName, applicationLocation) {
         const applicationContainer = document.querySelector("#page-content");
 
         if (document.querySelector("left-sidebar") === null) {
@@ -127,18 +105,23 @@ class AssistOS {
         }
         if (appName === assistOS.configuration.defaultApplicationName) {
             if (!applicationLocation) {
-                applicationLocation = ["documents-page  "];
+                applicationLocation = ["documents-page"];
             }
             await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${applicationLocation.join("/")}`)
             return;
         }
         if (!assistOS.initialisedApplications[appName]) {
             assistOS.UI.showLoading();
-            await initialiseApplication(appName);
-            assistOS.UI.hideLoading();
+            try {
+                await initialiseApplication(appName);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                assistOS.UI.hideLoading();
+            }
         }
         try {
-            await assistOS.initialisedApplications[appName].manager.navigateToLocation(applicationLocation, isReadOnly);
+            await navigateToLocation(appName, applicationLocation);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
             await assistOS.UI.changeToDynamicPage(assistOS.initialisedApplications[appName].entryPointComponent,
@@ -261,22 +244,6 @@ class AssistOS {
         try {
             await assistOS.initUser(email);
             await assistOS.initSpace(spaceId);
-            // try {
-            //     this.NotificationRouter.createSSEConnection();
-            //     this.NotificationRouter.getEventSource().onopen = async () => {
-            //         //this = assistOS
-            //         this.spaceEventsHandler = async (event) => {
-            //             if (event === "delete") {
-            //                 alert("Space has been deleted. You will be logged out");
-            //                 await assistOS.logout();
-            //             }
-            //         };
-            //         await this.NotificationRouter.subscribeToSpace(assistOS.space.id, "space", this.spaceEventsHandler);
-            //     }
-            //
-            // } catch (error) {
-            //     await showApplicationError("Error", "Failed to establish connection to the server", error.message);
-            // }
             await this.initPage(applicationName, applicationLocation);
         } catch (error) {
             console.error(error);
