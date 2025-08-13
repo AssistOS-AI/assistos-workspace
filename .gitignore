@@ -1,6 +1,5 @@
 .idea
 .env
-apihub-root/external-volume
 latest-change-set.txt
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
