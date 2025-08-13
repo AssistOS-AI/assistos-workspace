@@ -3,7 +3,7 @@ chat-room {
     flex-direction: column;
     position: relative;
     width: 100%;
-    height: calc(100% - 15px);
+    height: 100%;
 }
 .conversation {
     background-color: var(--application-marketplace-border);

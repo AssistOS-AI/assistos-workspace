@@ -15,6 +15,9 @@ export class ChatRoom {
     }
 
     async beforeRender() {
+        if(assistOS.iframe){
+            this.element.style.height = "calc(100vh - 140px)";
+        }
         this.agentName = this.agent.name;
         this.agentLLMTooltip = this.agent.llms["chat"].modelName;
         this.chatOptions = chatUtils.IFrameChatOptions;
@@ -295,13 +298,6 @@ export class ChatRoom {
         this.invalidate();
     }
 
-    async viewAgentContext(_target) {
-        await assistOS.UI.showModal('view-context-modal', {
-            presenter: `view-context-modal`,
-            chatId: this.chatId,
-            spaceId: this.spaceId
-        });
-    }
     hideSettings(controller, container, event) {
         container.setAttribute("data-local-action", "showSettings off");
         let target = this.element.querySelector(".settings-list-container");

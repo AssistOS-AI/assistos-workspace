@@ -63,13 +63,13 @@
         },
         {
             "name": "chat-scripts-page",
-            "directory": "space-application",
+            "directory": "web-assistant",
             "type": "pages",
             "presenterClassName": "ChatScriptsPage"
         },
         {
             "name": "add-edit-chat-script",
-            "directory": "chat",
+            "directory": "web-assistant",
             "type": "modals",
             "presenterClassName": "AddEditChatScript"
         },
@@ -408,12 +408,6 @@
             "presenterClassName": "ConfirmActionModal"
         },
         {
-            "name": "application-preview-page-modal",
-            "directory": "space-settings",
-            "type": "modals",
-            "presenterClassName": "ApplicationPreviewPageModal"
-        },
-        {
             "name": "flux-dev-model-page",
             "directory": "space-application",
             "type": "pages",
@@ -430,36 +424,6 @@
             "directory": "space-application",
             "type": "pages",
             "presenterClassName": "LlmDemoPage"
-        },
-        {
-            "name": "chats-page",
-            "directory": "chat",
-            "type": "pages",
-            "presenterClassName": "ChatsPage"
-        },
-        {
-            "name": "add-chat-modal-extended",
-            "directory": "chat",
-            "type": "modals",
-            "presenterClassName": "AddChatModalExtended"
-        },
-        {
-            "name": "edit-chat-modal",
-            "directory": "chat",
-            "type": "modals",
-            "presenterClassName": "EditChatModal"
-        },
-        {
-            "name": "delete-chat-modal",
-            "directory": "chat",
-            "type": "modals",
-            "presenterClassName": "DeleteChatModal"
-        },
-        {
-            "name": "view-context-modal",
-            "directory": "space-application",
-            "type": "modals",
-            "presenterClassName": "ViewContextModal"
         },
         {
             "name": "video-menu",
@@ -749,81 +713,57 @@
             "presenterClassName": "PrintDocumentModal"
         },
         {
-            "name": "application-creator-landing",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorLanding",
+            "name": "web-assistant-landing",
+            "directory": "web-assistant",
+            "presenterClassName": "WebAssistantLanding",
             "type": "pages"
         },
         {
-            "name": "application-creator-sidebar",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorSidebar",
+            "name": "web-assistant-sidebar",
+            "directory": "web-assistant",
+            "presenterClassName": "WebAssistantSidebar",
             "type": "components"
         },
         {
-            "name": "application-creator-menu",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorMenu",
+            "name": "themes-page",
+            "directory": "web-assistant",
+            "presenterClassName": "ThemesPage",
             "type": "pages"
         },
         {
-            "name": "application-creator-scripts",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorScripts",
+            "name": "widgets-page",
+            "directory": "web-assistant",
+            "presenterClassName": "WidgetsPage",
             "type": "pages"
         },
         {
-            "name": "application-creator-themes",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorThemes",
+            "name": "web-assistant-settings",
+            "directory": "web-assistant",
+            "presenterClassName": "WebAssistantSettings",
             "type": "pages"
         },
         {
-            "name": "application-creator-pages",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorPages",
-            "type": "pages"
-        },
-        {
-            "name": "application-creator-preview",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorPreview",
-            "type": "pages"
-        },
-        {
-            "name": "application-creator-settings",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationCreatorSettings",
-            "type": "pages"
-        },
-        {
-            "name": "application-edit-page-modal",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationEditPageModal",
+            "name": "edit-widget-modal",
+            "directory": "web-assistant",
+            "presenterClassName": "EditWidgetModal",
             "type": "modals"
         },
         {
-            "name": "application-edit-theme-modal",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationEditThemeModal",
+            "name": "edit-theme-modal",
+            "directory": "web-assistant",
+            "presenterClassName": "EditThemeModal",
             "type": "modals"
         },
         {
-            "name": "application-generate-theme-modal",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationGenerateThemeModal",
+            "name": "generate-theme-modal",
+            "directory": "web-assistant",
+            "presenterClassName": "GenerateThemeModal",
             "type": "modals"
         },
         {
             "name": "add-authentication-method-modal",
             "directory": "space-application",
             "presenterClassName": "AddAuthenticationMethodModal",
-            "type": "modals"
-        },
-        {
-            "name": "application-edit-menu-modal",
-            "directory": "space-settings",
-            "presenterClassName": "ApplicationEditMenuModal",
             "type": "modals"
         },
         {
