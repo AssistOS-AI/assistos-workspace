@@ -112,7 +112,7 @@ function Space(server) {
     server.use("/spaces/*", bodyReader);
     server.use("/public/*", bodyReader);
 
-    server.get("/public/spaces/widgets/:spaceId/:applicationId/:widgetName", getWidget);
+    server.get("/public/web-components/:spaceId/:applicationId/:widgetName", getWidget);
 
     server.use("/apis/v1/spaces/*", bodyReader);
 

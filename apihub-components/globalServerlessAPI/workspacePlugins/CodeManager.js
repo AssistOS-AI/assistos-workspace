@@ -2,7 +2,6 @@ const path = require("path");
 const fsPromises = require("fs/promises");
 async function WebAssistant() {
     const self = {};
-
     self.getCodePath = function(fileName){
         return path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", fileName);
     }
@@ -12,6 +11,22 @@ async function WebAssistant() {
     self.getCode = async function(fileName){
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
     }
+
+    self.listWidgets = async function () {
+
+    };
+
+    self.getWidget = async function (widgetId) {
+
+    };
+
+    self.updateWidget = async function (widgetId, widget) {
+
+    };
+
+    self.deleteWidget = async function (pageId) {
+        //TODO delete ref from chatScript also
+    };
 
     self.getPublicMethods = function () {
         return []

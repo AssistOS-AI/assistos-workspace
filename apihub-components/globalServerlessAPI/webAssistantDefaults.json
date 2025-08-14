@@ -192,31 +192,5 @@
             },
             "css": "/* Custom CSS for High Contrast Theme */\n* {\n    border: 2px solid var(--border-color) !important;\n    box-shadow: none !important;\n    text-shadow: none !important;\n}\na:focus, button:focus, input:focus, select:focus, textarea:focus {\n    outline: 5px solid var(--focus-ring) !important;\n    outline-offset: 2px;\n}\n"
         }
-    ],
-    "widgets": [
-        {
-            "name": "Control Room Load Room",
-            "description": "Widget to load a specific chat room.",
-            "widget": "assistOS/select-chat",
-            "chatSize": "50",
-            "role": "load",
-            "generalSettings": "",
-            "data": "",
-            "html": "",
-            "css": "",
-            "js": ""
-        },
-        {
-            "name": "Control Room New Room",
-            "description": "A widget to create a chat room",
-            "widget": "assistOS/create-chat",
-            "chatSize": "50",
-            "role": "new",
-            "generalSettings": "",
-            "data": "",
-            "html": "",
-            "css": "",
-            "js": ""
-        }
     ]
 }

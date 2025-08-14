@@ -395,7 +395,7 @@ async function getWidget(req,res) {
     }
 
     try {
-        let html, css, js;
+        let html, css;
         let componentPath;
         if (applicationId === "assistOS") {
             componentPath = path.join(__dirname, `../../apihub-root/wallet/web-components/widgets/${widgetName}`);
@@ -403,21 +403,17 @@ async function getWidget(req,res) {
             const applicationPath = path.join(__dirname, `../../apihub-root/external-volume/spaces/${spaceId}/applications/${applicationId}`);
             componentPath = path.join(applicationPath, `widgets/${widgetName}`);
         }
-        const jsPath = path.join(componentPath, `${widgetName}.js`);
         const cssPath = path.join(componentPath, `${widgetName}.css`);
         const htmlPath = path.join(componentPath, `${widgetName}.html`);
-
         html = await fsPromises.readFile(htmlPath, 'utf8');
         css = await fsPromises.readFile(cssPath, 'utf8');
-        js = await fsPromises.readFile(jsPath, 'utf8');
 
         return utils.sendResponse(res, 200, "application/json", {
-            data: {html, css, js, presenterClassName: convertToPascalCase(widgetName)}
+            data: {html, css, presenterClassName: convertToPascalCase(widgetName)}
         });
     } catch (error) {
         return utils.sendResponse(res,500, "application/json");
     }
-
 }
 
 async function importPersonality(request, response) {
@@ -505,18 +501,6 @@ async function getDownloadURL(request, response) {
     }
 }
 
-const getApplicationEntry = async (request, response) => {
-    const spaceId = request.params.spaceId;
-    const applicationId = request.params.applicationId;
-    try {
-        const entryHTML = await space.APIs.getApplicationEntry(spaceId, applicationId);
-        utils.sendResponse(response, 200, "text/html", entryHTML);
-    } catch (error) {
-        utils.sendResponse(response, error.statusCode, "application/json", {
-            message: error.message
-        });
-    }
-}
 async function loadApplicationFile(request, response, server) {
     function handleFileError(response, error) {
         // Log the detailed error for debugging purposes on the server
@@ -558,7 +542,6 @@ async function loadApplicationFile(request, response, server) {
 }
 
 module.exports = {
-    getApplicationEntry,
     getUploadURL,
     getDownloadURL,
     headFile,
