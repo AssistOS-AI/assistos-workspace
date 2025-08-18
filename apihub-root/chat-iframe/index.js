@@ -13,19 +13,6 @@ const parseCookies = function (cookieString) {
         }, {});
 }
 
-if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./serviceWorker.js')
-        .then(reg => {
-            reg.active.addEventListener('statechange', e => {
-                if (e.target.state === 'activated') {
-                    window.location.reload();
-                }
-            });
-        });
-}
-
-
-
 const userModule = require("assistos").loadModule("user", {});
 let webAssistantModule = require("assistos").loadModule("webassistant", {});
 let agentModule = require("assistos").loadModule("agent", {});
@@ -46,7 +33,7 @@ const launchAssistant = async (chatId) => {
     return window.UI.createElement(
         'iframe-chat-page',
         appContainer,
-        {chatId, spaceId, userId, pageId},
+        {chatId, spaceId, userId, widgetId},
         true
     );
 }
@@ -65,21 +52,13 @@ assistOS.agent = await agentModule.getDefaultAgent(spaceId);
 window.spaceId = spaceId;
 
 assistOS.UI.loadWidget = async function (spaceId, applicationId, widgetName) {
-    const webComponentsRootDir = './../../wallet/web-components/chat';
+    //TODO get html with css and javascript embedded
     const r = await fetch(`/public/spaces/widgets/${spaceId}/${applicationId}/${widgetName}`)
     const data = (await r.json()).data
-    const cache = await caches.open("virtual-widgets")
-    await cache.put(`${webComponentsRootDir}/virtual/widgets/${widgetName}/${widgetName}.html`,
-        new Response(data.html, {headers: {"Content-Type": "text/html"}}));
-    await cache.put(`${webComponentsRootDir}/virtual/widgets/${widgetName}/${widgetName}.css`,
-        new Response(data.css, {headers: {"Content-Type": "text/css"}}));
-    await cache.put(`${webComponentsRootDir}/virtual/widgets/${widgetName}/${widgetName}.js`,
-        new Response(data.js, {headers: {"Content-Type": "application/javascript"}}));
-
     const component = {
         name: widgetName,
-        type: 'widgets',
-        directory: 'virtual',
+        loadedTemplate: data.html,
+        presenterModule: data.js,
         presenterClassName: data.presenterClassName,
     }
 
@@ -90,7 +69,7 @@ assistOS.UI.loadWidget = async function (spaceId, applicationId, widgetName) {
 assistOS.securityContext = {};
 
 
-const pageId = urlParams.get("page") || null;
+const widgetId = urlParams.get("widget") || null;
 const appContainer = document.getElementById('app-container');
 let {chatId} = parseCookies(document.cookie);
 const authType = await webAssistantModule.getAuth(spaceId)
@@ -164,28 +143,14 @@ switch (authType) {
 
 webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
 if (!chatId) {
-    const userChats = await webAssistantModule.getUserChats(spaceId, webAssistantId, assistOS.securityContext.userId);
+    const userChats = await webAssistantModule.getUserChats(spaceId, assistOS.securityContext.userId);
     if (!userChats || !userChats.length) {
-        chatId = await webAssistantModule.createControlRoom(spaceId, webAssistantId, assistOS.securityContext.userId);
+        chatId = await webAssistantModule.createDefaultChat(spaceId, assistOS.securityContext.userId);
     } else {
         chatId = userChats[0];
     }
-    document.cookie = `chatId=${chatId}; path=/; max-age=31536000`;
-} else {
-    try {
-        const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-        const chatHistory = await chatModule.getChatHistory(spaceId, chatId);
-    } catch (error) {
-        document.cookie = `chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-        const userChats = await webAssistantModule.getUserChats(spaceId, webAssistantId, assistOS.securityContext.userId);
-        if (!userChats || !userChats.length) {
-            chatId = await webAssistantModule.createControlRoom(spaceId, webAssistantId, assistOS.securityContext.userId);
-        } else {
-            chatId = userChats[0];
-        }
-        document.cookie = `chatId=${chatId}; path=/; max-age=31536000`;
-    }
 }
+document.cookie = `chatId=${chatId}; path=/; max-age=31536000`;
 
 await launchAssistant(chatId);
 

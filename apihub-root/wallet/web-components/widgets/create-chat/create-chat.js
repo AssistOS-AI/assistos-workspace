@@ -45,9 +45,9 @@ export class CreateChat {
         let chatId = formInfo.data.agent + `_${assistOS.securityContext.userId}_` + generateId(8);
         let scriptId = UI.unsanitize(formInfo.data.scriptName);
         await webAssistantModule.createChat(this.spaceId,this.assistantId,assistOS.securityContext.userId,{
-            id:chatId,
-            scriptId:scriptId,
-            args:["User", formInfo.data.agent]
+            id: chatId,
+            scriptId: scriptId,
+            args: ["User", formInfo.data.agent]
         })
         document.querySelector("chat-page")?.webSkelPresenter?.openChat(null, chatId);
     }

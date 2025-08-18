@@ -4,6 +4,12 @@
     "services": [],
     "components": [
         {
+            "name": "widget-container",
+            "directory": "space-application",
+            "type": "components",
+            "presenterClassName": "WidgetContainer"
+        },
+        {
             "name": "chat-room",
             "directory": "chat",
             "type": "components",
@@ -713,16 +719,10 @@
             "presenterClassName": "PrintDocumentModal"
         },
         {
-            "name": "web-assistant-landing",
+            "name": "web-assistant",
             "directory": "web-assistant",
-            "presenterClassName": "WebAssistantLanding",
+            "presenterClassName": "WebAssistant",
             "type": "pages"
-        },
-        {
-            "name": "web-assistant-sidebar",
-            "directory": "web-assistant",
-            "presenterClassName": "WebAssistantSidebar",
-            "type": "components"
         },
         {
             "name": "themes-page",

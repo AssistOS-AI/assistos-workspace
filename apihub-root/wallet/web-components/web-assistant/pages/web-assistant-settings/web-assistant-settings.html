@@ -6,51 +6,29 @@
         <div class="right-header">
         </div>
     </div>
-    <div class="page-content">
-        <form class="application-form">
-            <div class="application-form-content">
-                <div class="application-form-subitem width-25">
-                    <label for="selectedPersonality">Agent</label>
-                    <select class="application-form-item-select" name="selectedPersonality"
-                            id="selectedPersonality">
-                        $$personalitiesOptions
-                    </select>
-                </div>
-                <div class="application-form-item">
-                    <label for="chat-indications">Agent Indications</label>
-                    <textarea class="no-resize" id="chat-indications"
-                              placeholder="Be short, precise, suggest the relevant page that could help the user resolve his requests">$$chatIndications</textarea>
-                </div>
-                <div class="application-form-item">
-                    <label for="initial-prompt">Agent Start-up Prompt</label>
-                    <textarea class="no-resize" id="initial-prompt"
-                              placeholder="Chose one of the following phrases: 1. How can I help you? 2. Please tell me about you 3. How is your day?">$$initialPrompt</textarea>
-                </div>
-                <div class="application-form-item">
-                    <label for="initial-prompt">Agent Knowledge Base</label>
-                    <textarea class="no-resize" id="knowledge"
-                              placeholder="You are a helpful assistant, installed on the www.axiologic.net webpage and help intsretd visitors about Axiologic Research a company in Iasi, Romania to know more about the company. Your goal is to convince relevant users to engage with company representatives">$$knowledge</textarea>
-                </div>
-                <div class="application-form-item">
-
-                    <div class="application-form-subitem width-25">
-                        <label for="selectedTheme">Theme</label>
-                        <select class="application-form-item-select" name="selectedTheme" id="selectedTheme">
-                            $$themes
-                        </select>
-                    </div>
-                    <div class="application-form-item width-25">
-                        <label for="authentication">Authentication</label>
-                        <select class="application-form-item-select" name="authentication" id="authentication">
-                            $$authenticationOptions
-                        </select>
-                    </div>
-
-                </div>
-                <div class="application-form-footer">
-                    <button type="button" class="general-button table-action-btn" data-local-action="saveSettings">Save
-                    </button>
-                </div>
-        </form>
-    </div>
+    <form class="settings-form">
+        <div class="form-item">
+            <label class="form-label" for="selectedPersonality">Agent</label>
+            <select class="form-input" name="selectedPersonality"
+                    id="selectedPersonality">
+                $$personalitiesOptions
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="selectedTheme">Theme</label>
+            <select class="form-input" name="selectedTheme" id="selectedTheme">
+                $$themes
+            </select>
+        </div>
+        <div class="form-item">
+            <label class="form-label" for="authentication">Authentication</label>
+            <select class="form-input" name="authentication" id="authentication">
+                $$authenticationOptions
+            </select>
+        </div>
+        <div class="form-footer">
+            <button type="button" class="general-button table-action-btn" data-local-action="saveSettings">Save
+            </button>
+        </div>
+    </form>
 </div>
