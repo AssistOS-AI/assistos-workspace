@@ -1,0 +1,20 @@
+application-add-component-modal {
+    max-width: 500px;
+    padding: 0;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.form-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}

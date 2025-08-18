@@ -1,7 +1,8 @@
 .idea
 .env
-apihub-root/external-volume
-latest-change-set.txt
+apihub-root/external-volume/**
+!apihub-root/external-volume/systemApps/
+!apihub-root/external-volume/systemApps/**
 apihub-root/external-volume/domains
 apihub-root/external-volume/fixed-urls
 apihub-root/external-volume/maindsu

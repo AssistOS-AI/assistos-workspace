@@ -1,0 +1,27 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <div class="modal-title">$$title</div>
+        <button class="button-close" data-local-action="closeModal"></button>
+    </div>
+    <div class="modal-body">
+        <form class="form-container" id="component-form">
+            <div class="form-item">
+                <label class="form-label" for="component-name">Component Name</label>
+                <input class="form-input" type="text" id="component-name" name="name" required placeholder="e.g., my-header">
+            </div>
+            <div class="form-item">
+                <label class="form-label" for="component-type">Component Type</label>
+                <select class="form-input" id="component-type" name="type">
+                    <option value="components" selected>Component</option>
+                    <option value="pages">Page</option>
+                    <option value="modals">Modal</option>
+                    <option value="widgets">Widget</option>
+                </select>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button class="general-button" data-local-action="closeModal">Cancel</button>
+        <button class="general-button" data-local-action="submitForm">Add Component</button>
+    </div>
+</div>

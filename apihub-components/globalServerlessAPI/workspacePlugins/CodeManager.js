@@ -15,6 +15,7 @@ async function WebAssistant() {
         }
         await fsPromises.writeFile(self.getCodePath(fileName), code);
     }
+/*
 
     self.saveWebskelComponent = async function (fileName, componentData) {
         let items = Object.keys(componentData);
@@ -23,13 +24,14 @@ async function WebAssistant() {
         }
         try {
             for (let componentItem of items) {
-                await self.saveCode(`${fileName}.${componentItem}`, componentData[componentItem]);
+                await self.saveCode(`${fileName}/${fileName}.${componentItem}`, componentData[componentItem]);
                 return true;
             }
         } catch (e) {
             return false;
         }
     }
+*/
 
     self.getCode = async function (fileName) {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");

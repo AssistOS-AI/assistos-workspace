@@ -6,4 +6,3 @@ rm -rf ./apihub-root/external-volume/assistOS-logs
 rm -rf ./apihub-root/external-volume/assistOS-audit
 rm -rf ./apihub-root/external-volume/spaces
 rm -rf ./apihub-root/external-volume/secrets/*
-rm -rf ./apihub-root/external-volume/systemApps
