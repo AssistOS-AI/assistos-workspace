@@ -26,13 +26,6 @@ chat-room {
     padding-block-end: 10px;
 }
 
-#options-menu{
-    display:flex;
-    height:80%;
-    flex-direction: column;
-    justify-content: space-around;
-    align-items: center;
-}
 .input-container {
     display: flex;
     align-items: center;
@@ -72,7 +65,7 @@ chat-room {
 }
 
 .settings-list-container {
-    padding: 5px 0;
+    padding: 5px;
     border-radius: 10px;
     box-shadow: 0px 1px 5.5px 0px #65666754;
     display: none;
@@ -83,6 +76,7 @@ chat-room {
     flex-direction: column;
     background-color: white;
     max-width: 250px;
+    width: 150px;
 }
 
 .settings-list-container > div {

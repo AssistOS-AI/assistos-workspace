@@ -157,11 +157,10 @@ async function createDefaultAgent(request, spaceId){
     await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let code = await fsPromises.readFile(path.join(__dirname, "defaultChatScript"), "utf-8");
-    let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript");
-    await chatScriptClient.createChatScript("DefaultControlRoomScript", code, "DefaultControlRoomScript");
+    let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript", ["create-chat", "load-chat"], "guest");
 
     let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
-    await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript");
+    await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript", ["create-chat", "load-chat"], "guest");
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;

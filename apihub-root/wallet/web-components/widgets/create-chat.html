@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Chat Widget</title>
+</head>
+<body>
+
+<script type="module">
+    (function () {
+        // Helper function to generate a random ID
+        function generateId(length = 16) {
+            const alphabet = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+            const bytes = new Uint8Array(length);
+            crypto.getRandomValues(bytes);
+            let id = '';
+            for (let i = 0; i < length; i++) {
+                id += alphabet[bytes[i] % alphabet.length];
+            }
+            return id;
+        }
+
+        // Helper function to extract form data, replacing UI.extractFormInformation
+        async function extractFormInformation(form) {
+            const formData = new FormData(form);
+            const data = {};
+            let isValid = form.checkValidity();
+
+            for (const [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+
+            if (!isValid) {
+                form.reportValidity();
+            }
+
+            return {data, isValid};
+        }
+
+        // Load required modules using the global assistOS object
+        const agentModule = assistOS.loadModule("agent", assistOS.securityContext);
+        const chatModule = assistOS.loadModule("chat", assistOS.securityContext);
+
+        const template = document.createElement('template');
+        template.innerHTML = `
+            <style>
+                :host {
+                    display: block;
+                    font-family: sans-serif;
+                }
+                .form-container {
+                    padding: 1.5rem;
+                    border: 1px solid #e0e0e0;
+                    border-radius: 8px;
+                    background-color: #f9f9f9;
+                }
+                .form-title {
+                    font-size: 1.5rem;
+                    margin-bottom: 1.5rem;
+                    font-weight: bold;
+                }
+                .form-row {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+                .form-item {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                }
+                .form-label {
+                    font-weight: bold;
+                }
+                .form-input {
+                    padding: 0.5rem;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    font-size: 1rem;
+                }
+                .form-button {
+                    padding: 0.75rem;
+                    border: none;
+                    border-radius: 4px;
+                    background-color: #007bff;
+                    color: white;
+                    font-size: 1rem;
+                    cursor: pointer;
+                    margin-top: 1rem;
+                }
+                .form-button:hover {
+                    background-color: #0056b3;
+                }
+            </style>
+            <div class="form-container">
+                <div class="form-title">Create a New Chat</div>
+                <form id="create-chat-form">
+                    <div class="form-row">
+                        <div class="form-item">
+                            <label for="agent-select" class="form-label">Select Agent</label>
+                            <select id="agent-select" name="agent" class="form-input" required>
+                                <option value="" disabled selected>Loading agents...</option>
+                            </select>
+                        </div>
+                        <div class="form-item">
+                            <label for="script-select" class="form-label">Select Script</label>
+                            <select id="script-select" name="scriptName" class="form-input" required>
+                                <option value="" disabled selected>Loading scripts...</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="submit" class="form-button">Create Chat</button>
+                </form>
+            </div>
+        `;
+
+        class CreateChat extends HTMLElement {
+            constructor() {
+                super();
+                this.attachShadow({mode: 'open'});
+                this.shadowRoot.appendChild(template.content.cloneNode(true));
+            }
+
+            async connectedCallback() {
+                this.spaceId = this.getAttribute("data-space-id");
+                this.assistantId = this.getAttribute("data-assistant-id");
+
+                if (!this.spaceId || !this.assistantId) {
+                    console.error("data-space-id and data-assistant-id attributes are required.");
+                    this.shadowRoot.querySelector('.form-container').innerHTML = '<p style="color: red;">Configuration error: Missing required attributes.</p>';
+                    return;
+                }
+
+                this.form = this.shadowRoot.querySelector('#create-chat-form');
+                this.agentSelect = this.shadowRoot.querySelector('#agent-select');
+                this.scriptSelect = this.shadowRoot.querySelector('#script-select');
+
+                this.form.addEventListener('submit', this.createChat.bind(this));
+
+                await this.populateSelects();
+            }
+
+            disconnectedCallback() {
+                this.form.removeEventListener('submit', this.createChat.bind(this));
+            }
+
+            async populateSelects() {
+                try {
+                    const scripts = await chatModule.getChatScripts(this.spaceId);
+                    const agents = await agentModule.getAgentNames(this.spaceId);
+
+                    this.scriptSelect.innerHTML = '<option value="" disabled selected>Select a script</option>';
+                    const scriptOptions = scripts.map(script => `<option value="${script.id}">${script.name}</option>`).join('');
+                    this.scriptSelect.insertAdjacentHTML('beforeend', scriptOptions);
+
+                    this.agentSelect.innerHTML = '<option value="" disabled selected>Select an agent</option>';
+                    const agentOptions = agents.map(agentName => `<option value="${agentName}">${agentName}</option>`).join('');
+                    this.agentSelect.insertAdjacentHTML('beforeend', agentOptions);
+
+                } catch (error) {
+                    console.error("Failed to populate form selects:", error);
+                    this.shadowRoot.querySelector('.form-container').innerHTML = '<p style="color: red;">Failed to load data. Please try again later.</p>';
+                }
+            }
+
+            async createChat(event) {
+                event.preventDefault();
+                const formInfo = await extractFormInformation(this.form);
+                if (!formInfo.isValid) {
+                    return;
+                }
+
+                const agentName = formInfo.data.agent;
+                const scriptId = formInfo.data.scriptName; // Unsanitizing is not needed if values are not sanitized on creation
+                const chatId = agentName + `_${assistOS.securityContext.userId}_` + generateId(8);
+
+                try {
+                    // The original file had `webAssistantModule`, which is not defined.
+                    // It's likely a typo and should be `chatModule`.
+                    await chatModule.createChat(this.spaceId, this.assistantId, assistOS.securityContext.userId, {
+                        id: chatId,
+                        scriptId: scriptId,
+                        args: ["User", agentName]
+                    });
+
+                    // Dispatch a custom event instead of calling a presenter directly.
+                    // A parent component can listen for this and handle the navigation.
+                    this.dispatchEvent(new CustomEvent('chat-created', {
+                        detail: {chatId: chatId},
+                        bubbles: true,
+                        composed: true
+                    }));
+
+                } catch (error) {
+                    console.error("Failed to create chat:", error);
+                    alert("An error occurred while creating the chat. Please try again.");
+                }
+            }
+        }
+
+        customElements.define('create-chat', CreateChat);
+    })();
+</script>
+
+</body>
+</html>

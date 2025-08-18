@@ -12,26 +12,27 @@
                 <input type="text" id="script-name" class="form-input" placeholder="Enter script name"
                        value="$$scriptName">
             </div>
-            <div class="form-item">
+            <div class="select-role-container">
                 <label class="form-label" for="script-role">Script Role</label>
-                <select name="script-role" id="script-role">
-                    <option value="" disabled>Select a role</option>
-                    $$scriptRoleOptions
-                </select>
+            </div>
+            <div class="form-item">
+                <label class="form-label">Widgets</label>
+                <div class="multi-select-container">
+                    <div class="selected-items" data-local-action="toggleWidgetDropdown">
+                        <span id="selected-widgets-placeholder">Select widgets</span>
+                        <div id="selected-widgets-pills"></div>
+                        <img class="arrow-down" src="./wallet/assets/icons/arrow.svg" alt="arrow">
+                    </div>
+                    <div class="dropdown-list" id="widget-list">
+                        $$widgetOptions
+                    </div>
+                </div>
             </div>
         </div>
-
         <div class="form-item">
             <label class="form-label">Script Description</label>
             <textarea id="script-description" class="form-input no-resize" rows="3"
                       placeholder="Enter script description...">$$scriptDescription</textarea>
-        </div>
-        <div class="form-item">
-            <label class="form-label" for="widget">Widget</label>
-            <select id="widget" class="form-input">
-                <option value="" disabled>Select a widget</option>
-                $$widgetOptions
-            </select>
         </div>
         <div class="form-item">
             <label class="form-label">Script SOPLang Code</label>

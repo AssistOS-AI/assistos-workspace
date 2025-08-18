@@ -41,7 +41,8 @@ async function WebAssistant() {
         return [];
     };
 
-    self.getWidget = async function (widgetId) {
+    self.getWidget = async function (widgetName) {
+        const [appName, name] = widgetName.split('/');
 
     };
 

@@ -17,13 +17,6 @@ add-edit-chat-script .first-row{
     flex-direction: column;
     gap: 20px;
 }
-
-.form-item {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
 .no-resize {
     resize: none;
 }
@@ -45,4 +38,101 @@ add-edit-chat-script .first-row{
     justify-content: flex-end;
     padding: 20px 40px;
     border-top: 1px solid #EFEFEF;
+}
+
+.multi-select-container {
+    position: relative;
+    width: 100%;
+}
+
+.selected-items {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+    padding: 8px 12px;
+    border: 1px solid var(--form-input-border);
+    border-radius: 5px;
+    cursor: pointer;
+    min-height: 40px;
+    margin-top: 2px;
+}
+
+#selected-widgets-placeholder {
+    color: #999;
+    user-select: none;
+    padding: 2px 0;
+}
+
+#selected-widgets-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.pill {
+    display: flex;
+    align-items: center;
+    background-color: #e0e0e0;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 14px;
+}
+
+.remove-pill {
+    margin-left: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.arrow-down {
+    margin-left: auto;
+    width: 16px;
+    height: 16px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.dropdown-list {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 4px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.dropdown-list.open {
+    display: block;
+}
+
+.selected-items.open .arrow-down {
+    transform: rotate(180deg);
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f0f0;
+}
+
+.dropdown-item input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.dropdown-item label {
+    cursor: pointer;
+    flex-grow: 1;
+    user-select: none;
 }

@@ -149,49 +149,15 @@ export class IframeChatPage {
         this.conversation = this.element.querySelector(".conversation");
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
         this.maxHeight = 500;
-        this.initObservers();
     }
-
-    initObservers() {
-        this.intersectionObserver = new IntersectionObserver(entries => {
-            for (let entry of entries) {
-                if (entry.target === this.observedElement) {
-                    if (entry.intersectionRatio < 1) {
-                        if (!this.userHasScrolledManually) {
-                            this.conversation.scrollTo({
-                                top: this.conversation.scrollHeight + 100,
-                                behavior: 'auto'
-                            });
-                        }
-                    } else {
-                        this.userHasScrolledManually = false;
-                    }
-                }
-            }
-        }, {
-            root: this.conversation,
-            threshold: 1
+    async openWidget(targetElement, widgetName){
+        let widget = await codeManager.getWidget(this.spaceId, widgetName);
+        let contextContainer = this.element.querySelector('#context-container');
+        contextContainer.innerHTML = "";
+        assistOS.UI.createElement("widget-container", '#context-container', {
+            code: widget.data
         });
     }
-
-
-    hideSettings(controller, container, event) {
-        container.setAttribute("data-local-action", "showSettings off");
-        let target = this.element.querySelector(".settings-list-container");
-        target.style.display = "none";
-        controller.abort();
-    }
-
-    showSettings(_target, mode) {
-        if (mode === "off") {
-            let target = this.element.querySelector(".settings-list-container");
-            target.style.display = "flex";
-            let controller = new AbortController();
-            document.addEventListener("click", this.hideSettings.bind(this, controller, _target), {signal: controller.signal});
-            _target.setAttribute("data-local-action", "showSettings on");
-        }
-    }
-
     initMobileToggle() {
         if (window.innerWidth > 768) return;
 
@@ -237,37 +203,6 @@ export class IframeChatPage {
 
     async afterUnload() {
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
-    }
-
-    async startNewRoom() {
-        const chatId = await assistOS.UI.showModal('create-chat', {
-            "assistant-id": this.props.webAssistantId,
-            "space-id": this.spaceId
-        }, true);
-        if (!chatId) {
-            return;
-        }
-        document.cookie = "chatId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-        document.cookie = `chatId=${chatId}`;
-        await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
-        this.element.setAttribute('data-chatId', chatId);
-        this.invalidate();
-    }
-
-    async loadRoom() {
-
-    }
-
-    async newChat(target) {
-        const controlRoomId= await webAssistantModule.getControlRoom(this.spaceId, assistOS.securityContext.userId);
-        this.loadRoomScope = false;
-        await this.openChat(target, controlRoomId);
-    }
-
-    async loadChat(target) {
-        const controlRoomId= await webAssistantModule.getControlRoom(this.spaceId, assistOS.securityContext.userId);
-        this.loadRoomScope = true;
-        await this.openChat(target, controlRoomId);
     }
 
     async openChat(button, chatId) {
