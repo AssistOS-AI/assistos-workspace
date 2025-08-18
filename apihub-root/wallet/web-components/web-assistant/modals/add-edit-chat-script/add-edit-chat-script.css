@@ -2,7 +2,10 @@ add-edit-chat-script {
     display: block;
     width: 856px;
 }
-
+add-edit-chat-script .first-row{
+    display: flex;
+    gap: 20px;
+}
 .modal-body {
     padding: 25px 25px 25px 30px;
     overflow-y: auto;

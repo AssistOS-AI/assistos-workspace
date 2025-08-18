@@ -468,12 +468,6 @@
             "presenterClassName": "TaskItem"
         },
         {
-            "name": "history-image",
-            "directory": "gallery",
-            "type": "components",
-            "presenterClassName": "HistoryImage"
-        },
-        {
             "name": "action-box-chapter",
             "directory": "document",
             "type": "components"
@@ -519,40 +513,6 @@
             "directory": "document",
             "type": "pages",
             "presenterClassName": "DocumentsPage"
-        },
-        {
-            "name": "generate-image-page",
-            "directory": "gallery",
-            "type": "pages",
-            "presenterClassName": "GenerateImagePage"
-        },
-        {
-            "name": "gallery-page",
-            "directory": "gallery",
-            "type": "pages",
-            "presenterClassName": "GalleryPage"
-        },
-        {
-            "name": "gallery-item",
-            "directory": "gallery",
-            "type": "components"
-        },
-        {
-            "name": "add-gallery-modal",
-            "directory": "gallery",
-            "type": "modals",
-            "presenterClassName": "AddGalleryModal"
-        },
-        {
-            "name": "action-box-gallery",
-            "directory": "gallery",
-            "type": "components"
-        },
-        {
-            "name": "galleries-page",
-            "directory": "gallery",
-            "type": "pages",
-            "presenterClassName": "GalleriesPage"
         },
         {
             "name": "list-item",

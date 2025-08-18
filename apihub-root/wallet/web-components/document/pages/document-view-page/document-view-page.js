@@ -611,7 +611,7 @@ export class DocumentViewPage {
         let taskId = await documentModule.documentToVideo(assistOS.space.id, this._document.id);
         assistOS.watchTask(taskId)
         this.boundShowDownloadVideoButton = this.showDownloadVideoButton.bind(this, taskId);
-        await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundShowDownloadVideoButton);
+        //await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, taskId, this.boundShowDownloadVideoButton);
     }
 
     async exportDocument(targetElement) {

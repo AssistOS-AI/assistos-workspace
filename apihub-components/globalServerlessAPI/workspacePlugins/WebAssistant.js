@@ -8,7 +8,6 @@ const crypto = require("crypto");
 async function WebAssistant() {
     const self = {};
     const persistence = $$.loadPlugin("DefaultPersistence");
-    const ChatScript = $$.loadPlugin("ChatScript");
     const chatRoom = $$.loadPlugin("ChatRoom");
     await persistence.configureTypes({
         webAssistant: {
@@ -47,15 +46,6 @@ async function WebAssistant() {
                     authentication: "existingSpaceMembers",
                 }
             })
-    }
-    self.getDefaultChatScript = async function () {
-        const script = await ChatScript.getChatScript("DefaultChatScript");
-        return script.id;
-    }
-
-    self.getDefaultControlRoomScript = async function () {
-        const script = await ChatScript.getChatScript("DefaultControlRoomScript");
-        return script.id;
     }
 
     self.getWebAssistant = async function () {
@@ -186,6 +176,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatScript", "ChatRoom"];
+        return ["DefaultPersistence", "ChatRoom"];
     }
 };

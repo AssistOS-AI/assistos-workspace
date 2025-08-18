@@ -36,7 +36,7 @@ async function WebAssistant() {
     }
 
     self.getWidgets = async function () {
-
+        return [];
     };
 
     self.getWidget = async function (widgetId) {
