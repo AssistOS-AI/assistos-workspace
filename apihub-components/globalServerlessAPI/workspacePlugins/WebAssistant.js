@@ -111,7 +111,8 @@ async function WebAssistant() {
     self.createDefaultChat = async function(userId){
         let webAssistant = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
         let docId = webAssistant.settings.agentName + "_Chat_" + crypto.randomBytes(4).toString('hex');
-        await self.createChat(userId,  docId, "DefaultScript", ["User", webAssistant.settings.agentName])
+        await self.createChat(userId,  docId, "DefaultScript", ["User", webAssistant.settings.agentName]);
+        return docId;
     }
 
     self.createChat = async (userId, docId, scriptName, args) => {

@@ -65,12 +65,16 @@ export class IframeChatPage {
 
         this.webAssistant = await webAssistantModule.getWebAssistant(this.spaceId);
         if (!this.currentPageId) {
-            const homePageConfig = await webAssistantModule.getHomePage(this.spaceId);
-            this.currentPageId = homePageConfig.id;
+            this.widget = {
+                name: "home-widget",
+                code: `<div>Home Widget</div>`
+            }
+        } else {
+            this.widget = await webAssistantModule.getWidget(this.spaceId, this.currentPageId);
+            this.widgetName = this.widget.name;
         }
         this.agentName = this.webAssistant.settings.agentId;
-        this.widget = await webAssistantModule.getWidget(this.spaceId, this.currentPageId);
-        this.widgetName = this.widget.name;
+
 
         if (this.webAssistant.settings.themeId) {
             this.theme = await webAssistantModule.getTheme(this.spaceId, this.webAssistant.settings.themeId);
@@ -80,12 +84,9 @@ export class IframeChatPage {
         try{
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
         }catch(error) {
-
+            console.error(error);
         }
 
-        const chat = await webAssistantModule.getChat(this.spaceId, assistOS.securityContext.userId, this.chatId);
-        const controlRoomId = await webAssistantModule.getControlRoom(this.spaceId, assistOS.securityContext.userId);
-        this.controlRoom = chat.docId === controlRoomId;
         this.chatOptions = chatOptions;
         this.stringHTML = "";
         for (let messageIndex = 0; messageIndex < this.chatHistory.length; messageIndex++) {
@@ -103,50 +104,47 @@ export class IframeChatPage {
         this.spaceConversation = this.stringHTML;
     }
     async afterRender() {
-        const pages = await webAssistantModule.getPages(this.spaceId);
+        // const pages = await webAssistantModule.getWidgets(this.spaceId);
+        //
+        // const headerPage = pages.find(page => page.role === "header");
+        // const footerPage = pages.find(page => page.role === "footer");
+        // if (headerPage) {
+        //     const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
+        //     await assistOS.UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
+        //     assistOS.UI.createElement(previewWidgetName, '#preview-content-header', {
+        //         generalSettings: headerPage.generalSettings,
+        //         data: headerPage.data,
+        //         html: headerPage.html,
+        //         css: headerPage.css,
+        //         js: headerPage.js
+        //     });
+        // } else {
+        //     this.element.querySelector('#preview-content-header')?.remove();
+        // }
+        // if (footerPage) {
+        //     const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
+        //     await assistOS.UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
+        //     assistOS.UI.createElement(previewFooterName, '#preview-content-footer',
+        //         {
+        //             generalSettings: footerPage.generalSettings,
+        //             data: footerPage.data,
+        //             html: footerPage.html,
+        //             css: footerPage.css,
+        //             js: footerPage.js
+        //         });
+        // } else {
+        //     this.element.querySelector('#preview-content-footer')?.remove();
+        // }
 
-        const headerPage = pages.find(page => page.role === "header");
-        const footerPage = pages.find(page => page.role === "footer");
-        if (headerPage) {
-            const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
-            await assistOS.UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-            assistOS.UI.createElement(previewWidgetName, '#preview-content-header', {
-                generalSettings: headerPage.generalSettings,
-                data: headerPage.data,
-                html: headerPage.html,
-                css: headerPage.css,
-                js: headerPage.js
-            });
-        } else {
-            this.element.querySelector('#preview-content-header')?.remove();
-        }
-        if (footerPage) {
-            const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
-            await assistOS.UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
-            assistOS.UI.createElement(previewFooterName, '#preview-content-footer',
-                {
-                    generalSettings: footerPage.generalSettings,
-                    data: footerPage.data,
-                    html: footerPage.html,
-                    css: footerPage.css,
-                    js: footerPage.js
-                });
-        } else {
-            this.element.querySelector('#preview-content-footer')?.remove();
-        }
-        //const [widgetApp, widgetName] = this.widget.split('/');
-
-        //await assistOS.UI.loadWidget(this.spaceId, widgetApp, widgetName);
-
-        // assistOS.UI.createElement(widgetName, '#preview-content-right', {
-        //     widgetCode: this.widget.code
-        // });
+        assistOS.UI.createElement("widget-container", '#context-container', {
+            code: this.widget.code
+        });
 
         this.previewLeftElement = this.element.querySelector('#preview-content-left');
-        this.previewRightElement = this.element.querySelector('#preview-content-right');
+        this.previewRightElement = this.element.querySelector('#context-container');
 
-        this.previewLeftElement.style.width = `${this.page.chatSize}%`;
-        this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
+        this.previewLeftElement.style.width = `50%`;
+        this.previewRightElement.style.width = `50%`;
 
         if (this.previewRightElement.style.width === '0%') {
             this.previewRightElement.style.display = 'none';
@@ -154,8 +152,6 @@ export class IframeChatPage {
         if (this.previewLeftElement.style.width === '0%') {
             this.previewLeftElement.style.display = 'none';
         }
-        this.previewLeftElement.style.width = `${this.page.chatSize}%`;
-        this.previewRightElement.style.width = `${100 - this.page.chatSize}%`;
         this.initMobileToggle();
 
         window.addEventListener('resize', () => {
@@ -211,7 +207,7 @@ export class IframeChatPage {
         if (window.innerWidth > 768) return;
 
         const chatSection = this.element.querySelector('#preview-content-left');
-        const pageSection = this.element.querySelector('#preview-content-right');
+        const pageSection = this.element.querySelector('#context-container');
         const toggleContainer = this.element.querySelector('.mobile-toggle-container');
         const toggleSwitch = this.element.querySelector('#mobile-view-toggle');
 

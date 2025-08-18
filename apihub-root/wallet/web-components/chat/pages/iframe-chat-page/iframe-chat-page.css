@@ -54,7 +54,7 @@ iframe-chat-page {
     z-index: 100;
 }
 
-#preview-content-left, #preview-content-right {
+#preview-content-left, #context-container {
     display: flex;
     height: 100%;
     flex-direction: column;
@@ -501,14 +501,14 @@ iframe-chat-page {
     }
 
     #preview-content-left,
-    #preview-content-right {
+    #context-container {
         display: none !important;
         width: 100% !important;
         height: calc(100vh - 65px) !important;
     }
 
     #preview-content-left.active,
-    #preview-content-right.active {
+    #context-container.active {
         display: flex !important;
     }
 
@@ -535,7 +535,7 @@ iframe-chat-page {
     }
 
     body.single-section #preview-content-left,
-    body.single-section #preview-content-right {
+    body.single-section #context-container {
         height: 100vh !important;
     }
 
