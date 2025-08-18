@@ -1,5 +1,6 @@
 const webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
 const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+const codeManager = require("assistos").loadModule("codemanager", assistOS.securityContext);
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="chatInputUser">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -104,37 +105,25 @@ export class IframeChatPage {
         this.spaceConversation = this.stringHTML;
     }
     async afterRender() {
-        // const pages = await webAssistantModule.getWidgets(this.spaceId);
-        //
-        // const headerPage = pages.find(page => page.role === "header");
-        // const footerPage = pages.find(page => page.role === "footer");
-        // if (headerPage) {
-        //     const [previewWidgetApp, previewWidgetName] = headerPage.widget.split('/');
-        //     await assistOS.UI.loadWidget(this.spaceId, previewWidgetApp, previewWidgetName);
-        //     assistOS.UI.createElement(previewWidgetName, '#preview-content-header', {
-        //         generalSettings: headerPage.generalSettings,
-        //         data: headerPage.data,
-        //         html: headerPage.html,
-        //         css: headerPage.css,
-        //         js: headerPage.js
-        //     });
-        // } else {
-        //     this.element.querySelector('#preview-content-header')?.remove();
-        // }
-        // if (footerPage) {
-        //     const [previewFooterApp, previewFooterName] = footerPage.widget.split('/');
-        //     await assistOS.UI.loadWidget(this.spaceId, previewFooterApp, previewFooterName);
-        //     assistOS.UI.createElement(previewFooterName, '#preview-content-footer',
-        //         {
-        //             generalSettings: footerPage.generalSettings,
-        //             data: footerPage.data,
-        //             html: footerPage.html,
-        //             css: footerPage.css,
-        //             js: footerPage.js
-        //         });
-        // } else {
-        //     this.element.querySelector('#preview-content-footer')?.remove();
-        // }
+        if (this.webAssistant.header) {
+            const [appName, widgetId] = this.webAssistant.header.split('/');
+            let widget = await codeManager.getWidget(this.spaceId, appName, widgetId);
+            assistOS.UI.createElement("widget-container", '#chat-header', {
+                code: widget.data,
+            });
+        } else {
+            this.element.querySelector('#chat-header')?.remove();
+        }
+        if (this.webAssistant.footer) {
+            const [appName, widgetId] = this.webAssistant.footer.split('/');
+            let widget = await codeManager.getWidget(this.spaceId, appName, widgetId);
+            assistOS.UI.createElement("widget-container", '#chat-footer',
+                {
+                    code: widget.data
+                });
+        } else {
+            this.element.querySelector('#chat-footer')?.remove();
+        }
 
         assistOS.UI.createElement("widget-container", '#context-container', {
             code: this.widget.code

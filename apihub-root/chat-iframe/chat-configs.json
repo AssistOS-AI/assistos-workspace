@@ -1,5 +1,5 @@
 {
-  "webComponentsRootDir": "../wallet/web-components/chat",
+  "rootDir": "../../wallet/web-components/chat",
   "components": [
     {
       "name": "chat-room",
@@ -30,6 +30,5 @@
       "type": "modals",
       "presenterClassName": "ViewContextModal"
     }
-  ],
-  "services": []
+  ]
 }

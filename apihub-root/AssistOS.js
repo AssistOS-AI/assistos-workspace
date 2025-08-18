@@ -1,5 +1,4 @@
 import WebSkel from "../WebSkel/webSkel.js";
-import NotificationManager from "./wallet/core/NotificationManager.js";
 import {initialiseApplication, navigateToLocation} from "./wallet/utils/appUtils.js"
 document.querySelector('#default-loader-markup').showModal();
 let currentTheme = localStorage.getItem('theme');
@@ -50,7 +49,7 @@ const textFontFamilyMap = Object.freeze({
     "Times New Roman": "font-times-new-roman",
     "Verdana": "font-verdana"
 });
-const authPage = "landing-page";
+const landingPage = "landing-page";
 
 class AssistOS {
     constructor(configuration) {
@@ -64,7 +63,6 @@ class AssistOS {
             fontFamilyMap: textFontFamilyMap,
             textIndentMap: textIndentMap
         };
-        this.NotificationRouter = new NotificationManager();
         this.user = {};
         AssistOS.instance = this;
         return AssistOS.instance;
@@ -132,7 +130,6 @@ class AssistOS {
     }
 
     async logout() {
-        this.NotificationRouter.closeSSEConnection();
         const userModule = this.loadModule("user");
         await userModule.logoutUser();
         await this.refresh();
@@ -232,11 +229,11 @@ class AssistOS {
 
         spaceId = spaceId || spaceIdURL;
 
-        if ((spaceId === authPage && email) || spaceId === "login-page") {
+        if ((spaceId === landingPage && email) || spaceId === "login-page") {
             spaceId = undefined;
         }
 
-        if (spaceId === authPage) {
+        if (spaceId === landingPage) {
             hidePlaceholders();
             return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
         }
@@ -248,7 +245,7 @@ class AssistOS {
         } catch (error) {
             console.error(error);
             hidePlaceholders();
-            await assistOS.UI.changeToDynamicPage(authPage, authPage);
+            await assistOS.UI.changeToDynamicPage(landingPage, landingPage);
         }
     }
 
@@ -428,7 +425,7 @@ function closeDefaultLoader() {
     const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
     window.handleHistory = async (event) => {
-        if (window.location.hash.includes(`#${authPage}`)) {
+        if (window.location.hash.includes(`#${landingPage}`)) {
             await assistOS.logout();
         }
         let modal = document.querySelector("dialog");

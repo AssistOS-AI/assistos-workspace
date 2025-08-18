@@ -1,6 +1,6 @@
 {
     "defaultPage": "chat-page",
-    "webComponentsRootDir": "wallet/web-components",
+    "webComponentsRootDir": "../../wallet/web-components",
     "services": [],
     "components": [
         {

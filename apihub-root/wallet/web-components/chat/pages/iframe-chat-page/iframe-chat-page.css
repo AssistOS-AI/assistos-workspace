@@ -2,18 +2,16 @@ iframe-chat-page {
     display: block;
     width: 100%;
     height: 100%;
-    gap: 10px;
 }
-
 .user-profile-image{
     width:40px;
     height:40px;
     border-radius:50%;
 }
-#preview-content-header{
+#chat-header{
     border-bottom: 1px solid #e0e0e0;
 }
-#preview-content-header, #preview-content-footer {
+#chat-header, #chat-footer {
     width: 100%;
     display: flex;
     justify-content: space-between;
@@ -21,7 +19,7 @@ iframe-chat-page {
     height: 70px;
     background-color: #f5f5f5;
 }
-#preview-content-footer{
+#chat-footer{
     border-top: 1px solid #e0e0e0;
 }
 .with-sidebar {
@@ -495,8 +493,8 @@ iframe-chat-page {
         width: 100% !important;
     }
 
-    #preview-content-header,
-    #preview-content-footer {
+    #chat-header,
+    #chat-footer {
         display: none !important;
     }
 

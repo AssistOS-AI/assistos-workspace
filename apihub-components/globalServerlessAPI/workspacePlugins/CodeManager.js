@@ -35,7 +35,7 @@ async function WebAssistant() {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
     }
 
-    self.listWidgets = async function () {
+    self.getWidgets = async function () {
 
     };
 

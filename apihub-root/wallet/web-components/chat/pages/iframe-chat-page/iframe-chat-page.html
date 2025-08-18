@@ -1,27 +1,25 @@
-<div id="preview-content-container">
-    <div id="preview-content-header">
-        $$previewContentHeader
+<div id="chat-header">
+    $$previewContentHeader
+</div>
+<div id="preview-content">
+    <div class="mobile-toggle-container">
+        <span class="toggle-label">Chat</span>
+        <label class="toggle-switch">
+            <input type="checkbox" id="mobile-view-toggle">
+            <span class="toggle-slider"></span>
+        </label>
+        <span class="toggle-label">$$widgetName</span>
     </div>
-    <div id="preview-content">
-        <div class="mobile-toggle-container">
-            <span class="toggle-label">Chat</span>
-            <label class="toggle-switch">
-                <input type="checkbox" id="mobile-view-toggle">
-                <span class="toggle-slider"></span>
-            </label>
-            <span class="toggle-label">$$widgetName</span>
+    <div class="with-sidebar">
+        <div id="preview-content-left">
+            <chat-room data-presenter="chat-room" data-space-id="$$spaceId" data-agent-name="$$agentName"
+                       data-chat-id="$$chatId" data-user-id="$$userId"></chat-room>
         </div>
-        <div class="with-sidebar">
-            <div id="preview-content-left">
-                <chat-room data-presenter="chat-room" data-space-id="$$spaceId" data-agent-name="$$agentName"
-                           data-chat-id="$$chatId" data-user-id="$$userId"></chat-room>
-            </div>
-            <div id="context-container">
-                $$previewContentRight
-            </div>
+        <div id="context-container">
+            $$previewContentRight
         </div>
     </div>
-    <div id="preview-content-footer">
-        $$previewContentFooter
-    </div>
+</div>
+<div id="chat-footer">
+    $$previewContentFooter
 </div>

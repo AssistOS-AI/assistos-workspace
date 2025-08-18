@@ -51,21 +51,6 @@ const spaceId = urlParams.get("space");
 assistOS.agent = await agentModule.getDefaultAgent(spaceId);
 window.spaceId = spaceId;
 
-assistOS.UI.loadWidget = async function (spaceId, applicationId, widgetName) {
-    //TODO get html with css and javascript embedded
-    const r = await fetch(`/public/spaces/widgets/${spaceId}/${applicationId}/${widgetName}`)
-    const data = (await r.json()).data
-    const component = {
-        name: widgetName,
-        loadedTemplate: data.html,
-        presenterModule: data.js,
-        presenterClassName: data.presenterClassName,
-    }
-
-    await assistOS.UI.defineComponent(component);
-
-    return component;
-}
 assistOS.securityContext = {};
 
 

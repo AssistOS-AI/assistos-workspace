@@ -15,9 +15,6 @@ export class ChatRoom {
     }
 
     async beforeRender() {
-        if(assistOS.iframe){
-            this.element.style.height = "calc(100vh - 140px)";
-        }
         this.agentName = this.agent.name;
         this.agentLLMTooltip = this.agent.llms["chat"].modelName;
         this.chatOptions = chatUtils.IFrameChatOptions;
