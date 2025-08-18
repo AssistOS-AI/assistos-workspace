@@ -731,22 +731,10 @@
             "type": "pages"
         },
         {
-            "name": "widgets-page",
-            "directory": "web-assistant",
-            "presenterClassName": "WidgetsPage",
-            "type": "pages"
-        },
-        {
             "name": "web-assistant-settings",
             "directory": "web-assistant",
             "presenterClassName": "WebAssistantSettings",
             "type": "pages"
-        },
-        {
-            "name": "edit-widget-modal",
-            "directory": "web-assistant",
-            "presenterClassName": "EditWidgetModal",
-            "type": "modals"
         },
         {
             "name": "edit-theme-modal",

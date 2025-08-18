@@ -10,7 +10,6 @@ export class WebAssistant {
     pages = {
         "themes": "themes-page",
         "settings":"web-assistant-settings",
-        "widgets":"widgets-page",
         "scripts":"chat-scripts-page"
     };
     async beforeRender(){
