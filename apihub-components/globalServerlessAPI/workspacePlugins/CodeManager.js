@@ -1,37 +1,56 @@
 const path = require("path");
 const fsPromises = require("fs/promises");
+const appFolders = ["WebSkel Components", "Chat Widgets", "Persisto", "Backend Plugins", "Document Plugins"]
 
 async function WebAssistant() {
     const self = {};
-    self.getCodePath = function (fileName) {
-        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", fileName);
+    self.getCodePath = function (folder, fileName) {
+        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", folder, fileName);
     }
-    self.saveCode = async function (fileName, code) {
-        const dir = path.dirname(self.getCodePath(fileName));
+
+    self.saveCode = async function (folder, fileName, code) {
+        const dir = path.dirname(self.getCodePath(folder, fileName));
         try {
             await fsPromises.access(dir);
         } catch (e) {
             await fsPromises.mkdir(dir, {recursive: true});
         }
-        await fsPromises.writeFile(self.getCodePath(fileName), code);
+        await fsPromises.writeFile(path.join(dir, fileName), code);
     }
-/*
 
-    self.saveWebskelComponent = async function (fileName, componentData) {
-        let items = Object.keys(componentData);
-        if (!items || items.length === 0 || !componentData.html || !componentData.css) {
-            throw new Error("Invalid component data");
-        }
+    self.newApp = async function (appName) {
+        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", appName);
         try {
-            for (let componentItem of items) {
-                await self.saveCode(`${fileName}/${fileName}.${componentItem}`, componentData[componentItem]);
-                return true;
-            }
+            await fsPromises.access(appPath);
         } catch (e) {
-            return false;
+            await fsPromises.mkdir(appPath, {recursive: true});
+        }
+        for (let folder of appFolders) {
+            let folderPath = path.join(appPath, folder);
+            try {
+                await fsPromises.access(folderPath);
+            } catch (e) {
+                await fsPromises.mkdir(folderPath, {recursive: true});
+            }
         }
     }
-*/
+    /*
+
+        self.saveWebskelComponent = async function (fileName, componentData) {
+            let items = Object.keys(componentData);
+            if (!items || items.length === 0 || !componentData.html || !componentData.css) {
+                throw new Error("Invalid component data");
+            }
+            try {
+                for (let componentItem of items) {
+                    await self.saveCode(`${fileName}/${fileName}.${componentItem}`, componentData[componentItem]);
+                    return true;
+                }
+            } catch (e) {
+                return false;
+            }
+        }
+    */
 
     self.getCode = async function (fileName) {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
