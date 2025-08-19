@@ -1,6 +1,11 @@
 {
   "rootDir": "../../wallet/web-components/chat",
   "components": [
+      {
+          "name": "widget-container",
+          "type": "components",
+          "presenterClassName": "WidgetContainer"
+      },
     {
       "name": "chat-room",
       "type": "components",

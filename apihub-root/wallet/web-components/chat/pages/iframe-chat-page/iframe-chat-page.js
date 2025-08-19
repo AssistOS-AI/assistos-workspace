@@ -155,7 +155,7 @@ export class IframeChatPage {
         let contextContainer = this.element.querySelector('#context-container');
         contextContainer.innerHTML = "";
         assistOS.UI.createElement("widget-container", '#context-container', {
-            code: widget.data
+            code: widget
         });
     }
     initMobileToggle() {

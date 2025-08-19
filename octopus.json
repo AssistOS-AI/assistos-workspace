@@ -74,33 +74,6 @@
             ]
         },
         {
-            "name": "ffmpeg",
-            "src": "https://github.com/AssistOS-AI/ffmpeg-static.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": ".",
-                    "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg && npm install"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg && npm run build"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg/packages/ffmpeg-static && npm run install"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd ffmpeg/packages/ffprobe-static && npm run install"
-                }
-            ]
-        },
-        {
             "name": "opendsu-sdk",
             "src": "http://github.com/opendsu/opendsu-sdk.git",
             "actions": [
@@ -146,99 +119,6 @@
                 {
                     "type": "execute",
                     "cmd": "cd assistos-sdk && npm install"
-                }
-            ]
-        },
-        {
-            "name": "dompurify",
-            "actions": [
-                {
-                    "type": "execute",
-                    "cmd": "npm install dompurify --no-save"
-                },
-                {
-                    "type": "copy",
-                    "src": "node_modules/dompurify/dist",
-                    "target": "apihub-root/wallet/lib/dompurify"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm uninstall dompurify"
-                }
-            ]
-        },
-        {
-            "name": "jspdf",
-            "actions": [
-                {
-                    "type": "execute",
-                    "cmd": "npm install jspdf --no-save"
-                },
-                {
-                    "type": "copy",
-                    "src": "node_modules/jspdf/dist",
-                    "target": "apihub-root/wallet/lib/jspdf"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm uninstall jspdf"
-                }
-            ]
-        },
-        {
-            "name": "mermaid",
-            "actions": [
-                {
-                    "type": "execute",
-                    "cmd": "npm install mermaid --no-save"
-                },
-                {
-                    "type": "copy",
-                    "src": "node_modules/mermaid/dist",
-                    "target": "apihub-root/wallet/lib/mermaid"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm uninstall mermaid"
-                }
-            ]
-        },
-        {
-            "name": "html2canvas",
-            "actions": [
-                {
-                    "type": "execute",
-                    "cmd": "npm install html2canvas --no-save"
-                },
-                {
-                    "type": "copy",
-                    "src": "node_modules/html2canvas/dist",
-                    "target": "apihub-root/wallet/lib/html2canvas"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm uninstall html2canvas"
-                }
-            ]
-        },
-        {
-            "name": "html2pdf",
-            "actions": [
-                {
-                    "type": "execute",
-                    "cmd": "npm install html2pdf.js --no-save"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "mkdir -p apihub-root/wallet/lib/html2pdf"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "curl -L -o apihub-root/wallet/lib/html2pdf/html2pdf.bundle.js https://raw.githubusercontent.com/eKoopmans/html2pdf/master/dist/html2pdf.bundle.min.js"
-                },
-                {
-                    "type": "execute",
-                    "cmd": "npm uninstall html2pdf.js"
                 }
             ]
         },

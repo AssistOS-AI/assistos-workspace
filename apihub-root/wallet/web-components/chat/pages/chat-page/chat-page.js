@@ -97,11 +97,6 @@ export class ChatPage {
         localStorage.setItem("chatState", "minimized");
     }
 
-    async swapPersonality(_target, id) {
-        await assistOS.changeAgent(id);
-        this.invalidate();
-    }
-
     async toggleAgentResponse(_target) {
         this.agentOn = !this.agentOn;
         localStorage.setItem("agentOn", this.agentOn);
@@ -110,6 +105,16 @@ export class ChatPage {
     uploadFile(_target) {
         let fileInput = this.element.querySelector(".file-input");
         fileInput.click();
+    }
+    async openWidget(targetElement, widgetName){
+        if(widgetName === "create-chat" || widgetName === "load-chat"){
+            let chatId = await assistOS.UI.showModal(widgetName, {}, true);
+            if(chatId){
+                assistOS.space.currentChatId = chatId;
+                this.invalidate();
+                return;
+            }
+        }
     }
 }
 

@@ -8,7 +8,7 @@ export class CreateChat {
         this.invalidate();
     }
     async beforeRender() {
-        let scripts = await chatModule.getChatScriptNames(assistOS.space.id);
+        let scripts = await chatModule.getChatScriptNamesByRole(assistOS.space.id);
         let agents = await agentModule.getAgentNames(assistOS.space.id);
         this.scriptOptions = scripts.map(scriptName =>
             `<option value="${scriptName}">${scriptName}</option>`

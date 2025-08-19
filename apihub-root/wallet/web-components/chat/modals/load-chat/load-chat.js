@@ -1,5 +1,5 @@
 const chatModule = assistOS.loadModule("chat");
-export class SelectChat {
+export class LoadChat {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;

@@ -61,8 +61,19 @@ async function WebAssistant() {
     };
 
     self.getWidget = async function (widgetName) {
-        const [appName, name] = widgetName.split('/');
-
+        const parts = widgetName.split('/');
+        if(parts.length === 1){
+            const defaultWidgetPath = path.resolve(
+                process.env.SERVERLESS_ROOT_FOLDER,
+                "../../..",
+                `wallet/widgets/${widgetName}.html`
+            );
+            let widget = await fsPromises.readFile(defaultWidgetPath, "utf-8");
+            return widget;
+        } else {
+            let appName = parts[0];
+            let name = parts[1];
+        }
     };
 
     self.updateWidget = async function (widgetId, widget) {

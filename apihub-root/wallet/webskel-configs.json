@@ -5,7 +5,7 @@
     "components": [
         {
             "name": "widget-container",
-            "directory": "space-application",
+            "directory": "chat",
             "type": "components",
             "presenterClassName": "WidgetContainer"
         },
@@ -16,10 +16,10 @@
             "presenterClassName": "ChatRoom"
         },
         {
-            "name": "select-chat",
+            "name": "load-chat",
             "directory": "chat",
             "type": "modals",
-            "presenterClassName": "SelectChat"
+            "presenterClassName": "LoadChat"
         },
         {
             "name": "create-chat",
