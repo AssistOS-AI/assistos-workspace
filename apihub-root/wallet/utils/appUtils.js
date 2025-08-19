@@ -35,11 +35,7 @@ export async function navigateToLocation(appName, locationArray = []) {
         await assistOS.UI.changeToDynamicPage(entryPoint, pageUrl);
         return;
     }
-    if (locationArray[locationArray.length - 1] !== entryPoint) {
-        console.error(`Invalid URL: URL must end with ${entryPoint}`);
-        return;
-    }
-    const webComponentName = locationArray[locationArray.length - 1];
+    const webComponentName = locationArray[0];
     const pageUrl = `${assistOS.space.id}/${appName}/${locationArray.join("/")}`;
     await assistOS.UI.changeToDynamicPage(webComponentName, pageUrl);
 }
