@@ -33,7 +33,7 @@ function setupRepo(repoUrl, appName, defaultPageName) {
         applicationName: appName,
         version: "1.0.0",
         encodedSvgIcon: encodedSvgIcon,
-        entryPointComponent: `${defaultPageName}`,
+        entryPoint: `${defaultPageName}`,
         description: "Replace this placeholder with a proper description",
         componentsDirPath: "web-components",
         dependencies: [],

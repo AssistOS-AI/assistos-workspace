@@ -46,6 +46,9 @@ export class LeftSidebar {
                 continue;
             }
             let svgImage = application.svg;
+            if(!svgImage){
+                svgImage = `<img src="./wallet/assets/icons/app.svg">`;
+            }
             this.applications += `
         <div class="sidebar-item" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.name}">
             <div class="app-focus hidden"></div>

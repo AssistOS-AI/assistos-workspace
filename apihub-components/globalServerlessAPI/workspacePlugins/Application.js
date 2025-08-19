@@ -1,37 +1,18 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
-const {sendResponse, sendFileToClient} = require("../../apihub-component-utils/utils");
 const git = require("../../apihub-component-utils/git.js");
-const {execFile} = require('child_process')
-const {promisify} = require('util')
-const execFileAsync = promisify(execFile)
 
 async function Application() {
     let self = {};
     let persistence = $$.loadPlugin("DefaultPersistence");
-    persistence.configureTypes({
-        application: {
-            name: "string",
-            lastUpdate: "string",
-            skipUI: "boolean",
-        }
-    });
 
-    await persistence.createIndex("application", "name");
-    self.createApplication = async function (name, skipUI) {
-        return await persistence.createApplication({
-            name: name,
-            lastUpdate: new Date().toISOString(),
-            skipUI: skipUI,
-        });
-    }
     self.getApplicationPath = function (appName) {
         let apps = self.getAvailableApps();
         let app = apps.find(app => app.name === appName);
         if(app.systemApp) {
-            return path.join(process.env.PERSISTENCE_FOLDER, `../../../systemApps/${appName}`);
+            return path.join(process.env.SERVERLESS_ROOT_FOLDER, `../../systemApps/${appName}`);
         }
-        return path.join(process.env.PERSISTENCE_FOLDER, "../", `applications/${appName}`);
+        return path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`, appName);
     }
 
     self.getApplicationManifestPath = function (applicationName) {
@@ -68,8 +49,54 @@ async function Application() {
 
     self.getApplicationManifest = async function (applicationName) {
         const manifestPath = self.getApplicationManifestPath(applicationName);
-        let manifestContent =await fsPromises.readFile(manifestPath, 'utf8');
-        return JSON.parse(manifestContent);
+        let manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
+        let manifest = JSON.parse(manifestContent);
+        let webComponentsPath = path.join(self.getApplicationPath(applicationName), "web-components");
+        let webComponentsDir = await fsPromises.readdir(webComponentsPath);
+        const componentPromises = webComponentsDir.map(async (componentName) => {
+            const htmlPath = path.join(webComponentsPath, componentName, `${componentName}.html`);
+            const cssPath = path.join(webComponentsPath, componentName, `${componentName}.css`);
+            const jsPath  = path.join(webComponentsPath, componentName, `${componentName}.js`);
+
+            // check html + css first
+            try {
+                await Promise.all([
+                    fsPromises.access(htmlPath),
+                    fsPromises.access(cssPath)
+                ]);
+            } catch (e) {
+                return {
+                    name: componentName,
+                    error: "Failed to access component files: " + e.message,
+                };
+            }
+            try {
+                await fsPromises.access(jsPath);
+            } catch {
+                return; // no presenter, skip
+            }
+
+            let presenterClassName;
+            try {
+                const code = await fsPromises.readFile(jsPath, "utf8");
+                let match = code.match(/export\s+class\s+([A-Za-z0-9_]+)/);
+                if (match) {
+                    presenterClassName = match[1];
+                }
+            } catch (e) {
+                return {
+                    name: componentName,
+                    error: "Failed to read presenter: " + e.message,
+                };
+            }
+
+            return {
+                name: componentName,
+                presenterClassName,
+            };
+        });
+        manifest.webComponents = await Promise.all(componentPromises);
+        return manifest;
     }
 
     self.installApplication = async function (name) {
@@ -104,17 +131,6 @@ async function Application() {
 
         application.lastUpdate = await git.getLastCommitDate(applicationFolderPath);
         await git.installDependencies(manifest.dependencies);
-        const installBinariesDependencies = async (binariesPath) => {
-            const entries = await fsPromises.readdir(binariesPath, {withFileTypes: true})
-            const promises = []
-            for (const entry of entries) {
-                if (entry.isDirectory()) {
-                    const dir = path.join(binariesPath, entry.name)
-                    promises.push(execFileAsync('npm', ['install'], {cwd: dir}))
-                }
-            }
-            return Promise.all(promises)
-        }
         if (manifest.objects) {
             for (const [type, value] of Object.entries(manifest.objects)) {
                 const Type = type.charAt(0).toUpperCase() + type.slice(1);
@@ -129,7 +145,6 @@ async function Application() {
                 }
             }
         }
-
 
         const copyDir = async (src, dest) => {
             await fsPromises.mkdir(dest, { recursive: true })
@@ -146,42 +161,27 @@ async function Application() {
                 }
             }
         }
-        const copyBinaries = async (binariesPath, binariesDest) => {
-            const entries = await fsPromises.readdir(binariesPath, { withFileTypes: true })
-            await fsPromises.mkdir(binariesDest, { recursive: true });
-            for (const entry of entries) {
-                if (entry.isDirectory()) {
-                    const srcBin= path.join(binariesPath, entry.name,`${entry.name}.js`)
-                    await fsPromises.copyFile(srcBin, path.join(binariesDest, `${entry.name}.js`))
-                }
-            }
-        }
-        try {
-            const binariesPath = path.join(applicationFolderPath, 'binaries')
-            const binariesDest = path.join(applicationFolderPath, '..', '..', 'binaries')
-            await installBinariesDependencies(binariesPath);
-            await copyBinaries(binariesPath, binariesDest)
-        } catch (_) {
-            // binaries folder does not exist, ignore
-        }
-
-        await persistence.createApplication({
-            name: application.name,
-            lastUpdate: application.lastUpdate,
-            skipUI: manifest.skipUI || false,
-        })
     }
+
     self.getApplications = async function () {
-        let apps = await persistence.getEveryApplicationObject();
-        const availableApps = self.getAvailableApps();
-        for(let app of apps){
-            const availableApp = availableApps.find(a => a.name === app.name);
-            if (availableApp) {
-                app.description = availableApp.description;
-                app.svg = availableApp.svg;
+        let installedApps = [];
+        let apssDirs = await fsPromises.readdir(path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`));
+        for(let appName of apssDirs){
+            let manifest = await fsPromises.readFile(path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`, appName, "manifest.json"), 'utf8');
+            manifest = JSON.parse(manifest);
+            let appIcon;
+            try {
+                appIcon = await fsPromises.readFile(path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`, appName, "app.svg"), 'utf8');
+            } catch (e) {
+                //no icon
             }
+            installedApps.push({
+                name: appName,
+                skipUI: manifest.skipUI,
+                svg: appIcon,
+            })
         }
-        return apps;
+        return installedApps;
     }
 
     self.uninstallApplication = async function (appName) {
@@ -191,19 +191,6 @@ async function Application() {
         let manifestContent = JSON.parse(await fsPromises.readFile(manifestPath, 'utf8'));
         await git.uninstallDependencies(manifestContent.dependencies);
         await fsPromises.rm(self.getApplicationPath(appName), {recursive: true, force: true});
-        await persistence.deleteApplication(appName);
-    }
-
-    self.loadApplicationConfig = async function (applicationId) {
-        const applications = self.getAvailableApps();
-        const application = applications.find(app => app.name === applicationId);
-        if (!application) {
-            throw new Error("Application not Found");
-
-        }
-        const manifestPath = self.getApplicationManifestPath(application.name);
-        const manifest = await fsPromises.readFile(manifestPath, 'utf8');
-        return JSON.parse(manifest);
     }
 
     self.getApplicationsPlugins = async function (spaceId) {
@@ -227,150 +214,6 @@ async function Application() {
         return plugins;
     }
 
-    self.getApplicationWidget = async function (applicationName) {
-        const applicationConfig = await self.loadApplicationConfig(applicationName);
-        if (applicationConfig.components) {
-            const widgets = applicationConfig.components.filter(component => component.type === "widget");
-            return widgets;
-        }
-        return [];
-    }
-
-    self.getAssistOsWidgets = async function () {
-        const webSkelConfig = require('../../../apihub-root/wallet/webskel-configs.json');
-        const widgets = webSkelConfig.components.filter(component => component.type === "widget");
-        return widgets;
-    }
-
-    self.getWidgets = async function () {
-        const installedSpaceApplications = await self.getApplications();
-        const widgets = {}
-        for (const application of installedSpaceApplications) {
-            const applicationWidgets = await self.getApplicationWidget(application.name);
-            if (applicationWidgets.length > 0) {
-                widgets[application.name] = applicationWidgets;
-            }
-        }
-        const assistOsWidgets = await self.getAssistOsWidgets();
-        if (assistOsWidgets.length > 0) {
-            widgets['assistOS'] = assistOsWidgets;
-        }
-        return widgets;
-    }
-    self.saveJSON = async function (response, spaceData, filePath) {
-        const folderPath = path.dirname(filePath);
-        try {
-            await fsPromises.access(filePath);
-        } catch (e) {
-            try {
-                await fsPromises.mkdir(folderPath, {recursive: true});
-            } catch (error) {
-                sendResponse(response, 500, "application/json", {
-                    message: error + ` Error at creating folder: ${folderPath}`,
-                });
-                return false;
-            }
-        }
-        try {
-            await fsPromises.writeFile(filePath, spaceData, 'utf8');
-        } catch (error) {
-            sendResponse(response, 500, "application/json", {
-                message: error + ` Error at writing file: ${filePath}`,
-            });
-            return false;
-        }
-        return true;
-    }
-
-    self.storeObject = async function (request, response) {
-        const {spaceId, applicationId, objectType} = request.params
-        const objectId = decodeURIComponent(request.params.objectId);
-        const filePath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${objectType}/${objectId}.json`);
-        if (request.body.toString() === "") {
-            await fsPromises.unlink(filePath);
-            sendResponse(response, 200, "application/json", {
-                message: "Deleted successfully " + objectId,
-            });
-            return;
-        }
-        let jsonData = JSON.parse(request.body.toString());
-        if (await self.saveJSON(response, JSON.stringify(jsonData), filePath)) {
-            sendResponse(response, 200, "application/json", {
-                message: `Success, write ${objectId}`,
-            });
-        }
-    }
-
-    self.loadObjects = async function (request, response) {
-        const filePath = path.join(dataVolumePaths.space, `${request.params.spaceId}/applications/${request.params.appName}/${request.params.objectType}`);
-        try {
-            await fsPromises.access(filePath);
-        } catch (e) {
-            try {
-                await fsPromises.mkdir(filePath, {recursive: true});
-            } catch (error) {
-                return sendResponse(response, 500, "application/json", {
-                    message: error + ` Error at creating folder: ${filePath}`,
-                });
-            }
-        }
-        let localData = [];
-        try {
-            const files = await fsPromises.readdir(filePath);
-            const statPromises = files.map(async (file) => {
-                const fullPath = path.join(filePath, file);
-                const stat = await fsPromises.stat(fullPath);
-                if (file.toLowerCase() !== ".git" && !file.toLowerCase().includes("license")) {
-                    return {file, stat};
-                }
-            });
-
-            let fileStats = await Promise.all(statPromises);
-
-            fileStats.sort((a, b) => a.stat.ctimeMs - b.stat.ctimeMs);
-            for (const {file} of fileStats) {
-                const jsonContent = await fsPromises.readFile(path.join(filePath, file), 'utf8');
-                localData.push(JSON.parse(jsonContent));
-            }
-        } catch (e) {
-            sendResponse(response, 500, "application/json", {
-                message: JSON.stringify(e),
-            });
-        }
-        sendResponse(response, 200, "application/json", localData);
-    }
-
-    self.loadApplicationFile = async function (request, response) {
-        function handleFileError(response, error) {
-            if (error.code === 'ENOENT') {
-                sendResponse(response, 404, "application/json", {
-                    message: "File not found",
-                });
-            } else {
-                sendResponse(response, 500, "application/json", {
-                    message: "Internal Server Error",
-                });
-            }
-        }
-        try {
-            let {spaceId, applicationId} = request.params;
-
-            const filePath = request.url.split(`${applicationId}/`)[1];
-            const fullPath = path.join(dataVolumePaths.space, `${spaceId}/applications/${applicationId}/${filePath}`);
-
-            const fileType = filePath.substring(filePath.lastIndexOf('.') + 1) || '';
-            let defaultOptions = "utf8";
-            let imageTypes = ["png", "jpg", "jpeg", "gif", "ico"];
-            if (imageTypes.includes(fileType)) {
-                defaultOptions = "";
-            }
-            const file = await fsPromises.readFile(fullPath, defaultOptions);
-            response.setHeader('Cache-Control', 'public, max-age=10');
-            return await sendFileToClient(response, file, fileType);
-        } catch (error) {
-            return handleFileError(response, error);
-        }
-    }
     return self;
 }
 

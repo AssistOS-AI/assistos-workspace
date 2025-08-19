@@ -1,4 +1,5 @@
 const applicationModule = assistOS.loadModule("application", {});
+import {getApplicationComponent} from "../../utils/appUtils.js"
 async function openPlugin(componentName, type, context, presenter, autoPin = false) {
     let plugin = assistOS.space.plugins[type].find(p => p.component === componentName);
     await initializePlugin(plugin);
@@ -45,8 +46,8 @@ async function loadPluginComponent(appId, componentName, presenter) {
     if(alreadyLoadedComponent) {
         return;
     }
-    let manifest = await applicationModule.getApplicationConfig(assistOS.space.id, appId);
-    let component = await assistOS.getApplicationComponent(assistOS.space.id, appId, manifest.componentsDirPath, {
+    let manifest = await applicationModule.getApplicationManifest(assistOS.space.id, appId);
+    let component = await getApplicationComponent(assistOS.space.id, appId, manifest.componentsDirPath, {
         name: componentName,
         presenterClassName: presenter,
     });

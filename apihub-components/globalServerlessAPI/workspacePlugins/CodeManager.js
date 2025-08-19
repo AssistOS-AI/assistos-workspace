@@ -1,6 +1,12 @@
 const path = require("path");
 const fsPromises = require("fs/promises");
-const appFolders = ["WebSkel Components", "Chat Widgets", "Persisto", "Backend Plugins", "Document Plugins"]
+const appFolders = {
+    WEB_COMPONENTS: "web-components",
+    WIDGETS: "Chat Widgets",
+    PERSISTO: "Persisto",
+    BACKEND_PLUGINS: "Backend Plugins",
+    DOCUMENT_PLUGINS: "Document Plugins"
+}
 
 async function WebAssistant() {
     const self = {};
@@ -18,14 +24,9 @@ async function WebAssistant() {
         await fsPromises.writeFile(path.join(dir, fileName), code);
     }
 
-    self.newApp = async function (appName) {
-        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", appName);
-        try {
-            await fsPromises.access(appPath);
-        } catch (e) {
-            await fsPromises.mkdir(appPath, {recursive: true});
-        }
-        for (let folder of appFolders) {
+    self.createApp = async function (appName) {
+        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        for (let folder of Object.values(appFolders)) {
             let folderPath = path.join(appPath, folder);
             try {
                 await fsPromises.access(folderPath);
@@ -33,6 +34,27 @@ async function WebAssistant() {
                 await fsPromises.mkdir(folderPath, {recursive: true});
             }
         }
+
+        const manifestTemplate = {
+            applicationName: appName,
+            entryPoint: `${appName}-landing`,
+            componentsDirPath: "WebSkel Components",
+            components: []
+        }
+        await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate));
+    }
+    self.getApps = async function(){
+        let apps = [];
+        let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
+        let apssDirs = await fsPromises.readdir(appsPath);
+        for(let app of apssDirs){
+            let manifest = await fsPromises.readFile(path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`, app, "manifest.json"), 'utf8');
+            manifest = JSON.parse(manifest);
+            if(!manifest.systemApp){
+                apps.push(manifest.applicationName);
+            }
+        }
+        return apps;
     }
     /*
 
@@ -75,7 +97,11 @@ async function WebAssistant() {
             let name = parts[1];
         }
     };
-
+    self.listWidgets = async function(appName){
+        let widgetsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WIDGETS);
+        let widgets = await fsPromises.readdir(widgetsPath);
+        return widgets;
+    }
     self.updateWidget = async function (widgetId, widget) {
 
     };

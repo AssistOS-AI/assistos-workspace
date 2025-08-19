@@ -96,8 +96,6 @@ async function createSpace(request, response, server) {
         await fsPromises.mkdir(persistenceStorage, {recursive: true});
         let applicationsPath = path.join(serverlessAPIStorage, "applications");
         await fsPromises.mkdir(applicationsPath, {recursive: true});
-        const binariesPath = path.join(serverlessAPIStorage, "binaries");
-        await fsPromises.mkdir(binariesPath, {recursive: true});
 
         await createSpacePlugins(pluginsStorage);
 
@@ -142,13 +140,11 @@ async function linkSystemApps(spaceId, applicationsPath, req, server){
     const appsPath = path.join(__dirname, 'applications.json');
     const apps = JSON.parse(await fsPromises.readFile(appsPath, 'utf-8'));
     const defaultApps = apps.filter(app => app.systemApp);
-    let spaceApplicationsClient = await getAPIClient(req, constants.APPLICATION_PLUGIN, spaceId)
     for (const application of defaultApps) {
         const systemAppPath = path.join(server.rootFolder, "external-volume", "systemApps", application.name);
         const spaceAppLinkPath = path.join(applicationsPath, application.name);
         await fsPromises.access(systemAppPath);
         await fsPromises.symlink(systemAppPath, spaceAppLinkPath, 'dir');
-        await spaceApplicationsClient.createApplication(application.name, application.skipUI || false);
     }
 }
 async function createDefaultAgent(request, spaceId){

@@ -80,20 +80,7 @@ class AssistOS {
         await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
     }
 
-    async getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
-        const applicationModule = this.loadModule("application");
-        const HTMLPath = `${appComponentsDirPath}/${component.name}/${component.name}.html`
-        const CSSPath = `${appComponentsDirPath}/${component.name}/${component.name}.css`
-        let loadedTemplate = await applicationModule.getApplicationFile(spaceId, appId, HTMLPath);
-        let loadedCSSs = await applicationModule.getApplicationFile(spaceId, appId, CSSPath);
-        let presenterModule = "";
-        if (component.presenterClassName) {
-            const PresenterPath = `${appComponentsDirPath}/${component.name}/${component.name}.js`
-            presenterModule = await applicationModule.getApplicationFile(spaceId, appId, PresenterPath);
-        }
-        loadedCSSs = [loadedCSSs];
-        return {loadedTemplate, loadedCSSs, presenterModule};
-    }
+
 
     async startApplication(appName, applicationLocation) {
         const applicationContainer = document.querySelector("#page-content");
@@ -122,8 +109,8 @@ class AssistOS {
             await navigateToLocation(appName, applicationLocation);
         } catch (e) {
             console.error(`Encountered an Issue trying to navigate to ${applicationLocation} .Navigating to application entry point`);
-            await assistOS.UI.changeToDynamicPage(assistOS.initialisedApplications[appName].entryPointComponent,
-                `${assistOS.space.id}/${appName}/${assistOS.initialisedApplications[appName].entryPointComponent}`);
+            await assistOS.UI.changeToDynamicPage(assistOS.initialisedApplications[appName].entryPoint,
+                `${assistOS.space.id}/${appName}/${assistOS.initialisedApplications[appName].entryPoint}`);
         } finally {
             assistOS.currentApplicationName = appName;
         }

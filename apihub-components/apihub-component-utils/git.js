@@ -63,7 +63,7 @@ async function clone(repository, folderPath) {
     let visibility;
     try {
         visibility = await checkGitHubRepoVisibility(repository);
-        console.log(`The repository is ${visibility}`);
+        console.log(`The repository ${repository} is ${visibility}`);
     } catch (error) {
         console.log(error);
     }
