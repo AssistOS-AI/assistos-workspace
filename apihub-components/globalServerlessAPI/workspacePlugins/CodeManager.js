@@ -2,7 +2,6 @@ const path = require("path");
 const fsPromises = require("fs/promises");
 const appFolders = {
     WEB_COMPONENTS: "web-components",
-    WIDGETS: "Chat Widgets",
     PERSISTO: "Persisto",
     BACKEND_PLUGINS: "Backend Plugins",
     DOCUMENT_PLUGINS: "Document Plugins"
@@ -10,12 +9,12 @@ const appFolders = {
 
 async function WebAssistant() {
     const self = {};
-    self.getCodePath = function (folder, fileName) {
-        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "vibe-code", folder, fileName);
+    self.getCodePath = function (appName, folder, fileName) {
+        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, folder, fileName);
     }
 
-    self.saveCode = async function (folder, fileName, code) {
-        const dir = path.dirname(self.getCodePath(folder, fileName));
+    self.saveCode = async function (appName, folder, fileName, code) {
+        const dir = path.dirname(self.getCodePath(appName, folder, fileName));
         try {
             await fsPromises.access(dir);
         } catch (e) {
@@ -39,7 +38,6 @@ async function WebAssistant() {
             applicationName: appName,
             entryPoint: `${appName}-landing`,
             componentsDirPath: "WebSkel Components",
-            components: []
         }
         await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate));
     }
@@ -78,35 +76,12 @@ async function WebAssistant() {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
     }
 
-    self.getWidgets = async function () {
-        return [];
-    };
-
-    self.getWidget = async function (widgetName) {
-        const parts = widgetName.split('/');
-        if(parts.length === 1){
-            const defaultWidgetPath = path.resolve(
-                process.env.SERVERLESS_ROOT_FOLDER,
-                "../../..",
-                `wallet/widgets/${widgetName}.html`
-            );
-            let widget = await fsPromises.readFile(defaultWidgetPath, "utf-8");
-            return widget;
-        } else {
-            let appName = parts[0];
-            let name = parts[1];
-        }
-    };
-    self.listWidgets = async function(appName){
-        let widgetsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WIDGETS);
-        let widgets = await fsPromises.readdir(widgetsPath);
-        return widgets;
+    self.listWebComponents = async function(appName){
+        let componentsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS);
+        return await fsPromises.readdir(componentsPath);
     }
-    self.updateWidget = async function (widgetId, widget) {
 
-    };
-
-    self.deleteWidget = async function (pageId) {
+    self.deleteWebComponent = async function (appName, componentName) {
         //TODO delete ref from chatScript also
     };
 

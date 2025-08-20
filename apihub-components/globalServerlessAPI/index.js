@@ -16,7 +16,8 @@ const {
     deleteSpace,
     restartServerless,
     installSystemApps,
-    loadApplicationFile
+    loadApplicationFile,
+    getWebSkelConfig
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
@@ -82,29 +83,11 @@ function Space(server) {
         next();
     });
 
-    server.get("/metrics", async (req, res) => {
-        const expectedToken = process.env.METRICS_AUTH_TOKEN;
-        const receivedToken = req.headers.authorization?.replace('Bearer ', '');
-
-        if (expectedToken && receivedToken !== expectedToken) {
-            res.writeHead(401, {'Content-Type': 'text/plain'});
-            res.end('Unauthorized');
-            return;
-        }
-
-        try {
-            const metrics = await register.metrics();
-            res.writeHead(200, {
-                'Content-Type': 'text/plain; version=0.0.4; charset=utf-8'
-            });
-            res.end(metrics);
-        } catch (error) {
-            res.writeHead(500, {'Content-Type': 'text/plain'});
-            res.end('Internal Server Error');
-        }
-    });
-
     server.use("/spaces/*", contextMiddleware);
+
+    server.get("/spaces/webSkel-config", async (req, res)=>{
+        await getWebSkelConfig(req, res, server);
+    })
     server.head("/spaces/files/:fileId", headFile);
     server.get("/spaces/files/:fileId", getFile);
 

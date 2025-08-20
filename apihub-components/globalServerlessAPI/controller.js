@@ -119,7 +119,7 @@ async function createSpace(request, response, server) {
         let workspaceUser = await getAPIClient(request, constants.WORKSPACE_USER_PLUGIN, space.id);
         await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
         let webAssistantClient = await getAPIClient(request, constants.WEB_ASSISTANT_PLUGIN, space.id);
-        let webAssistantDefaults = await fsPromises.readFile(path.join(__dirname, "webAssistantDefaults.json"), "utf-8");
+        let webAssistantDefaults = await fsPromises.readFile(path.join(__dirname, "defaults", "webAssistantDefaults.json"), "utf-8");
         await webAssistantClient.createWebAssistant(JSON.parse(webAssistantDefaults));
 
         await workspaceUser.createUser(email, email, "admin");
@@ -152,11 +152,21 @@ async function createDefaultAgent(request, spaceId){
     let agent = await agentClient.createDefaultAgent(spaceId);
     await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
-    let code = await fsPromises.readFile(path.join(__dirname, "defaultChatScript"), "utf-8");
-    let chatScript = await chatScriptClient.createChatScript("DefaultScript", code, "DefaultScript", ["create-chat", "load-chat"], "guest");
+    let chatScriptData = await fsPromises.readFile(path.join(__dirname, "defaults", "DefaultChatScript.json"), "utf-8");
+    chatScriptData = JSON.parse(chatScriptData);
+    let code = "";
+    for(let line of chatScriptData.code){
+        code += line + "\n";
+    }
+    let chatScript = await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
 
-    let contextChatScript = await fsPromises.readFile(path.join(__dirname, "contextChatScript"), "utf-8");
-    await chatScriptClient.createChatScript("ContextScript", contextChatScript, "ContextScript", ["create-chat", "load-chat"], "guest");
+    let contextChatScript = await fsPromises.readFile(path.join(__dirname, "defaults", "ContextChatScript.json"), "utf-8");
+    code = "";
+    contextChatScript = JSON.parse(contextChatScript);
+    for(let line of contextChatScript.code){
+        code += line + "\n";
+    }
+    await chatScriptClient.createChatScript(contextChatScript.name, code, contextChatScript.description, contextChatScript.components, contextChatScript.role);
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
@@ -536,6 +546,28 @@ async function loadApplicationFile(request, response, server) {
     }
 }
 
+async function getWebSkelConfig(req, res, server){
+    let webSkelConfig = {}
+    let defaultConfigPath = path.join(server.rootFolder, "wallet", "webskel-configs.json");
+    let defaultConfig = await fsPromises.readFile(defaultConfigPath, "utf8");
+    defaultConfig = JSON.parse(defaultConfig);
+    for(let component of defaultConfig.components){
+        component.directory = path.join(defaultConfig.webComponentsRootDir, component.directory);
+    }
+    webSkelConfig.components = defaultConfig.components;
+    let client = await getAPIClient(req, constants.ASSISTOS_ADMIN_PLUGIN);
+    let spaceId = await client.getDefaultSpaceId(req.email);
+    let appClient = await getAPIClient(req, constants.APPLICATION_PLUGIN, spaceId);
+    let installedApps = await appClient.getApplications();
+    for(let app of installedApps){
+        let manifest = await appClient.getApplicationManifest(app.name);
+        for(let component of manifest.webComponents){
+            component.type = path.join("external-volume", "spaces", spaceId, "applications", app.name, "web-components");
+        }
+        webSkelConfig.components =  webSkelConfig.components.concat(manifest.webComponents);
+    }
+    return utils.sendResponse(res, 200, "application/json", webSkelConfig);
+}
 module.exports = {
     getUploadURL,
     getDownloadURL,
@@ -555,5 +587,6 @@ module.exports = {
     listUserSpaces,
     restartServerless,
     installSystemApps,
-    loadApplicationFile
+    loadApplicationFile,
+    getWebSkelConfig
 }

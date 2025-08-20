@@ -51,6 +51,10 @@ async function Application() {
         const manifestPath = self.getApplicationManifestPath(applicationName);
         let manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
         let manifest = JSON.parse(manifestContent);
+        if(manifest.skipUI){
+            manifest.webComponents = [];
+            return manifest;
+        }
         let webComponentsPath = path.join(self.getApplicationPath(applicationName), "web-components");
         let webComponentsDir = await fsPromises.readdir(webComponentsPath);
         const componentPromises = webComponentsDir.map(async (componentName) => {

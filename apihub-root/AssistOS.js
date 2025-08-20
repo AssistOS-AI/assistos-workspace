@@ -68,19 +68,10 @@ class AssistOS {
         return AssistOS.instance;
     }
 
-    async boot(uiConfigsPath) {
-        this.UI = await WebSkel.initialise(uiConfigsPath);
+    async boot() {
+        this.UI = await WebSkel.initialise(`/spaces/webSkel-config`);
         this.initialisedApplications = new Set();
     }
-
-    async changeApplicationLocation(appLocation, presenterParams) {
-        let baseURL = `${assistOS.space.id}/${assistOS.currentApplicationName}`
-        let webComponentPage = appLocation.split("/").slice(-1)[0];
-        let completeURL = [baseURL, appLocation].join("/");
-        await assistOS.UI.changeToDynamicPage(webComponentPage, completeURL, presenterParams)
-    }
-
-
 
     async startApplication(appName, applicationLocation) {
         const applicationContainer = document.querySelector("#page-content");
@@ -409,7 +400,6 @@ function closeDefaultLoader() {
     }
 
     const ASSISTOS_CONFIGS_PATH = "./assistOS-configs.json";
-    const UI_CONFIGS_PATH = "./wallet/webskel-configs.json"
 
     window.handleHistory = async (event) => {
         if (window.location.hash.includes(`#${landingPage}`)) {
@@ -429,7 +419,7 @@ function closeDefaultLoader() {
     const loader = await (await fetch("./wallet/general-loader.html")).text();
 
     window.assistOS = new AssistOS(configuration);
-    await assistOS.boot(UI_CONFIGS_PATH);
+    await assistOS.boot();
 
     assistOS.navigateToPage = function (page) {
         assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);

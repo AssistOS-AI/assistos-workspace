@@ -1,7 +1,4 @@
 {
-    "defaultPage": "chat-page",
-    "webComponentsRootDir": "../../wallet/web-components",
-    "services": [],
     "components": [
         {
             "name": "widget-container",
@@ -27,16 +24,7 @@
             "type": "modals",
             "presenterClassName": "CreateChat"
         },
-        {
-            "name": "create-chat",
-            "type":"widget",
-            "presenterClassName": "CreateChat"
-        },
-        {
-            "name": "select-chat",
-            "type":"widget",
-            "presenterClassName": "SelectChat"
-        },
+
         {
             "name": "contents-table",
             "directory": "document",

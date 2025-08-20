@@ -1,18 +1,18 @@
 export async function initialiseApplication(appName)  {
     const applicationModule = assistOS.loadModule("application");
     assistOS.initialisedApplications[appName] = await applicationModule.getApplicationManifest(assistOS.space.id, appName);
-    for (let component of assistOS.initialisedApplications[appName].webComponents) {
-        let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
-        if (alreadyLoadedComponent) {
-            continue;
-        }
-        component = {
-            ...await getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
-            ...component
-        }
-        assistOS.UI.configs.components.push(component);
-        await assistOS.UI.defineComponent(component);
-    }
+    // for (let component of assistOS.initialisedApplications[appName].webComponents) {
+    //     let alreadyLoadedComponent = assistOS.UI.configs.components.find(c => c.name === component.name);
+    //     if (alreadyLoadedComponent) {
+    //         continue;
+    //     }
+    //     component = {
+    //         ...await getApplicationComponent(assistOS.space.id, appName, assistOS.initialisedApplications[appName].componentsDirPath, component),
+    //         ...component
+    //     }
+    //     assistOS.UI.configs.components.push(component);
+    //     await assistOS.UI.defineComponent(component);
+    // }
 }
 export async function getApplicationComponent(spaceId, appId, appComponentsDirPath, component) {
     const applicationModule = assistOS.loadModule("application");

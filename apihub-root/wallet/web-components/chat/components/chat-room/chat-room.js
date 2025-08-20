@@ -23,10 +23,10 @@ export class ChatRoom {
         this.agentName = this.element.getAttribute('data-agent-name');
         this.spaceId = this.element.getAttribute('data-space-id');
         this.userId = this.element.getAttribute('data-user-id');
-        let availableWidgets = await chatModule.getWidgetsForChatRoomInstance(this.spaceId, this.chatId);
-        this.availableWidgets = "";
-        for(let widgetName of availableWidgets){
-            this.availableWidgets += `<list-item data-local-action="openWidget ${widgetName}" data-name="${widgetName}" data-highlight="light-highlight"></list-item>`;
+        let availableComponents = await chatModule.getComponentsForChatRoomInstance(this.spaceId, this.chatId);
+        this.availableComponents = "";
+        for(let component of availableComponents){
+            this.availableComponents += `<list-item data-local-action="openContextPage ${component.componentName} ${component.appName || ""}" data-name="${component.name}" data-highlight="light-highlight"></list-item>`;
         }
         try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);

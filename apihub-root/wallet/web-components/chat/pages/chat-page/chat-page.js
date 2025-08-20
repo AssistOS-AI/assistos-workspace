@@ -106,13 +106,20 @@ export class ChatPage {
         let fileInput = this.element.querySelector(".file-input");
         fileInput.click();
     }
-    async openWidget(targetElement, widgetName){
-        if(widgetName === "create-chat" || widgetName === "load-chat"){
-            let chatId = await assistOS.UI.showModal(widgetName, {}, true);
+    async openContextPage(targetElement, componentName, appName){
+        if(componentName === "create-chat" || componentName === "load-chat"){
+            let chatId = await assistOS.UI.showModal(componentName, {}, true);
             if(chatId){
                 assistOS.space.currentChatId = chatId;
                 this.invalidate();
                 return;
+            }
+        } else {
+            if(appName){
+
+            } else {
+                let sidebarPresenter = document.querySelector("left-sidebar").webSkelPresenter;
+                await sidebarPresenter.navigateToPage("", componentName);
             }
         }
     }
