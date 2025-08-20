@@ -66,13 +66,13 @@ export class IframeChatPage {
 
         this.webAssistant = await webAssistantModule.getWebAssistant(this.spaceId);
         if (!this.currentPageId) {
-            this.widget = {
+            this.contextPage = {
                 name: "home-widget",
                 code: `<div>Home Widget</div>`
             }
         } else {
-            this.widget = await webAssistantModule.getWidget(this.spaceId, this.currentPageId);
-            this.widgetName = this.widget.name;
+            this.contextPage = await webAssistantModule.getWidget(this.spaceId, this.currentPageId);
+            this.widgetName = this.contextPage.name;
         }
         this.agentName = this.webAssistant.settings.agentId;
 

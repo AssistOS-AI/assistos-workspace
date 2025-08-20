@@ -560,11 +560,17 @@ async function getWebSkelConfig(req, res, server){
     let appClient = await getAPIClient(req, constants.APPLICATION_PLUGIN, spaceId);
     let installedApps = await appClient.getApplications();
     for(let app of installedApps){
-        let manifest = await appClient.getApplicationManifest(app.name);
-        for(let component of manifest.webComponents){
-            component.type = path.join("external-volume", "spaces", spaceId, "applications", app.name, "web-components");
+        try {
+            let manifest = await appClient.getApplicationManifest(app.name);
+            for(let component of manifest.webComponents){
+                component.type = path.join("external-volume", "spaces", spaceId, "applications", app.name, "web-components");
+            }
+            webSkelConfig.components =  webSkelConfig.components.concat(manifest.webComponents);
+        } catch (e) {
+            console.error(e);
+            continue;
         }
-        webSkelConfig.components =  webSkelConfig.components.concat(manifest.webComponents);
+
     }
     return utils.sendResponse(res, 200, "application/json", webSkelConfig);
 }

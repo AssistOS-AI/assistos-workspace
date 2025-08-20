@@ -1,11 +1,6 @@
 {
+    "webComponentsRootDir": "wallet/web-components",
     "components": [
-        {
-            "name": "widget-container",
-            "directory": "chat",
-            "type": "components",
-            "presenterClassName": "WidgetContainer"
-        },
         {
             "name": "chat-room",
             "directory": "chat",

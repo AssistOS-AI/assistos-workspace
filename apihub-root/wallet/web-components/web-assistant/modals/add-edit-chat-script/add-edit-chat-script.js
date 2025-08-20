@@ -10,7 +10,7 @@ export class AddEditChatScript {
     }
 
     async beforeRender() {
-        const widgets = await codeManager.getWidgets(this.spaceId);
+        const components = await codeManager.listComponents(this.spaceId);
 
         if (this.scriptId) {
             this.chatScript = await chatModule.getChatScript(assistOS.space.id, this.scriptId);
@@ -18,12 +18,13 @@ export class AddEditChatScript {
         } else {
             this.modalTitle = 'Add Script';
         }
-        this.widgetOptions = widgets.map(widget => {
-            const isChecked = this.chatScript?.widgetIds?.includes(widget.id) ? "checked" : "";
+        this.componentOptions = components.map(component => {
+            let isChecked =  this.chatScript?.components.find(c => c === component.componentName) ?  "checked" : "";
             return `
-                <div class="dropdown-item" data-local-action="toggleCheckbox ${widget.id}">
-                    <input type="checkbox" id="widget-${widget.id}" value="${widget.id}" data-name="${widget.name}" ${isChecked}>
-                    <label for="widget-${widget.id}">${widget.name}</label>
+                <div class="dropdown-item" data-local-action="toggleCheckbox ${component.componentName}">
+                    <input type="checkbox" value="${component.componentName}" data-name="${component.componentName}" data-app-name="${component.appName}" ${isChecked}>
+                    <label>${component.componentName}</label>
+                    <div class="component-app">${component.appName}</div>
                 </div>
             `;
         }).join('');
@@ -42,58 +43,59 @@ export class AddEditChatScript {
                 "data-name": "role",
                 "data-selected": this.chatScript?.role,
             })
-        this.widgetContainer = this.element.querySelector('.multi-select-container');
-        this.widgetList = this.element.querySelector('#widget-list');
+        this.componentsContainer = this.element.querySelector('.multi-select-container');
+        this.componentList = this.element.querySelector('#component-list');
         this.selectedItems = this.element.querySelector('.selected-items');
-        this.selectedWidgetsPills = this.element.querySelector('#selected-widgets-pills');
-        this.selectedWidgetsPlaceholder = this.element.querySelector('#selected-widgets-placeholder');
+        this.selectedComponentPills = this.element.querySelector('#selected-widgets-pills');
+        this.selectedComponentsPlaceholder = this.element.querySelector('#selected-widgets-placeholder');
 
         if (this.chatScript) {
             this.nameInput.value = this.chatScript.name;
             this.codeInput.value = this.chatScript.code || '';
             this.descriptionInput.value = this.chatScript.description || '';
         }
-        this.updateSelectedWidgets();
+        this.updateSelectedComponents();
 
         this.boundClickOutside = this.clickOutside.bind(this);
         document.addEventListener('click', this.boundClickOutside);
     }
 
-    disconnectedCallback() {
+    afterUnload() {
         document.removeEventListener('click', this.boundClickOutside);
     }
 
     clickOutside(event) {
-        if (!this.widgetContainer.contains(event.target)) {
-            this.widgetList.classList.remove('open');
+        if (!this.componentsContainer.contains(event.target)) {
+            this.componentList.classList.remove('open');
             this.selectedItems.classList.remove('open');
         }
     }
 
     toggleWidgetDropdown() {
-        this.widgetList.classList.toggle('open');
+        this.componentList.classList.toggle('open');
         this.selectedItems.classList.toggle('open');
     }
 
-    toggleCheckbox(event, widgetId) {
-        const checkbox = this.element.querySelector(`#widget-${widgetId}`);
-        if(checkbox){
-            // Prevent the click from propagating to the clickOutside listener
-            event.stopPropagation();
-            // If the click was not on the checkbox itself, toggle it
-            if (event.target.tagName !== 'INPUT') {
-                checkbox.checked = !checkbox.checked;
-            }
-            this.updateSelectedWidgets();
+    toggleCheckbox(targetElement, widgetId) {
+        let checkBox = targetElement.querySelector("input");
+        if(checkBox.checked){
+            setTimeout(()=>{
+                checkBox.checked = true;
+            }, 0);
+        } else {
+            setTimeout(()=>{
+                checkBox.checked = false;
+            }, 0);
         }
+        this.updateSelectedComponents();
     }
 
-    updateSelectedWidgets() {
-        this.selectedWidgetsPills.innerHTML = '';
-        const selectedCheckboxes = this.widgetList.querySelectorAll('input[type="checkbox"]:checked');
+    updateSelectedComponents() {
+        this.selectedComponentPills.innerHTML = '';
+        const selectedCheckboxes = this.componentList.querySelectorAll('input[type="checkbox"]:checked');
 
         if (selectedCheckboxes.length > 0) {
-            this.selectedWidgetsPlaceholder.style.display = 'none';
+            this.selectedComponentsPlaceholder.style.display = 'none';
             selectedCheckboxes.forEach(checkbox => {
                 const pill = document.createElement('div');
                 pill.className = 'pill';
@@ -104,13 +106,13 @@ export class AddEditChatScript {
                 removeBtn.onclick = (event) => {
                     event.stopPropagation();
                     checkbox.checked = false;
-                    this.updateSelectedWidgets();
+                    this.updateSelectedComponents();
                 };
                 pill.appendChild(removeBtn);
-                this.selectedWidgetsPills.appendChild(pill);
+                this.selectedComponentPills.appendChild(pill);
             });
         } else {
-            this.selectedWidgetsPlaceholder.style.display = 'block';
+            this.selectedComponentsPlaceholder.style.display = 'block';
         }
     }
 
@@ -123,8 +125,13 @@ export class AddEditChatScript {
         const name = this.nameInput.value.trim();
         const code = this.codeInput.value.trim();
         const description = this.descriptionInput.value.trim();
-        const selectedCheckboxes = this.widgetList.querySelectorAll('input[type="checkbox"]:checked');
-        const widgets = Array.from(selectedCheckboxes).map(cb => cb.value);
+        const selectedCheckboxes = this.componentList.querySelectorAll('input[type="checkbox"]:checked');
+        let components = [];
+        for(let checkBox of selectedCheckboxes){
+            let componentName = checkBox.value;
+            let appName = checkBox.getAttribute("data-app-name");
+            components.push({componentName, appName});
+        }
         let roleSelect = this.element.querySelector(`custom-select[data-name="role"]`);
         let selectedOption = roleSelect.querySelector(`.option[data-selected='true']`);
         let role = selectedOption.getAttribute('data-value');
@@ -135,11 +142,11 @@ export class AddEditChatScript {
                 code,
                 role,
                 description,
-                widgets
+                components
             };
             await chatModule.updateChatScript(assistOS.space.id, this.scriptId, script);
         } else {
-            await chatModule.createChatScript(assistOS.space.id, name, code, description, widgets, role);
+            await chatModule.createChatScript(assistOS.space.id, name, code, description, components, role);
         }
         assistOS.UI.closeModal(target, true);
     }

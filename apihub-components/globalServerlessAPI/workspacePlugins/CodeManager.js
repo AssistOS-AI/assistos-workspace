@@ -76,9 +76,24 @@ async function WebAssistant() {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
     }
 
-    self.listWebComponents = async function(appName){
-        let componentsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS);
-        return await fsPromises.readdir(componentsPath);
+    self.listComponents = async function(){
+        let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
+        let appsDirs = await fsPromises.readdir(appsPath);
+        let components = [];
+        for(let appName of appsDirs){
+            let componentsPath = path.join(appsPath, appName, appFolders.WEB_COMPONENTS);
+            try {
+                await fsPromises.access(componentsPath);
+            } catch (e) {
+                //doesnt have web-components folder
+                continue;
+            }
+            let componentNames = await fsPromises.readdir(componentsPath);
+            for(let componentName of componentNames){
+                components.push({componentName, appName})
+            }
+        }
+        return components;
     }
 
     self.deleteWebComponent = async function (appName, componentName) {

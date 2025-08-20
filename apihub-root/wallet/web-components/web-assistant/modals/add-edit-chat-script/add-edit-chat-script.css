@@ -42,9 +42,11 @@ add-edit-chat-script .first-row{
 
 .multi-select-container {
     position: relative;
-    width: 100%;
+    width: 250px;
 }
-
+.component-app{
+    color: var(--gray-border);
+}
 .selected-items {
     display: flex;
     align-items: center;
