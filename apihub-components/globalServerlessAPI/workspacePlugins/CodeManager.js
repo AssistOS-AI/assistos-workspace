@@ -95,6 +95,21 @@ async function WebAssistant() {
         }
         return components;
     }
+    self.listComponentsForApp = async function(appName){
+        let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
+        let components = [];
+            let componentsPath = path.join(appsPath, appName, appFolders.WEB_COMPONENTS);
+            try {
+                await fsPromises.access(componentsPath);
+            } catch (e) {
+                //doesnt have web-components folder
+            }
+            let componentNames = await fsPromises.readdir(componentsPath);
+            for(let componentName of componentNames){
+                components.push(componentName)
+            }
+        return components;
+    }
 
     self.deleteWebComponent = async function (appName, componentName) {
         //TODO delete ref from chatScript also
