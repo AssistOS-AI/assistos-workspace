@@ -62,7 +62,7 @@ export class IframeChatPage {
 
     async beforeRender() {
         this.spaceId = this.props.spaceId;
-        this.userId = this.props.userId;
+        this.userEmail = this.props.userEmail;
 
         this.webAssistant = await webAssistantModule.getWebAssistant(this.spaceId);
         if (!this.currentPageId) {
@@ -74,8 +74,6 @@ export class IframeChatPage {
             this.contextPage = await webAssistantModule.getWidget(this.spaceId, this.currentPageId);
             this.widgetName = this.contextPage.name;
         }
-        this.agentName = this.webAssistant.settings.agentId;
-
 
         if (this.webAssistant.settings.themeId) {
             this.theme = await webAssistantModule.getTheme(this.spaceId, this.webAssistant.settings.themeId);

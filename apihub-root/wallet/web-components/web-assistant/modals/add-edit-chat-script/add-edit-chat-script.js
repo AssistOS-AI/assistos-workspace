@@ -31,6 +31,11 @@ export class AddEditChatScript {
     }
 
     async afterRender() {
+        if(this.chatScript.name === "DefaultScript")
+        {
+            let modalBody = this.element.querySelector('.modal-body');
+            modalBody.classList.add('view-only');
+        }
         this.nameInput = this.element.querySelector('#script-name');
         this.codeInput = this.element.querySelector('#script-code');
         this.descriptionInput = this.element.querySelector('#script-description');

@@ -138,3 +138,13 @@ add-edit-chat-script .first-row{
     flex-grow: 1;
     user-select: none;
 }
+.view-only{
+    pointer-events: none;
+    background-color: var(--light-gray-border);
+}
+.view-only .form-input{
+    background-color: var(--light-gray-border);
+}
+.view-only .custom-select{
+    background-color: var(--light-gray-border);
+}

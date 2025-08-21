@@ -161,7 +161,8 @@ export class AuthComponent {
                 sid = await spaceModule.createSpace(this.email.split("@")[0])
                 await assistOS.UI.hideLoading()
             }
-            await assistOS.loadPage(this.email, sid)
+            await assistOS.UI.reinit(`/spaces/webSkel-config`);
+            await assistOS.loadPage(this.email, sid);
         } catch (err) {
             if (err.details?.status === 403) {
                 const mins = Math.ceil(err.details.detailsData.lockTime / 60000)
@@ -285,6 +286,7 @@ export class AuthComponent {
                 sid = await spaceModule.createSpace(this.email.split("@")[0])
                 await assistOS.UI.hideLoading()
             }
+            await assistOS.UI.reinit(`/spaces/webSkel-config`);
             await assistOS.loadPage(this.email, sid)
         } else {
             throw new Error("Invalid authentication code")

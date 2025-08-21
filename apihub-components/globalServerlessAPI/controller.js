@@ -152,25 +152,26 @@ async function createDefaultAgent(request, spaceId){
     let agent = await agentClient.createDefaultAgent(spaceId);
     await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
-    let chatScriptData = await fsPromises.readFile(path.join(__dirname, "defaults", "DefaultChatScript.json"), "utf-8");
-    chatScriptData = JSON.parse(chatScriptData);
-    let code = "";
-    for(let line of chatScriptData.code){
-        code += line + "\n";
-    }
-    let chatScript = await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
+    let chatScriptsPath = path.join(__dirname, "defaults", "chat-scripts");
+    let chatScripts = await fsPromises.readdir(chatScriptsPath);
+    let defaultScriptId;
+    for(let chatScript of chatScripts){
 
-    let contextChatScript = await fsPromises.readFile(path.join(__dirname, "defaults", "ContextChatScript.json"), "utf-8");
-    code = "";
-    contextChatScript = JSON.parse(contextChatScript);
-    for(let line of contextChatScript.code){
-        code += line + "\n";
+        let chatScriptData = await fsPromises.readFile(path.join(chatScriptsPath, chatScript), "utf-8");
+        chatScriptData = JSON.parse(chatScriptData);
+        let code = "";
+        for(let line of chatScriptData.code){
+            code += line + "\n";
+        }
+        let script = await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
+        if(chatScriptData.name === "DefaultScript"){
+            defaultScriptId = script.id;
+        }
     }
-    await chatScriptClient.createChatScript(contextChatScript.name, code, contextChatScript.description, contextChatScript.components, contextChatScript.role);
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
-    await chatAPIClient.createChat(chatId, chatScript.id, ["User", "Assistant"]);
+    await chatAPIClient.createChat(chatId, defaultScriptId, ["User", "Assistant"]);
     return chatId;
 }
 function getRedirectCodeESModule(pluginName){
@@ -555,6 +556,9 @@ async function getWebSkelConfig(req, res, server){
         component.directory = path.join(defaultConfig.webComponentsRootDir, component.directory);
     }
     webSkelConfig.components = defaultConfig.components;
+    if(!req.sessionId){
+        return utils.sendResponse(res, 200, "application/json", webSkelConfig);
+    }
     let client = await getAPIClient(req, constants.ASSISTOS_ADMIN_PLUGIN);
     let spaceId = await client.getDefaultSpaceId(req.email);
     let appClient = await getAPIClient(req, constants.APPLICATION_PLUGIN, spaceId);

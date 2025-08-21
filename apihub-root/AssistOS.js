@@ -211,10 +211,10 @@ class AssistOS {
             spaceId = undefined;
         }
 
-        if (spaceId === landingPage) {
-            hidePlaceholders();
-            return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
-        }
+        // if (spaceId === landingPage) {
+        //     hidePlaceholders();
+        //     return assistOS.UI.changeToDynamicPage(spaceId, spaceId);
+        // }
 
         try {
             await assistOS.initUser(email);

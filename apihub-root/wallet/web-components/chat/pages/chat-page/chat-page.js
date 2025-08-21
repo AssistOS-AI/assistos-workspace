@@ -20,9 +20,8 @@ export class ChatPage {
                     data-local-action="toggleAgentResponse">${this.agentOn ? "Agent:ON" : "Agent:OFF"}</button>`;
         this.checked = this.agentOn ? "checked" : "";
         this.chatId = assistOS.space.currentChatId;
-        this.agentName = assistOS.agent.name;
         this.spaceId = assistOS.space.id;
-        this.userId = assistOS.user.email;
+        this.userEmail = assistOS.user.email;
     }
 
     async afterRender() {

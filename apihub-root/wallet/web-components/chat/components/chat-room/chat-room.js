@@ -1,4 +1,5 @@
 const chatModule = assistOS.loadModule("chat");
+const webAssistantModule = assistOS.loadModule("webassistant");
 import chatUtils from "../../chatUtils.js";
 
 export class ChatRoom {
@@ -8,21 +9,20 @@ export class ChatRoom {
         this.agentOn = true;
         this.ongoingStreams = new Map();
         this.observedElement = null;
-        this.spaceId = this.element.getAttribute('data-spaceId');
-        this.agent = assistOS.agent;
+        this.spaceId = this.element.getAttribute('data-space-id');
         this.userHasScrolledManually = false;
         this.invalidate();
     }
 
     async beforeRender() {
-        this.agentName = this.agent.name;
-        this.agentLLMTooltip = this.agent.llms["chat"].modelName;
+        let webAssistant = await webAssistantModule.getWebAssistant(this.spaceId);
+        this.agentName = webAssistant.agentName;
         this.chatOptions = chatUtils.IFrameChatOptions;
         this.plusIcon = chatUtils.getChatImageURL("./wallet/assets/icons/plus.svg")
         this.chatId = this.element.getAttribute('data-chat-id');
         this.agentName = this.element.getAttribute('data-agent-name');
         this.spaceId = this.element.getAttribute('data-space-id');
-        this.userId = this.element.getAttribute('data-user-id');
+        this.userEmail = this.element.getAttribute('data-user-email');
         let availableComponents = await chatModule.getComponentsForChatRoomInstance(this.spaceId, this.chatId);
         this.availableComponents = "";
         for(let component of availableComponents){
@@ -128,7 +128,7 @@ export class ChatRoom {
         this.chatHistory.push({
             text: userMessage,
             role: "user",
-            name: this.userId
+            name: this.userEmail
         })
 
         this.userInput.style.height = "auto"
