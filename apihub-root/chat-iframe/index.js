@@ -126,11 +126,11 @@ switch (authType) {
         break;
 }
 
-webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
+let chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
 if (!chatId) {
-    const userChats = await webAssistantModule.getUserChats(spaceId, assistOS.securityContext.userId);
+    const userChats = await chatModule.getUserChats(spaceId, assistOS.securityContext.email);
     if (!userChats || !userChats.length) {
-        chatId = await webAssistantModule.createDefaultChat(spaceId, assistOS.securityContext.userId);
+        chatId = await chatModule.createDefaultChat(spaceId, assistOS.securityContext.email);
     } else {
         chatId = userChats[0];
     }

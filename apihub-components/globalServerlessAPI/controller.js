@@ -154,7 +154,6 @@ async function createDefaultAgent(request, spaceId){
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let chatScriptsPath = path.join(__dirname, "defaults", "chat-scripts");
     let chatScripts = await fsPromises.readdir(chatScriptsPath);
-    let defaultScriptId;
     for(let chatScript of chatScripts){
 
         let chatScriptData = await fsPromises.readFile(path.join(chatScriptsPath, chatScript), "utf-8");
@@ -163,15 +162,12 @@ async function createDefaultAgent(request, spaceId){
         for(let line of chatScriptData.code){
             code += line + "\n";
         }
-        let script = await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
-        if(chatScriptData.name === "DefaultScript"){
-            defaultScriptId = script.id;
-        }
+        await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
     }
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
-    await chatAPIClient.createChat(chatId, defaultScriptId, ["User", "Assistant"]);
+    await chatAPIClient.createChat(request.email, chatId, "DefaultScript", ["User", "Assistant"]);
     return chatId;
 }
 function getRedirectCodeESModule(pluginName){

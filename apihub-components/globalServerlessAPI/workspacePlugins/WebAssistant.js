@@ -8,7 +8,6 @@ const crypto = require("crypto");
 async function WebAssistant() {
     const self = {};
     const persistence = $$.loadPlugin("DefaultPersistence");
-    const chatRoom = $$.loadPlugin("ChatRoom");
     await persistence.configureTypes({
         webAssistant: {
             alias: "string",
@@ -23,9 +22,6 @@ async function WebAssistant() {
             description: "string",
             css: "any",
             variables: "object"
-        },
-        chatUser: {
-            chats: "array"
         }
     })
     await persistence.createIndex("webAssistant", "alias");
@@ -38,13 +34,11 @@ async function WebAssistant() {
         await persistence.createWebAssistant(
             {
                 alias: WEB_ASSISTANT_ALIAS,
-                settings: {
-                    header: "",
-                    footer: "",
-                    agentName: "Assistant",
-                    themeId: "",
-                    authentication: "existingSpaceMembers",
-                }
+                header: "",
+                footer: "",
+                agentName: "Assistant",
+                themeId: "",
+                authentication: "existingSpaceMembers",
             })
     }
 
@@ -53,23 +47,18 @@ async function WebAssistant() {
         return webAssistant;
     }
 
-    self.getSettings = async function () {
-        const {settings} = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
-        return settings;
-    }
-
-    self.updateSettings = async function (settings) {
-        if (!settings.authentication || !authSettings.includes(settings.authentication)) {
+    self.updateWebAssistant = async function (data) {
+        if (!data.authentication || !authSettings.includes(data.authentication)) {
             throw new Error(`Invalid authentication setting. Allowed values are: ${authSettings.join(", ")}`);
         }
-        const config = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
-        config.settings = {...config.settings, ...settings};
-        return await persistence.updateWebAssistant(WEB_ASSISTANT_ALIAS, config);
+        let webAssistant = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
+        webAssistant = { ...webAssistant, ...data };
+        return await persistence.updateWebAssistant(WEB_ASSISTANT_ALIAS, webAssistant);
     }
 
     self.getAuth = async function () {
-        const settings = await self.getSettings();
-        return settings.authentication
+        const webAssistant = await self.getWebAssistant();
+        return webAssistant.authentication;
     }
 
     self.getThemes = async function () {
@@ -98,38 +87,6 @@ async function WebAssistant() {
         }
     };
 
-    self.createDefaultChat = async function(userId){
-        let webAssistant = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
-        let docId = webAssistant.settings.agentName + "_Chat_" + crypto.randomBytes(4).toString('hex');
-        await self.createChat(userId,  docId, "DefaultScript", ["User", webAssistant.settings.agentName]);
-        return docId;
-    }
-
-    self.createChat = async (userId, docId, scriptName, args) => {
-        const chatObj = await chatRoom.createChat(docId, scriptName, args);
-        if(await persistence.hasChatUser(userId)){
-            let chatUser = await persistence.getChatUser(userId);
-            chatUser.chats.push(chatObj.docId);
-            await persistence.updateChatUser(userId, chatUser);
-        } else {
-            await persistence.createChatUser({chats: [chatObj.docId]});
-        }
-        return chatObj.docId;
-    };
-
-    self.getChat = async (userId, chatId) => {
-        return await chatRoom.getChat(chatId);
-    }
-
-
-    self.getUserChats = async (userId) => {
-        if(!await persistence.hasChatUser(userId)){
-            return [];
-        }
-        let chatUser = await persistence.getUserChats(userId);
-        return chatUser.chats;
-    }
-
     self.getPublicMethods = function () {
         return [
             "getAuth"
@@ -155,9 +112,9 @@ module.exports = {
                 return true;
             }
 
-            let {settings} = await singletonInstance.getWebAssistant(WEB_ASSISTANT_ALIAS);
+            let webAssistant = await singletonInstance.getWebAssistant(WEB_ASSISTANT_ALIAS);
 
-            if (settings.authentication === "public") {
+            if (webAssistant.authentication === "public") {
                 if (command.startsWith("get")) {
                     return true;
                 }
@@ -176,6 +133,6 @@ module.exports = {
     },
 
     getDependencies: function () {
-        return ["DefaultPersistence", "ChatRoom"];
+        return ["DefaultPersistence"];
     }
 };

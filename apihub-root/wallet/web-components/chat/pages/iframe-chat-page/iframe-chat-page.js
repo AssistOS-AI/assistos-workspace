@@ -75,8 +75,8 @@ export class IframeChatPage {
             this.widgetName = this.contextPage.name;
         }
 
-        if (this.webAssistant.settings.themeId) {
-            this.theme = await webAssistantModule.getTheme(this.spaceId, this.webAssistant.settings.themeId);
+        if (this.webAssistant.themeId) {
+            this.theme = await webAssistantModule.getTheme(this.spaceId, this.webAssistant.themeId);
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
