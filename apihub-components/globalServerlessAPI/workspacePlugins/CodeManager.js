@@ -53,23 +53,31 @@ async function WebAssistant() {
         }
         return apps;
     }
-    /*
 
-        self.saveWebskelComponent = async function (fileName, componentData) {
-            let items = Object.keys(componentData);
-            if (!items || items.length === 0 || !componentData.html || !componentData.css) {
-                throw new Error("Invalid component data");
-            }
-            try {
-                for (let componentItem of items) {
-                    await self.saveCode(`${fileName}/${fileName}.${componentItem}`, componentData[componentItem]);
-                    return true;
-                }
-            } catch (e) {
-                return false;
-            }
+    self.getComponent = async function (appName, componentName) {
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        try {
+            await fsPromises.access(componentPath);
+        }catch (e){
+            throw new Error("Component not found");
         }
-    */
+        let html = await fsPromises.readFile(path.join(componentPath, `${componentName}.html`), "utf-8");
+        let css = await fsPromises.readFile(path.join(componentPath, `${componentName}.css`), "utf-8");
+        let js = await fsPromises.readFile(path.join(componentPath, `${componentName}.js`), "utf-8");
+        return {html, css, js};
+    }
+    self.saveComponent = async function (appName, componentName, html, css, js) {
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        try {
+            await fsPromises.access(componentPath);
+        } catch (e){
+            await fsPromises.mkdir(componentPath, {recursive: true});
+        }
+        await fsPromises.writeFile(path.join(componentPath, `${componentName}.html`), html);
+        await fsPromises.writeFile(path.join(componentPath, `${componentName}.css`), css);
+        await fsPromises.writeFile(path.join(componentPath, `${componentName}.js`), js);
+    }
+
 
     self.getCode = async function (fileName) {
         return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
