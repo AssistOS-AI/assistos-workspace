@@ -2,11 +2,10 @@ const path = require("path");
 const fsPromises = require("fs/promises");
 const appFolders = {
     WEB_COMPONENTS: "web-components",
-    PERSISTO: "Persisto",
-    BACKEND_PLUGINS: "Backend Plugins",
-    DOCUMENT_PLUGINS: "Document Plugins"
+    BACKEND_PLUGINS: "backend-plugins",
+    DOCUMENT_PLUGINS: "document-plugins"
 }
-
+const PERSISTO_CONFIG = "persistoConfig.json";
 async function WebAssistant() {
     const self = {};
     self.getCodePath = function (appName, folder, fileName) {
@@ -33,7 +32,7 @@ async function WebAssistant() {
                 await fsPromises.mkdir(folderPath, {recursive: true});
             }
         }
-
+        await fsPromises.writeFile(path.join(appPath, PERSISTO_CONFIG), "{}");
         const manifestTemplate = {
             applicationName: appName,
             entryPoint: `${appName}-landing`,
@@ -95,22 +94,35 @@ async function WebAssistant() {
         }
         return components;
     }
-    self.listComponentsForApp = async function(appName){
-        let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
-        let components = [];
-            let componentsPath = path.join(appsPath, appName, appFolders.WEB_COMPONENTS);
-            try {
-                await fsPromises.access(componentsPath);
-            } catch (e) {
-                //doesnt have web-components folder
-            }
-            let componentNames = await fsPromises.readdir(componentsPath);
-            for(let componentName of componentNames){
-                components.push(componentName)
-            }
-        return components;
+    async function listAppItems(appName, itemType){
+        let itemTypePath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, itemType);
+        let items = [];
+        try {
+            await fsPromises.access(itemTypePath);
+        } catch (e) {
+            return items;
+            //doesnt have that type
+        }
+        let names = await fsPromises.readdir(itemTypePath);
+        for(let name of names){
+            items.push(name);
+        }
+        return items;
     }
-
+    self.listComponentsForApp = async function(appName){
+        return await listAppItems(appName, appFolders.WEB_COMPONENTS);
+    }
+    self.listBackendPluginsForApp = async function(appName){
+        return await listAppItems(appName, appFolders.BACKEND_PLUGINS);
+    }
+    self.listDocumentPluginsForApp = async function(appName){
+        return await listAppItems(appName, appFolders.DOCUMENT_PLUGINS);
+    }
+    self.getAppPersistoConfig = async function(appName){
+        let persistoPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, PERSISTO_CONFIG);
+        let persistoConfig = await fsPromises.readFile(persistoPath, "utf8");
+        return JSON.parse(persistoConfig);
+    }
     self.deleteWebComponent = async function (appName, componentName) {
         //TODO delete ref from chatScript also
     };
