@@ -66,8 +66,21 @@ async function WebAssistant() {
         let js = await fsPromises.readFile(path.join(componentPath, `${componentName}.js`), "utf-8");
         return {html, css, js};
     }
-    self.saveComponent = async function (appName, componentName, html, css, js) {
+    self.saveComponent = async function (appName, componentName, html, css, js, newName) {
         let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        if(newName){
+            let newHTMLPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.html`);
+            let newCSSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.css`);
+            let newJSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.js`);
+            await fsPromises.rename(path.join(componentPath, `${componentName}.html`), newHTMLPath);
+            await fsPromises.rename(path.join(componentPath, `${componentName}.css`), newCSSPath);
+            await fsPromises.rename(path.join(componentPath, `${componentName}.js`), newJSPath);
+            //rename dir
+            let newComponentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, newName);
+            await fsPromises.rename(componentPath, newComponentPath);
+            componentPath = newComponentPath;
+            componentName = newName;
+        }
         try {
             await fsPromises.access(componentPath);
         } catch (e){
