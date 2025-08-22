@@ -22,7 +22,7 @@
     "components": [
         {
             "name": "Document Plugins",
-            "componentName": "achilles-ide-doc-plugins"
+            "componentName": "achilles-ide-document-plugin-edit"
         }
     ]
 }

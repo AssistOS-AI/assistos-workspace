@@ -22,7 +22,7 @@
     "components": [
         {
             "name": "Backend Plugins",
-            "componentName": "achilles-ide-backend-plugins"
+            "componentName": "achilles-ide-backend-plugin-edit"
         }
     ]
 }

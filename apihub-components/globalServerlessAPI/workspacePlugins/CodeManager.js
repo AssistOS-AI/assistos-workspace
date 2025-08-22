@@ -6,22 +6,8 @@ const appFolders = {
     DOCUMENT_PLUGINS: "document-plugins"
 }
 const PERSISTO_CONFIG = "persistoConfig.json";
-async function WebAssistant() {
+async function CodeManager() {
     const self = {};
-    self.getCodePath = function (appName, folder, fileName) {
-        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, folder, fileName);
-    }
-
-    self.saveCode = async function (appName, folder, fileName, code) {
-        const dir = path.dirname(self.getCodePath(appName, folder, fileName));
-        try {
-            await fsPromises.access(dir);
-        } catch (e) {
-            await fsPromises.mkdir(dir, {recursive: true});
-        }
-        await fsPromises.writeFile(path.join(dir, fileName), code);
-    }
-
     self.createApp = async function (appName) {
         let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
         for (let folder of Object.values(appFolders)) {
@@ -59,7 +45,7 @@ async function WebAssistant() {
         try {
             await fsPromises.access(componentPath);
         }catch (e){
-            throw new Error("Component not found");
+            throw new Error(`Component ${componentName} not found`);
         }
         let html = await fsPromises.readFile(path.join(componentPath, `${componentName}.html`), "utf-8");
         let css = await fsPromises.readFile(path.join(componentPath, `${componentName}.css`), "utf-8");
@@ -90,12 +76,11 @@ async function WebAssistant() {
         await fsPromises.writeFile(path.join(componentPath, `${componentName}.css`), css);
         await fsPromises.writeFile(path.join(componentPath, `${componentName}.js`), js);
     }
-
-
-    self.getCode = async function (fileName) {
-        return await fsPromises.readFile(self.getCodePath(fileName), "utf-8");
-    }
-
+    self.deleteComponent = async function (appName, componentName) {
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        await fsPromises.rm(componentPath, {recursive: true});
+        //TODO delete ref from chatScript also
+    };
     self.listComponents = async function(){
         let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
         let appsDirs = await fsPromises.readdir(appsPath);
@@ -144,9 +129,25 @@ async function WebAssistant() {
         let persistoConfig = await fsPromises.readFile(persistoPath, "utf8");
         return JSON.parse(persistoConfig);
     }
-    self.deleteWebComponent = async function (appName, componentName) {
-        //TODO delete ref from chatScript also
-    };
+    self.getBackendPlugin = async function(appName, pluginName){
+        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.BACKEND_PLUGINS, `${pluginName}.js`);
+        try {
+            await fsPromises.access(pluginPath);
+        }catch (e){
+            throw new Error(`Backend plugin ${pluginName} not found`);
+        }
+        return await fsPromises.readFile(pluginPath, "utf8");
+
+    }
+    self.saveBackendPlugin = async function(appName, pluginName, content, newName){
+        let pluginPath = path.join(process.env.SERVERLESS_ROOT, "applications", appName, appFolders.BACKEND_PLUGINS, `${pluginName}.js`);
+        if(newName){
+            let newPluginPath = path.join(process.env.SERVERLESS_ROOT, "applications", appName, appFolders.BACKEND_PLUGINS, `${newName}.js`);
+            await fsPromises.rename(pluginPath, newPluginPath);
+            pluginPath = newPluginPath;
+        }
+        await fsPromises.writeFile(pluginPath, content);
+    }
 
     self.getPublicMethods = function () {
         return []
@@ -160,7 +161,7 @@ let singletonInstance;
 module.exports = {
     getInstance: async function () {
         if (!singletonInstance) {
-            singletonInstance = await WebAssistant();
+            singletonInstance = await CodeManager();
         }
         return singletonInstance;
     },
