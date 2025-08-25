@@ -288,7 +288,7 @@ async function deleteAppRepo(owner, appName) {
     if (response.status === 204) {
         // Deletion successful
     } else if (response.status === 404) {
-        console.warn(`Remote repository ${owner}/${repoName} not found. It might have been already deleted.`);
+        console.warn(`Remote repository ${owner}/${appName} not found. It might have been already deleted.`);
     } else if (!response.ok) {
         const errorData = await response.text();
         throw new Error(`GitHub API responded with status ${response.status} while deleting: ${errorData}`);
@@ -296,7 +296,7 @@ async function deleteAppRepo(owner, appName) {
 
     // 2. Delete local repository folder
     try {
-        await fsPromises.rm(localPath, { recursive: true, force: true });
+        await fsPromises.rm(appPath, { recursive: true, force: true });
     } catch (e) {
         if (e.code !== 'ENOENT') {
             throw e;

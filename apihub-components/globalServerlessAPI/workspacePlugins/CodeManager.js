@@ -27,6 +27,7 @@ async function CodeManager() {
             applicationName: appName,
             entryPoint: landingPageName,
             componentsDirPath: constants.APP_FOLDERS.WEB_COMPONENTS,
+            repository: `https://github.com/${constants.ORG_NAME}/${appName}.git`
         }
         await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate, null, 4));
         let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, landingPageName);
