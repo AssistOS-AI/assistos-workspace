@@ -169,6 +169,16 @@ async function CodeManager() {
         let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         await fsPromises.rm(pluginPath);
     }
+    self.getAppRepoStatus = async function(appName){
+        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        let status = await git.getRepoStatus(appPath);
+        return status;
+    }
+    self.commitAndPush = async function(appName, commitMessage){
+        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        let status = await git.commitAndPush(appPath, commitMessage);
+        return status;
+    }
     self.getPublicMethods = function () {
         return []
     }

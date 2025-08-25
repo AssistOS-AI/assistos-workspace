@@ -304,6 +304,64 @@ async function deleteAppRepo(owner, appName) {
     }
 }
 
+/**
+ * Gets the status of a Git repository, categorizing files into added, modified, and deleted.
+ * This function parses the output of `git status --porcelain` to determine the state of each file.
+ * @param {string} repoPath - The local path of the Git repository.
+ * @returns {Promise<{added: string[], modified: string[], deleted: string[]}>} - An object containing arrays of file paths for each category.
+ */
+async function getRepoStatus(repoPath) {
+    try {
+        await fsPromises.access(path.join(repoPath, '.git'));
+    } catch (e) {
+        throw new Error("The specified path is not a Git repository.");
+    }
+
+    const { stdout } = await execAsync(`git status --porcelain`, { cwd: repoPath });
+
+    const statusMap = new Map();
+
+    if (!stdout) {
+        return { added: [], modified: [], deleted: [] };
+    }
+
+    const lines = stdout.trim().split('\n').filter(line => line);
+
+    for (const line of lines) {
+        const status = line.substring(0, 2);
+        const filePath = line.substring(3);
+
+        if (status.startsWith('R')) {
+            const [oldPath, newPath] = filePath.split(' -> ');
+            statusMap.set(oldPath, 'D'); // A rename is a delete and an add
+            statusMap.set(newPath, 'A');
+        } else {
+            const currentStatus = statusMap.get(filePath) || '';
+            // We concatenate statuses for the same file, e.g., 'D' and '??' become 'D??'
+            statusMap.set(filePath, currentStatus + status.trim());
+        }
+    }
+
+    const added = [];
+    const modified = [];
+    const deleted = [];
+
+    for (const [file, statuses] of statusMap.entries()) {
+        // A file staged for deletion ('D') that is now untracked ('??') is a modification.
+        if (statuses.includes('D') && statuses.includes('??')) {
+            modified.push(file);
+        } else if (statuses.includes('D')) { // A file that is deleted (either from index or work tree)
+            deleted.push(file);
+        } else if (statuses.includes('A') || statuses.includes('??')) { // A new file (added to index or untracked)
+            added.push(file);
+        } else if (statuses.includes('M')) { // A modified file
+            modified.push(file);
+        }
+    }
+
+    return { added, modified, deleted };
+}
+
 module.exports = {
     clone,
     getLastCommitDate,
@@ -313,5 +371,6 @@ module.exports = {
     uninstallDependencies,
     createAndPublishRepo,
     commitAndPush,
-    deleteAppRepo
+    deleteAppRepo,
+    getRepoStatus
 };
