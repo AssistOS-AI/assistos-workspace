@@ -47,7 +47,7 @@ export class LeftSidebar {
             this.applications += `
         <div class="sidebar-item" data-id="${application.name.toLowerCase()}" data-local-action="startApplication ${application.name}">
             <div class="app-focus hidden"></div>
-            <div class="page-name-toolip" id="${application.name.toLowerCase()}">${application.name}</div>
+            <div class="page-name-toolip hidden" id="${application.name.toLowerCase()}">${application.name}</div>
             <div class="page-logo">
                 ${svgImage}
             </div>
