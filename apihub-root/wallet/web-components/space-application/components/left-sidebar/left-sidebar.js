@@ -1,15 +1,11 @@
 import {changeSelectedPageFromSidebar, generateAvatar} from "../../../../imports.js";
-
 const userModule = assistOS.loadModule("user");
-
 
 export class LeftSidebar {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
         this.themeIcon = "wallet/assets/icons/moon.svg";
-        this.tasksHandlers = {};
-        this.boundShowTaskNotification = this.showTaskNotification.bind(this);
 
         let currentTheme = localStorage.getItem('theme');
         if (currentTheme && currentTheme === 'dark') {
@@ -19,7 +15,6 @@ export class LeftSidebar {
         }
         this.invalidate(async () => {
             //this.tasks = await utilModule.getTasks(assistOS.space.id);
-            this.tasks = []
             //await assistOS.NotificationRouter.subscribeToSpace(assistOS.space.id, "sidebar-tasks", this.boundShowTaskNotification);
         });
     }
