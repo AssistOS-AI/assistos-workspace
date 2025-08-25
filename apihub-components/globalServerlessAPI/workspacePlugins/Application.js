@@ -1,7 +1,6 @@
 const path = require("path");
 const fsPromises = require("fs").promises;
 const git = require("../../apihub-component-utils/git.js");
-
 async function Application() {
     let self = {};
     let persistence = $$.loadPlugin("DefaultPersistence");
@@ -9,6 +8,10 @@ async function Application() {
     self.getApplicationPath = function (appName) {
         let apps = self.getAvailableApps();
         let app = apps.find(app => app.name === appName);
+        if(!app){
+            //is not a default app
+            return path.join(process.env.SERVERLESS_ROOT_FOLDER, `applications`, appName);
+        }
         if(app.systemApp) {
             return path.join(process.env.SERVERLESS_ROOT_FOLDER, `../../systemApps/${appName}`);
         }

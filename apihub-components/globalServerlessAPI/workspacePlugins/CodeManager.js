@@ -1,16 +1,12 @@
 const path = require("path");
 const fsPromises = require("fs/promises");
-const appFolders = {
-    WEB_COMPONENTS: "web-components",
-    BACKEND_PLUGINS: "backend-plugins",
-    DOCUMENT_PLUGINS: "document-plugins"
-}
-const PERSISTO_CONFIG = "persistoConfig.json";
+const constants = require("../constants.js");
+const git = require("../../apihub-component-utils/git");
 async function CodeManager() {
     const self = {};
     self.createApp = async function (appName) {
         let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
-        for (let folder of Object.values(appFolders)) {
+        for (let folder of Object.values(constants.APP_FOLDERS)) {
             let folderPath = path.join(appPath, folder);
             try {
                 await fsPromises.access(folderPath);
@@ -18,14 +14,38 @@ async function CodeManager() {
                 await fsPromises.mkdir(folderPath, {recursive: true});
             }
         }
-        await fsPromises.writeFile(path.join(appPath, PERSISTO_CONFIG), "{}");
+        function toKebabCase(str) {
+            if (!str) return '';
+            return str
+                .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+                .replace(/([A-Z])([A-Z][a-z])/g, '$1-$2')
+                .replace(/\s+/g, '-')
+                .toLowerCase();
+        }
+        const landingPageName = toKebabCase(appName) + "-landing";
         const manifestTemplate = {
             applicationName: appName,
-            entryPoint: `${appName}-landing`,
-            componentsDirPath: "WebSkel Components",
+            entryPoint: landingPageName,
+            componentsDirPath: constants.APP_FOLDERS.WEB_COMPONENTS,
         }
-        await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate));
+        await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate, null, 4));
+        let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, landingPageName);
+        await fsPromises.mkdir(entryComponentPath, {recursive: true});
+        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.html`), constants.HTML_TEMPLATE);
+        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.css`), "");
+        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.js`), constants.PRESENTER_TEMPLATE);
+        await git.createAndPublishRepo(appName, appPath, constants.ORG_NAME, "", false);
+        return appName;
     }
+    self.deleteApp = async function (appName) {
+        let apps = require("../applications.json");
+        let app = apps.find(app => app.name === appName);
+        if (app) {
+            throw new Error(`Trying to delete default app ${appName}. This operation is not permitted!`);
+        }
+        await git.deleteAppRepo(constants.ORG_NAME, appName);
+    }
+
     self.getApps = async function(){
         let apps = [];
         let appsPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications");
@@ -39,9 +59,8 @@ async function CodeManager() {
         }
         return apps;
     }
-
     self.getComponent = async function (appName, componentName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         try {
             await fsPromises.access(componentPath);
         }catch (e){
@@ -53,16 +72,16 @@ async function CodeManager() {
         return {html, css, js};
     }
     self.saveComponent = async function (appName, componentName, html, css, js, newName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         if(newName){
-            let newHTMLPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.html`);
-            let newCSSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.css`);
-            let newJSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName, `${newName}.js`);
+            let newHTMLPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.html`);
+            let newCSSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.css`);
+            let newJSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.js`);
             await fsPromises.rename(path.join(componentPath, `${componentName}.html`), newHTMLPath);
             await fsPromises.rename(path.join(componentPath, `${componentName}.css`), newCSSPath);
             await fsPromises.rename(path.join(componentPath, `${componentName}.js`), newJSPath);
             //rename dir
-            let newComponentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, newName);
+            let newComponentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, newName);
             await fsPromises.rename(componentPath, newComponentPath);
             componentPath = newComponentPath;
             componentName = newName;
@@ -77,7 +96,7 @@ async function CodeManager() {
         await fsPromises.writeFile(path.join(componentPath, `${componentName}.js`), js);
     }
     self.deleteComponent = async function (appName, componentName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         await fsPromises.rm(componentPath, {recursive: true});
         //TODO delete ref from chatScript also
     };
@@ -86,7 +105,7 @@ async function CodeManager() {
         let appsDirs = await fsPromises.readdir(appsPath);
         let components = [];
         for(let appName of appsDirs){
-            let componentsPath = path.join(appsPath, appName, appFolders.WEB_COMPONENTS);
+            let componentsPath = path.join(appsPath, appName, constants.APP_FOLDERS.WEB_COMPONENTS);
             try {
                 await fsPromises.access(componentsPath);
             } catch (e) {
@@ -111,26 +130,24 @@ async function CodeManager() {
         }
         let names = await fsPromises.readdir(itemTypePath);
         for(let name of names){
+            if(name.endsWith(".js") || name.endsWith(".json")){
+                name = name.slice(0, -3);
+            }
             items.push(name);
         }
         return items;
     }
     self.listComponentsForApp = async function(appName){
-        return await listAppItems(appName, appFolders.WEB_COMPONENTS);
+        return await listAppItems(appName, constants.APP_FOLDERS.WEB_COMPONENTS);
     }
     self.listBackendPluginsForApp = async function(appName){
-        return await listAppItems(appName, appFolders.BACKEND_PLUGINS);
+        return await listAppItems(appName, constants.APP_FOLDERS.BACKEND_PLUGINS);
     }
     self.listDocumentPluginsForApp = async function(appName){
-        return await listAppItems(appName, appFolders.DOCUMENT_PLUGINS);
-    }
-    self.getAppPersistoConfig = async function(appName){
-        let persistoPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, PERSISTO_CONFIG);
-        let persistoConfig = await fsPromises.readFile(persistoPath, "utf8");
-        return JSON.parse(persistoConfig);
+        return await listAppItems(appName, constants.APP_FOLDERS.DOCUMENT_PLUGINS);
     }
     self.getBackendPlugin = async function(appName, pluginName){
-        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, appFolders.BACKEND_PLUGINS, `${pluginName}.js`);
+        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         try {
             await fsPromises.access(pluginPath);
         }catch (e){
@@ -140,15 +157,18 @@ async function CodeManager() {
 
     }
     self.saveBackendPlugin = async function(appName, pluginName, content, newName){
-        let pluginPath = path.join(process.env.SERVERLESS_ROOT, "applications", appName, appFolders.BACKEND_PLUGINS, `${pluginName}.js`);
+        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         if(newName){
-            let newPluginPath = path.join(process.env.SERVERLESS_ROOT, "applications", appName, appFolders.BACKEND_PLUGINS, `${newName}.js`);
+            let newPluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${newName}.js`);
             await fsPromises.rename(pluginPath, newPluginPath);
             pluginPath = newPluginPath;
         }
         await fsPromises.writeFile(pluginPath, content);
     }
-
+    self.deleteBackendPlugin = async function(appName, pluginName){
+        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
+        await fsPromises.rm(pluginPath);
+    }
     self.getPublicMethods = function () {
         return []
     }

@@ -2,60 +2,35 @@ const { exec } = require("child_process");
 const util = require("util");
 const execAsync = util.promisify(exec);
 const fs = require("fs");
+const fsPromises = require("fs").promises;
 const path = require("path");
 const https = require('https');
 const { URL } = require('url');
-function getGitHubToken(){
-    let keys = JSON.parse(process.env.API_KEYS);
-    return keys["GITHUB"];
-}
+
 async function checkGitHubRepoVisibility(repoUrl) {
-    try {
-        const url = new URL(repoUrl);
-        let repoPath = url.pathname.replace(/^\/|\/$/g, ''); // Remove leading/trailing slashes
+    const url = new URL(repoUrl);
+    let repoPath = url.pathname.replace(/^\/|\/$/g, ''); // Remove leading/trailing slashes
 
-        if(repoPath.includes('.git')){
-            repoPath = repoPath.replace('.git', '');
-        }
-
-        const options = {
-            hostname: 'api.github.com',
-            path: `/repos/${repoPath}`,
-            method: 'GET',
-            headers: {
-                'User-Agent': 'NodeJS',
-            },
-        };
-
-        return new Promise((resolve, reject) => {
-            const req = https.request(options, (res) => {
-                let data = '';
-
-                res.on('data', (chunk) => {
-                    data += chunk;
-                });
-
-                res.on('end', () => {
-                    if (res.statusCode === 200) {
-                        const repoData = JSON.parse(data);
-                        resolve(repoData.private ? 'Private' : 'Public');
-                    } else if (res.statusCode === 404) {
-                        reject(new Error('Repository not found or private'));
-                    } else {
-                        reject(new Error(`GitHub API responded with status code ${res.statusCode}`));
-                    }
-                });
-            });
-
-            req.on('error', (err) => {
-                reject(err);
-            });
-
-            req.end();
-        });
-    } catch (error) {
-        throw error;
+    if (repoPath.includes('.git')) {
+        repoPath = repoPath.replace('.git', '');
     }
+
+    const apiUrl = `https://api.github.com/repos/${repoPath}`;
+    const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: {
+            'User-Agent': 'NodeJS',
+        },
+    });
+
+    if (response.ok) { // status 200-299
+        const repoData = await response.json();
+        return repoData.private ? 'Private' : 'Public';
+    }
+    if (response.status === 404) {
+        throw new Error('Repository not found or private');
+    }
+    throw new Error(`GitHub API responded with status code ${response.status}`);
 }
 
 async function clone(repository, folderPath) {
@@ -69,10 +44,9 @@ async function clone(repository, folderPath) {
     }
 
     if(!visibility || visibility === "Private") {
-        const tokenObj = getGitHubToken();
-        const token = tokenObj.APIKey;
+        const token = process.env.GITHUB_TOKEN;
         if (!token) {
-            throw new Error("GitHub token not set");
+            throw new Error("GITHUB_TOKEN environment variable is not set.");
         }
 
         const authenticatedRepo = repository.replace(
@@ -102,10 +76,9 @@ async function checkForUpdates(localPath, remoteUrl) {
         throw new Error("The specified path is not a Git repository.");
     }
 
-    const tokenObj = getGitHubToken();
-    const token = tokenObj.APIKey;
+    const token = process.env.GITHUB_TOKEN;
     if (!token) {
-        return false;
+        throw new Error("GITHUB_TOKEN environment variable is not set.");
     }
     const remoteUrlWithToken = token
         ? remoteUrl.replace("https://github.com/", `https://${token}@github.com/`)
@@ -188,11 +161,157 @@ async function uninstallDependencies(dependencies) {
         throw new Error(`Failed to uninstall dependencies: ${error.message}`);
     }
 }
+
+/**
+ * Creates a local Git repository, publishes it to GitHub, and pushes the initial commit.
+ * @param {string} repoName - The name of the repository.
+ * @param {string} localPath - The local path where the repository will be created.
+ * @param {string} [owner] - The name of the GitHub organization. If not provided, the repository will be created for the authenticated user.
+ * @param {string} [description=''] - A short description of the repository.
+ * @param {boolean} [isPrivate=false] - Whether the repository should be private.
+ * @returns {Promise<{localPath: string, remoteUrl: string}>} - An object containing the local path and the remote URL of the created repository.
+ */
+async function createAndPublishRepo(repoName, localPath, owner, description = '', isPrivate = false) {
+    const GITHUB_API_BASE_URL = 'api.github.com';
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+    if (!GITHUB_TOKEN) {
+        throw new Error("GITHUB_TOKEN environment variable is not set.");
+    }
+
+    // 1. Create remote repository on GitHub
+    const apiUrl = `https://${GITHUB_API_BASE_URL}${owner ? `/orgs/${owner}/repos` : `/user/repos`}`;
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'User-Agent': 'NodeJS',
+            'Content-Type': 'application/json',
+            'Accept': 'application/vnd.github.v3+json',
+        },
+        body: JSON.stringify({
+            name: repoName,
+            description: description,
+            private: isPrivate,
+        })
+    });
+
+    if (!response.ok || response.status !== 201) {
+        const errorData = await response.text();
+        throw new Error(`GitHub API responded with status ${response.status}: ${errorData}`);
+    }
+
+    const repoData = await response.json();
+    const remoteUrl = repoData.clone_url;
+    const remoteUrlWithToken = remoteUrl.replace('https://github.com/', `https://${GITHUB_TOKEN}@github.com/`);
+
+    // 2. Initialize local repository
+    try {
+        // Check if the path exists.
+        await fsPromises.access(localPath);
+    } catch (e) {
+        await fsPromises.mkdir(localPath, { recursive: true });
+    }
+
+    await execAsync(`git init`, { cwd: localPath });
+    await fsPromises.writeFile(path.join(localPath, 'README.md'), `# ${repoName}\n\n${description}`);
+    await execAsync(`git add .`, { cwd: localPath });
+    await execAsync(`git commit -m "Initial commit"`, { cwd: localPath });
+    await execAsync(`git branch -M main`, { cwd: localPath });
+
+    // 3. Link local to remote and push
+    await execAsync(`git remote add origin "${remoteUrlWithToken}"`, { cwd: localPath });
+    await execAsync(`git push -u origin main`, { cwd: localPath });
+
+    return { localPath, remoteUrl };
+}
+
+/**
+ * Stages all changes, commits them with a message, and pushes to the remote repository.
+ * @param {string} repoPath - The local path of the Git repository.
+ * @param {string} commitMessage - The commit message.
+ * @returns {Promise<{message: string}>} - A confirmation message.
+ */
+async function commitAndPush(repoPath, commitMessage) {
+    try {
+        await fsPromises.access(path.join(repoPath, '.git'));
+    } catch (e) {
+        throw new Error("The specified path is not a Git repository.");
+    }
+
+    const { stdout: status } = await execAsync(`git status --porcelain`, { cwd: repoPath });
+    if (!status) {
+        console.log("No changes to commit.");
+        return { message: "No changes to commit." };
+    }
+
+    await execAsync(`git add .`, { cwd: repoPath });
+    await execAsync(`git commit -m "${commitMessage}"`, { cwd: repoPath });
+    await execAsync(`git push`, { cwd: repoPath });
+    return { message: "Committed and pushed successfully." };
+}
+
+/**
+ * Deletes a repository from both the remote (GitHub) and the local filesystem.
+ * @param {string} owner - The username or organization name that owns the repository.
+ * @param {string} appName - The name of the repository to delete.
+ * @returns {Promise<void>}
+ */
+async function deleteAppRepo(owner, appName) {
+    const appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+    try {
+        await fsPromises.access(appPath);
+    } catch (e) {
+        throw new Error(`The specified app: ${appPath} does not exist.`);
+    }
+    const GITHUB_API_BASE_URL = 'api.github.com';
+    const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+
+    if (!GITHUB_TOKEN) {
+        throw new Error("GITHUB_TOKEN environment variable is not set.");
+    }
+    if (!owner) {
+        throw new Error("Repository owner is required.");
+    }
+
+    // 1. Delete remote repository on GitHub
+    const apiUrl = `https://${GITHUB_API_BASE_URL}/repos/${owner}/${appName}`;
+    const response = await fetch(apiUrl, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `token ${GITHUB_TOKEN}`,
+            'User-Agent': 'NodeJS',
+            'Accept': 'application/vnd.github.v3+json',
+        },
+    });
+
+    if (response.status === 204) {
+        // Deletion successful
+    } else if (response.status === 404) {
+        console.warn(`Remote repository ${owner}/${repoName} not found. It might have been already deleted.`);
+    } else if (!response.ok) {
+        const errorData = await response.text();
+        throw new Error(`GitHub API responded with status ${response.status} while deleting: ${errorData}`);
+    }
+
+    // 2. Delete local repository folder
+    try {
+        await fsPromises.rm(localPath, { recursive: true, force: true });
+    } catch (e) {
+        if (e.code !== 'ENOENT') {
+            throw e;
+        }
+    }
+}
+
 module.exports = {
     clone,
     getLastCommitDate,
     checkForUpdates,
     updateRepo,
     installDependencies,
-    uninstallDependencies
+    uninstallDependencies,
+    createAndPublishRepo,
+    commitAndPush,
+    deleteAppRepo
 };
