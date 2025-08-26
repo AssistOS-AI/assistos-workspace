@@ -1,4 +1,4 @@
-require('../../assistos-sdk/build/bundles/assistos_sdk.js');
+const assistOSSDK = require('../../assistos-sdk/dist/assistos-sdk.umd.js');
 const utils = require('../apihub-component-utils/utils.js');
 const cookie = require('../apihub-component-utils/cookie.js');
 const crypto = require('../apihub-component-utils/crypto.js');
@@ -7,7 +7,7 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const {sendResponse, sendFileToClient} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
-let assistOSSDK = require('assistos');
+// let assistOSSDK = require('assistos');
 const constants = assistOSSDK.constants;
 
 const getAPIClientSDK = assistOSSDK.utils.getAPIClient;

@@ -1,5 +1,6 @@
 import WebSkel from "../WebSkel/webSkel.js";
-import {initialiseApplication, navigateToLocation} from "./wallet/utils/appUtils.js"
+import { initialiseApplication, navigateToLocation } from "./wallet/utils/appUtils.js"
+import { loadModule } from "./wallet/bundles/assistos-sdk.mjs";
 document.querySelector('#default-loader-markup').showModal();
 let currentTheme = localStorage.getItem('theme');
 const htmlElement = document.getElementsByTagName('html')[0];
@@ -203,7 +204,7 @@ class AssistOS {
     }
 
     async loadPage(email, spaceId) {
-        let {spaceIdURL, applicationName, applicationLocation} = getURLData(window.location.hash);
+        let { spaceIdURL, applicationName, applicationLocation } = getURLData(window.location.hash);
 
         spaceId = spaceId || spaceIdURL;
 
@@ -272,7 +273,7 @@ class AssistOS {
             userId: assistOS.user.id,
             email: assistOS.user.email,
         }
-        return require("assistos").loadModule(moduleName, securityContext);
+        return loadModule(moduleName, securityContext);
     }
 
     showToast(message, type, timeout = 1500) {

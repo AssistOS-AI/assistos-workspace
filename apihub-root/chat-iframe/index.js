@@ -13,9 +13,9 @@ const parseCookies = function (cookieString) {
         }, {});
 }
 
-const userModule = require("assistos").loadModule("user", {});
-let webAssistantModule = require("assistos").loadModule("webassistant", {});
-let agentModule = require("assistos").loadModule("agent", {});
+const userModule = AssistOS.loadModule("user", {});
+let webAssistantModule = AssistOS.loadModule("webassistant", {});
+let agentModule = AssistOS.loadModule("agent", {});
 const cacheNames = await caches.keys();
 await Promise.all(cacheNames.map(name => caches.delete(name)));
 
@@ -29,11 +29,11 @@ async function checkAuthentication(email) {
 }
 
 const launchAssistant = async (chatId) => {
-    let {userId} = assistOS.securityContext;
+    let { userId } = assistOS.securityContext;
     return window.UI.createElement(
         'iframe-chat-page',
         appContainer,
-        {chatId, spaceId, userId, widgetId},
+        { chatId, spaceId, userId, widgetId },
         true
     );
 }
@@ -43,7 +43,7 @@ window.assistOS = {
     iframe: true,
     UI: window.UI,
     loadModule: function (moduleName) {
-        return require("assistos").loadModule(moduleName, assistOS.securityContext);
+        return AssistOS.loadModule(moduleName, assistOS.securityContext);
     }
 };
 const urlParams = new URLSearchParams(window.location.search);
@@ -56,12 +56,12 @@ assistOS.securityContext = {};
 
 const widgetId = urlParams.get("widget") || null;
 const appContainer = document.getElementById('app-container');
-let {chatId} = parseCookies(document.cookie);
+let { chatId } = parseCookies(document.cookie);
 const authType = await webAssistantModule.getAuth(spaceId)
 
 let isAuthenticated = false;
 try {
-    const {email} = parseCookies(document.cookie);
+    const { email } = parseCookies(document.cookie);
     await checkAuthentication(email);
     isAuthenticated = true;
 } catch (error) {
@@ -69,7 +69,7 @@ try {
 }
 
 async function handlePublicAuth() {
-    let {userId} = parseCookies(document.cookie)
+    let { userId } = parseCookies(document.cookie)
 
     if (!userId) {
         //await createGuestUser();
@@ -85,7 +85,7 @@ async function handleExistingSpaceMembersAuth() {
         window.UI.createElement(
             'login-page',
             appContainer,
-            {spaceId, resAuth},
+            { spaceId, resAuth },
             {
                 "data-spaceId": spaceId
             },
@@ -104,7 +104,7 @@ async function handleNewAndExistingSpaceMembersAuth() {
         window.UI.createElement(
             'login-page',
             appContainer,
-            {spaceId, resAuth, register: true},
+            { spaceId, resAuth, register: true },
             {
                 "data-spaceId": spaceId
             },
@@ -126,7 +126,7 @@ switch (authType) {
         break;
 }
 
-let chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
+let chatModule = AssistOS.loadModule("chat", assistOS.securityContext);
 if (!chatId) {
     const userChats = await chatModule.getUserChats(spaceId, assistOS.securityContext.email);
     if (!userChats || !userChats.length) {

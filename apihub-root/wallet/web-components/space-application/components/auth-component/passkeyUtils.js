@@ -1,5 +1,5 @@
-let userModule = require("assistos").loadModule("user", {});
-let spaceModule = require("assistos").loadModule("space", {});
+let userModule = AssistOS.loadModule("user", {});
+let spaceModule = AssistOS.loadModule("space", {});
 
 function bufferToBase64url(buffer) {
     const base64 = btoa(String.fromCharCode(...new Uint8Array(buffer)));
@@ -37,7 +37,7 @@ async function passKeyLogin(email, publicKeyCredentialRequestOptions, challengeK
     }
 
 
-    const assertion = await navigator.credentials.get({publicKey: requestOptions});
+    const assertion = await navigator.credentials.get({ publicKey: requestOptions });
 
     const assertionForServer = {
         id: assertion.id,
@@ -55,7 +55,7 @@ async function passKeyLogin(email, publicKeyCredentialRequestOptions, challengeK
     if (resp.operation === "success") {
         localStorage.setItem("userEmail", email);
         let spaceId;
-        if(createSpace){
+        if (createSpace) {
             let spaceName = email.split('@')[0];
             await assistOS.UI.showLoading();
             spaceId = await spaceModule.createSpace(spaceName);
@@ -88,8 +88,8 @@ async function passKeyRegister(email, referer) {
             displayName: userDisplayName,
         },
         pubKeyCredParams: [
-            {type: 'public-key', alg: -7}, // ES256
-            {type: 'public-key', alg: -257}, // RS256
+            { type: 'public-key', alg: -7 }, // ES256
+            { type: 'public-key', alg: -257 }, // RS256
         ],
         authenticatorSelection: {
             requireResidentKey: false,
@@ -99,7 +99,7 @@ async function passKeyRegister(email, referer) {
         attestation: 'direct'
     };
 
-    const credential = await navigator.credentials.create({publicKey: publicKeyCredentialCreationOptions});
+    const credential = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions });
     console.log('Credential created:', credential);
 
     const credentialForServer = {
@@ -123,7 +123,7 @@ async function passKeyRegister(email, referer) {
         if (userExistsResp.activeAuthType === "passkey" && userExistsResp.publicKeyCredentialRequestOptions) {
             await passKeyLogin(email, userExistsResp.publicKeyCredentialRequestOptions, userExistsResp.challengeKey, true);
         } else {
-            await assistOS.UI.changeToDynamicPage("login-page", "login-page",{"authtype": "login", email});
+            await assistOS.UI.changeToDynamicPage("login-page", "login-page", { "authtype": "login", email });
         }
     }
 }

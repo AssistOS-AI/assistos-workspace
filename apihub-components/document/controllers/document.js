@@ -4,7 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const Busboy = require("busboy");
 const unzipper = require("unzipper");
-const {sendResponse} = require("../../apihub-component-utils/utils");
+const { sendResponse } = require("../../apihub-component-utils/utils");
 const Storage = require("../../apihub-component-utils/storage");
 const documentService = require("../services/document");
 const ExportDocument = require("../../tasks/ExportDocument");
@@ -19,7 +19,7 @@ async function exportDocument(request, response) {
     const userId = request.userId;
     const sessionId = request.sessionId;
     try {
-        let task = new ExportDocument(spaceId, userId, {documentId, exportType});
+        let task = new ExportDocument(spaceId, userId, { documentId, exportType });
         await TaskManager.addTask(task);
         let objectId = SubscriptionManager.getObjectId(spaceId, "tasks");
         SubscriptionManager.notifyClients(sessionId, objectId);
@@ -80,8 +80,8 @@ async function importDocument(request, response) {
     const tempDir = path.join(__dirname, '../../../data-volume/Temp', fileId);
     const filePath = path.join(tempDir, `${fileId}.docai`);
 
-    await fs.promises.mkdir(tempDir, {recursive: true});
-    const busboy = Busboy({headers: request.headers});
+    await fs.promises.mkdir(tempDir, { recursive: true });
+    const busboy = Busboy({ headers: request.headers });
     const taskId = crypto.generateId(16);
     let objectId = SubscriptionManager.getObjectId(spaceId, taskId);
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
@@ -92,12 +92,12 @@ async function importDocument(request, response) {
                 await fs.promises.access(filePath, fs.constants.F_OK);
 
                 const extractedPath = path.join(tempDir, 'extracted');
-                await fs.promises.mkdir(extractedPath, {recursive: true});
+                await fs.promises.mkdir(extractedPath, { recursive: true });
 
                 // Wrap the unzipping process in a Promise
                 await new Promise((resolve, reject) => {
                     fs.createReadStream(filePath)
-                        .pipe(unzipper.Extract({path: extractedPath}))
+                        .pipe(unzipper.Extract({ path: extractedPath }))
                         .on('close', resolve)
                         .on('error', reject);
                 });
@@ -121,10 +121,10 @@ async function importDocument(request, response) {
                     const personalityFileName = `${personality}.persai`;
                     const filePath = path.join(personalityPath, personalityFileName);
                     const extractedPath = path.join(personalityPath, 'extracted', personality);
-                    fs.mkdirSync(extractedPath, {recursive: true});
+                    fs.mkdirSync(extractedPath, { recursive: true });
 
                     await fs.createReadStream(filePath)
-                        .pipe(unzipper.Extract({path: extractedPath}))
+                        .pipe(unzipper.Extract({ path: extractedPath }))
                         .promise();
 
                     const importResults = await space.APIs.importPersonality(spaceId, extractedPath, request);
@@ -140,21 +140,21 @@ async function importDocument(request, response) {
                 });
             } catch (error) {
                 console.error('Error processing extracted files:', error);
-                SubscriptionManager.notifyClients("", objectId, {error: error.message});
+                SubscriptionManager.notifyClients("", objectId, { error: error.message });
             } finally {
-                await fs.promises.rm(tempDir, {recursive: true, force: true});
+                await fs.promises.rm(tempDir, { recursive: true, force: true });
             }
         });
 
         writeStream.on('error', async (error) => {
             console.error('Error writing file:', error);
-            SubscriptionManager.notifyClients("", objectId, {error: error.message});
+            SubscriptionManager.notifyClients("", objectId, { error: error.message });
         });
     });
 
     busboy.on('error', async (error) => {
         console.error('Busboy error:', error);
-        SubscriptionManager.notifyClients("", objectId, {error: error.message});
+        SubscriptionManager.notifyClients("", objectId, { error: error.message });
     });
 
     request.pipe(busboy);
@@ -167,9 +167,9 @@ async function importDocument(request, response) {
 async function estimateDocumentVideoLength(request, response) {
     let documentId = request.params.documentId;
     let spaceId = request.params.spaceId;
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    const SecurityContext = AssistOS.ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    const documentModule = require("assistos").loadModule("document", securityContext);
+    const documentModule = AssistOS.loadModule("document", securityContext);
     let document = await documentModule.getDocument(spaceId, documentId);
     try {
         let duration = await ffmpeg.estimateDocumentVideoLength(spaceId, document);
@@ -251,9 +251,9 @@ async function exportDocumentAsDocx(request, response) {
         return utils.sendResponse(response, 400, "application/json", "Missing settings for export.");
     }
 
-    const SecurityContext = require("assistos").ServerSideSecurityContext;
+    const SecurityContext = AssistOS.ServerSideSecurityContext;
     let securityContext = new SecurityContext(request);
-    const documentModule = require("assistos").loadModule("document", securityContext);
+    const documentModule = AssistOS.loadModule("document", securityContext);
 
     try {
         let documentData = await documentModule.getDocument(spaceId, documentId);
@@ -469,17 +469,17 @@ async function exportDocumentAsHTML(request, response) {
     const documentId = request.params.documentId;
 
     try {
-        const SecurityContext = require("assistos").ServerSideSecurityContext;
+        const SecurityContext = AssistOS.ServerSideSecurityContext;
         let securityContext = new SecurityContext(request);
 
-        const documentModule = require("assistos").loadModule("document", securityContext);
+        const documentModule = AssistOS.loadModule("document", securityContext);
         const documentData = await documentModule.getDocument(spaceId, documentId);
 
         if (!documentData) {
             throw new Error("Document data is not available.");
         }
 
-        const {title, abstract, chapters} = documentData;
+        const { title, abstract, chapters } = documentData;
         let htmlContent = `<html><head><title>${title}</title></head><body>`;
         htmlContent += `<h1>${title}</h1>`;
 
@@ -489,7 +489,7 @@ async function exportDocumentAsHTML(request, response) {
 
         if (Array.isArray(chapters)) {
             chapters.forEach((chapter) => {
-                const {title: chapterTitle, paragraphs} = chapter;
+                const { title: chapterTitle, paragraphs } = chapter;
                 htmlContent += `<h2>${chapterTitle}</h2>`;
                 if (paragraphs) {
                     paragraphs.forEach((paragraph) => {
@@ -543,17 +543,17 @@ async function addDocumentSnapshot(request, response) {
     const spaceId = request.params.spaceId;
     const documentId = request.params.documentId;
     const snapshotData = request.body;
-    const SecurityContextClass = require('assistos').ServerSideSecurityContext;
+    const SecurityContextClass = AssistOS.ServerSideSecurityContext;
     let securityContext = new SecurityContextClass(request);
-    let documentModule = require('assistos').loadModule('document', securityContext);
+    let documentModule = AssistOS.loadModule('document', securityContext);
     try {
         let document = await documentModule.getDocument(spaceId, documentId);
         document.type = "snapshot";
-        document.abstract = JSON.stringify({originalDocumentId: documentId, ...snapshotData});
+        document.abstract = JSON.stringify({ originalDocumentId: documentId, ...snapshotData });
         delete document.id;
         document.snapshots = [];
         snapshotData.documentId = await documentModule.addDocument(spaceId, document);
-        let {id, position} = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
+        let { id, position } = await lightDB.addEmbeddedObject(spaceId, `${documentId}/snapshots`, snapshotData);
         snapshotData.id = id;
         utils.sendResponse(response, 200, "application/json", {
             data: snapshotData
@@ -597,7 +597,7 @@ async function restoreDocumentSnapshot(request, response) {
         //create new snapshot
         let newSnapshotDocument = JSON.parse(JSON.stringify(document));
         newSnapshotDocument.type = "snapshot";
-        newSnapshotDocument.abstract = JSON.stringify({originalDocumentId: documentId, ...newSnapshotData});
+        newSnapshotDocument.abstract = JSON.stringify({ originalDocumentId: documentId, ...newSnapshotData });
         delete newSnapshotDocument.id;
         newSnapshotDocument.snapshots = [];
         newSnapshotData.documentId = await documentService.createDocument(spaceId, newSnapshotDocument);
@@ -641,176 +641,176 @@ async function proxyDocumentConversion(req, res) {
 
         return new Promise(async (resolve, reject) => {
             // Validate content type
-        if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
-            return sendResponse(res, 400, 'application/json', {
-                message: "Expected multipart/form-data content type"
-            });
-        }
-
-        // Get config for docsConverterUrl
-        const config = require('../../../apihub-root/assistOS-configs.json');
-        let docsConverterUrl = config.docsConverterUrl;
-
-        // Create a temporary directory for the uploaded file
-        tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
-        await fsPromises.mkdir(tempDir, {recursive: true});
-        const tempFilePath = path.join(tempDir, `upload_${Date.now()}.bin`);
-
-        // Initialize upload file object
-        let uploadedFile = {ready: false};
-
-        // Process the multipart form with Busboy
-        const busboyOptions = {headers: req.headers, limits: {fileSize: 50 * 1024 * 1024}};
-        let busboy;
-
-        try {
-            busboy = new Busboy(busboyOptions);
-        } catch (err) {
-            busboy = Busboy(busboyOptions);
-        }
-
-        // Process file uploads
-        busboy.on('file', (fieldname, fileStream, fileInfo) => {
-            const writeStream = fs.createWriteStream(tempFilePath);
-            let fileSize = 0;
-
-            fileStream.on('data', (chunk) => {
-                fileSize += chunk.length;
-            });
-
-            fileStream.pipe(writeStream);
-
-            writeStream.on('finish', () => {
-                // Extract filename and mimetype, handling both string and object formats
-                let filename = 'document.bin';
-                let mimetype = 'application/octet-stream';
-
-                if (typeof fileInfo === 'object' && fileInfo !== null) {
-                    filename = fileInfo.filename || 'document.bin';
-                    mimetype = fileInfo.mimeType || 'application/octet-stream';
-                } else if (typeof fileInfo === 'string') {
-                    filename = fileInfo;
-                }
-
-                uploadedFile = {
-                    fieldname,
-                    filepath: tempFilePath,
-                    filename,
-                    mimetype,
-                    size: fileSize,
-                    ready: true
-                };
-            });
-
-            writeStream.on('error', (err) => {
-                console.error(`[DocConverter] Error saving file: ${err.message}`);
-            });
-        });
-
-        // Process finish event
-        busboy.on('finish', async () => {
-            // Wait for file to be ready
-            let attempts = 0;
-            const maxAttempts = 50;
-
-            while ((!uploadedFile || !uploadedFile.ready) && attempts < maxAttempts) {
-                await new Promise(resolve => setTimeout(resolve, 100));
-                attempts++;
+            if (!req.headers['content-type'] || !req.headers['content-type'].includes('multipart/form-data')) {
+                return sendResponse(res, 400, 'application/json', {
+                    message: "Expected multipart/form-data content type"
+                });
             }
 
+            // Get config for docsConverterUrl
+            const config = require('../../../apihub-root/assistOS-configs.json');
+            let docsConverterUrl = config.docsConverterUrl;
+
+            // Create a temporary directory for the uploaded file
+            tempDir = path.join(__dirname, '../../../data-volume/Temp', crypto.generateSecret(16));
+            await fsPromises.mkdir(tempDir, { recursive: true });
+            const tempFilePath = path.join(tempDir, `upload_${Date.now()}.bin`);
+
+            // Initialize upload file object
+            let uploadedFile = { ready: false };
+
+            // Process the multipart form with Busboy
+            const busboyOptions = { headers: req.headers, limits: { fileSize: 50 * 1024 * 1024 } };
+            let busboy;
+
             try {
-                if (!uploadedFile || !uploadedFile.ready) {
-                    throw new Error('File upload timed out or failed');
+                busboy = new Busboy(busboyOptions);
+            } catch (err) {
+                busboy = Busboy(busboyOptions);
+            }
+
+            // Process file uploads
+            busboy.on('file', (fieldname, fileStream, fileInfo) => {
+                const writeStream = fs.createWriteStream(tempFilePath);
+                let fileSize = 0;
+
+                fileStream.on('data', (chunk) => {
+                    fileSize += chunk.length;
+                });
+
+                fileStream.pipe(writeStream);
+
+                writeStream.on('finish', () => {
+                    // Extract filename and mimetype, handling both string and object formats
+                    let filename = 'document.bin';
+                    let mimetype = 'application/octet-stream';
+
+                    if (typeof fileInfo === 'object' && fileInfo !== null) {
+                        filename = fileInfo.filename || 'document.bin';
+                        mimetype = fileInfo.mimeType || 'application/octet-stream';
+                    } else if (typeof fileInfo === 'string') {
+                        filename = fileInfo;
+                    }
+
+                    uploadedFile = {
+                        fieldname,
+                        filepath: tempFilePath,
+                        filename,
+                        mimetype,
+                        size: fileSize,
+                        ready: true
+                    };
+                });
+
+                writeStream.on('error', (err) => {
+                    console.error(`[DocConverter] Error saving file: ${err.message}`);
+                });
+            });
+
+            // Process finish event
+            busboy.on('finish', async () => {
+                // Wait for file to be ready
+                let attempts = 0;
+                const maxAttempts = 50;
+
+                while ((!uploadedFile || !uploadedFile.ready) && attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
                 }
 
-                // Use curl command to send the file to the converter
-                // This is the most reliable way to send multipart/form-data to Flask
-                const {spawn} = require('child_process');
-                const curl = spawn('curl', [
-                    '-s',
-                    '-X', 'POST',
-                    '-F', `file=@${uploadedFile.filepath};filename=${uploadedFile.filename};type=${uploadedFile.mimetype}`,
-                    `${docsConverterUrl}/convert`
-                ]);
+                try {
+                    if (!uploadedFile || !uploadedFile.ready) {
+                        throw new Error('File upload timed out or failed');
+                    }
 
-                let responseData = '';
-                let errorData = '';
+                    // Use curl command to send the file to the converter
+                    // This is the most reliable way to send multipart/form-data to Flask
+                    const { spawn } = require('child_process');
+                    const curl = spawn('curl', [
+                        '-s',
+                        '-X', 'POST',
+                        '-F', `file=@${uploadedFile.filepath};filename=${uploadedFile.filename};type=${uploadedFile.mimetype}`,
+                        `${docsConverterUrl}/convert`
+                    ]);
 
-                curl.stdout.on('data', (data) => {
-                    responseData += data.toString();
-                });
+                    let responseData = '';
+                    let errorData = '';
 
-                curl.stderr.on('data', (data) => {
-                    errorData += data.toString();
-                });
+                    curl.stdout.on('data', (data) => {
+                        responseData += data.toString();
+                    });
 
-                const exitCode = await new Promise((resolve) => {
-                    curl.on('close', resolve);
-                });
+                    curl.stderr.on('data', (data) => {
+                        errorData += data.toString();
+                    });
 
-                if (exitCode === 0 && responseData) {
-                    try {
-                        const data = JSON.parse(responseData);
-                        if (data.text_content) {
-                            sendResponse(res, 200, 'application/json', data);
-                        } else {
+                    const exitCode = await new Promise((resolve) => {
+                        curl.on('close', resolve);
+                    });
+
+                    if (exitCode === 0 && responseData) {
+                        try {
+                            const data = JSON.parse(responseData);
+                            if (data.text_content) {
+                                sendResponse(res, 200, 'application/json', data);
+                            } else {
+                                sendResponse(res, 500, 'application/json', {
+                                    message: 'Invalid document structure returned from converter'
+                                });
+                            }
+                            resolve();
+                            return;
+                        } catch (err) {
                             sendResponse(res, 500, 'application/json', {
-                                message: 'Invalid document structure returned from converter'
+                                message: 'Invalid JSON response from converter'
                             });
+                            resolve();
+                            return;
                         }
-                        resolve();
-                        return;
-                    } catch (err) {
+                    } else {
                         sendResponse(res, 500, 'application/json', {
-                            message: 'Invalid JSON response from converter'
+                            message: `Error from docs converter: ${errorData || 'Unknown error'}`
                         });
                         resolve();
                         return;
                     }
-                } else {
+                } catch (error) {
+                    console.error(`[DocConverter] Conversion error: ${error.message}`);
                     sendResponse(res, 500, 'application/json', {
-                        message: `Error from docs converter: ${errorData || 'Unknown error'}`
+                        message: `Error proxying document conversion: ${error.message}`
                     });
                     resolve();
                     return;
+                } finally {
+                    // Clean up temp directory
+                    if (tempDir) {
+                        try {
+                            await fsPromises.rm(tempDir, { recursive: true, force: true });
+                        } catch (err) {
+                            // Ignore cleanup errors
+                        }
+                    }
                 }
-            } catch (error) {
-                console.error(`[DocConverter] Conversion error: ${error.message}`);
+            });
+
+            busboy.on('error', (err) => {
+                console.error(`[DocConverter] Form parsing error: ${err.message}`);
                 sendResponse(res, 500, 'application/json', {
-                    message: `Error proxying document conversion: ${error.message}`
+                    message: `Error processing form data: ${err.message}`
                 });
                 resolve();
                 return;
-            } finally {
-                // Clean up temp directory
-                if (tempDir) {
-                    try {
-                        await fsPromises.rm(tempDir, {recursive: true, force: true});
-                    } catch (err) {
-                        // Ignore cleanup errors
-                    }
-                }
-            }
-        });
-
-        busboy.on('error', (err) => {
-            console.error(`[DocConverter] Form parsing error: ${err.message}`);
-            sendResponse(res, 500, 'application/json', {
-                message: `Error processing form data: ${err.message}`
             });
-            resolve();
-            return;
-        });
 
-        // Pipe the request to busboy
-        req.pipe(busboy);
+            // Pipe the request to busboy
+            req.pipe(busboy);
         });
     } catch (error) {
         console.error(`[DocConverter] Setup error: ${error.message}`);
         // Clean up temp directory if it exists
         if (tempDir) {
             try {
-                await fsPromises.rm(tempDir, {recursive: true, force: true});
+                await fsPromises.rm(tempDir, { recursive: true, force: true });
             } catch (err) {
                 // Ignore cleanup errors
             }
@@ -872,9 +872,9 @@ async function uploadDoc(req, res) {
 
         // Upload images if any
         if (images.length > 0) {
-            const SecurityContext = require("assistos").ServerSideSecurityContext;
+            const SecurityContext = AssistOS.ServerSideSecurityContext;
             const securityContext = new SecurityContext(req);
-            const spaceModuleClient = require("assistos").loadModule("space", securityContext);
+            const spaceModuleClient = AssistOS.loadModule("space", securityContext);
 
             for (const imageName of images) {
                 try {

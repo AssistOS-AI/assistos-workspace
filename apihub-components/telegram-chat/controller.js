@@ -1,18 +1,18 @@
 const utils = require('../apihub-component-utils/utils.js');
 const secrets = require("../apihub-component-utils/secrets");
 const cookie = require("../apihub-component-utils/cookie");
-async function loadAssistOSModule(moduleName, spaceId, userId){
+async function loadAssistOSModule(moduleName, spaceId, userId) {
     let authSecret = await secrets.getApiHubAuthSecret();
     let securityContextConfig = {
         headers: {
             cookie: cookie.createApiHubAuthCookies(authSecret, userId, spaceId)
         }
     }
-    const SecurityContext = require('assistos').ServerSideSecurityContext;
+    const SecurityContext = AssistOS.ServerSideSecurityContext;
     let securityContext = new SecurityContext(securityContextConfig);
-    return require('assistos').loadModule(moduleName, securityContext);
+    return AssistOS.loadModule(moduleName, securityContext);
 }
-async function sendMessage(botId, chatId, text){
+async function sendMessage(botId, chatId, text) {
     await fetch(`https://api.telegram.org/bot${botId}/sendMessage`, {
         method: "POST",
         headers: {
@@ -24,21 +24,21 @@ async function sendMessage(botId, chatId, text){
         })
     });
 }
-async function startBot(req, res){
+async function startBot(req, res) {
     let botId = req.body;
     let personalityId = req.params.personalityId;
     let spaceId = req.params.spaceId;
     try {
         let result = await fetch(`https://api.telegram.org/bot${botId}/getMe`);
-        if(!result.ok){
+        if (!result.ok) {
             return utils.sendResponse(res, 400, "application/json", {
                 message: "Invalid bot id"
             });
         }
         let botData = await result.json();
-        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let SecurityContext = AssistOS.ServerSideSecurityContext;
         let securityContext = new SecurityContext(req);
-        let personalityModule = require("assistos").loadModule("agent", securityContext);
+        let personalityModule = AssistOS.loadModule("agent", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot = {
             username: botData.result.username,
@@ -62,12 +62,12 @@ function isValidEmail(string) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(string);
 }
-async function checkUserExists(res, spaceId, personality, message){
+async function checkUserExists(res, spaceId, personality, message) {
     let telegramUserId = message.from.id;
     let chatId = message.chat.id;
     let authenticatedUser = personality.telegramBot.users.find(user => user.telegramUserId === telegramUserId);
     let pendingUser = pendingUsers.find(user => user.id === telegramUserId);
-    if(!authenticatedUser && !pendingUser){
+    if (!authenticatedUser && !pendingUser) {
         await sendMessage(personality.telegramBot.id, chatId, `Hello user. To use this bot please enter your email address linked to your assistOS account.`);
         pendingUsers.push({
             id: message.from.id,
@@ -77,8 +77,8 @@ async function checkUserExists(res, spaceId, personality, message){
         });
         return false;
     }
-    if(pendingUser){
-        if(isValidEmail(message.text)){
+    if (pendingUser) {
+        if (isValidEmail(message.text)) {
             await sendVerificationMail(spaceId, personality, message.text, telegramUserId, chatId);
         } else {
             await sendMessage(personality.telegramBot.id, chatId, `Invalid email address. Please enter a valid email address`);
@@ -87,11 +87,11 @@ async function checkUserExists(res, spaceId, personality, message){
     }
     return true;
 }
-async function sendVerificationMail(spaceId, personality, email, telegramUserId, chatId){
+async function sendVerificationMail(spaceId, personality, email, telegramUserId, chatId) {
     let users = await User.getUserMap();
     let userId = users[email];
     let endpoint = `telegram/auth/${spaceId}/${personality.id}/${telegramUserId}/${userId}`;
-    if(configs.ENABLE_EMAIL_SERVICE){
+    if (configs.ENABLE_EMAIL_SERVICE) {
         try {
             await Email.sendAssistOSMail(email,
                 "AssistOS telegram bot authentication",
@@ -99,12 +99,12 @@ async function sendVerificationMail(spaceId, personality, email, telegramUserId,
                 "Please click on the button below to verify your email address",
                 `Verify email`,
                 endpoint);
-        }catch (e) {
+        } catch (e) {
             await sendMessage(personality.telegramBot.id, chatId, `Something went wrong while verifying your mail. ${e.message}`);
         }
         await sendMessage(personality.telegramBot.id, chatId, `I have sent a verification email to ${email}. Please click on the button in the email to authenticate yourself.`);
-    }else{
-        const baseURL= process.env.BASE_URL;
+    } else {
+        const baseURL = process.env.BASE_URL;
         const url = `${baseURL}/${endpoint}`;
         try {
             await fetch(url);
@@ -115,27 +115,27 @@ async function sendVerificationMail(spaceId, personality, email, telegramUserId,
     }
 }
 let pendingUsers = [];
-async function receiveMessage(req, res){
+async function receiveMessage(req, res) {
     let spaceId = req.params.spaceId;
     let personalityId = req.params.personalityId;
     let message = req.body.message;
-    if(!message){
+    if (!message) {
         return utils.sendResponse(res, 200, "application/json", {});
     }
 
     let chatId = message.chat.id;
     let personalityModule = await loadAssistOSModule("personality", spaceId);
     let personality = await personalityModule.getPersonality(spaceId, personalityId);
-    if(personality.telegramBot.public){
+    if (personality.telegramBot.public) {
         //???
         return;
     }
     let userExists = await checkUserExists(res, spaceId, personality, message);
-    if(!userExists){
+    if (!userExists) {
         return utils.sendResponse(res, 200, "application/json", {});
     }
     let user = personality.telegramBot.users.find(user => user.telegramUserId === message.from.id);
-    if(message.sticker){
+    if (message.sticker) {
         await sendMessage(personality.telegramBot.id, chatId, "Im sorry I cannot process stickers");
         return utils.sendResponse(res, 200, "application/json", {});
     }
@@ -145,50 +145,50 @@ async function receiveMessage(req, res){
     } catch (e) {
         try {
             let errorMessage = JSON.parse(e.message);
-            if(errorMessage.message.includes("APIKey")){
+            if (errorMessage.message.includes("APIKey")) {
                 await sendMessage(personality.telegramBot.id, chatId, "APIKey for this personality is missing.");
                 return;
             }
-        } catch (e) {}
+        } catch (e) { }
         await sendMessage(personality.telegramBot.id, chatId, "Something went wrong. Please try again");
         throw new Error(e.message);
     } finally {
         utils.sendResponse(res, 200, "application/json", {});
     }
 }
-async function sendErrorResponse(res, message, statusCode = 500){
-    if(configs.ENABLE_EMAIL_SERVICE){
+async function sendErrorResponse(res, message, statusCode = 500) {
+    if (configs.ENABLE_EMAIL_SERVICE) {
         const activationFailHTML = await User.getActivationFailHTML(message);
         await utils.sendFileToClient(res, activationFailHTML, "html", statusCode)
-    }else{
+    } else {
         return utils.sendResponse(res, statusCode, "application/json", {
             message: message
         });
     }
 }
 let pendingTimeout = 1000 * 60 * 60 * 24; // 24 hours
-async function authenticateUser(req, res){
+async function authenticateUser(req, res) {
     let spaceId = req.params.spaceId;
     let personalityId = req.params.personalityId;
     let telegramUserId = parseInt(req.params.telegramUserId);
     let userId = req.params.userId;
     let pendingUser = pendingUsers.find(user => user.id === telegramUserId);
-    if(!pendingUser){
+    if (!pendingUser) {
         await sendErrorResponse(res, "Pending User not found", 422);
     }
     let currentTime = Date.now();
-    if(currentTime - pendingUser.timestamp > pendingTimeout){
+    if (currentTime - pendingUser.timestamp > pendingTimeout) {
         pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
         await sendErrorResponse(res, "Verification link expired", 401);
     }
-    try{
+    try {
         let personalityModule = await loadAssistOSModule("personality", spaceId);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
-        if(!personality){
+        if (!personality) {
             await sendErrorResponse(res, "Personality not found", 422);
         }
 
-        let {chatId} = await personalityModule.createChat(spaceId, personalityId);
+        let { chatId } = await personalityModule.createChat(spaceId, personalityId);
 
         personality.telegramBot.users.push({
             id: userId,
@@ -201,27 +201,27 @@ async function authenticateUser(req, res){
 
 
         pendingUsers = pendingUsers.filter(user => user.id !== telegramUserId);
-        if(configs.ENABLE_EMAIL_SERVICE){
+        if (configs.ENABLE_EMAIL_SERVICE) {
             await sendMessage(personality.telegramBot.id, telegramUserId, "Email verified successfully.");
             const activationSuccessHTML = await User.getActivationSuccessHTML();
-            await utils.sendFileToClient(res, activationSuccessHTML, "html",200)
-        }else{
+            await utils.sendFileToClient(res, activationSuccessHTML, "html", 200)
+        } else {
             return utils.sendResponse(res, 200, "application/json", {
                 message: ""
             });
         }
-    }catch (e) {
+    } catch (e) {
         await sendErrorResponse(res, e.message);
     }
 }
-async function removeUser(req, res){
+async function removeUser(req, res) {
     let spaceId = req.params.spaceId;
     let personalityId = req.params.personalityId;
     let telegramUserId = parseInt(req.body);
     try {
-        let SecurityContext = require("assistos").ServerSideSecurityContext;
+        let SecurityContext = AssistOS.ServerSideSecurityContext;
         let securityContext = new SecurityContext(req);
-        let personalityModule = require("assistos").loadModule("agent", securityContext);
+        let personalityModule = AssistOS.loadModule("agent", securityContext);
         let personality = await personalityModule.getPersonality(spaceId, personalityId);
         personality.telegramBot.users = personality.telegramBot.users.filter(user => user.id !== telegramUserId);
         await personalityModule.updateAgent(spaceId, personalityId, personality);

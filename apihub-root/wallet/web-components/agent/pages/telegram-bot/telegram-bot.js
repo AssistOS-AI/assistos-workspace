@@ -1,7 +1,7 @@
-const spaceModule = require("assistos").loadModule("space", {});
-const agentModule = require("assistos").loadModule("agent", {});
+const spaceModule = AssistOS.loadModule("space", {});
+const agentModule = AssistOS.loadModule("agent", {});
 
-export class TelegramBot{
+export class TelegramBot {
     constructor(element, invalidate) {
         this.element = element;
         this.invalidate = invalidate;
@@ -9,9 +9,9 @@ export class TelegramBot{
         this.agent = this.agentPagePresenter.agent;
         this.invalidate();
     }
-    async beforeRender(){
+    async beforeRender() {
         let usersHTML = "no users added";
-        if(this.agent.telegramBot.id){
+        if (this.agent.telegramBot.id) {
             this.telegramBotStatus = `<div class="telegram-bot-status">
             <div class="bot-name">
                 <div class="label">name:</div>
@@ -27,7 +27,7 @@ export class TelegramBot{
             //     <input type="checkbox" class="public-checkbox" ${this.agent.telegramBot.public ? "checked" : ""}>
             // </div>
             usersHTML = "";
-            for(let user of this.agent.telegramBot.users){
+            for (let user of this.agent.telegramBot.users) {
                 usersHTML += `
             <div class="user">
                 <div class="user-first-name">${user.firstName}</div>
@@ -39,8 +39,8 @@ export class TelegramBot{
         }
         this.usersHTML = usersHTML;
     }
-    afterRender(){
-        if(this.agent.telegramBot.id){
+    afterRender() {
+        if (this.agent.telegramBot.id) {
             let telegramBotInput = this.element.querySelector("#botId");
             telegramBotInput.value = this.agent.telegramBot.id;
             let usersTable = this.element.querySelector(".users-table");
@@ -52,13 +52,13 @@ export class TelegramBot{
             // });
         }
     }
-    async startTelegramBot(targetElement){
+    async startTelegramBot(targetElement) {
         targetElement.classList.add("loading-icon");
         targetElement.disabled = true;
         targetElement.innerHTML = "";
         let botIdInput = this.element.querySelector("#botId");
         let botId = botIdInput.value;
-        if(!botId){
+        if (!botId) {
             alert("Please provide a bot id");
             return;
         }
@@ -77,9 +77,9 @@ export class TelegramBot{
         this.agent.telegramBot = agent.telegramBot;
         this.invalidate();
     }
-    async removeUser(targetElement, userId){
+    async removeUser(targetElement, userId) {
         let message = "Are you sure you want to remove this user's access to this bot?";
-        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", { message }, true);
         if (!confirmation) {
             return;
         }
@@ -89,7 +89,7 @@ export class TelegramBot{
         this.agent.telegramBot = agent.telegramBot;
         this.invalidate();
     }
-    async openDocument(targetElement, documentId){
+    async openDocument(targetElement, documentId) {
         await assistOS.UI.changeToDynamicPage(`space-application-page`, `${assistOS.space.id}/Space/document-view-page/${documentId}`);
     }
 }

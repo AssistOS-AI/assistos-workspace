@@ -21,17 +21,17 @@ const {
 } = require("./controller");
 const contextMiddleware = require('../apihub-component-middlewares/context.js')
 const bodyReader = require('../apihub-component-middlewares/bodyReader.js')
-const constants = require("assistos").constants;
+const constants = require("../../assistos-sdk/dist/assistos-sdk.umd.js").constants;
 const path = require("path");
 const process = require("process");
 const secrets = require("../apihub-component-utils/secrets");
 const cookies = require("../apihub-component-utils/cookie.js");
 function Space(server) {
-    setTimeout(async ()=> {
+    setTimeout(async () => {
         await installSystemApps();
-        let adminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ASSISTOS_ADMIN_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
+        let adminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ASSISTOS_ADMIN_PLUGIN, "", { authToken: process.env.SERVERLESS_AUTH_SECRET });
         let spaces = await adminClient.listAllSpaces(process.env.SERVERLESS_AUTH_SECRET);
-        for(let spaceId of spaces){
+        for (let spaceId of spaces) {
             let serverlessFolder = path.join(server.rootFolder, "external-volume", "spaces", spaceId);
             let apiKeys = await secrets.getAPIKeys(spaceId);
             server.createServerlessAPI({
@@ -50,14 +50,14 @@ function Space(server) {
             });
         }
         let founderSpaceExists = await adminClient.founderSpaceExists();
-        if(!founderSpaceExists){
-            let globalAdminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ADMIN_PLUGIN, "",{authToken: process.env.SERVERLESS_AUTH_SECRET});
+        if (!founderSpaceExists) {
+            let globalAdminClient = await require("opendsu").loadAPI("serverless").createServerlessAPIClient("*", process.env.BASE_URL, process.env.SERVERLESS_ID, constants.ADMIN_PLUGIN, "", { authToken: process.env.SERVERLESS_AUTH_SECRET });
             let founderEmail = process.env.SYSADMIN_EMAIL;
-            if(!founderEmail){
+            if (!founderEmail) {
                 console.error("SYSADMIN_EMAIL environment variable is not set");
             }
-             let founderId = await globalAdminClient.getFounderId();
-            let spaceModule = require("assistos").loadModule("space", {
+            let founderId = await globalAdminClient.getFounderId();
+            let spaceModule = require("../../assistos-sdk/dist/assistos-sdk.umd.js").loadModule("space", {
                 cookies: cookies.createAdminCookies(founderEmail, founderId, process.env.SERVERLESS_AUTH_SECRET)
             });
             if (process.env.SYSADMIN_SPACE) {
@@ -78,14 +78,14 @@ function Space(server) {
         registers: [register]
     });
 
-    server.use("*",(req, res, next) => {
+    server.use("*", (req, res, next) => {
         totalRequestsCounter.inc();
         next();
     });
 
     server.use("/spaces/*", contextMiddleware);
 
-    server.get("/spaces/webSkel-config", async (req, res)=>{
+    server.get("/spaces/webSkel-config", async (req, res) => {
         await getWebSkelConfig(req, res, server);
     })
     server.head("/spaces/files/:fileId", headFile);
@@ -110,10 +110,10 @@ function Space(server) {
     /*spaces*/
     server.get("/spaces", getSpaceStatus);
     server.get("/spaces/:spaceId", getSpaceStatus);
-    server.post("/spaces", async (req, res)=>{
+    server.post("/spaces", async (req, res) => {
         await createSpace(req, res, server);
     });
-    server.delete("/spaces/:spaceId", async (req, res)=>{
+    server.delete("/spaces/:spaceId", async (req, res) => {
         await deleteSpace(req, res, server);
     });
 
@@ -126,7 +126,7 @@ function Space(server) {
     server.put("/spaces/:spaceId/restart", restartServerless);
 
     /*applications */
-    server.get("/applications/files/:spaceId/:appName/*", async (req, res)=>{
+    server.get("/applications/files/:spaceId/:appName/*", async (req, res) => {
         await loadApplicationFile(req, res, server);
     });
 }

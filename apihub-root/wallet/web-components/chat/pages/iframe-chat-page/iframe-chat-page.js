@@ -1,6 +1,6 @@
-const webAssistantModule = require("assistos").loadModule("webassistant", assistOS.securityContext);
-const chatModule = require("assistos").loadModule("chat", assistOS.securityContext);
-const codeManager = require("assistos").loadModule("codemanager", assistOS.securityContext);
+const webAssistantModule = AssistOS.loadModule("webassistant", assistOS.securityContext);
+const chatModule = AssistOS.loadModule("chat", assistOS.securityContext);
+const codeManager = AssistOS.loadModule("codemanager", assistOS.securityContext);
 const sendMessageActionButtonHTML = `  
 <button type="button" id="stopLastStream" class="input__button" data-local-action="chatInputUser">
   <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -80,9 +80,9 @@ export class IframeChatPage {
             await applyTheme(this.theme.variables || {}, this.theme.css || '')
         }
         this.chatActionButton = sendMessageActionButtonHTML
-        try{
+        try {
             this.chatHistory = await chatModule.getChatHistory(this.spaceId, this.chatId);
-        }catch(error) {
+        } catch (error) {
             console.error(error);
         }
 
@@ -148,7 +148,7 @@ export class IframeChatPage {
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
         this.maxHeight = 500;
     }
-    async openWidget(targetElement, widgetName){
+    async openWidget(targetElement, widgetName) {
         let widget = await codeManager.getWidget(this.spaceId, widgetName);
         let contextContainer = this.element.querySelector('#context-container');
         contextContainer.innerHTML = "";

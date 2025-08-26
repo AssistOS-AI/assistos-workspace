@@ -1,5 +1,5 @@
 const spaceModule = assistOS.loadModule("space");
-const constants = require("assistos").constants;
+const constants = AssistOS.constants;
 
 export class AgentDescription {
     constructor(element, invalidate) {
@@ -10,7 +10,7 @@ export class AgentDescription {
         this.invalidate();
     }
 
-    async beforeRender(){
+    async beforeRender() {
         if (this.agent.imageId) {
             try {
                 this.photo = await spaceModule.getImageURL(this.agent.imageId);
@@ -25,7 +25,7 @@ export class AgentDescription {
         }
         this.agentName = this.agent.name;
     }
-    afterRender(){
+    afterRender() {
         let description = this.element.querySelector("textarea");
         description.innerHTML = this.agent.description;
         let nameInput = this.element.querySelector("#name");

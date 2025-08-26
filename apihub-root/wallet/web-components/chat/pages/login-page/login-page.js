@@ -2,7 +2,7 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
 }
 
-let userModule = require("assistos").loadModule("user", {userId: "*"});
+let userModule = AssistOS.loadModule("user", { userId: "*" });
 
 const displayError = async (err) => {
     if (err.details?.status === 403) {
@@ -20,21 +20,21 @@ export class LoginPage {
         this.props = props;
         this.signup = false;
         this.resAuth = this.props.resAuth;
-        this.canRegister = this.props.register||false;
+        this.canRegister = this.props.register || false;
         this.invalidate();
     }
 
     async beforeRender(props) {
-            if(this.canRegister && !this.signup) {
-                this.registrationPlaceholder =
-                    "   <section class=\"to_signup\">\n" +
-                    "                        <span>Don't have an account?</span>\n" +
-                    "                        <span class=\"redirect-text pointer\" data-local-action=\"goToSignup\">Register</span>\n" +
-                    "                    </section>"
-            }
-            this.displayAuthType = !this.signup ? "block" : "none";
-            this.actionText = this.signup ? "Register" : "Login";
-            this.displaySignup = this.signup ? "block" : "none";
+        if (this.canRegister && !this.signup) {
+            this.registrationPlaceholder =
+                "   <section class=\"to_signup\">\n" +
+                "                        <span>Don't have an account?</span>\n" +
+                "                        <span class=\"redirect-text pointer\" data-local-action=\"goToSignup\">Register</span>\n" +
+                "                    </section>"
+        }
+        this.displayAuthType = !this.signup ? "block" : "none";
+        this.actionText = this.signup ? "Register" : "Login";
+        this.displaySignup = this.signup ? "block" : "none";
     }
 
     async afterRender() {
@@ -47,9 +47,9 @@ export class LoginPage {
             this.element.querySelector(".email_input").classList.add("error");
             return;
         }
-        if(this.signup){
+        if (this.signup) {
 
-        }else{
+        } else {
             this.authInfo = await userModule.getPublicAuthInfo(this.email)
             if (this.authInfo.userExists === false) {
                 this.element.querySelector(".email_input").classList.add("error");
@@ -62,9 +62,9 @@ export class LoginPage {
 
     async waitCode(email, ref) {
         let r;
-        try{
-           r = await userModule.generateAuthCode(email, ref, "emailCode")
-        }catch(err){
+        try {
+            r = await userModule.generateAuthCode(email, ref, "emailCode")
+        } catch (err) {
             return displayError(err);
         }
         this.element.querySelector(".auth_type_wrapper").style.display = "none"
@@ -78,7 +78,7 @@ export class LoginPage {
 
     async login() {
         try {
-           const loginResult =  await userModule.emailLogin(this.email, this.element.querySelector(".code_input").value)
+            const loginResult = await userModule.emailLogin(this.email, this.element.querySelector(".code_input").value)
             assistOS.securityContext = {
                 email: loginResult.email,
                 userId: loginResult.userId
@@ -89,11 +89,11 @@ export class LoginPage {
             await displayError(err);
         }
     }
-    async goToSignup(){
+    async goToSignup() {
         this.signup = true;
         this.invalidate();
     }
-    async back(){
+    async back() {
         this.signup = false;
         this.invalidate();
     }

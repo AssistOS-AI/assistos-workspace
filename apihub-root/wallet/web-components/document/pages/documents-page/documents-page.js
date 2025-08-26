@@ -1,11 +1,11 @@
 const documentModule = assistOS.loadModule("document");
-const constants = require("assistos").constants;
+const constants = AssistOS.constants;
 export class DocumentsPage {
     constructor(element, invalidate) {
         this.selectedCtegory = "";
         this.refreshDocuments = async () => {
             this.Alldocuments = await documentModule.getDocuments(assistOS.space.id);
-            if(this.selectedCtegory === "") {
+            if (this.selectedCtegory === "") {
                 this.documents = this.Alldocuments;
             } else {
                 this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
@@ -37,28 +37,28 @@ export class DocumentsPage {
 
     afterRender() {
 
-        let documentTypesOptions = [{name: "All", value: ""}];
-        for(let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
+        let documentTypesOptions = [{ name: "All", value: "" }];
+        for (let category of Object.keys(constants.DOCUMENT_CATEGORIES)) {
             documentTypesOptions.push({
                 name: category,
                 value: constants.DOCUMENT_CATEGORIES[category]
             })
         }
         assistOS.UI.createElement("custom-select", ".select-container", {
-                options: documentTypesOptions,
-            },
+            options: documentTypesOptions,
+        },
             {
                 "data-width": "230",
                 "data-name": "type",
                 "data-selected": this.selectedCtegory,
             })
         let customSelect = document.querySelector("custom-select");
-        customSelect.addEventListener("change", (event)=>{
-            if(event.value === this.selectedCtegory) {
+        customSelect.addEventListener("change", (event) => {
+            if (event.value === this.selectedCtegory) {
                 return;
             }
             this.selectedCtegory = event.value;
-            if(this.selectedCtegory === "") {
+            if (this.selectedCtegory === "") {
                 this.documents = this.Alldocuments;
             } else {
                 this.documents = this.Alldocuments.filter(document => document.category === this.selectedCtegory);
@@ -93,7 +93,7 @@ export class DocumentsPage {
 
     async deleteAction(_target) {
         let message = "Are you sure you want to delete this document?";
-        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", { message }, true);
         if (!confirmation) {
             return;
         }
@@ -104,12 +104,12 @@ export class DocumentsPage {
     async exportAction(_target) {
         const documentId = this.getDocumentId(_target);
         const documentTitle = assistOS.UI.reverseQuerySelector(_target, "document-item").getAttribute("data-name");
-        await assistOS.UI.showModal("export-document-modal", {id: documentId, title: documentTitle});
+        await assistOS.UI.showModal("export-document-modal", { id: documentId, title: documentTitle });
     }
 
-    async printDocument(eventTarget){
+    async printDocument(eventTarget) {
         let documentId = this.getDocumentId(eventTarget);
-        await assistOS.UI.showModal("print-document-modal", {documentId: documentId});
+        await assistOS.UI.showModal("print-document-modal", { documentId: documentId });
     }
 
     async importDocument(_target) {
@@ -123,7 +123,7 @@ export class DocumentsPage {
             }
             assistOS.space.loadingDocuments.push(taskId);
 
-            if(!this.boundOnImportFinish){
+            if (!this.boundOnImportFinish) {
                 this.onImportFinish = (importResult) => {
                     if (importResult.error) {
                         alert("An error occurred while importing the document: " + importResult.error);
@@ -162,8 +162,8 @@ export class DocumentsPage {
         };
         fileInput.click();
     }
-    async translateDocument(_target){
+    async translateDocument(_target) {
         let documentId = this.getDocumentId(_target);
-        await assistOS.UI.showModal("translate-document-modal", {id: documentId});
+        await assistOS.UI.showModal("translate-document-modal", { id: documentId });
     }
 }
