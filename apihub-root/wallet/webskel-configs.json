@@ -51,18 +51,6 @@
             "presenterClassName": "CreateTicket"
         },
         {
-            "name": "chat-scripts-page",
-            "directory": "web-assistant",
-            "type": "pages",
-            "presenterClassName": "ChatScriptsPage"
-        },
-        {
-            "name": "add-edit-chat-script",
-            "directory": "web-assistant",
-            "type": "modals",
-            "presenterClassName": "AddEditChatScript"
-        },
-        {
             "name": "support-tickets",
             "directory": "space-application",
             "type": "modals",
@@ -660,36 +648,6 @@
             "directory": "document",
             "type": "modals",
             "presenterClassName": "PrintDocumentModal"
-        },
-        {
-            "name": "web-assistant",
-            "directory": "web-assistant",
-            "presenterClassName": "WebAssistant",
-            "type": "pages"
-        },
-        {
-            "name": "themes-page",
-            "directory": "web-assistant",
-            "presenterClassName": "ThemesPage",
-            "type": "pages"
-        },
-        {
-            "name": "web-assistant-settings",
-            "directory": "web-assistant",
-            "presenterClassName": "WebAssistantSettings",
-            "type": "pages"
-        },
-        {
-            "name": "edit-theme-modal",
-            "directory": "web-assistant",
-            "presenterClassName": "EditThemeModal",
-            "type": "modals"
-        },
-        {
-            "name": "generate-theme-modal",
-            "directory": "web-assistant",
-            "presenterClassName": "GenerateThemeModal",
-            "type": "modals"
         },
         {
             "name": "add-authentication-method-modal",

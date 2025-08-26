@@ -4,8 +4,17 @@ const constants = require("../constants.js");
 const git = require("../../apihub-component-utils/git");
 async function CodeManager() {
     const self = {};
+    function getAppPath(appName){
+        return path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+    }
     self.createApp = async function (appName) {
-        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        if(!process.env.ORGANISATION_NAME){
+            throw new Error("ORGANISATION_NAME is not set!");
+        }
+        if(!process.env.GITHUB_TOKEN){
+            throw new Error("GITHUB_TOKEN is not set!");
+        }
+        let appPath = getAppPath(appName)
         for (let folder of Object.values(constants.APP_FOLDERS)) {
             let folderPath = path.join(appPath, folder);
             try {
@@ -27,7 +36,7 @@ async function CodeManager() {
             applicationName: appName,
             entryPoint: landingPageName,
             componentsDirPath: constants.APP_FOLDERS.WEB_COMPONENTS,
-            repository: `https://github.com/${constants.ORG_NAME}/${appName}.git`
+            repository: `https://github.com/${process.env.ORGANISATION_NAME}/${appName}.git`
         }
         await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate, null, 4));
         let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, landingPageName);
@@ -35,7 +44,7 @@ async function CodeManager() {
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.html`), constants.HTML_TEMPLATE);
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.css`), "");
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.js`), constants.PRESENTER_TEMPLATE);
-        await git.createAndPublishRepo(appName, appPath, constants.ORG_NAME, "", false);
+        await git.createAndPublishRepo(appName, appPath, "", false);
         return appName;
     }
     self.deleteApp = async function (appName) {
@@ -44,7 +53,7 @@ async function CodeManager() {
         if (app) {
             throw new Error(`Trying to delete default app ${appName}. This operation is not permitted!`);
         }
-        await git.deleteAppRepo(constants.ORG_NAME, appName);
+        await git.deleteAppRepo(appName);
     }
 
     self.getApps = async function(){
@@ -61,7 +70,7 @@ async function CodeManager() {
         return apps;
     }
     self.getComponent = async function (appName, componentName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         try {
             await fsPromises.access(componentPath);
         }catch (e){
@@ -73,16 +82,16 @@ async function CodeManager() {
         return {html, css, js};
     }
     self.saveComponent = async function (appName, componentName, html, css, js, newName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         if(newName){
-            let newHTMLPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.html`);
-            let newCSSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.css`);
-            let newJSPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.js`);
+            let newHTMLPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.html`);
+            let newCSSPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.css`);
+            let newJSPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName, `${newName}.js`);
             await fsPromises.rename(path.join(componentPath, `${componentName}.html`), newHTMLPath);
             await fsPromises.rename(path.join(componentPath, `${componentName}.css`), newCSSPath);
             await fsPromises.rename(path.join(componentPath, `${componentName}.js`), newJSPath);
             //rename dir
-            let newComponentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, newName);
+            let newComponentPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, newName);
             await fsPromises.rename(componentPath, newComponentPath);
             componentPath = newComponentPath;
             componentName = newName;
@@ -97,7 +106,7 @@ async function CodeManager() {
         await fsPromises.writeFile(path.join(componentPath, `${componentName}.js`), js);
     }
     self.deleteComponent = async function (appName, componentName) {
-        let componentPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
+        let componentPath = path.join(getAppPath(appName), constants.APP_FOLDERS.WEB_COMPONENTS, componentName);
         await fsPromises.rm(componentPath, {recursive: true});
         //TODO delete ref from chatScript also
     };
@@ -121,7 +130,7 @@ async function CodeManager() {
         return components;
     }
     async function listAppItems(appName, itemType){
-        let itemTypePath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, itemType);
+        let itemTypePath = path.join(getAppPath(appName), itemType);
         let items = [];
         try {
             await fsPromises.access(itemTypePath);
@@ -131,8 +140,14 @@ async function CodeManager() {
         }
         let names = await fsPromises.readdir(itemTypePath);
         for(let name of names){
-            if(name.endsWith(".js") || name.endsWith(".json")){
+            if(name.endsWith(".js")){
                 name = name.slice(0, -3);
+            }
+            if(name.endsWith(".json")){
+                name = name.slice(0, -5);
+            }
+            if(name.endsWith(".css")){
+                name = name.slice(0, -4);
             }
             items.push(name);
         }
@@ -147,8 +162,33 @@ async function CodeManager() {
     self.listDocumentPluginsForApp = async function(appName){
         return await listAppItems(appName, constants.APP_FOLDERS.DOCUMENT_PLUGINS);
     }
+    self.listThemesForApp = async function(appName){
+        return await listAppItems(appName, constants.APP_FOLDERS.THEMES);
+    }
+    self.getTheme = async function(appName, themeName){
+        let themePath = path.join(getAppPath(appName), constants.APP_FOLDERS.THEMES, `${themeName}.css`);
+        try {
+            await fsPromises.access(themePath);
+        }catch (e){
+            throw new Error(`Theme ${themeName} not found`);
+        }
+        return await fsPromises.readFile(themePath, "utf8");
+    }
+    self.saveTheme = async function(appName, themeName, content, newName){
+        let themePath = path.join(getAppPath(appName), constants.APP_FOLDERS.THEMES, `${themeName}.css`);
+        if(newName){
+            let newThemePath = path.join(getAppPath(appName), constants.APP_FOLDERS.THEMES, `${newName}.css`);
+            await fsPromises.rename(themePath, newThemePath);
+            themePath = newThemePath;
+        }
+        await fsPromises.writeFile(themePath, content);
+    }
+    self.deleteTheme = async function(appName, themeName){
+        let themePath = path.join(getAppPath(appName), constants.APP_FOLDERS.THEMES, `${themeName}.css`);
+        await fsPromises.rm(themePath);
+    }
     self.getBackendPlugin = async function(appName, pluginName){
-        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
+        let pluginPath = path.join(getAppPath(appName), appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         try {
             await fsPromises.access(pluginPath);
         }catch (e){
@@ -158,25 +198,25 @@ async function CodeManager() {
 
     }
     self.saveBackendPlugin = async function(appName, pluginName, content, newName){
-        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
+        let pluginPath = path.join(getAppPath(appName), constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         if(newName){
-            let newPluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${newName}.js`);
+            let newPluginPath = path.join(getAppPath(appName), constants.APP_FOLDERS.BACKEND_PLUGINS, `${newName}.js`);
             await fsPromises.rename(pluginPath, newPluginPath);
             pluginPath = newPluginPath;
         }
         await fsPromises.writeFile(pluginPath, content);
     }
     self.deleteBackendPlugin = async function(appName, pluginName){
-        let pluginPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
+        let pluginPath = path.join(getAppPath(appName), constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         await fsPromises.rm(pluginPath);
     }
     self.getAppRepoStatus = async function(appName){
-        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        let appPath = getAppPath(appName);
         let status = await git.getRepoStatus(appPath);
         return status;
     }
     self.commitAndPush = async function(appName, commitMessage){
-        let appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
+        let appPath = getAppPath(appName);
         let status = await git.commitAndPush(appPath, commitMessage);
         return status;
     }

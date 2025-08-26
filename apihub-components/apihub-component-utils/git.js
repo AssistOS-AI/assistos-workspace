@@ -4,7 +4,6 @@ const execAsync = util.promisify(exec);
 const fs = require("fs");
 const fsPromises = require("fs").promises;
 const path = require("path");
-const https = require('https');
 const { URL } = require('url');
 
 async function checkGitHubRepoVisibility(repoUrl) {
@@ -166,15 +165,14 @@ async function uninstallDependencies(dependencies) {
  * Creates a local Git repository, publishes it to GitHub, and pushes the initial commit.
  * @param {string} repoName - The name of the repository.
  * @param {string} localPath - The local path where the repository will be created.
- * @param {string} [owner] - The name of the GitHub organization. If not provided, the repository will be created for the authenticated user.
  * @param {string} [description=''] - A short description of the repository.
  * @param {boolean} [isPrivate=false] - Whether the repository should be private.
  * @returns {Promise<{localPath: string, remoteUrl: string}>} - An object containing the local path and the remote URL of the created repository.
  */
-async function createAndPublishRepo(repoName, localPath, owner, description = '', isPrivate = false) {
+async function createAndPublishRepo(repoName, localPath, description = '', isPrivate = false) {
     const GITHUB_API_BASE_URL = 'api.github.com';
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
-
+    let owner = process.env.ORGANISATION_NAME;
     if (!GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set.");
     }
@@ -253,11 +251,11 @@ async function commitAndPush(repoPath, commitMessage) {
 
 /**
  * Deletes a repository from both the remote (GitHub) and the local filesystem.
- * @param {string} owner - The username or organization name that owns the repository.
  * @param {string} appName - The name of the repository to delete.
  * @returns {Promise<void>}
  */
-async function deleteAppRepo(owner, appName) {
+async function deleteAppRepo(appName) {
+    let owner = process.env.ORGANISATION_NAME;
     const appPath = path.join(process.env.SERVERLESS_ROOT_FOLDER, "applications", appName);
     try {
         await fsPromises.access(appPath);

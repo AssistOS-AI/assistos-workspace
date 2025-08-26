@@ -4,7 +4,6 @@ const authSettings = [
     "newAndExistingSpaceMembers"
 ]
 const WEB_ASSISTANT_ALIAS = "webAssistant";
-const crypto = require("crypto");
 async function WebAssistant() {
     const self = {};
     const persistence = $$.loadPlugin("DefaultPersistence");
@@ -14,32 +13,19 @@ async function WebAssistant() {
             header: "string",
             footer: "string",
             agentName: "string",
-            themeId: "string",
             authentication: "string",
-        },
-        theme: {
-            name: "string",
-            description: "string",
-            css: "any",
-            variables: "object"
         }
     })
     await persistence.createIndex("webAssistant", "alias");
-    await persistence.createIndex("theme", "name");
 
-    self.createWebAssistant = async function (config){
-        for (const theme of config.themes) {
-            await persistence.createTheme(theme);
-        }
-        await persistence.createWebAssistant(
-            {
+    self.createWebAssistant = async function (){
+        await persistence.createWebAssistant({
                 alias: WEB_ASSISTANT_ALIAS,
                 header: "",
                 footer: "",
                 agentName: "Assistant",
-                themeId: "",
                 authentication: "existingSpaceMembers",
-            })
+        });
     }
 
     self.getWebAssistant = async function () {
@@ -60,32 +46,6 @@ async function WebAssistant() {
         const webAssistant = await self.getWebAssistant();
         return webAssistant.authentication;
     }
-
-    self.getThemes = async function () {
-        return await persistence.getEveryThemeObject();
-    };
-
-    self.getTheme = async function (themeId) {
-        return await persistence.getTheme(themeId);
-    };
-
-    self.addTheme = async function (theme) {
-        return await persistence.createTheme(theme);
-    };
-
-    self.updateTheme = async function (themeId, theme) {
-        await persistence.setNameForTheme(themeId, theme.name);
-        return await persistence.updateTheme(themeId, theme);
-    };
-
-    self.deleteTheme = async function (themeId) {
-        await persistence.deleteTheme(themeId);
-        const settings = await self.getSettings();
-        if (settings.themeId === themeId) {
-            settings.themeId = "";
-            await self.updateSettings(settings);
-        }
-    };
 
     self.getPublicMethods = function () {
         return [

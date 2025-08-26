@@ -119,8 +119,7 @@ async function createSpace(request, response, server) {
         let workspaceUser = await getAPIClient(request, constants.WORKSPACE_USER_PLUGIN, space.id);
         await workspaceClient.createWorkspace(space.name, request.userId, space.id, email);
         let webAssistantClient = await getAPIClient(request, constants.WEB_ASSISTANT_PLUGIN, space.id);
-        let webAssistantDefaults = await fsPromises.readFile(path.join(__dirname, "defaults", "webAssistantDefaults.json"), "utf-8");
-        await webAssistantClient.createWebAssistant(JSON.parse(webAssistantDefaults));
+        await webAssistantClient.createWebAssistant();
 
         await workspaceUser.createUser(email, email, "admin");
 

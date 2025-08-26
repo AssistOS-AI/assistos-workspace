@@ -13,10 +13,10 @@ export class TemplatePresenter {
     }
 }`,
     HTML_TEMPLATE : `<div>Your app code here</div>`,
-    ORG_NAME: "AssistOS-AI",
     APP_FOLDERS : {
         WEB_COMPONENTS: "web-components",
         BACKEND_PLUGINS: "backend-plugins",
-        DOCUMENT_PLUGINS: "document-plugins"
+        DOCUMENT_PLUGINS: "document-plugins",
+        THEMES: "themes"
     }
 }
