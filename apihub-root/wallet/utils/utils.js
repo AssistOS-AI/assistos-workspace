@@ -1,4 +1,4 @@
-const crypto = require("opendsu").loadAPI("crypto");
+import { encode as encodeBase58 } from './base58.js';
 
 export function getCookieValue(cookieName) {
     const name = cookieName + "=";
@@ -92,12 +92,21 @@ export function unescapeHtmlEntities(value) {
     return tempElement.value;
 }
 export function generateId(length = 16) {
-    let random = crypto.getRandomSecret(length);
-    let randomStringId = "";
+    // Generate random bytes using Web Crypto API
+    const randomBytes = new Uint8Array(length);
+    crypto.getRandomValues(randomBytes);
+    
+    // Encode to base58 and ensure we get the desired length
+    let randomStringId = encodeBase58(randomBytes);
+    
+    // If the encoded string is shorter than desired, generate more random bytes
     while (randomStringId.length < length) {
-        randomStringId = crypto.encodeBase58(random).slice(0, length);
+        const moreBytes = new Uint8Array(length);
+        crypto.getRandomValues(moreBytes);
+        randomStringId = encodeBase58(moreBytes);
     }
-    return randomStringId;
+    
+    return randomStringId.slice(0, length);
 }
 export function formatTimeAgo(timestamp) {
     const now = Date.now();
