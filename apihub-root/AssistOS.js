@@ -1,6 +1,7 @@
 import WebSkel from "../WebSkel/webSkel.js";
 import { initialiseApplication, navigateToLocation } from "./wallet/utils/appUtils.js"
 import { loadModule } from "./wallet/bundles/assistos-sdk.mjs";
+const assistosSDKLoadModule = loadModule;
 document.querySelector('#default-loader-markup').showModal();
 let currentTheme = localStorage.getItem('theme');
 const htmlElement = document.getElementsByTagName('html')[0];
@@ -273,7 +274,7 @@ class AssistOS {
             userId: assistOS.user.id,
             email: assistOS.user.email,
         }
-        return loadModule(moduleName, securityContext);
+        return assistosSDKLoadModule(moduleName, securityContext);
     }
 
     showToast(message, type, timeout = 1500) {

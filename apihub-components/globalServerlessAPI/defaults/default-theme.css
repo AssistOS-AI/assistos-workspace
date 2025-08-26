@@ -1,0 +1,58 @@
+/* Theme Name: default */
+
+:root {
+    /* Colors */
+    --primary: #0088cc;
+    --primary-hover: #0077b3;
+    --accent: #646464;
+    --accent-hover: #505050;
+    --background: #ffffff;
+    --background-secondary: #f5f5f5;
+    --text-primary: #222222;
+    --text-secondary: #646464;
+    --text-on-primary: #ffffff;
+    --text-on-accent: #ffffff;
+    --border: #efefef;
+    --border-input: #bdbdbd;
+    --success: #28a745;
+    --danger: #c80001;
+    --warning: #ffa726;
+    --info: #0088cc;
+    --disabled-bg: #ededed;
+    --disabled-text: #cccccc;
+
+    /* Typography */
+    --font-family-base: "Inter", sans-serif;
+    --font-family-heading: "Inter", sans-serif;
+    --font-size-base: 16px;
+    --font-size-h1: 28px;
+    --font-size-h2: 24px;
+    --font-size-h3: 20px;
+    --font-weight-light: 300;
+    --font-weight-normal: 400;
+    --font-weight-bold: 700;
+    --line-height-base: 1.5;
+
+    /* Spacing */
+    --padding-base: 1rem;
+    --padding-sm: 0.5rem;
+    --padding-lg: 1.5rem;
+    --margin-base: 1rem;
+    --gap: 1rem;
+
+    /* Borders */
+    --border-radius-base: 5px;
+    --border-radius-sm: 3px;
+    --border-radius-lg: 10px;
+    --border-width-base: 1px;
+
+    /* Layout */
+    --container-max-width: 1200px;
+    --sidebar-width: 270px;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+

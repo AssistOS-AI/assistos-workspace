@@ -36,7 +36,8 @@ async function CodeManager() {
             applicationName: appName,
             entryPoint: landingPageName,
             componentsDirPath: constants.APP_FOLDERS.WEB_COMPONENTS,
-            repository: `https://github.com/${process.env.ORGANISATION_NAME}/${appName}.git`
+            repository: `https://github.com/${process.env.ORGANISATION_NAME}/${appName}.git`,
+            theme: "default-theme"
         }
         await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate, null, 4));
         let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, landingPageName);
@@ -44,6 +45,8 @@ async function CodeManager() {
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.html`), constants.HTML_TEMPLATE);
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.css`), "");
         await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.js`), constants.PRESENTER_TEMPLATE);
+        let defaultThemePath = `../../globalServerlessAPI/defaults/default-theme.css`;
+        await fsPromises.copyFile(path.join(__dirname, defaultThemePath), path.join(appPath, constants.APP_FOLDERS.THEMES, "default-theme.css"));
         await git.createAndPublishRepo(appName, appPath, "", false);
         return appName;
     }
@@ -187,6 +190,19 @@ async function CodeManager() {
         let themePath = path.join(getAppPath(appName), constants.APP_FOLDERS.THEMES, `${themeName}.css`);
         await fsPromises.rm(themePath);
     }
+    self.updateAppManifest = async function(appName, manifestData) {
+        const appPath = getAppPath(appName);
+        const manifestPath = path.join(appPath, "manifest.json");
+        let manifest = {};
+        try {
+            const manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
+            manifest = JSON.parse(manifestContent);
+        } catch (e) {
+            throw new Error(`Could not read manifest for ${appName}: ${e.message}`);
+        }
+        Object.assign(manifest, manifestData);
+        await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 4));
+    }
     self.getBackendPlugin = async function(appName, pluginName){
         let pluginPath = path.join(getAppPath(appName), appName, constants.APP_FOLDERS.BACKEND_PLUGINS, `${pluginName}.js`);
         try {
@@ -218,6 +234,11 @@ async function CodeManager() {
     self.commitAndPush = async function(appName, commitMessage){
         let appPath = getAppPath(appName);
         let status = await git.commitAndPush(appPath, commitMessage);
+        return status;
+    }
+    self.pullApp = async function(appName){
+        let appPath = getAppPath(appName);
+        let status = await git.pull(appPath);
         return status;
     }
     self.getPublicMethods = function () {

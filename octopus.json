@@ -2,29 +2,6 @@
     "workDir": ".",
     "dependencies": [
         {
-            "name": "lint-report",
-            "src": "https://github.com/Axiologic/lint-check.git",
-            "actions": [
-                {
-                    "type": "smartClone",
-                    "target": "./__tmp_lint_check__",
-                    "collectLog": false
-                },
-                {
-                    "type": "copy",
-                    "src": "./__tmp_lint_check__/lint-report/reports/index.html",
-                    "target": "./eslint-report.html",
-                    "options": {
-                        "overwrite": true
-                    }
-                },
-                {
-                    "type": "remove",
-                    "target": "./__tmp_lint_check__"
-                }
-            ]
-        },
-        {
             "name": "Gatekeeper",
             "src": "https://github.com/OpenDSU/Gatekeeper.git",
             "actions": [
@@ -149,6 +126,14 @@
                     "type": "copy",
                     "src": "./assistos-sdk/dist/assistos-sdk.umd.js",
                     "target": "./apihub-root/wallet/bundles/assistos-sdk.umd.js",
+                    "options": {
+                        "overwrite": true
+                    }
+                },
+                {
+                    "type": "copy",
+                    "src": "./assistos-sdk/dist/assistos-sdk.mjs",
+                    "target": "./apihub-root/wallet/bundles/assistos-sdk.mjs",
                     "options": {
                         "overwrite": true
                     }

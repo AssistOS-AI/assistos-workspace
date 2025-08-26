@@ -250,6 +250,22 @@ async function commitAndPush(repoPath, commitMessage) {
 }
 
 /**
+ * Pulls the latest changes from the remote repository.
+ * @param {string} repoPath - The local path of the Git repository.
+ * @returns {Promise<{stdout: string}>} - The stdout from the pull command.
+ */
+async function pull(repoPath) {
+    try {
+        await fsPromises.access(path.join(repoPath, '.git'));
+    } catch (e) {
+        throw new Error("The specified path is not a Git repository.");
+    }
+
+    const { stdout } = await execAsync(`git pull`, { cwd: repoPath });
+    return { stdout };
+}
+
+/**
  * Deletes a repository from both the remote (GitHub) and the local filesystem.
  * @param {string} appName - The name of the repository to delete.
  * @returns {Promise<void>}
@@ -370,5 +386,6 @@ module.exports = {
     createAndPublishRepo,
     commitAndPush,
     deleteAppRepo,
-    getRepoStatus
+    getRepoStatus,
+    pull
 };
