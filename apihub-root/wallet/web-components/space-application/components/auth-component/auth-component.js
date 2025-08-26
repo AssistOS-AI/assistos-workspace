@@ -1,7 +1,7 @@
 /* AuthComponent.js – cleaned-up, syntax-valid */
 
-let userModule  = require("assistos").loadModule("user",  { userId: "*" });
-let spaceModule = require("assistos").loadModule("space", { userId: "*" });
+let userModule = AssistOS.loadModule("user", { userId: "*" });
+let spaceModule = AssistOS.loadModule("space", { userId: "*" });
 
 import { passKeyLogin } from "./passkeyUtils.js";
 
@@ -20,25 +20,25 @@ async function checkPasskeyAvailability() {
 
 export class AuthComponent {
     constructor(element, invalidate) {
-        this.element         = element
-        this.invalidate      = invalidate
-        this.authMethods     = this.element.variables["auth-methods"].split(",")
-        this.referer         = assistOS.UI.getURLParams().ref
-        this.auth_step       = this.element.variables["page-mode"] || sessionStorage.getItem("auth_step") || "login"
+        this.element = element
+        this.invalidate = invalidate
+        this.authMethods = this.element.variables["auth-methods"].split(",")
+        this.referer = assistOS.UI.getURLParams().ref
+        this.auth_step = this.element.variables["page-mode"] || sessionStorage.getItem("auth_step") || "login"
         this.email_code_auth = ""
-        this.passkey_auth    = ""
-        this.totp_auth       = ""
+        this.passkey_auth = ""
+        this.totp_auth = ""
         this.selected_method = this.authMethods.includes("passkey") ? "passkey" : this.authMethods[0]
         this.invalidate()
     }
 
-    beforeRender() {}
+    beforeRender() { }
 
     async afterRender() {
-        const emailInput      = this.element.querySelector(".email_input")
-        const submitEmailBtn  = this.element.querySelector(".submit_email_button")
-        const codeInput       = this.element.querySelector(".code_input")
-        const submitCodeBtn   = this.element.querySelector(".submit_code_button")
+        const emailInput = this.element.querySelector(".email_input")
+        const submitEmailBtn = this.element.querySelector(".submit_email_button")
+        const codeInput = this.element.querySelector(".code_input")
+        const submitCodeBtn = this.element.querySelector(".submit_code_button")
 
         emailInput.addEventListener("input", e => {
             const ok = isValidEmail(e.target.value)
@@ -114,7 +114,7 @@ export class AuthComponent {
         this.element.querySelector(".actions_container").innerHTML = `
             <button class="submit_auth_method_button auth-button" data-local-action="submitLoginMethod">Log&nbsp;In</button>
             <button class="cancel_auth_method_button auth-button gray-background" data-local-action="changeAuthType" auth-type="login">Cancel</button>`;
-        if(!this.passkey_auth){
+        if (!this.passkey_auth) {
             this.selected_method = "emailCode";
         }
         this.addAuthMethodsListeners()
@@ -208,7 +208,7 @@ export class AuthComponent {
         c.removeAttribute("selected-auth")
 
         const submitBtn = this.element.querySelector(".email_wrapper .input_container .submit_email_button")
-        const emailIn  = this.element.querySelector(".email_wrapper .input_container .email_input")
+        const emailIn = this.element.querySelector(".email_wrapper .input_container .email_input")
         submitBtn.style.display = "block"
         emailIn.readOnly = false
         submitBtn.textContent = "Next"

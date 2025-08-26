@@ -25,7 +25,7 @@ export class ChatRoom {
         this.userEmail = this.element.getAttribute('data-user-email');
         let availableComponents = await chatModule.getComponentsForChatRoomInstance(this.spaceId, this.chatId);
         this.availableComponents = "";
-        for(let component of availableComponents){
+        for (let component of availableComponents) {
             this.availableComponents += `<list-item data-local-action="openContextPage ${component.componentName} ${component.appName || ""}" data-name="${component.name}" data-highlight="light-highlight"></list-item>`;
         }
         try {
@@ -53,17 +53,17 @@ export class ChatRoom {
     }
 
     async afterRender() {
-        const constants = require("assistos").constants;
+        const constants = AssistOS.constants;
         const client = await chatModule.getClient(constants.CHAT_ROOM_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
         observableResponse.onProgress(async (reply) => {
-            if(reply.from === "User") {
+            if (reply.from === "User") {
                 this.chatHistory.push(reply);
                 await this.displayUserReply(reply.truid, assistOS.user.email);
                 return;
             }
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
-            if(existingReply) {
+            if (existingReply) {
                 let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
                 chatItem.webSkelPresenter.updateReply(reply.message);
                 return;
@@ -109,7 +109,7 @@ export class ChatRoom {
             event.preventDefault();
             if (!event.ctrlKey) {
                 await this.chatInputUser(form);
-                this.userInput.scrollIntoView({behavior: "smooth", block: "end"});
+                this.userInput.scrollIntoView({ behavior: "smooth", block: "end" });
             } else {
                 this.userInput.value += '\n';
                 this.userInput.style.height = `${this.userInput.scrollHeight}px`;
@@ -272,7 +272,7 @@ export class ChatRoom {
                     const eventName = line.replace("event:", "").trim();
                     lines.shift();
                     const eventData = lines.shift().replace("data:", "").trim();
-                    handleStreamEvent({type: eventName, data: eventData}, responseContainerLocation);
+                    handleStreamEvent({ type: eventName, data: eventData }, responseContainerLocation);
                 } else if (line.startsWith("data:")) {
                     const eventData = line.replace("data:", "").trim();
                     handleStreamEvent({ type: "message", data: eventData }, responseContainerLocation);
@@ -315,9 +315,9 @@ export class ChatRoom {
             _target.setAttribute("data-local-action", "showSettings on");
         }
     }
-    async loadChat(){
-        let chatId = await assistOS.UI.showModal("select-chat", {"chat-id": this.chatId}, true);
-        if(chatId){
+    async loadChat() {
+        let chatId = await assistOS.UI.showModal("select-chat", { "chat-id": this.chatId }, true);
+        if (chatId) {
             await this.openChat("", chatId);
         }
     }

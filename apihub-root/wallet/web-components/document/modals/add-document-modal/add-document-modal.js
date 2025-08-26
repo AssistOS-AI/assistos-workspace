@@ -1,8 +1,8 @@
 const documentModule = assistOS.loadModule("document");
-let constants = require("assistos").constants;
+let constants = AssistOS.constants;
 const spaceModule = assistOS.loadModule("space");
 
-import {generateId} from "./../../../../imports.js";
+import { generateId } from "./../../../../imports.js";
 export class AddDocumentModal {
     constructor(element, invalidate) {
         this.invalidate = invalidate;
@@ -49,13 +49,13 @@ export class AddDocumentModal {
         assistOS.UI.createElement("custom-select", ".select-container-modal", {
             options: documentTypesOptions,
         },
-        {
-            "data-name": "type",
-            "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
-        })
+            {
+                "data-name": "type",
+                "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
+            })
         assistOS.UI.createElement("custom-select", ".category-file-upload", {
-                options: documentTypesOptions,
-            },
+            options: documentTypesOptions,
+        },
             {
                 "data-name": "type",
                 "data-selected": constants.DOCUMENT_CATEGORIES.DOCUMENT,
@@ -104,7 +104,7 @@ export class AddDocumentModal {
         if (fileItem) {
             fileItem.remove();
         }
-        if(this.files.length === 0) {
+        if (this.files.length === 0) {
             let uploadedFiles = this.element.querySelector('.uploaded-files');
             uploadedFiles.innerHTML = `<div class="no-files">No files uploaded</div>`;
             this.uploadButton.classList.add('disabled');
@@ -140,7 +140,7 @@ export class AddDocumentModal {
 
     async uploadFiles(_target) {
         const files = this.files;
-        
+
         if (files.length === 0) {
             assistOS.showToast('Please select at least one file', "error", 3000);
             return;
@@ -151,7 +151,7 @@ export class AddDocumentModal {
         const originalButtonText = uploadButton.textContent;
         uploadButton.innerHTML = '<div class="loading-icon small"></div>';
         uploadButton.disabled = true;
-        
+
         // Show processing toast
         assistOS.showToast('Uploading document, please wait...', "info", 60000);
 
@@ -170,14 +170,14 @@ export class AddDocumentModal {
                     const textContent = jsonData.text_content;
                     const images = jsonData.images || [];
                     const imageInfo = jsonData.image_info || [];
-                    console.log(`Conversion completed in ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
+                    console.log(`Conversion completed in ${((performance.now() - startConversion) / 1000).toFixed(2)}s`);
                     console.log(`Found ${images.length} images in the document`);
                     console.log('Image names from JSON:', images);
                     console.log('Image info from JSON:', imageInfo);
 
                     // Create a map to store uploaded image IDs
                     const imageMap = new Map();
-                    
+
                     // Upload images if any
                     if (images.length > 0) {
                         console.log('Uploading images...');
@@ -191,31 +191,31 @@ export class AddDocumentModal {
                             console.warn('Could not load assistOS-configs.json:', configError);
                             assistOSConfigs = {};
                         }
-                        
+
                         if (!assistOSConfigs.docsConverterUrl) {
                             throw new Error('docsConverterUrl not found in assistOS-configs.json');
                         }
-                        
+
                         const docsConverterUrl = assistOSConfigs.docsConverterUrl;
                         console.log('Using docs converter URL:', docsConverterUrl);
-                        
+
                         for (const imageName of images) {
                             try {
                                 // Fetch the image from the docs converter service
                                 const imageUrl = `${docsConverterUrl}/images/${imageName}`;
                                 console.log(`Fetching image from: ${imageUrl}`);
-                                
+
                                 const imageResponse = await fetch(imageUrl);
                                 if (!imageResponse.ok) {
                                     console.error(`Failed to fetch image ${imageName}: ${imageResponse.status} ${imageResponse.statusText}`);
                                     continue;
                                 }
-                                
+
                                 // Get the image as a blob
                                 const imageBlob = await imageResponse.blob();
                                 const imageArrayBuffer = await imageBlob.arrayBuffer();
                                 const imageBuffer = new Uint8Array(imageArrayBuffer);
-                                
+
                                 // Upload the image to AssistOS
                                 const imageId = await spaceModule.putImage(imageBuffer);
                                 imageMap.set(imageName, imageId);
@@ -234,7 +234,7 @@ export class AddDocumentModal {
                     let documentObj = await documentModule.addDocument(assistOS.space.id, title, constants.DOCUMENT_CATEGORIES.DOCUMENT, docInfo);
                     let docId = documentObj.id;
                     lastCreatedDocId = docId;
-                    console.log(`Document created in ${((performance.now() - startDoc)/1000).toFixed(2)}s`);
+                    console.log(`Document created in ${((performance.now() - startDoc) / 1000).toFixed(2)}s`);
 
                     // Add chapters and paragraphs
                     console.log(`Adding ${textContent.chapters.length} chapters...`);
@@ -242,7 +242,7 @@ export class AddDocumentModal {
                     for (const [index, chapter] of textContent.chapters.entries()) {
                         const chapterTitle = Object.keys(chapter)[0];
                         const chapterContent = chapter[chapterTitle];
-                        
+
                         // Create chapter
                         console.log(`Creating chapter ${index + 1}/${textContent.chapters.length}: ${chapterTitle}`);
                         const chapterObj = await documentModule.addChapter(assistOS.space.id, docId, chapterTitle);
@@ -286,41 +286,41 @@ export class AddDocumentModal {
                                 // Add regular paragraph without image
                                 await documentModule.addParagraph(assistOS.space.id, chapterId, paragraphText);
                             }
-                            
+
                             if ((pIndex + 1) % 5 === 0) {
                                 console.log(`Progress: ${pIndex + 1}/${chapterContent.length} paragraphs`);
                             }
                         }
                     }
-                    console.log(`All chapters and paragraphs added in ${((performance.now() - startChapters)/1000).toFixed(2)}s`);
-                    console.log(`Total processing time: ${((performance.now() - startConversion)/1000).toFixed(2)}s`);
-                    
+                    console.log(`All chapters and paragraphs added in ${((performance.now() - startChapters) / 1000).toFixed(2)}s`);
+                    console.log(`Total processing time: ${((performance.now() - startConversion) / 1000).toFixed(2)}s`);
+
                     // Remove any existing info toasts
                     document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
-                    
+
                     // Show success toast
-                    assistOS.showToast('Document uploaded successfully!',"success", 3000);
+                    assistOS.showToast('Document uploaded successfully!', "success", 3000);
                 } catch (error) {
                     console.error('Error processing file:', error);
                     // Remove any existing info toasts
                     document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
-                    
+
                     // Close the modal first
                     assistOS.UI.closeModal(_target);
                     // Reset button state
                     uploadButton.innerHTML = originalButtonText;
                     uploadButton.disabled = false;
                     // Show toast error message
-                    assistOS.showToast('Error processing file: ' + error.message,"error",5000);
+                    assistOS.showToast('Error processing file: ' + error.message, "error", 5000);
                     return;
                 }
             }
 
             assistOS.UI.closeModal(_target);
-            
+
             // Add a small delay to ensure modal is fully closed
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             // Only redirect if we successfully created at least one document
             if (lastCreatedDocId) {
                 console.log('Redirecting to the created document...');
@@ -332,7 +332,7 @@ export class AddDocumentModal {
             console.error('Unexpected error:', error);
             // Remove any existing info toasts
             document.querySelectorAll('.timeout-toast.info').forEach(toast => toast.remove());
-            
+
             // Close the modal first
             assistOS.UI.closeModal(_target);
             // Reset button state

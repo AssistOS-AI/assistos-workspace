@@ -17,7 +17,7 @@ class TextToSpeech extends Task {
             const spaceModule = await this.loadModule('space');
             const personalityModule = await this.loadModule('agent');
             const utilModule = await this.loadModule('util');
-            const constants = require("assistos").constants;
+            const constants = AssistOS.constants;
             const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
             paragraph.commands["speech"].personality = utilModule.unsanitize(paragraph.commands["speech"].personality);
             await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "speech").VALIDATE(this.spaceId, paragraph, this.securityContext);
@@ -41,7 +41,7 @@ class TextToSpeech extends Task {
                 duration: audioDuration,
                 volume: 100
             };
-            if(paragraphCommands.compileVideo){
+            if (paragraphCommands.compileVideo) {
                 delete paragraphCommands.compileVideo;
             }
             await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);
@@ -89,7 +89,7 @@ class TextToSpeech extends Task {
     }
     async getRelevantInfo() {
         let info = {}
-        if(this.status === STATUS.FAILED){
+        if (this.status === STATUS.FAILED) {
             info.failMessage = this.failMessage;
         }
         return info;

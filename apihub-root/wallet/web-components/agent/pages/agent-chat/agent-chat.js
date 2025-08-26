@@ -1,5 +1,5 @@
-const llmModule = require("assistos").loadModule("llm", {});
-const agentModule= require("assistos").loadModule("agent",{});
+const llmModule = AssistOS.loadModule("llm", {});
+const agentModule = AssistOS.loadModule("agent", {});
 
 export class AgentChat {
     constructor(element, invalidate) {
@@ -9,17 +9,17 @@ export class AgentChat {
         this.agent = this.agentPagePresenter.agent;
         this.invalidate();
     }
-    async beforeRender(){
-        let availableLlms = await llmModule.getModels({spaceId:assistOS.space.id});
+    async beforeRender() {
+        let availableLlms = await llmModule.getModels({ spaceId: assistOS.space.id });
 
         const chatModels = availableLlms.reduce((acc, llm) => {
-            if(llm.type === "chat"){
+            if (llm.type === "chat") {
                 acc.push(llm);
             }
             return acc;
-        },[])
+        }, [])
         this.chatLLMSection = this.agentPagePresenter.generateLlmSelectHtml(chatModels, "chat");
-        this.contextSize = this.agent.contextSize||3;
+        this.contextSize = this.agent.contextSize || 3;
         const iFrameURL = `${window.location.origin}/iframes/chat?spaceId=${assistOS.space.id}&agentId=${this.agent.id}`
         // this.chatIframe = `
         //                 <iframe
@@ -32,12 +32,12 @@ export class AgentChat {
         this.chatPrompt = this.agent.chatPrompt;
 
     }
-    afterRender(){
+    afterRender() {
         let saveInputs = ["chatPrompt", "contextSize"];
-        for(let input of saveInputs){
+        for (let input of saveInputs) {
             let inputElement = this.element.querySelector(`#${input}`);
             inputElement.addEventListener("input", (event) => {
-                if(input === "contextSize"){
+                if (input === "contextSize") {
                     this.agent[input] = parseInt(event.target.value || "0");
                 } else {
                     this.agent[input] = event.target.value;

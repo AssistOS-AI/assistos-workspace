@@ -25,12 +25,12 @@ class LipSync extends Task {
                 const documentModule = await this.loadModule('document');
                 const utilModule = await this.loadModule('util');
                 const spaceModule = await this.loadModule('space');
-                const constants = require("assistos").constants;
+                const constants = AssistOS.constants;
                 const paragraph = await documentModule.getParagraph(this.spaceId, this.documentId, this.paragraphId);
 
-                try{
+                try {
                     await constants.COMMANDS_CONFIG.COMMANDS.find(command => command.NAME === "lipsync").VALIDATE(this.spaceId, paragraph, this.securityContext);
-                }catch(error){
+                } catch (error) {
                     return this.rejectTask("Paragraph Must have a speech command before adding lip sync");
                 }
                 let taskId = paragraph.speech?.taskId;
@@ -57,7 +57,7 @@ class LipSync extends Task {
         this.timeout = setTimeout(async () => {
             this.rejectTask(new Error("Task took too long to complete"));
         }, 60000 * 10);
-        if(!paragraphCommands.audio){
+        if (!paragraphCommands.audio) {
             return this.rejectTask(new Error("Audio File is missing"));
         }
         if (paragraphCommands.video) {
@@ -73,7 +73,7 @@ class LipSync extends Task {
         clearTimeout(this.timeout);
         delete this.timeout;
         const spaceModule = await this.loadModule('space');
-        const documentModule =  await this.loadModule('document');
+        const documentModule = await this.loadModule('document');
 
         const tempFileId = crypto.generateId();
         const tempFilePath = path.join(volumeManager.paths.assets, Storage.fileTypes.videos, tempFileId);
@@ -87,9 +87,9 @@ class LipSync extends Task {
 
         const paragraphCommands = await documentModule.getParagraphCommands(this.spaceId, this.documentId, this.paragraphId);
         //save source id in lipsync command
-        if(paragraphCommands.video){
+        if (paragraphCommands.video) {
             paragraphCommands.lipsync.videoId = paragraphCommands.video.id;
-        } else if(paragraphCommands.image){
+        } else if (paragraphCommands.image) {
             paragraphCommands.lipsync.imageId = paragraphCommands.image.id;
         }
         paragraphCommands.video = {
@@ -101,7 +101,7 @@ class LipSync extends Task {
             volume: 100
         };
         delete paragraphCommands.lipsync.taskId;
-        if(paragraphCommands.compileVideo){
+        if (paragraphCommands.compileVideo) {
             delete paragraphCommands.compileVideo;
         }
         await documentModule.updateParagraphCommands(this.spaceId, this.documentId, this.paragraphId, paragraphCommands);

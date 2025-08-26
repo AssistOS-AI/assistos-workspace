@@ -1,4 +1,4 @@
-const llmModule = require("assistos").loadModule("llm", {});
+const llmModule = AssistOS.loadModule("llm", {});
 
 export class AgentAudio {
     constructor(element, invalidate) {
@@ -6,11 +6,11 @@ export class AgentAudio {
         this.invalidate = invalidate;
         this.agentPagePresenter = this.element.closest("edit-agent-page").webSkelPresenter;
         this.agent = this.agentPagePresenter.agent;
-        this.invalidate(async ()=>{
+        this.invalidate(async () => {
             await this.loadVoices(this.agent.llms["audio"]);
         });
     }
-    async loadVoices(modelName){
+    async loadVoices(modelName) {
         this.voicesErrorMessage = "";
         try {
             this.voices = await llmModule.listVoices(assistOS.space.id, modelName);
@@ -28,7 +28,7 @@ export class AgentAudio {
             this.voicesErrorMessage = error.message;
         }
     }
-    async beforeRender(){
+    async beforeRender() {
         let availableLlms = await llmModule.listLlms(assistOS.space.id);
         this.audioLLMSection = this.agentPagePresenter.generateLlmSelectHtml(availableLlms["audio"], "audio");
         let voicesHTML = "";
@@ -42,13 +42,13 @@ export class AgentAudio {
         }
         this.voicesOptions = voicesHTML;
     }
-    afterRender(){
+    afterRender() {
         let voiceSelect = this.element.querySelector("#voiceId");
         if (this.agent.voiceId && !this.voicesErrorMessage) {
             let audioSource = this.element.querySelector('.audio-source');
             let audioSection = this.element.querySelector(".audio-section");
             let voice = this.voices.find(voice => voice.id === this.agent.voiceId);
-            if(voice){
+            if (voice) {
                 audioSection.classList.remove("hidden");
                 voiceSelect.value = this.agent.voiceId;
                 audioSource.src = voice.sample;
@@ -66,7 +66,7 @@ export class AgentAudio {
             this.agent.llms.audio = e.target.value;
             this.agentPagePresenter.checkSaveButtonState();
         });
-        audioSelect.addEventListener("change", async ()=>{
+        audioSelect.addEventListener("change", async () => {
             this.invalidate(async () => {
                 this.agent.llms["audio"] = audioSelect.value;
                 await this.loadVoices(audioSelect.value);

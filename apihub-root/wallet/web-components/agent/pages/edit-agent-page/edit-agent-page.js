@@ -1,7 +1,7 @@
 const agentModule = assistOS.loadModule("agent");
 const llmModule = assistOS.loadModule("llm");
-const constants = require("assistos").constants;
-import {generateId} from "../../../../imports.js"
+const constants = AssistOS.constants;
+import { generateId } from "../../../../imports.js"
 export class EditAgentPage {
     constructor(element, invalidate) {
         this.element = element;
@@ -12,16 +12,16 @@ export class EditAgentPage {
         if (!this.currentTab) {
             this.currentTab = "agent-description";
         }
-        this.invalidate(async ()=>{
-            this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
+        this.invalidate(async () => {
+            this.agent = await agentModule.getAgent(this.spaceId, this.agentId);
             this.initialAgent = this.agent;
         });
     }
 
     async beforeRender() {
-        this.agent = await agentModule.getAgent(this.spaceId,this.agentId);
+        this.agent = await agentModule.getAgent(this.spaceId, this.agentId);
         this.agentName = this.agent.name;
-        const llms = await llmModule.getModels({spaceId: this.spaceId});
+        const llms = await llmModule.getModels({ spaceId: this.spaceId });
         this.llmTabs = this.getLlmTabsHtml(llms);
         this.deleteAgentButton = `
         <div class="delete-agent" data-local-action="deleteAgent">
@@ -43,7 +43,7 @@ export class EditAgentPage {
         })
         let llmTabsHtml = "";
         Object.keys(llmsByType).forEach(llmType => {
-            llmTabsHtml +=  `<div class="tab" data-local-action="openTab agent-${llmType}">${llmType.slice(0,1).toLocaleUpperCase()+llmType.slice(1)}</div>`
+            llmTabsHtml += `<div class="tab" data-local-action="openTab agent-${llmType}">${llmType.slice(0, 1).toLocaleUpperCase() + llmType.slice(1)}</div>`
         });
         return llmTabsHtml;
     }
@@ -56,7 +56,7 @@ export class EditAgentPage {
 
     async deleteAgent() {
         let message = "Are you sure you want to delete this agent?";
-        let confirmation = await assistOS.UI.showModal("confirm-action-modal", {message}, true);
+        let confirmation = await assistOS.UI.showModal("confirm-action-modal", { message }, true);
         if (!confirmation) {
             return;
         }
@@ -155,7 +155,7 @@ export class EditAgentPage {
         }
     }
 
-    async navigateToAgentsPage(){
+    async navigateToAgentsPage() {
         await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/agents-page`);
     }
 }

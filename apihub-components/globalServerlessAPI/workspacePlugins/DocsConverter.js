@@ -172,7 +172,7 @@ async function DocsConverter() {
         const imageMap = new Map();
         if (images.length > 0) {
             console.log('Uploading images...');
-            const spaceModule = require("assistos").loadModule("space", {});
+            const spaceModule = AssistOS.loadModule("space", {});
 
             for (const imageName of images) {
                 try {
