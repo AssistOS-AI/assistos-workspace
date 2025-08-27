@@ -28,7 +28,7 @@ export class ChatItem {
             if(!actionMessage.action){
                 this.chatMessage = marked.parse(decodeHTML(reply.message));
             } else {
-                this.chatMessage = actionMessage.message;
+                this.chatMessage = marked.parse(decodeHTML(actionMessage.message));
                 this.actionData = actionMessage.action;
             }
         }catch (e) {
@@ -47,7 +47,8 @@ export class ChatItem {
         this.expandToggle = "";
         
         if (this.actionData) {
-            this.actionContent = `<div class="action-content"><pre>${JSON.stringify(this.actionData, null, 2)}</pre></div>`;
+            let encodedData = assistOS.UI.sanitize(JSON.stringify(this.actionData));
+            this.actionContent = `<div class="action-content"><pre>${encodedData}</pre></div>`;
             this.expandToggle = `<div class="expand-toggle" data-local-action="toggleExpand">View More...</div>`;
         }
 

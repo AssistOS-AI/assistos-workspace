@@ -341,9 +341,10 @@ async function getRepoStatus(repoPath) {
 
     const lines = stdout.trim().split('\n').filter(line => line);
 
-    for (const line of lines) {
+    for (let line of lines) {
+        line = line.trim();
         const status = line.substring(0, 2);
-        const filePath = line.substring(3);
+        const filePath = line.substring(2);
 
         if (status.startsWith('R')) {
             const [oldPath, newPath] = filePath.split(' -> ');

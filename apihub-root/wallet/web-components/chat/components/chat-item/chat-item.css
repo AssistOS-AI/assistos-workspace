@@ -177,8 +177,7 @@ chat-item {
 }
 
 .expand-toggle {
-    margin-top: 10px;
-    color: #0066cc;
+    color: var(--strong-blue);
     cursor: pointer;
     font-size: 14px;
 }
