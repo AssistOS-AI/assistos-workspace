@@ -22,7 +22,18 @@ export class ChatItem {
     async beforeRender() {
         let id = this.element.getAttribute("data-id");
         let reply = this.chatPagePresenter.getReply(id);
-        this.chatMessage = marked.parse(decodeHTML(reply.message));
+        this.actionData = null;
+        try {
+            let actionMessage = JSON.parse(decodeHTML(reply.message))
+            if(!actionMessage.action){
+                this.chatMessage = marked.parse(decodeHTML(reply.message));
+            } else {
+                this.chatMessage = actionMessage.message;
+                this.actionData = actionMessage.action;
+            }
+        }catch (e) {
+            this.chatMessage = marked.parse(decodeHTML(reply.message));
+        }
 
         this.ownMessage = this.element.getAttribute("ownMessage");
         this.userEmail = this.element.getAttribute("user-email");
@@ -30,6 +41,15 @@ export class ChatItem {
         this.id = this.element.getAttribute("data-id");
         this.spaceId = this.element.getAttribute("spaceId");
         this.isContext = this.element.getAttribute("isContext");
+        
+        this.isExpanded = false;
+        this.actionContent = "";
+        this.expandToggle = "";
+        
+        if (this.actionData) {
+            this.actionContent = `<div class="action-content"><pre>${JSON.stringify(this.actionData, null, 2)}</pre></div>`;
+            this.expandToggle = `<div class="expand-toggle" data-local-action="toggleExpand">View More...</div>`;
+        }
 
         if (this.ownMessage === "false") {
             this.messageTypeBox = "others-box";
@@ -82,6 +102,23 @@ export class ChatItem {
         delete this.endStreamController;
         this.stopStreamButton.style.display = "none";
         await this.chatPagePresenter.addressEndStream(this.element);
+    }
+    
+    async toggleExpand() {
+        const actionContent = this.element.querySelector(".action-content");
+        const expandToggle = this.element.querySelector(".expand-toggle");
+        
+        if (actionContent && expandToggle) {
+            this.isExpanded = !this.isExpanded;
+            
+            if (this.isExpanded) {
+                actionContent.style.display = "block";
+                expandToggle.textContent = "View Less...";
+            } else {
+                actionContent.style.display = "none";
+                expandToggle.textContent = "View More...";
+            }
+        }
     }
 
     async afterRender() {

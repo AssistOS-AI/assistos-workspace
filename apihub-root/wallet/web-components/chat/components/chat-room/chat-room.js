@@ -53,6 +53,7 @@ export class ChatRoom {
     }
 
     async afterRender() {
+        this.chatPagePresenter = this.element.parentElement.closest("[data-presenter]").webSkelPresenter;
         const constants = AssistOS.constants;
         const client = await chatModule.getClient(constants.CHAT_ROOM_PLUGIN, this.spaceId);
         let observableResponse = chatModule.listenForMessages(this.spaceId, this.chatId, client);
@@ -61,6 +62,9 @@ export class ChatRoom {
                 this.chatHistory.push(reply);
                 await this.displayUserReply(reply.truid, assistOS.user.email);
                 return;
+            }
+            if(this.chatPagePresenter.handleReply){
+                reply = this.chatPagePresenter.handleReply(reply);
             }
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if (existingReply) {
@@ -131,9 +135,14 @@ export class ChatRoom {
             name: this.userEmail
         })
 
-        this.userInput.style.height = "auto"
-        this.form.style.height = "auto"
+        this.userInput.style.height = "auto";
+        this.form.style.height = "auto";
         userMessage = assistOS.UI.unsanitize(userMessage);
+        if(this.chatPagePresenter.getChatUIContext){
+            let UIContext = await this.chatPagePresenter.getChatUIContext();
+            await chatModule.setChatUIContext(this.spaceId, this.chatId, UIContext);
+        }
+
         await chatModule.chatInput(this.spaceId, this.chatId, "User", userMessage, "human");
     }
 

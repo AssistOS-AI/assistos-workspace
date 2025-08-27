@@ -7,7 +7,6 @@ const fsPromises = require('fs').promises;
 const path = require('path');
 const {sendResponse, sendFileToClient} = require("../apihub-component-utils/utils");
 const Storage = require("../apihub-component-utils/storage.js");
-// let assistOSSDK = require('assistos');
 const constants = assistOSSDK.constants;
 
 const getAPIClientSDK = assistOSSDK.utils.getAPIClient;
@@ -154,14 +153,8 @@ async function createDefaultAgent(request, spaceId){
     let chatScriptsPath = path.join(__dirname, "defaults", "chat-scripts");
     let chatScripts = await fsPromises.readdir(chatScriptsPath);
     for(let chatScript of chatScripts){
-
-        let chatScriptData = await fsPromises.readFile(path.join(chatScriptsPath, chatScript), "utf-8");
-        chatScriptData = JSON.parse(chatScriptData);
-        let code = "";
-        for(let line of chatScriptData.code){
-            code += line + "\n";
-        }
-        await chatScriptClient.createChatScript(chatScriptData.name, code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
+        let chatScriptData = require(path.join(chatScriptsPath, chatScript));
+        await chatScriptClient.createChatScript(chatScriptData.name, chatScriptData.code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
     }
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
