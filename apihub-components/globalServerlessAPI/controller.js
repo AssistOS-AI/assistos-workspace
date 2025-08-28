@@ -148,7 +148,7 @@ async function linkSystemApps(spaceId, applicationsPath, req, server){
 async function createDefaultAgent(request, spaceId){
     let agentClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
     let agent = await agentClient.createDefaultAgent(spaceId);
-    await agentClient.selectLLM(agent.name, "chat", "gpt-4.1-nano", "OpenAI");
+    await agentClient.selectLLM(agent.name, "chat", "gpt-4.1", "OpenAI");
     let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
     let chatScriptsPath = path.join(__dirname, "defaults", "chat-scripts");
     let chatScripts = await fsPromises.readdir(chatScriptsPath);

@@ -42,11 +42,12 @@ async function CodeManager() {
         await fsPromises.writeFile(path.join(appPath, "manifest.json"), JSON.stringify(manifestTemplate, null, 4));
         let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, landingPageName);
         await fsPromises.mkdir(entryComponentPath, {recursive: true});
-        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.html`), constants.HTML_TEMPLATE);
-        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.css`), "");
-        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.js`), constants.PRESENTER_TEMPLATE);
-        let defaultThemePath = `../../globalServerlessAPI/defaults/default-theme.css`;
-        await fsPromises.copyFile(path.join(__dirname, defaultThemePath), path.join(appPath, constants.APP_FOLDERS.THEMES, "default-theme.css"));
+        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.html`), constants.LANDING_HTML);
+        //await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.css`), "");
+        await fsPromises.writeFile(path.join(entryComponentPath, `${landingPageName}.js`), constants.LANDING_PRESENTER);
+        let defaultThemePath = path.join(__dirname, `../../globalServerlessAPI/defaults/default-theme.css`);
+        await fsPromises.copyFile(defaultThemePath, path.join(appPath, constants.APP_FOLDERS.THEMES, "default-theme.css"));
+        await fsPromises.copyFile(defaultThemePath, path.join(entryComponentPath, `${landingPageName}.css`));
         await git.createAndPublishRepo(appName, appPath, "", false);
         return appName;
     }
@@ -240,6 +241,20 @@ async function CodeManager() {
         let appPath = getAppPath(appName);
         let status = await git.pull(appPath);
         return status;
+    }
+    self.changeAppTheme = async function(appName, theme){
+        let appPath = getAppPath(appName);
+        let themePath = path.join(appPath, constants.APP_FOLDERS.THEMES, `${theme}.css`);
+        let manifestPath = path.join(appPath, "manifest.json");
+        let manifest = await fsPromises.readFile(manifestPath, 'utf8');
+        manifest = JSON.parse(manifest);
+        manifest.theme = theme;
+
+        await fsPromises.writeFile(manifestPath, JSON.stringify(manifest, null, 4));
+
+        let entryComponentPath = path.join(appPath, constants.APP_FOLDERS.WEB_COMPONENTS, manifest.entryPoint);
+        //overwrites landing page css
+        await fsPromises.copyFile(themePath, path.join(entryComponentPath, `${manifest.entryPoint}.css`));
     }
     self.getPublicMethods = function () {
         return []
