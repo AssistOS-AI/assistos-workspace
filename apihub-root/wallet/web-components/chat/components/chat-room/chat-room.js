@@ -8,9 +8,9 @@ export class ChatRoom {
         this.invalidate = invalidate;
         this.agentOn = true;
         this.ongoingStreams = new Map();
-        this.observedElement = null;
         this.spaceId = this.element.getAttribute('data-space-id');
         this.userHasScrolledManually = false;
+        this.isProgrammaticScroll = false;
         this.invalidate();
     }
 
@@ -61,6 +61,8 @@ export class ChatRoom {
             if (reply.from === "User") {
                 this.chatHistory.push(reply);
                 await this.displayUserReply(reply.truid, assistOS.user.email);
+                this.userHasScrolledManually = false;
+                this.scrollToBottom();
                 return;
             }
             if(this.chatPagePresenter.handleReply){
@@ -70,10 +72,12 @@ export class ChatRoom {
             if (existingReply) {
                 let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
                 chatItem.webSkelPresenter.updateReply(reply.message);
+                this.scrollToBottom();
                 return;
             }
             this.chatHistory.push(reply);
             await this.displayAgentReply(reply.truid);
+            this.scrollToBottom();
         });
 
         observableResponse.onError(async (error) => {
@@ -88,9 +92,10 @@ export class ChatRoom {
         this.userInput.addEventListener("keydown", this.preventRefreshOnEnter.bind(this, this.form));
         this.toggleAgentButton = this.element.querySelector("#toggleAgentResponse");
         this.conversation.addEventListener('scroll', () => {
-            const threshold = 300;
-            const distanceFromBottom = this.conversation.scrollHeight - this.conversation.scrollTop - this.conversation.clientHeight;
-            this.userHasScrolledManually = distanceFromBottom > threshold;
+            if (this.isProgrammaticScroll) { return; }
+            const threshold = 5; // pixels from bottom
+            const isAtBottom = this.conversation.scrollHeight - this.conversation.scrollTop - this.conversation.clientHeight < threshold;
+            this.userHasScrolledManually = !isAtBottom;
         });
         this.chatActionButtonContainer = this.element.querySelector("#actionButtonContainer");
         this.maxHeight = 500;
@@ -105,7 +110,6 @@ export class ChatRoom {
             form.overflowY = this.scrollHeight > maxHeight ? "auto" : "hidden";
         });
 
-        this.initObservers();
     }
 
     async preventRefreshOnEnter(form, event) {
@@ -149,63 +153,32 @@ export class ChatRoom {
     async displayUserReply(replyId, userEmail) {
         const messageHTML = `<chat-item data-id="${replyId}" user-email="${userEmail}" spaceId="${this.spaceId}" ownMessage="true" data-presenter="chat-item" data-last-item="true"></chat-item>`;
         this.conversation.insertAdjacentHTML("beforeend", messageHTML);
-        const lastReplyElement = this.conversation.lastElementChild;
-        await this.observerElement(lastReplyElement);
-        await chatUtils.waitForElement(lastReplyElement, '.message');
-        return lastReplyElement;
+        return await chatUtils.waitForElement(this.conversation.lastElementChild, '.message');
     }
 
-    observerElement(element) {
-        if (this.observedElement) {
-            this.intersectionObserver.unobserve(this.observedElement);
+    scrollToBottom() {
+        if (this.userHasScrolledManually) {
+            return;
         }
-        this.observedElement = element;
-        if (element) {
-            this.intersectionObserver.observe(element);
-        }
+        this.isProgrammaticScroll = true;
+        this.conversation.scrollTo({ top: this.conversation.scrollHeight, behavior: 'smooth' });
+        setTimeout(() => {
+            this.isProgrammaticScroll = false;
+        }, 400); // Corresponds to smooth scroll duration
     }
 
-    async handleNewChatStreamedItem(element) {
-        this.observerElement(element);
-        const presenterElement = element.closest('chat-item');
-        this.ongoingStreams.set(presenterElement, true);
+    startStreaming(element) {
+        this.ongoingStreams.set(element, true);
         this.changeStopEndStreamButtonVisibility(true);
-    }
-
-    initObservers() {
-        this.intersectionObserver = new IntersectionObserver(entries => {
-            for (let entry of entries) {
-                if (entry.target === this.observedElement) {
-                    if (entry.intersectionRatio < 1) {
-                        if (!this.userHasScrolledManually) {
-                            this.conversation.scrollTo({
-                                top: this.conversation.scrollHeight + 100,
-                                behavior: 'auto'
-                            });
-                        }
-                    } else {
-                        this.userHasScrolledManually = false;
-                    }
-                }
-            }
-        }, {
-            root: this.conversation,
-            threshold: 1
-        });
     }
 
     changeStopEndStreamButtonVisibility(visible) {
         this.chatActionButtonContainer.innerHTML = visible ? chatUtils.stopStreamActionButtonHTML : chatUtils.sendMessageActionButtonHTML
     }
 
-    async addressEndStream(element) {
+    endStreaming(element) {
         this.ongoingStreams.delete(element);
-
-        if (this.observedElement === element) {
-            this.intersectionObserver.unobserve(element);
-        }
         if (this.ongoingStreams.size === 0) {
-            this.observerElement()
             this.changeStopEndStreamButtonVisibility(false);
         }
     }

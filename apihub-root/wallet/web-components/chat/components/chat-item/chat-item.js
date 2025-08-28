@@ -49,7 +49,7 @@ export class ChatItem {
         if (this.actionData) {
             let encodedData = assistOS.UI.sanitize(JSON.stringify(this.actionData));
             this.actionContent = `<div class="action-content"><pre>${encodedData}</pre></div>`;
-            this.expandToggle = `<div class="expand-toggle" data-local-action="toggleExpand">View More...</div>`;
+            this.expandToggle = `<div class="expand-toggle" data-local-action="toggleExpand">View Code...</div>`;
         }
 
         if (this.ownMessage === "false") {
@@ -86,7 +86,7 @@ export class ChatItem {
     async handleStartStream(endController) {
         this.endStreamController = endController;
         this.stopStreamButton.style.display = "flex";
-        await this.chatPagePresenter.handleNewChatStreamedItem(this.messageElement);
+        this.chatPagePresenter.startStreaming(this.element);
     }
     updateReply(message) {
         let messageElement = this.element.querySelector(".message");
@@ -95,7 +95,7 @@ export class ChatItem {
 
     async handleEndStream() {
         this.stopStreamButton.style.display = "none";
-        await this.chatPagePresenter.addressEndStream(this.element);
+        this.chatPagePresenter.endStreaming(this.element);
     }
 
     async stopResponseStream() {
@@ -114,22 +114,15 @@ export class ChatItem {
             
             if (this.isExpanded) {
                 actionContent.style.display = "block";
-                expandToggle.textContent = "View Less...";
+                expandToggle.textContent = "Hide Code...";
             } else {
                 actionContent.style.display = "none";
-                expandToggle.textContent = "View More...";
+                expandToggle.textContent = "View Code...";
             }
         }
     }
 
     async afterRender() {
-        if (this.element.getAttribute('data-last-item') === "true") {
-            setTimeout(() => {
-                const container = this.element.parentElement;
-                container.scrollTo({top: container.scrollHeight, behavior: "instant"});
-            }, 100);
-
-        }
         if (this.isContext === "true") {
             this.element.classList.add('context-message')
         }

@@ -14,7 +14,29 @@ chat-room {
     flex-direction:column;
     overflow-y: scroll;
     height: 100%;
+    /* Make scrollbar visible */
+    scrollbar-width: auto; /* For Firefox */
+    -ms-overflow-style: auto; /* For IE/Edge */
 }
+
+.conversation::-webkit-scrollbar {
+    display: block; /* For Chrome, Safari, and Opera */
+    width: 8px;
+}
+
+.conversation::-webkit-scrollbar-track {
+    background: var(--option-hover, #f1f1f1);
+}
+
+.conversation::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+
+.conversation::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
 .chat-input-container {
     background-color: var(--application-marketplace-border);
     justify-content: space-between;
