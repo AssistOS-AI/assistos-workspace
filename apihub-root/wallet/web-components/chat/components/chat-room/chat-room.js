@@ -71,7 +71,7 @@ export class ChatRoom {
             let existingReply = this.chatHistory.find(msg => msg.truid === reply.truid);
             if (existingReply) {
                 let chatItem = this.conversation.querySelector(`chat-item[data-id="${reply.truid}"]`);
-                chatItem.webSkelPresenter.updateReply(reply.message);
+                chatItem.webSkelPresenter.updateReply(reply);
                 this.scrollToBottom();
                 return;
             }

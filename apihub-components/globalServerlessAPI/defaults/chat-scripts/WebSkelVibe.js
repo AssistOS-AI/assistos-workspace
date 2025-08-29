@@ -65,10 +65,28 @@ context.upsert system $webskelPrompt "" system
 @UIContext := ""
 @addContext macro ~context contextData
     context.upsert system $contextData "" system
+end
+@parseAgentReply jsdef reply
+    if(reply.role !== "ai"){
+        return reply;
+    }
+    try{
+        let actionMessage = JSON.parse(reply.message);
+        if(!actionMessage.action || !actionMessage.message){
+            return reply;
+        } else {
+            let replyClone = structuredClone(reply);
+            replyClone.message = actionMessage.message;
+            return replyClone;
+        }
+    } catch(e){
+        return reply;
+    }
 end 
 @newReply macro reply ~history ~context ~chat ~assistant
     @res history.upsert $reply
-    context.upsert $res
+    @contextReply parseAgentReply $res
+    context.upsert $contextReply
     chat.notify $res
     return $res
 end`,

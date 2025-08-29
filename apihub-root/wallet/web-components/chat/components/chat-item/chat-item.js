@@ -40,17 +40,8 @@ export class ChatItem {
         let agentName = this.element.getAttribute("agent-name");
         this.id = this.element.getAttribute("data-id");
         this.spaceId = this.element.getAttribute("spaceId");
-        this.isContext = this.element.getAttribute("isContext");
-        
+
         this.isExpanded = false;
-        this.actionContent = "";
-        this.expandToggle = "";
-        
-        if (this.actionData) {
-            let encodedData = assistOS.UI.sanitize(JSON.stringify(this.actionData));
-            this.actionContent = `<div class="action-content"><pre>${encodedData}</pre></div>`;
-            this.expandToggle = `<div class="expand-toggle" data-local-action="toggleExpand">View Code...</div>`;
-        }
 
         if (this.ownMessage === "false") {
             this.messageTypeBox = "others-box";
@@ -70,14 +61,6 @@ export class ChatItem {
         }
     }
 
-    async addToLocalContext(_target) {
-        await this.chatPagePresenter.addToLocalContext(this.id, this.element)
-    }
-
-    async addToGlobalContext(_target) {
-        await this.chatPagePresenter.addToGlobalContext(this)
-    }
-
     async copyMessage(eventTarget) {
         let message = this.element.querySelector(".message").innerText;
         await navigator.clipboard.writeText(message);
@@ -88,9 +71,24 @@ export class ChatItem {
         this.stopStreamButton.style.display = "flex";
         this.chatPagePresenter.startStreaming(this.element);
     }
-    updateReply(message) {
+    updateReply(reply) {
         let messageElement = this.element.querySelector(".message");
-        messageElement.innerHTML = marked.parse(decodeHTML(message));
+        try {
+            let actionMessage = JSON.parse(decodeHTML(reply.message))
+            if(!actionMessage.action){
+                this.chatMessage = marked.parse(decodeHTML(reply.message));
+            } else {
+                this.chatMessage = marked.parse(decodeHTML(actionMessage.message));
+                this.actionData = actionMessage.action;
+            }
+        }catch (e) {
+            this.chatMessage = marked.parse(decodeHTML(reply.message));
+        }
+        messageElement.innerHTML = this.chatMessage;
+        if (this.actionData) {
+            const expandToggle = this.element.querySelector(".expand-toggle");
+            expandToggle.classList.remove("hidden");
+        }
     }
 
     async handleEndStream() {
@@ -107,24 +105,23 @@ export class ChatItem {
     
     async toggleExpand() {
         const actionContent = this.element.querySelector(".action-content");
+        actionContent.innerHTML = assistOS.UI.sanitize(JSON.stringify(this.actionData));
         const expandToggle = this.element.querySelector(".expand-toggle");
-        
-        if (actionContent && expandToggle) {
-            this.isExpanded = !this.isExpanded;
-            
-            if (this.isExpanded) {
-                actionContent.style.display = "block";
-                expandToggle.textContent = "Hide Code...";
-            } else {
-                actionContent.style.display = "none";
-                expandToggle.textContent = "View Code...";
-            }
+        this.isExpanded = !this.isExpanded;
+
+        if (this.isExpanded) {
+            actionContent.style.display = "block";
+            expandToggle.textContent = "Hide Code...";
+        } else {
+            actionContent.style.display = "none";
+            expandToggle.textContent = "View Code...";
         }
     }
 
     async afterRender() {
-        if (this.isContext === "true") {
-            this.element.classList.add('context-message')
+        if (this.actionData) {
+            const expandToggle = this.element.querySelector(".expand-toggle");
+            expandToggle.classList.remove("hidden");
         }
         if (this.ownMessage) {
             this.stopStreamButton = this.element.querySelector(".stop-stream-button");
