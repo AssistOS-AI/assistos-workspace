@@ -26,6 +26,7 @@ export class LandingPresenter {
         WEB_COMPONENTS: "web-components",
         BACKEND_PLUGINS: "backend-plugins",
         DOCUMENT_PLUGINS: "document-plugins",
-        THEMES: "themes"
+        THEMES: "themes",
+        CHAT_SCRIPTS: "chat-scripts"
     }
 }

@@ -127,7 +127,6 @@ async function Application() {
             throw new Error("Failed to clone application repository " + error.message);
         }
         const manifestPath = self.getApplicationManifestPath(application.name);
-
         let manifestContent, manifest;
         try {
             manifestContent = await fsPromises.readFile(manifestPath, 'utf8');
@@ -149,22 +148,6 @@ async function Application() {
                     }
                 } else {
                     await fn(value);
-                }
-            }
-        }
-
-        const copyDir = async (src, dest) => {
-            await fsPromises.mkdir(dest, { recursive: true })
-            const entries = await fsPromises.readdir(src, { withFileTypes: true })
-
-            for (const entry of entries) {
-                const srcPath = path.join(src, entry.name)
-                const destPath = path.join(dest, entry.name)
-
-                if (entry.isDirectory()) {
-                    await copyDir(srcPath, destPath)
-                } else {
-                    await fsPromises.copyFile(srcPath, destPath)
                 }
             }
         }

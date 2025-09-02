@@ -95,6 +95,8 @@ async function createSpace(request, response, server) {
         await fsPromises.mkdir(persistenceStorage, {recursive: true});
         let applicationsPath = path.join(serverlessAPIStorage, "applications");
         await fsPromises.mkdir(applicationsPath, {recursive: true});
+        let chatScriptsPath = path.join(serverlessAPIStorage, "chat-scripts");
+        await fsPromises.mkdir(chatScriptsPath, {recursive: true});
 
         await createSpacePlugins(pluginsStorage);
 
@@ -122,10 +124,11 @@ async function createSpace(request, response, server) {
 
         await workspaceUser.createUser(email, email, "admin");
 
+        await linkSystemApps(space.id, applicationsPath, request, server);
+
         let chatId = await createDefaultAgent(request, space.id);
         await workspaceClient.setCurrentChatId(space.id, chatId);
 
-        await linkSystemApps(space.id, applicationsPath, request, server);
         await secrets.addSpaceEnvVarsSecrets(space.id, envVars);
         utils.sendResponse(response, 200, "text/plain", space.id, cookie.createCurrentSpaceCookie(space.id));
     } catch (error) {
@@ -149,21 +152,14 @@ async function createDefaultAgent(request, spaceId){
     let agentClient = await getAPIClient(request, constants.AGENT_PLUGIN, spaceId);
     let agent = await agentClient.createDefaultAgent(spaceId);
     await agentClient.selectLLM(agent.name, "chat", "gpt-4.1", "OpenAI");
-    let chatScriptClient = await getAPIClient(request, constants.CHAT_SCRIPT_PLUGIN, spaceId);
-    let chatScriptsPath = path.join(__dirname, "defaults", "chat-scripts");
-    let chatScripts = await fsPromises.readdir(chatScriptsPath);
-    for(let chatScript of chatScripts){
-        let chatScriptData = require(path.join(chatScriptsPath, chatScript));
-        await chatScriptClient.createChatScript(chatScriptData.name, chatScriptData.code, chatScriptData.description, chatScriptData.components, chatScriptData.role);
-    }
 
     let chatAPIClient = await getAPIClient(request, constants.CHAT_ROOM_PLUGIN, spaceId);
     let chatId = `${agent.name}_Chat`;
-    await chatAPIClient.createChat(request.email, chatId, "DefaultScript", ["User", "Assistant"]);
+    await chatAPIClient.createChat(request.email, chatId, "AchillesIDE", "DefaultChatScript", ["User", "Assistant"]);
     return chatId;
 }
-function getRedirectCodeESModule(pluginName){
-    return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginName}.js");
+function getRedirectCodeESModule(pluginWithExt){
+    return `const pluginPromise = import("../../../../../apihub-components/soplang/plugins/${pluginWithExt}");
 
 module.exports = {
     getAllow: async (...args) => {
@@ -186,12 +182,16 @@ async function createSpacePlugins(pluginsStorage){
         const pluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/workspacePlugins/${plugin}")`;
         await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "ChatRoom", "ChatScript", "Table"];
+    let soplangPlugins = await fsPromises.readdir("../apihub-components/soplang/plugins");
+    //let soplangPlugins = ["Agent", "WorkspaceUser", "Documents", "Workspace", "LLM", "ChatRoom", "ChatScript", "Table"];
     for(let plugin of soplangPlugins){
+        if(plugin === "StandardPersistence.js"){
+            continue;
+        }
         const pluginRedirect = getRedirectCodeESModule(plugin);
-        await fsPromises.writeFile(`${pluginsStorage}/${plugin}.js`, pluginRedirect);
+        await fsPromises.writeFile(`${pluginsStorage}/${plugin}`, pluginRedirect);
     }
-    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistence`);
+    const pluginRedirect3 = getRedirectCodeESModule(`StandardPersistence.js`);
     await fsPromises.writeFile(`${pluginsStorage}/DefaultPersistence.js`, pluginRedirect3);
 
     const emailPluginRedirect = `module.exports = require("../../../../../apihub-components/globalServerlessAPI/plugins/EmailPlugin.js")`;
