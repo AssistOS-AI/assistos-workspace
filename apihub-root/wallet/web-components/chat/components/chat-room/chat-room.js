@@ -312,6 +312,10 @@ export class ChatRoom {
         this.element.setAttribute('data-chatId', chatId);
         this.invalidate();
     }
+    async resetChat(){
+        await chatModule.resetChatRoom(this.spaceId, this.chatId);
+        this.invalidate();
+    }
 
     async afterUnload() {
         await chatModule.stopListeningForMessages(this.spaceId, this.chatId);
