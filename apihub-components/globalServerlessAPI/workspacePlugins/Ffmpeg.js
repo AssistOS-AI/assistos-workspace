@@ -3,8 +3,8 @@ const {execFile, spawn} = require("child_process");
 const execFileAsync = promisify(execFile);
 const path = require("path");
 const {promises: fsPromises} = require("fs");
-const ffmpegPath = require("../../../ffmpeg/packages/ffmpeg-static");
-const ffprobePath = require("../../../ffmpeg/packages/ffprobe-static");
+// const ffmpegPath = require("../../../ffmpeg/packages/ffmpeg-static");
+// const ffprobePath = require("../../../ffmpeg/packages/ffprobe-static");
 const {Readable} = require("stream");
 const {once} = require("events");
 

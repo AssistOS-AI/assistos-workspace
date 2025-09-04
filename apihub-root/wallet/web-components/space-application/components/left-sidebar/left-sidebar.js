@@ -192,10 +192,6 @@ export class LeftSidebar {
     async startApplication(_target, appName) {
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
-        let app = assistOS.initialisedApplications[appName];
-        if(!app.systemApp){
-            location.reload();
-        }
     }
 
     toggleTheme(_target) {
