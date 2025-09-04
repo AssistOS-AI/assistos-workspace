@@ -30,9 +30,11 @@ After the repository was cloned, you must install all the dependencies.
 ```
 **Note:** this command might take quite some time depending on your internet connection and you machine processing power.
 
+### Step 3: add "SSO_SECRETS_ENCRYPTION_KEY" in env.json with any value
+
 ## Running
 
-### Step 3: Launch the "server"
+### Step 4: Launch the "server"
 
 While in the *AssistOS* folder run:
 
