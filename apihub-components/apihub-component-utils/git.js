@@ -173,6 +173,7 @@ async function createAndPublishRepo(repoName, localPath, description = '', isPri
     const GITHUB_API_BASE_URL = 'api.github.com';
     const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
     let owner = process.env.ORGANISATION_NAME;
+    let gitEmail = process.env.GITHUB_EMAIL;
     if (!GITHUB_TOKEN) {
         throw new Error("GITHUB_TOKEN environment variable is not set.");
     }
@@ -214,7 +215,7 @@ async function createAndPublishRepo(repoName, localPath, description = '', isPri
     await execAsync(`git init`, { cwd: localPath });
     await fsPromises.writeFile(path.join(localPath, 'README.md'), `# ${repoName}\n\n${description}`);
     await execAsync(`git add .`, { cwd: localPath });
-    await execAsync(`git commit -m "Initial commit"`, { cwd: localPath });
+    await execAsync(`git -c user.name="${gitEmail.split('@')[0]}" -c user.email="${gitEmail}" commit -m "Initial commit" `, { cwd: localPath });
     await execAsync(`git branch -M main`, { cwd: localPath });
 
     // 3. Link local to remote and push
@@ -231,6 +232,11 @@ async function createAndPublishRepo(repoName, localPath, description = '', isPri
  * @returns {Promise<{message: string}>} - A confirmation message.
  */
 async function commitAndPush(repoPath, commitMessage) {
+    const gitEmail = process.env.GITHUB_EMAIL;
+    if (!gitEmail) {
+        throw new Error("GITHUB_EMAIL environment variable is not set.");
+    }
+
     try {
         await fsPromises.access(path.join(repoPath, '.git'));
     } catch (e) {
@@ -244,7 +250,7 @@ async function commitAndPush(repoPath, commitMessage) {
     }
 
     await execAsync(`git add .`, { cwd: repoPath });
-    await execAsync(`git commit -m "${commitMessage}"`, { cwd: repoPath });
+    await execAsync(`git -c user.name="${gitEmail.split('@')[0]}" -c user.email="${gitEmail}" commit -m "${commitMessage}"`, { cwd: repoPath });
     await execAsync(`git push`, { cwd: repoPath });
     return { message: "Committed and pushed successfully." };
 }
@@ -255,13 +261,18 @@ async function commitAndPush(repoPath, commitMessage) {
  * @returns {Promise<{stdout: string}>} - The stdout from the pull command.
  */
 async function pull(repoPath) {
+    const gitEmail = process.env.GITHUB_EMAIL;
+    if (!gitEmail) {
+        throw new Error("GITHUB_EMAIL environment variable is not set.");
+    }
+
     try {
         await fsPromises.access(path.join(repoPath, '.git'));
     } catch (e) {
         throw new Error("The specified path is not a Git repository.");
     }
 
-    const { stdout } = await execAsync(`git pull`, { cwd: repoPath });
+    const { stdout } = await execAsync(`git -c user.name="${gitEmail.split('@')[0]}" -c user.email="${gitEmail}" pull`, { cwd: repoPath });
     return { stdout };
 }
 
