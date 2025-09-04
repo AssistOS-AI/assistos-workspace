@@ -17,8 +17,8 @@ export class LandingPresenter {
         }
     }
     async navigateInternal(targetElement, pageName){
-         const pageUrl = assistOS.space.id + "/" + $$appName + "/" + pageName;
-         await assistOS.UI.changeToDynamicPage($$landingPageName, pageUrl);
+         const pageUrl = assistOS.space.id + "/" + "$$appName" + "/" + pageName;
+         await assistOS.UI.changeToDynamicPage("$$landingPageName", pageUrl);
     }
 }`,
     LANDING_HTML : `<$$currentPage data-presenter="$$currentPage"></$$currentPage>`,
