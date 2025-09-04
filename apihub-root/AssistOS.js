@@ -423,8 +423,8 @@ function closeDefaultLoader() {
     window.assistOS = new AssistOS(configuration);
     await assistOS.boot();
 
-    assistOS.navigateToPage = function (page) {
-        assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
+    assistOS.navigateToPage = async function (page) {
+        await assistOS.UI.changeToDynamicPage("space-application-page", `${assistOS.space.id}/Space/${page}`);
     }
     assistOS.UI.setLoading(loader);
     assistOS.UI.setDomElementForPages(document.querySelector("#page-content"));

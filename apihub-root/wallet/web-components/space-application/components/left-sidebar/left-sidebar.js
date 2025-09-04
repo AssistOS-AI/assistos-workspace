@@ -138,8 +138,12 @@ export class LeftSidebar {
         changeSelectedPageFromSidebar(window.location.hash);
     }
 
-    toggleChat(_target, mode) {
+    async toggleChat(_target, mode) {
         const chatPage = document.querySelector("chat-page");
+        if(!chatPage){
+            await assistOS.navigateToPage("documents-page");
+            changeSelectedPageFromSidebar(window.location.hash);
+        }
         let chatPresenter = chatPage.webSkelPresenter;
         let chatState = localStorage.getItem("chatState");
         if (chatState === "minimized") {
@@ -188,6 +192,10 @@ export class LeftSidebar {
     async startApplication(_target, appName) {
         await assistOS.startApplication(appName);
         changeSelectedPageFromSidebar(window.location.hash);
+        let app = assistOS.initialisedApplications[appName];
+        if(!app.systemApp){
+            location.reload();
+        }
     }
 
     toggleTheme(_target) {
