@@ -18,18 +18,21 @@ async function WebAssistant() {
     })
     await persistence.createIndex("webAssistant", "alias");
 
-    self.createWebAssistant = async function (){
+    self.createWebAssistant = async function () {
         await persistence.createWebAssistant({
-                alias: WEB_ASSISTANT_ALIAS,
-                header: "",
-                footer: "",
-                agentName: "Assistant",
-                authentication: "existingSpaceMembers",
+            alias: WEB_ASSISTANT_ALIAS,
+            header: "",
+            footer: "",
+            agentName: "Assistant",
+            authentication: "existingSpaceMembers",
         });
     }
 
     self.getWebAssistant = async function () {
-        const webAssistant = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS);
+        let webAssistant = await persistence.getWebAssistant(WEB_ASSISTANT_ALIAS, true);
+        if (!webAssistant) {
+            webAssistant = await self.createWebAssistant();
+        }
         return webAssistant;
     }
 
