@@ -52,16 +52,12 @@
         },
         {
             "name": "opendsu-sdk",
-            "src": "http://github.com/opendsu/opendsu-sdk.git",
+            "src": "http://github.com/opendsu/opendsu-releases.git",
             "actions": [
                 {
                     "type": "smartClone",
                     "target": ".",
                     "collectLog": false
-                },
-                {
-                    "type": "execute",
-                    "cmd": "cd opendsu-sdk && npm install"
                 },
                 {
                     "type": "copy",
